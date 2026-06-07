@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { cn, relativeTime } from "@/lib/utils";
 import {
@@ -33,6 +34,8 @@ function MetaRow({
   label: string;
   children: React.ReactNode;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-[10rem_1fr] gap-x-3 gap-y-0 py-1 text-xs sm:grid-cols-[12rem_1fr]">
       <dt className="truncate text-[11px] font-medium uppercase tracking-[0.08em] text-emerald-900/70 dark:text-emerald-200/70">
@@ -48,6 +51,8 @@ export function SourceResolvedFoldCallout({
   finalizedAt,
   className,
 }: SourceResolvedFoldCalloutProps) {
+const { t } = useTranslation();
+
   const sourceLabel = fold.sourceIssueIdentifier ?? fold.sourceIssueId.slice(0, 8);
   const evidenceShort = shortenEvidenceId(fold.sameRunEvidenceId);
   const evidenceAt = isoOrLocaleString(fold.sameRunEvidenceAt);
@@ -60,7 +65,7 @@ export function SourceResolvedFoldCallout({
   return (
     <section
       role="status"
-      aria-label="Source-resolved watchdog fold"
+      aria-label={t("components.sourceresolvedfoldcallout.source_resolved_watchdog_fold.attr_aria-label", { defaultValue: "Source-resolved watchdog fold" })}
       data-source-resolved-fold
       className={cn(
         "relative w-full overflow-hidden rounded-lg border text-sm shadow-[0_1px_0_rgba(15,23,42,0.02)]",
@@ -81,11 +86,10 @@ export function SourceResolvedFoldCallout({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.14em]">
-            <span className="text-emerald-900 dark:text-emerald-200">SOURCE-RESOLVED FOLD</span>
+            <span className="text-emerald-900 dark:text-emerald-200">{t("components.sourceresolvedfoldcallout.source_resolved_fold.jsx-text", { defaultValue: "SOURCE-RESOLVED FOLD" })}</span>
             <span className="text-muted-foreground/60" aria-hidden>·</span>
             <span className="font-medium normal-case tracking-normal text-muted-foreground">
-              system audit
-            </span>
+              {t("components.sourceresolvedfoldcallout.system_audit.jsx-text", { defaultValue: "\n              system audit\n            " })}</span>
             {finalizedRelative ? (
               <>
                 <span className="text-muted-foreground/60" aria-hidden>·</span>
@@ -96,8 +100,7 @@ export function SourceResolvedFoldCallout({
             ) : null}
           </div>
           <p className="mt-1 text-[14px] leading-6">
-            This run was folded as a source-resolved false positive.
-          </p>
+            {t("components.sourceresolvedfoldcallout.this_run_was_folded_as_a_source_.jsx-text", { defaultValue: "\n            This run was folded as a source-resolved false positive.\n          " })}</p>
         </div>
       </header>
       <dl
@@ -107,7 +110,7 @@ export function SourceResolvedFoldCallout({
           "[&>*]:border-emerald-300/40 dark:[&>*]:border-emerald-500/20",
         )}
       >
-        <MetaRow label="Source task">
+        <MetaRow label={t("components.sourceresolvedfoldcallout.source_task.attr_label", { defaultValue: "Source task" })}>
           <span className="inline-flex flex-wrap items-center gap-1.5">
             <Link
               to={issueLink(fold.sourceIssueId, fold.sourceIssueIdentifier)}
@@ -120,7 +123,7 @@ export function SourceResolvedFoldCallout({
             </span>
           </span>
         </MetaRow>
-        <MetaRow label="Same-run evidence">
+        <MetaRow label={t("components.sourceresolvedfoldcallout.same_run_evidence.attr_label", { defaultValue: "Same-run evidence" })}>
           <span className="inline-flex flex-wrap items-baseline gap-1.5">
             <span className="rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] text-emerald-900 dark:bg-background/40 dark:text-emerald-100">
               {fold.sameRunEvidenceKind}
@@ -132,23 +135,23 @@ export function SourceResolvedFoldCallout({
               {evidenceShort}
             </code>
             {evidenceAt ? (
-              <span className="text-[11px] text-muted-foreground">at {evidenceAt}</span>
+              <span className="text-[11px] text-muted-foreground">{t("components.sourceresolvedfoldcallout.at.jsx-text", { defaultValue: "at " })}{evidenceAt}</span>
             ) : null}
           </span>
         </MetaRow>
-        <MetaRow label="Silence age before fold">
+        <MetaRow label={t("components.sourceresolvedfoldcallout.silence_age_before_fold.attr_label", { defaultValue: "Silence age before fold" })}>
           {silenceAgeLabel ? (
             <span>
               {silenceAgeLabel}
               {silenceStartedLabel ? (
-                <span className="text-muted-foreground"> (silence started {silenceStartedLabel})</span>
+                <span className="text-muted-foreground"> {t("components.sourceresolvedfoldcallout.silence_started.jsx-text", { defaultValue: " (silence started " })}{silenceStartedLabel})</span>
               ) : null}
             </span>
           ) : (
-            <span className="text-muted-foreground">unknown</span>
+            <span className="text-muted-foreground">{t("components.sourceresolvedfoldcallout.unknown.jsx-text", { defaultValue: "unknown" })}</span>
           )}
         </MetaRow>
-        <MetaRow label="Process cleanup">
+        <MetaRow label={t("components.sourceresolvedfoldcallout.process_cleanup.attr_label", { defaultValue: "Process cleanup" })}>
           <span
             className="inline-flex flex-wrap items-baseline gap-1.5"
             title={fold.cleanup.outcome}
@@ -160,7 +163,7 @@ export function SourceResolvedFoldCallout({
           </span>
         </MetaRow>
         {fold.evaluationIssueId ? (
-          <MetaRow label="Evaluation task">
+          <MetaRow label={t("components.sourceresolvedfoldcallout.evaluation_task.attr_label", { defaultValue: "Evaluation task" })}>
             <Link
               to={issueLink(fold.evaluationIssueId, fold.evaluationIssueIdentifier)}
               className="rounded-sm font-medium underline-offset-2 hover:underline"

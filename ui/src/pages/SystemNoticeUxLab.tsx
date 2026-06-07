@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,8 @@ function LabSection({
   accentClassName?: string;
   children: ReactNode;
 }) {
+const { t } = useTranslation();
+
   return (
     <section
       id={id}
@@ -51,6 +54,8 @@ function LabSection({
 }
 
 function FixtureFrame({ caption, children }: { caption: string; children: ReactNode }) {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -71,6 +76,8 @@ function MockUserBubble({
   body: string;
   alignEnd?: boolean;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className={cn("flex items-start gap-2.5", alignEnd && "justify-end")}>
       {!alignEnd ? (
@@ -101,6 +108,8 @@ function MockUserBubble({
 }
 
 function MockAgentBubble({ agentName, body }: { agentName: string; body: string }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex items-start gap-2.5">
       <Avatar size="sm" className="shrink-0">
@@ -125,6 +134,8 @@ const checklist = [
 ];
 
 export function SystemNoticeUxLab() {
+const { t } = useTranslation();
+
   const fixtureById = new Map(systemNoticeFixtures.map((f) => [f.id, f] as const));
 
   const warningCollapsed = fixtureById.get("warning-collapsed")!;
@@ -142,35 +153,27 @@ export function SystemNoticeUxLab() {
           <div className="p-6 sm:p-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/[0.08] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-700 dark:text-amber-300">
               <FlaskConical className="h-3.5 w-3.5" />
-              System Notice Lab
-            </div>
+              {t("pages.systemnoticeuxlab.system_notice_lab.jsx-text", { defaultValue: "\n              System Notice Lab\n            " })}</div>
             <h1 className="mt-4 text-3xl font-semibold tracking-tight">
-              First-class system notice treatment
-            </h1>
+              {t("pages.systemnoticeuxlab.first_class_system_notice_treatm.jsx-text", { defaultValue: "\n              First-class system notice treatment\n            " })}</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-              Replaces the current pattern where a Paperclip-authored warning renders inside a user-style
-              chat bubble. The notice is one container, system-styled, with hidden-by-default operational
-              metadata. Tone is conveyed by icon, label, and color together so it stays accessible.
-            </p>
+              {t("pages.systemnoticeuxlab.replaces_the_current_pattern_whe.jsx-text", { defaultValue: "\n              Replaces the current pattern where a Paperclip-authored warning renders inside a user-style chat bubble. The notice is one container, system-styled, with hidden-by-default operational metadata. Tone is conveyed by icon, label, and color together so it stays accessible.\n            " })}</p>
 
             <div className="mt-5 flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em]">
                 PAP-3525 plan
               </Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em]">
-                phase 1 — UX
-              </Badge>
+                {t("pages.systemnoticeuxlab.phase_1_ux.jsx-text", { defaultValue: "\n                phase 1 — UX\n              " })}</Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em]">
-                tones: warning · danger · neutral
-              </Badge>
+                {t("pages.systemnoticeuxlab.tones_warning_danger_neutral.jsx-text", { defaultValue: "\n                tones: warning · danger · neutral\n              " })}</Badge>
             </div>
           </div>
 
           <aside className="border-t border-border/60 bg-background/70 p-6 lg:border-l lg:border-t-0">
             <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               <ListChecks className="h-4 w-4 text-amber-700 dark:text-amber-300" />
-              What this lab proves
-            </div>
+              {t("pages.systemnoticeuxlab.what_this_lab_proves.jsx-text", { defaultValue: "\n              What this lab proves\n            " })}</div>
             <div className="space-y-3">
               {checklist.map((line) => (
                 <div
@@ -188,7 +191,7 @@ export function SystemNoticeUxLab() {
       <LabSection
         id="tones"
         eyebrow="Tone matrix"
-        title="Three tones, two states"
+        title={t("pages.systemnoticeuxlab.three_tones_two_states.attr_title", { defaultValue: "Three tones, two states" })}
         description="Each tone pairs a unique icon and tone label so the notice is recognizable without color. Collapsed is the default; the Details affordance reveals operational metadata only when reviewers ask for it."
         accentClassName="bg-[linear-gradient(180deg,rgba(245,158,11,0.05),transparent_28%),var(--background)]"
       >
@@ -220,7 +223,7 @@ export function SystemNoticeUxLab() {
       <LabSection
         id="hierarchy"
         eyebrow="Hierarchy in thread"
-        title="Distinct from user and agent comments"
+        title={t("pages.systemnoticeuxlab.distinct_from_user_and_agent_com.attr_title", { defaultValue: "Distinct from user and agent comments" })}
         description="Side-by-side with adjacent comment types so reviewers can confirm the system row reads as a system row — full width, no avatar gutter, no chat bubble — while user and agent comments keep their existing rounded bubbles."
         accentClassName="bg-[linear-gradient(180deg,rgba(8,145,178,0.05),transparent_28%),var(--background)]"
       >
@@ -236,7 +239,7 @@ export function SystemNoticeUxLab() {
           />
           <SystemNotice
             tone="danger"
-            label="System alert"
+            label={t("pages.systemnoticeuxlab.system_alert.attr_label", { defaultValue: "System alert" })}
             source={{ label: "Paperclip", href: "/PAP/agents" }}
             timestamp="2026-05-04T16:48:00.000Z"
             body="Paperclip could not resolve this issue's missing disposition automatically. The issue is blocked on a recovery owner."
@@ -284,7 +287,7 @@ export function SystemNoticeUxLab() {
       <div className="grid gap-5 xl:grid-cols-2">
         <LabSection
           eyebrow="Before"
-          title="Today's nested treatment"
+          title={t("pages.systemnoticeuxlab.today_s_nested_treatment.attr_title", { defaultValue: "Today's nested treatment" })}
           description="The same content rendered through the existing user-bubble + warning-callout path. Two containers, same gray background as user comments, and the warning icon is forced inside a chat row."
           accentClassName="bg-[linear-gradient(180deg,rgba(244,63,94,0.05),transparent_28%),var(--background)]"
         >
@@ -294,21 +297,21 @@ export function SystemNoticeUxLab() {
                 <AvatarFallback>YO</AvatarFallback>
               </Avatar>
               <div className="flex min-w-0 max-w-[85%] flex-col">
-                <div className="mb-1 px-1 text-sm font-medium text-foreground">You</div>
+                <div className="mb-1 px-1 text-sm font-medium text-foreground">{t("pages.systemnoticeuxlab.you.jsx-text", { defaultValue: "You" })}</div>
                 <div className="min-w-0 max-w-full rounded-2xl bg-muted px-4 py-2.5 text-sm leading-6 text-foreground">
                   <div className="rounded-md border border-red-500/35 bg-red-500/10 px-3 py-2.5 text-sm text-red-950 dark:text-red-100">
                     <div className="flex items-start gap-2">
                       <Sparkles className="mt-1 h-4 w-4 shrink-0 text-red-600 dark:text-red-300" />
                       <div className="min-w-0">
-                        <p className="m-0 font-semibold">Successful run handoff missing</p>
+                        <p className="m-0 font-semibold">{t("pages.systemnoticeuxlab.successful_run_handoff_missing.jsx-text", { defaultValue: "Successful run handoff missing" })}</p>
                         <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[13px] leading-5">
-                          <li>Source issue: PAP-3440</li>
-                          <li>Source run: 9cdba892-c7ca-4d93-8604-4843873b127c</li>
-                          <li>Recovery run: 61fdb79b-8012-4676-ac71-2971830e126a</li>
-                          <li>Status before: in_progress</li>
-                          <li>Normalized cause: Run completed without disposition</li>
-                          <li>Recovery owner: CTO</li>
-                          <li>Suggested action: Reassign to recovery agent</li>
+                          <li>{t("pages.systemnoticeuxlab.source_issue_pap_3440.jsx-text", { defaultValue: "Source issue: PAP-3440" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.source_run_9cdba892_c7ca_4d93_86.jsx-text", { defaultValue: "Source run: 9cdba892-c7ca-4d93-8604-4843873b127c" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.recovery_run_61fdb79b_8012_4676_.jsx-text", { defaultValue: "Recovery run: 61fdb79b-8012-4676-ac71-2971830e126a" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.status_before_in_progress.jsx-text", { defaultValue: "Status before: in_progress" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.normalized_cause_run_completed_w.jsx-text", { defaultValue: "Normalized cause: Run completed without disposition" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.recovery_owner_cto.jsx-text", { defaultValue: "Recovery owner: CTO" })}</li>
+                          <li>{t("pages.systemnoticeuxlab.suggested_action_reassign_to_rec.jsx-text", { defaultValue: "Suggested action: Reassign to recovery agent" })}</li>
                         </ul>
                       </div>
                     </div>
@@ -317,27 +320,21 @@ export function SystemNoticeUxLab() {
               </div>
             </div>
             <p className="px-1 text-xs text-muted-foreground">
-              Author reads as <span className="font-medium text-foreground">You</span> even though the
-              author is the Paperclip system. Two containers stack the warning inside a user-style
-              bubble, and operational evidence is always visible.
-            </p>
+              {t("pages.systemnoticeuxlab.author_reads_as.jsx-text", { defaultValue: "\n              Author reads as " })}<span className="font-medium text-foreground">{t("pages.systemnoticeuxlab.you.jsx-text", { defaultValue: "You" })}</span> {t("pages.systemnoticeuxlab.even_though_the_author_is_the_pa.jsx-text", { defaultValue: " even though the author is the Paperclip system. Two containers stack the warning inside a user-style bubble, and operational evidence is always visible.\n            " })}</p>
           </div>
         </LabSection>
 
         <LabSection
           eyebrow="After"
-          title="System notice replacement"
+          title={t("pages.systemnoticeuxlab.system_notice_replacement.attr_title", { defaultValue: "System notice replacement" })}
           description="One container, system-authored label, hidden details. The chat surface keeps user and agent bubbles unchanged."
           accentClassName="bg-[linear-gradient(180deg,rgba(16,185,129,0.05),transparent_28%),var(--background)]"
         >
           <div className="space-y-3 rounded-2xl border border-border/70 bg-background/70 p-4">
             <SystemNotice {...dangerCollapsed} />
             <p className="px-1 text-xs text-muted-foreground">
-              Same content. The visible body is one short system sentence; reviewers expand{" "}
-              <span className="font-medium text-foreground">Details</span> only when they need run
-              evidence. Tone is reinforced by the octagon icon and the &quot;System alert&quot; label,
-              not just red.
-            </p>
+              {t("pages.systemnoticeuxlab.same_content_the_visible_body_is.jsx-text", { defaultValue: "\n              Same content. The visible body is one short system sentence; reviewers expand" })}{" "}
+              <span className="font-medium text-foreground">{t("pages.systemnoticeuxlab.details.jsx-text", { defaultValue: "Details" })}</span> {t("pages.systemnoticeuxlab.only_when_they_need_run_evidence.jsx-text", { defaultValue: " only when they need run evidence. Tone is reinforced by the octagon icon and the &quot;System alert&quot; label, not just red.\n            " })}</p>
           </div>
         </LabSection>
       </div>
@@ -346,54 +343,48 @@ export function SystemNoticeUxLab() {
         <CardHeader className="px-5 pt-5 pb-0">
           <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             <Layers className="h-4 w-4 text-amber-700 dark:text-amber-300" />
-            Implementation notes
-          </div>
-          <CardTitle className="text-lg">Handoff to engineering</CardTitle>
+            {t("pages.systemnoticeuxlab.implementation_notes.jsx-text", { defaultValue: "\n            Implementation notes\n          " })}</div>
+          <CardTitle className="text-lg">{t("pages.systemnoticeuxlab.handoff_to_engineering.jsx-text", { defaultValue: "Handoff to engineering" })}</CardTitle>
           <CardDescription>
-            What the Phase 4 UI implementation should preserve from this design.
-          </CardDescription>
+            {t("pages.systemnoticeuxlab.what_the_phase_4_ui_implementati.jsx-text", { defaultValue: "\n            What the Phase 4 UI implementation should preserve from this design.\n          " })}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 px-5 pb-5 pt-0 text-sm text-muted-foreground">
           <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
-            <div className="mb-1 font-medium text-foreground">Component</div>
-            Use <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{`<SystemNotice />`}</code>{" "}
-            from <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">@/components/SystemNotice</code>.
-            It accepts <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">tone</code>,{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">label</code>,{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">body</code>,{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">metadata</code>, and{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">detailsDefaultOpen</code>.
+            <div className="mb-1 font-medium text-foreground">{t("pages.systemnoticeuxlab.component.jsx-text", { defaultValue: "Component" })}</div>
+            {t("pages.systemnoticeuxlab.use.jsx-text", { defaultValue: "\n            Use " })}<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{`<SystemNotice />`}</code>{" "}
+            {t("pages.systemnoticeuxlab.from.jsx-text", { defaultValue: "\n            from " })}<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.components_systemnotice.jsx-text", { defaultValue: "@/components/SystemNotice" })}</code>{t("pages.systemnoticeuxlab.it_accepts.jsx-text", { defaultValue: ". It accepts " })}<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.tone.jsx-text", { defaultValue: "tone" })}</code>,{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.label.jsx-text", { defaultValue: "label" })}</code>,{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.body.jsx-text", { defaultValue: "body" })}</code>,{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.metadata.jsx-text", { defaultValue: "metadata" })}</code>{t("pages.systemnoticeuxlab.and.jsx-text", { defaultValue: ", and" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.detailsdefaultopen.jsx-text", { defaultValue: "detailsDefaultOpen" })}</code>.
           </div>
           <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
-            <div className="mb-1 font-medium text-foreground">Routing in IssueChatThread</div>
-            Comments where{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">authorType === &quot;system&quot;</code>{" "}
-            or{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">presentation.kind === &quot;system_notice&quot;</code>{" "}
-            should render as a SystemNotice row at full content width — never inside an{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">IssueChatUserMessage</code>{" "}
-            or assistant bubble.
-          </div>
+            <div className="mb-1 font-medium text-foreground">{t("pages.systemnoticeuxlab.routing_in_issuechatthread.jsx-text", { defaultValue: "Routing in IssueChatThread" })}</div>
+            {t("pages.systemnoticeuxlab.comments_where.jsx-text", { defaultValue: "\n            Comments where" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.authortype_quot_system_quot.jsx-text", { defaultValue: "authorType === &quot;system&quot;" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.or.jsx-text", { defaultValue: "\n            or" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.presentation_kind_quot_system_no.jsx-text", { defaultValue: "presentation.kind === &quot;system_notice&quot;" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.should_render_as_a_systemnotice_.jsx-text", { defaultValue: "\n            should render as a SystemNotice row at full content width — never inside an" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.issuechatusermessage.jsx-text", { defaultValue: "IssueChatUserMessage" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.or_assistant_bubble.jsx-text", { defaultValue: "\n            or assistant bubble.\n          " })}</div>
           <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
-            <div className="mb-1 font-medium text-foreground">Accessibility</div>
-            The Details button has{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">aria-expanded</code>{" "}
-            and{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">aria-controls</code>{" "}
-            wired to the panel id. The container exposes{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">role=&quot;status&quot;</code>{" "}
-            and an{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">aria-label</code>{" "}
-            equal to the visible tone label so screen readers announce tone with text.
-          </div>
+            <div className="mb-1 font-medium text-foreground">{t("pages.systemnoticeuxlab.accessibility.jsx-text", { defaultValue: "Accessibility" })}</div>
+            {t("pages.systemnoticeuxlab.the_details_button_has.jsx-text", { defaultValue: "\n            The Details button has" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.aria_expanded.jsx-text", { defaultValue: "aria-expanded" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.and.jsx-text", { defaultValue: "\n            and" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.aria_controls.jsx-text", { defaultValue: "aria-controls" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.wired_to_the_panel_id_the_contai.jsx-text", { defaultValue: "\n            wired to the panel id. The container exposes" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.role_quot_status_quot.jsx-text", { defaultValue: "role=&quot;status&quot;" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.and_an.jsx-text", { defaultValue: "\n            and an" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.aria_label.jsx-text", { defaultValue: "aria-label" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.equal_to_the_visible_tone_label_.jsx-text", { defaultValue: "\n            equal to the visible tone label so screen readers announce tone with text.\n          " })}</div>
           <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
-            <div className="mb-1 font-medium text-foreground">Legacy fallback</div>
-            Existing comments without{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">presentation</code>{" "}
-            keep rendering through the current{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">SuccessfulRunHandoffCommentCallout</code>{" "}
-            string-detector. The new contract is opt-in for the system generators in Phase 5.
-          </div>
+            <div className="mb-1 font-medium text-foreground">{t("pages.systemnoticeuxlab.legacy_fallback.jsx-text", { defaultValue: "Legacy fallback" })}</div>
+            {t("pages.systemnoticeuxlab.existing_comments_without.jsx-text", { defaultValue: "\n            Existing comments without" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.presentation.jsx-text", { defaultValue: "presentation" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.keep_rendering_through_the_curre.jsx-text", { defaultValue: "\n            keep rendering through the current" })}{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[12px]">{t("pages.systemnoticeuxlab.successfulrunhandoffcommentcallo.jsx-text", { defaultValue: "SuccessfulRunHandoffCommentCallout" })}</code>{" "}
+            {t("pages.systemnoticeuxlab.string_detector_the_new_contract.jsx-text", { defaultValue: "\n            string-detector. The new contract is opt-in for the system generators in Phase 5.\n          " })}</div>
         </CardContent>
       </Card>
     </div>

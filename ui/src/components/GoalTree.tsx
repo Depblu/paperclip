@@ -1,4 +1,5 @@
 import type { Goal } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { StatusBadge } from "./StatusBadge";
 import { ChevronRight } from "lucide-react";
@@ -21,6 +22,8 @@ interface GoalNodeProps {
 }
 
 function GoalNode({ goal, children, allGoals, depth, goalLink, onSelect }: GoalNodeProps) {
+const { t } = useTranslation();
+
   const [expanded, setExpanded] = useState(true);
   const hasChildren = children.length > 0;
   const link = goalLink?.(goal);
@@ -92,11 +95,13 @@ function GoalNode({ goal, children, allGoals, depth, goalLink, onSelect }: GoalN
 }
 
 export function GoalTree({ goals, goalLink, onSelect }: GoalTreeProps) {
+const { t } = useTranslation();
+
   const goalIds = new Set(goals.map((g) => g.id));
   const roots = goals.filter((g) => !g.parentId || !goalIds.has(g.parentId));
 
   if (goals.length === 0) {
-    return <p className="text-sm text-muted-foreground">No goals.</p>;
+    return <p className="text-sm text-muted-foreground">{t("components.goaltree.no_goals.jsx-text", { defaultValue: "No goals." })}</p>;
   }
 
   return (

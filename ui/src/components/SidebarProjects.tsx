@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { NavLink, useLocation } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { FolderOpen, Loader2, LogOut, MoreHorizontal, Plus } from "lucide-react";
@@ -118,6 +119,8 @@ function ProjectItem({
   leaving = false,
   isDragging = false,
 }: ProjectItemProps) {
+const { t } = useTranslation();
+
   const routeRef = projectRouteRef(project);
 
   return (
@@ -142,7 +145,7 @@ function ProjectItem({
         >
           <ProjectTile color={project.color ?? null} icon={project.icon ?? null} size="xs" />
           <span className="flex-1 truncate">{project.name}</span>
-          {project.pauseReason === "budget" ? <BudgetSidebarMarker title="Project paused by budget" /> : null}
+          {project.pauseReason === "budget" ? <BudgetSidebarMarker title={t("components.sidebarprojects.project_paused_by_budget.attr_title", { defaultValue: "Project paused by budget" })} /> : null}
         </NavLink>
 
         <DropdownMenu>
@@ -199,6 +202,8 @@ function ProjectItem({
 }
 
 function SortableProjectItem(props: ProjectItemProps) {
+const { t } = useTranslation();
+
   const {
     attributes,
     listeners,
@@ -226,6 +231,8 @@ function SortableProjectItem(props: ProjectItemProps) {
 }
 
 export function SidebarProjects() {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(true);
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { openNewProject } = useDialogActions();
@@ -381,7 +388,7 @@ export function SidebarProjects() {
 
   return (
     <SidebarSection
-      label="Projects"
+      label={t("components.sidebarprojects.projects.attr_label", { defaultValue: "Projects" })}
       collapsible={{ open, onOpenChange: setOpen }}
       headerAction={{
         ariaLabel: "New project",

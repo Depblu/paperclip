@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, Navigate } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import type { ExecutionWorkspace, Issue, Project } from "@paperclipai/shared";
@@ -72,6 +73,8 @@ function buildProjectWorkspaceGroups(input: {
 }
 
 export function Workspaces() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const experimentalSettingsQuery = useQuery({
@@ -121,11 +124,11 @@ export function Workspaces() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold">Workspaces</h2>
+        <h2 className="text-xl font-bold">{t("pages.workspaces.workspaces.jsx-text", { defaultValue: "Workspaces" })}</h2>
       </div>
 
       {groups.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No workspace activity yet.</p>
+        <p className="text-sm text-muted-foreground">{t("pages.workspaces.no_workspace_activity_yet.jsx-text", { defaultValue: "No workspace activity yet." })}</p>
       ) : (
         <div className="space-y-8">
           {groups.map((group) => (
@@ -145,7 +148,7 @@ export function Workspaces() {
                   ) : null}
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {group.summaries.length} workspace{group.summaries.length === 1 ? "" : "s"}
+                  {group.summaries.length} {t("pages.workspaces.workspace.jsx-text", { defaultValue: " workspace" })}{group.summaries.length === 1 ? "" : "s"}
                 </span>
               </div>
               <ProjectWorkspacesContent

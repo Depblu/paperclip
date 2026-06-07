@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import type { Agent, AcceptedPlanDecompositionSummary } from "@paperclipai/shared";
 import { ChevronRight, GitBranch, Repeat, CheckCircle2, Loader2 } from "lucide-react";
@@ -14,19 +15,19 @@ interface IssuePlanDecompositionsSectionProps {
 }
 
 function StatusBadge({ status }: { status: AcceptedPlanDecompositionSummary["status"] }) {
+const { t } = useTranslation();
+
   if (status === "completed") {
     return (
       <span className="inline-flex items-center gap-1 rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-900 dark:text-emerald-100">
         <CheckCircle2 className="h-3 w-3" />
-        Completed
-      </span>
+        {t("components.issueplandecompositionssection.completed.jsx-text", { defaultValue: "\n        Completed\n      " })}</span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-sm border border-amber-500/50 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:text-amber-100">
       <Loader2 className="h-3 w-3 animate-spin" />
-      In flight
-    </span>
+      {t("components.issueplandecompositionssection.in_flight.jsx-text", { defaultValue: "\n      In flight\n    " })}</span>
   );
 }
 
@@ -35,6 +36,8 @@ export function IssuePlanDecompositionsSection({
   issueIdentifier,
   agentMap,
 }: IssuePlanDecompositionsSectionProps) {
+const { t } = useTranslation();
+
   const { data: decompositions } = useQuery({
     queryKey: queryKeys.issues.acceptedPlanDecompositions(issueId),
     queryFn: () => issuesApi.listAcceptedPlanDecompositions(issueId),
@@ -46,7 +49,7 @@ export function IssuePlanDecompositionsSection({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-muted-foreground">Plan decomposition</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">{t("components.issueplandecompositionssection.plan_decomposition.jsx-text", { defaultValue: "Plan decomposition" })}</h3>
         <span className="text-[11px] text-muted-foreground/80">
           {items.length === 1 ? "1 accepted plan revision" : `${items.length} accepted plan revisions`}
         </span>
@@ -90,41 +93,38 @@ export function IssuePlanDecompositionsSection({
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={record.status} />
                 <span className="text-xs text-muted-foreground">
-                  Plan {revisionLabel}
+                  {t("components.issueplandecompositionssection.plan.jsx-text", { defaultValue: "\n                  Plan " })}{revisionLabel}
                 </span>
                 <span className="text-xs text-muted-foreground/70">·</span>
                 <span className="inline-flex items-center gap-1 text-xs text-foreground">
                   <GitBranch className="h-3 w-3 text-muted-foreground" />
-                  {created} of {requested} child {requested === 1 ? "task" : "tasks"} created
-                </span>
+                  {created} {t("components.issueplandecompositionssection.of.jsx-text", { defaultValue: " of " })}{requested} {t("components.issueplandecompositionssection.child.jsx-text", { defaultValue: " child " })}{requested === 1 ? "task" : "tasks"} {t("components.issueplandecompositionssection.created.jsx-text", { defaultValue: " created\n                " })}</span>
                 {record.status === "completed" && requested > 0 ? (
                   <span
                     className="inline-flex items-center gap-1 rounded-sm border border-sky-500/40 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-medium text-sky-900 dark:text-sky-100"
-                    title="Repeat attempts with this fingerprint reuse this record instead of creating new children"
+                    title={t("components.issueplandecompositionssection.repeat_attempts_with_this_finger.attr_title", { defaultValue: "Repeat attempts with this fingerprint reuse this record instead of creating new children" })}
                   >
                     <Repeat className="h-3 w-3" />
-                    Idempotent claim
-                  </span>
+                    {t("components.issueplandecompositionssection.idempotent_claim.jsx-text", { defaultValue: "\n                    Idempotent claim\n                  " })}</span>
                 ) : null}
               </div>
 
               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-                {ownerName ? <span>Owner: {ownerName}</span> : null}
+                {ownerName ? <span>{t("components.issueplandecompositionssection.owner.jsx-text", { defaultValue: "Owner: " })}{ownerName}</span> : null}
                 {startedAt ? (
-                  <span title={formatDateTime(startedAt)}>Started {relativeTime(startedAt)}</span>
+                  <span title={formatDateTime(startedAt)}>{t("components.issueplandecompositionssection.started.jsx-text", { defaultValue: "Started " })}{relativeTime(startedAt)}</span>
                 ) : null}
                 {completedAt ? (
-                  <span title={formatDateTime(completedAt)}>Completed {relativeTime(completedAt)}</span>
+                  <span title={formatDateTime(completedAt)}>{t("components.issueplandecompositionssection.completed.jsx-text", { defaultValue: "Completed " })}{relativeTime(completedAt)}</span>
                 ) : updatedAt ? (
-                  <span title={formatDateTime(updatedAt)}>Updated {relativeTime(updatedAt)}</span>
+                  <span title={formatDateTime(updatedAt)}>{t("components.issueplandecompositionssection.updated.jsx-text", { defaultValue: "Updated " })}{relativeTime(updatedAt)}</span>
                 ) : null}
                 {issueIdentifier ? (
                   <Link
                     to={`/issues/${issueIdentifier}#document-plan`}
                     className="underline-offset-2 hover:underline"
                   >
-                    Plan document
-                  </Link>
+                    {t("components.issueplandecompositionssection.plan_document.jsx-text", { defaultValue: "\n                    Plan document\n                  " })}</Link>
                 ) : null}
               </div>
 

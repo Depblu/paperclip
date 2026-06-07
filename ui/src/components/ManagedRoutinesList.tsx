@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import {
   RoutineListRow,
   type RoutineListAgentSummary,
@@ -93,6 +94,8 @@ export function ManagedRoutinesList({
   onReconcile,
   onReset,
 }: ManagedRoutinesListProps) {
+const { t } = useTranslation();
+
   const agentById = new Map<string, RoutineListAgentSummary>(
     agents.map((agent) => [agent.id, { name: agent.name, icon: agent.icon }]),
   );
@@ -136,7 +139,7 @@ export function ManagedRoutinesList({
               secondaryDetails={
                 <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   {routine.resourceKey ? <span>{routine.resourceKey}</span> : null}
-                  {routine.cronExpression ? <span>Schedule {routine.cronExpression}</span> : null}
+                  {routine.cronExpression ? <span>{t("components.managedroutineslist.schedule.jsx-text", { defaultValue: "Schedule " })}{routine.cronExpression}</span> : null}
                 </span>
               }
               onRunNow={() => onRunNow?.(routine)}

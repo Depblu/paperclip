@@ -1,4 +1,5 @@
 import { Flag } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import type { Agent } from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +18,8 @@ export function IssueAssignedBacklogNotice({
   onResume,
   resuming,
 }: IssueAssignedBacklogNoticeProps) {
+const { t } = useTranslation();
+
   if (issueStatus !== "backlog") return null;
   if (!assigneeAgent && !assigneeUserId) return null;
 
@@ -32,15 +35,14 @@ export function IssueAssignedBacklogNotice({
         <Flag className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-300" />
         <div className="min-w-0 flex-1 space-y-1.5">
           <p className="leading-5">
-            <span className="font-medium">Parked</span> —{" "}
-            <span className="font-medium">{assigneeLabel}</span> will not be woken until status changes to{" "}
-            <code className="rounded bg-amber-100 px-1 py-0.5 text-[12px] dark:bg-amber-400/15">todo</code> or{" "}
+            <span className="font-medium">{t("components.issueassignedbacklognotice.parked.jsx-text", { defaultValue: "Parked" })}</span> —{" "}
+            <span className="font-medium">{assigneeLabel}</span> {t("components.issueassignedbacklognotice.will_not_be_woken_until_status_c.jsx-text", { defaultValue: " will not be woken until status changes to" })}{" "}
+            <code className="rounded bg-amber-100 px-1 py-0.5 text-[12px] dark:bg-amber-400/15">todo</code> {t("components.issueassignedbacklognotice.or.jsx-text", { defaultValue: " or" })}{" "}
             <code className="rounded bg-amber-100 px-1 py-0.5 text-[12px] dark:bg-amber-400/15">in_progress</code>.
           </p>
           {assigneeAgent ? (
             <p className="text-xs leading-5 text-amber-800 dark:text-amber-200">
-              Comments still wake the assignee for questions or triage. Leave this parked only if the work is intentionally on hold.
-            </p>
+              {t("components.issueassignedbacklognotice.comments_still_wake_the_assignee.jsx-text", { defaultValue: "\n              Comments still wake the assignee for questions or triage. Leave this parked only if the work is intentionally on hold.\n            " })}</p>
           ) : null}
           {onResume ? (
             <div className="pt-0.5">

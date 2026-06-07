@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useNavigate } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { agentsApi, type OrgNode } from "../api/agents";
@@ -171,6 +172,8 @@ const defaultDotColor = "#a3a3a3";
 // ── Main component ──────────────────────────────────────────────────────
 
 export function OrgChart() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const navigate = useNavigate();
@@ -446,14 +449,12 @@ export function OrgChart() {
         <Link to="/company/import">
           <Button variant="outline" size="sm">
             <Upload className="mr-1.5 h-3.5 w-3.5" />
-            Import company
-          </Button>
+            {t("pages.orgchart.import_company.jsx-text", { defaultValue: "\n            Import company\n          " })}</Button>
         </Link>
         <Link to="/company/export">
           <Button variant="outline" size="sm">
             <Download className="mr-1.5 h-3.5 w-3.5" />
-            Export company
-          </Button>
+            {t("pages.orgchart.export_company.jsx-text", { defaultValue: "\n            Export company\n          " })}</Button>
         </Link>
       </div>
       <div
@@ -488,8 +489,8 @@ export function OrgChart() {
                 });
               }
             }}
-            title="Zoom in"
-            aria-label="Zoom in"
+            title={t("pages.orgchart.zoom_in.attr_title", { defaultValue: "Zoom in" })}
+            aria-label={t("pages.orgchart.zoom_in.attr_aria-label", { defaultValue: "Zoom in" })}
           >
             <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -504,16 +505,16 @@ export function OrgChart() {
                 });
               }
             }}
-            title="Zoom out"
-            aria-label="Zoom out"
+            title={t("pages.orgchart.zoom_out.attr_title", { defaultValue: "Zoom out" })}
+            aria-label={t("pages.orgchart.zoom_out.attr_aria-label", { defaultValue: "Zoom out" })}
           >
             <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
           <button
             className="flex size-9 items-center justify-center rounded border border-border bg-background text-[10px] transition-colors hover:bg-accent sm:size-7"
             onClick={fitToScreen}
-            title="Fit to screen"
-            aria-label="Fit chart to screen"
+            title={t("pages.orgchart.fit_to_screen.attr_title", { defaultValue: "Fit to screen" })}
+            aria-label={t("pages.orgchart.fit_chart_to_screen.attr_aria-label", { defaultValue: "Fit chart to screen" })}
           >
             <Maximize2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>

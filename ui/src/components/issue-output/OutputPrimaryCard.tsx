@@ -1,4 +1,5 @@
 import { Download, ExternalLink } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn, relativeTime } from "@/lib/utils";
@@ -23,6 +24,8 @@ interface OutputPrimaryCardProps {
  * mobile and uses a single horizontal meta row on desktop.
  */
 export function OutputPrimaryCard({ item, creatorName }: OutputPrimaryCardProps) {
+const { t } = useTranslation();
+
   const meta = item.metadata;
   const filename = outputFilename(item);
   const contentType = meta?.contentType;
@@ -54,14 +57,12 @@ export function OutputPrimaryCard({ item, creatorName }: OutputPrimaryCardProps)
           <p className="break-words text-sm font-semibold text-foreground">{filename}</p>
           {item.degraded ? (
             <p className="mt-0.5 text-[11px] text-destructive">
-              Output metadata is unavailable — this file can’t be played or downloaded here.
-            </p>
+              {t("components.outputprimarycard.output_metadata_is_unavailable_t.jsx-text", { defaultValue: "\n              Output metadata is unavailable — this file can’t be played or downloaded here.\n            " })}</p>
           ) : (
             <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
               {item.isPrimary && (
                 <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                  Primary
-                </Badge>
+                  {t("components.outputprimarycard.primary.jsx-text", { defaultValue: "\n                  Primary\n                " })}</Badge>
               )}
               {meta && <span>{meta.contentType}</span>}
               {meta && <span aria-hidden="true">·</span>}
@@ -79,14 +80,12 @@ export function OutputPrimaryCard({ item, creatorName }: OutputPrimaryCardProps)
             <Button asChild variant="outline" size="sm" className="max-md:flex-1">
               <a href={meta.openPath} target="_blank" rel="noreferrer">
                 <ExternalLink className="h-4 w-4" />
-                Open
-              </a>
+                {t("components.outputprimarycard.open.jsx-text", { defaultValue: "\n                Open\n              " })}</a>
             </Button>
             <Button asChild size="sm" className="max-md:flex-1">
               <a href={meta.downloadPath} aria-label={`Download ${filename}`}>
                 <Download className="h-4 w-4" />
-                Download
-              </a>
+                {t("components.outputprimarycard.download.jsx-text", { defaultValue: "\n                Download\n              " })}</a>
             </Button>
           </div>
         ) : null}

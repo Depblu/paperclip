@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
@@ -46,6 +47,8 @@ interface SidebarCompanyMenuProps {
 }
 
 function WorkspaceIcon({ company }: { company: Company }) {
+const { t } = useTranslation();
+
   return (
     <CompanyPatternIcon
       companyName={company.name}
@@ -67,6 +70,8 @@ function SortableCompanyItem({
   isSelected: boolean;
   onSelect: (company: Company) => void;
 }) {
+const { t } = useTranslation();
+
   const {
     attributes,
     listeners,
@@ -129,6 +134,8 @@ function SortableCompanyItem({
 }
 
 export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompanyMenuProps = {}) {
+const { t } = useTranslation();
+
   const [internalOpen, setInternalOpen] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
   const queryClient = useQueryClient();
@@ -239,8 +246,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
       <DropdownMenuContent align="start" sideOffset={8} className="w-64 p-1">
         <div className="flex items-center justify-between gap-2 px-2 py-1.5">
           <DropdownMenuLabel className="p-0 text-[11px] font-semibold uppercase text-muted-foreground">
-            Switch workspace
-          </DropdownMenuLabel>
+            {t("components.sidebarcompanymenu.switch_workspace.jsx-text", { defaultValue: "\n            Switch workspace\n          " })}</DropdownMenuLabel>
           <button
             type="button"
             onClick={(event) => {
@@ -275,7 +281,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
             </SortableContext>
           </DndContext>
           {orderedCompanies.length === 0 ? (
-            <DropdownMenuItem disabled>No workspaces</DropdownMenuItem>
+            <DropdownMenuItem disabled>{t("components.sidebarcompanymenu.no_workspaces.jsx-text", { defaultValue: "No workspaces" })}</DropdownMenuItem>
           ) : null}
         </div>
         <DropdownMenuSeparator />
@@ -285,7 +291,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
           disabled={isEditingOrder}
         >
           <Plus className="size-4" />
-          <span>Add company...</span>
+          <span>{t("components.sidebarcompanymenu.add_company.jsx-text", { defaultValue: "Add company..." })}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild disabled={isEditingOrder}>
@@ -317,7 +323,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
             }}
           >
             <Settings className="size-4" />
-            <span>Company settings</span>
+            <span>{t("components.sidebarcompanymenu.company_settings.jsx-text", { defaultValue: "Company settings" })}</span>
           </Link>
         </DropdownMenuItem>
         {session?.session ? (

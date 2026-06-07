@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "@/i18n";
 import { useParams } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { goalsApi } from "../api/goals";
@@ -30,6 +31,8 @@ export function GoalPropertiesToggleButton({
   panelVisible,
   onShowProperties,
 }: GoalPropertiesToggleButtonProps) {
+const { t } = useTranslation();
+
   return (
     <Button
       variant="ghost"
@@ -39,7 +42,7 @@ export function GoalPropertiesToggleButton({
         panelVisible ? "opacity-0 pointer-events-none w-0 overflow-hidden" : "opacity-100",
       )}
       onClick={onShowProperties}
-      title="Show properties"
+      title={t("pages.goaldetail.show_properties.attr_title", { defaultValue: "Show properties" })}
     >
       <SlidersHorizontal className="h-4 w-4" />
     </Button>
@@ -47,6 +50,8 @@ export function GoalPropertiesToggleButton({
 }
 
 export function GoalDetail() {
+const { t } = useTranslation();
+
   const { goalId } = useParams<{ goalId: string }>();
   const { selectedCompanyId, setSelectedCompanyId } = useCompany();
   const { openNewGoal } = useDialogActions();
@@ -167,7 +172,7 @@ export function GoalDetail() {
           onSave={(description) => updateGoal.mutate({ description })}
           as="p"
           className="text-sm text-muted-foreground"
-          placeholder="Add a description..."
+          placeholder={t("pages.goaldetail.add_a_description.attr_placeholder", { defaultValue: "Add a description..." })}
           multiline
           imageUploadHandler={async (file) => {
             const asset = await uploadImage.mutateAsync(file);
@@ -179,10 +184,10 @@ export function GoalDetail() {
       <Tabs defaultValue="children">
         <TabsList>
           <TabsTrigger value="children">
-            Sub-Goals ({childGoals.length})
+            {t("pages.goaldetail.sub_goals.jsx-text", { defaultValue: "\n            Sub-Goals (" })}{childGoals.length})
           </TabsTrigger>
           <TabsTrigger value="projects">
-            Projects ({linkedProjects.length})
+            {t("pages.goaldetail.projects.jsx-text", { defaultValue: "\n            Projects (" })}{linkedProjects.length})
           </TabsTrigger>
         </TabsList>
 
@@ -194,11 +199,10 @@ export function GoalDetail() {
               onClick={() => openNewGoal({ parentId: goalId })}
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Sub Goal
-            </Button>
+              {t("pages.goaldetail.sub_goal.jsx-text", { defaultValue: "\n              Sub Goal\n            " })}</Button>
           </div>
           {childGoals.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No sub-goals.</p>
+            <p className="text-sm text-muted-foreground">{t("pages.goaldetail.no_sub_goals.jsx-text", { defaultValue: "No sub-goals." })}</p>
           ) : (
             <GoalTree goals={childGoals} goalLink={(g) => `/goals/${g.id}`} />
           )}
@@ -206,7 +210,7 @@ export function GoalDetail() {
 
         <TabsContent value="projects" className="mt-4">
           {linkedProjects.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No linked projects.</p>
+            <p className="text-sm text-muted-foreground">{t("pages.goaldetail.no_linked_projects.jsx-text", { defaultValue: "No linked projects." })}</p>
           ) : (
             <div className="border border-border">
               {linkedProjects.map((project) => (

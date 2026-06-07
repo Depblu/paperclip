@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import {
   DndContext,
@@ -92,6 +93,8 @@ function KanbanColumn({
   revealIncrement: number;
   onShowMore: () => void;
 }) {
+const { t } = useTranslation();
+
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   const isEmpty = issues.length === 0;
@@ -161,12 +164,11 @@ function KanbanColumn({
             className="mt-1 flex w-full items-center justify-center rounded-md border border-dashed border-border bg-background/70 px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
             onClick={onShowMore}
           >
-            Show {nextRevealCount} more
-          </button>
+            {t("components.kanbanboard.show.jsx-text", { defaultValue: "\n            Show " })}{nextRevealCount} {t("components.kanbanboard.more.jsx-text", { defaultValue: " more\n          " })}</button>
         ) : null}
         {issues.length > 0 && (hiddenCount > 0 || issues.length >= visibleCount) ? (
           <p className="px-1 pt-1 text-[11px] text-muted-foreground">
-            Showing {visibleIssues.length} of {issues.length}
+            {t("components.kanbanboard.showing.jsx-text", { defaultValue: "\n            Showing " })}{visibleIssues.length} {t("components.kanbanboard.of.jsx-text", { defaultValue: " of " })}{issues.length}
           </p>
         ) : null}
       </div>
@@ -189,6 +191,8 @@ function KanbanCard({
   isOverlay?: boolean;
   compact?: boolean;
 }) {
+const { t } = useTranslation();
+
   const {
     attributes,
     listeners,
@@ -236,12 +240,11 @@ function KanbanCard({
           {isSuccessfulRunHandoffRequired(issue) ? (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-amber-400/45 bg-amber-50/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-300/35 dark:bg-amber-400/10 dark:text-amber-300"
-              title="This task needs a next step"
-              aria-label="Needs next step"
+              title={t("components.kanbanboard.this_task_needs_a_next_step.attr_title", { defaultValue: "This task needs a next step" })}
+              aria-label={t("components.kanbanboard.needs_next_step.attr_aria-label", { defaultValue: "Needs next step" })}
             >
               <AlertTriangle className="h-3 w-3" />
-              Next step
-            </span>
+              {t("components.kanbanboard.next_step.jsx-text", { defaultValue: "\n              Next step\n            " })}</span>
           ) : null}
           {isLive && (
             <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-medium text-blue-600 dark:text-blue-400">
@@ -284,6 +287,8 @@ export function KanbanBoard({
   revealIncrement = KANBAN_COLUMN_REVEAL_INCREMENT,
   onUpdateIssue,
 }: KanbanBoardProps) {
+const { t } = useTranslation();
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [visibleCountByStatus, setVisibleCountByStatus] = useState<Record<string, number>>({});
   const collapsedStatusSet = useMemo(() => new Set(collapsedStatuses), [collapsedStatuses]);

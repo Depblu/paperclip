@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { Issue } from "@paperclipai/shared";
@@ -58,6 +59,8 @@ export function BlockedInboxView({
   showIdentifierColumn,
   showUpdatedColumn,
 }: BlockedInboxViewProps) {
+const { t } = useTranslation();
+
   const [collapsedVariants, setCollapsedVariants] = useState<Set<string>>(() => new Set());
 
   const {
@@ -146,9 +149,9 @@ export function BlockedInboxView({
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium">Couldn't load the Blocked tab.</p>
+            <p className="text-sm font-medium">{t("components.blockedinboxview.couldn_t_load_the_blocked_tab.jsx-text", { defaultValue: "Couldn't load the Blocked tab." })}</p>
             <p className="text-xs opacity-80">
-              Other Inbox tabs still work. {message}
+              {t("components.blockedinboxview.other_inbox_tabs_still_work.jsx-text", { defaultValue: "\n              Other Inbox tabs still work. " })}{message}
             </p>
           </div>
           <Button
@@ -176,10 +179,9 @@ export function BlockedInboxView({
           <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
         </span>
         <div className="space-y-1">
-          <p className="text-sm font-medium text-foreground">No work is stopped.</p>
+          <p className="text-sm font-medium text-foreground">{t("components.blockedinboxview.no_work_is_stopped.jsx-text", { defaultValue: "No work is stopped." })}</p>
           <p className="text-xs text-muted-foreground">
-            Tasks that need a decision, recovery, or external action will appear here.
-          </p>
+            {t("components.blockedinboxview.tasks_that_need_a_decision_recov.jsx-text", { defaultValue: "\n            Tasks that need a decision, recovery, or external action will appear here.\n          " })}</p>
         </div>
       </div>
     );
@@ -192,8 +194,7 @@ export function BlockedInboxView({
           data-testid="blocked-inbox-no-search-results"
           className="rounded-lg border border-border/70 bg-card/40 px-4 py-6 text-center text-sm text-muted-foreground"
         >
-          No stopped items match your search.
-        </div>
+          {t("components.blockedinboxview.no_stopped_items_match_your_sear.jsx-text", { defaultValue: "\n          No stopped items match your search.\n        " })}</div>
       </div>
     );
   }
@@ -287,6 +288,8 @@ function BlockedInboxRow({
   showIdentifierColumn,
   showUpdatedColumn,
 }: BlockedInboxRowProps) {
+const { t } = useTranslation();
+
   const { label: ownerName, isAgent } = resolveOwnerName(row, agentNameById, userLabelById);
   const stoppedAge = formatStoppedAge(row.attention.stoppedSinceAt);
 
@@ -376,6 +379,8 @@ function BlockedRowDesktopMeta({
   showStatusColumn: boolean;
   showIdentifierColumn: boolean;
 }) {
+const { t } = useTranslation();
+
   const identifier = row.issue.identifier ?? row.issue.id.slice(0, 8);
   return (
     <span className="hidden shrink-0 items-center gap-2 sm:inline-flex">

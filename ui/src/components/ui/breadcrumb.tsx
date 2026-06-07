@@ -1,3 +1,4 @@
+import { useTranslation } from "@/i18n";
 import * as React from "react"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 import { Slot } from "radix-ui"
@@ -5,10 +6,14 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
-  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
+const { t } = useTranslation();
+
+  return <nav aria-label={t("components.breadcrumb.breadcrumb.attr_aria-label", { defaultValue: "breadcrumb" })} data-slot="breadcrumb" {...props} />
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+const { t } = useTranslation();
+
   return (
     <ol
       data-slot="breadcrumb-list"
@@ -22,6 +27,8 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
 }
 
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
+const { t } = useTranslation();
+
   return (
     <li
       data-slot="breadcrumb-item"
@@ -38,6 +45,8 @@ function BreadcrumbLink({
 }: React.ComponentProps<"a"> & {
   asChild?: boolean
 }) {
+const { t } = useTranslation();
+
   const Comp = asChild ? Slot.Root : "a"
 
   return (
@@ -50,6 +59,8 @@ function BreadcrumbLink({
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
+const { t } = useTranslation();
+
   return (
     <span
       data-slot="breadcrumb-page"
@@ -67,6 +78,8 @@ function BreadcrumbSeparator({
   className,
   ...props
 }: React.ComponentProps<"li">) {
+const { t } = useTranslation();
+
   return (
     <li
       data-slot="breadcrumb-separator"
@@ -84,6 +97,8 @@ function BreadcrumbEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+const { t } = useTranslation();
+
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -93,7 +108,7 @@ function BreadcrumbEllipsis({
       {...props}
     >
       <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{t("components.breadcrumb.more.jsx-text", { defaultValue: "More" })}</span>
     </span>
   )
 }

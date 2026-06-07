@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, LoaderCircle, Save, Trash2, UserRoundPen } from "lucide-react";
 import type { AuthSession, CurrentUserProfile, UpdateCurrentUserProfile } from "@paperclipai/shared";
@@ -19,6 +20,8 @@ function deriveInitials(name: string) {
 }
 
 export function ProfileSettings() {
+const { t } = useTranslation();
+
   const { setBreadcrumbs } = useBreadcrumbs();
   const { selectedCompanyId, selectedCompany } = useCompany();
   const queryClient = useQueryClient();
@@ -118,7 +121,7 @@ export function ProfileSettings() {
   });
 
   if (sessionQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading profile...</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.profilesettings.loading_profile.jsx-text", { defaultValue: "Loading profile..." })}</div>;
   }
 
   if (sessionQuery.error || !sessionQuery.data) {
@@ -142,11 +145,10 @@ export function ProfileSettings() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <UserRoundPen className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Profile</h1>
+          <h1 className="text-lg font-semibold">{t("pages.profilesettings.profile.jsx-text", { defaultValue: "Profile" })}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Control how your account appears in the sidebar and other board surfaces.
-        </p>
+          {t("pages.profilesettings.control_how_your_account_appears.jsx-text", { defaultValue: "\n          Control how your account appears in the sidebar and other board surfaces.\n        " })}</p>
       </div>
 
       {actionError ? (
@@ -207,8 +209,7 @@ export function ProfileSettings() {
                       disabled={isSavingProfile}
                     >
                       {removeAvatarMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
-                      Remove
-                    </Button>
+                      {t("pages.profilesettings.remove.jsx-text", { defaultValue: "\n                      Remove\n                    " })}</Button>
                   ) : null}
                 </div>
               </div>
@@ -219,7 +220,7 @@ export function ProfileSettings() {
                   <p className="truncate text-sm text-muted-foreground">{sessionQuery.data.user.email ?? "No email"}</p>
                 </div>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Click the avatar to upload a new image. {uploadHint}
+                  {t("pages.profilesettings.click_the_avatar_to_upload_a_new.jsx-text", { defaultValue: "\n                  Click the avatar to upload a new image. " })}{uploadHint}
                 </p>
               </div>
             </div>
@@ -234,21 +235,20 @@ export function ProfileSettings() {
           }}
         >
           <div className="space-y-2">
-            <Label htmlFor="profile-name">Display name</Label>
+            <Label htmlFor="profile-name">{t("pages.profilesettings.display_name.jsx-text", { defaultValue: "Display name" })}</Label>
             <Input
               id="profile-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={120}
-              placeholder="Board"
+              placeholder={t("pages.profilesettings.board.attr_placeholder", { defaultValue: "Board" })}
             />
             <p className="text-xs text-muted-foreground">
-              Shown in the sidebar account footer and comment author surfaces.
-            </p>
+              {t("pages.profilesettings.shown_in_the_sidebar_account_foo.jsx-text", { defaultValue: "\n              Shown in the sidebar account footer and comment author surfaces.\n            " })}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="profile-email">Email</Label>
+            <Label htmlFor="profile-email">{t("pages.profilesettings.email.jsx-text", { defaultValue: "Email" })}</Label>
             <Input
               id="profile-email"
               value={sessionQuery.data.user.email ?? ""}
@@ -256,8 +256,7 @@ export function ProfileSettings() {
               disabled
             />
             <p className="text-xs text-muted-foreground">
-              Email is managed by your auth session and is read-only here.
-            </p>
+              {t("pages.profilesettings.email_is_managed_by_your_auth_se.jsx-text", { defaultValue: "\n              Email is managed by your auth session and is read-only here.\n            " })}</p>
           </div>
 
           <div className="md:col-span-2 flex justify-end">

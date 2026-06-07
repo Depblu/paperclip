@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GOAL_STATUSES, GOAL_LEVELS } from "@paperclipai/shared";
 import { useDialog } from "../context/DialogContext";
@@ -34,6 +35,8 @@ const levelLabels: Record<string, string> = {
 };
 
 export function NewGoalDialog() {
+const { t } = useTranslation();
+
   const { newGoalOpen, newGoalDefaults, closeNewGoal } = useDialog();
   const { selectedCompanyId, selectedCompany } = useCompany();
   const queryClient = useQueryClient();
@@ -127,7 +130,7 @@ export function NewGoalDialog() {
                 {selectedCompany.name.slice(0, 3).toUpperCase()}
               </span>
             )}
-            <span className="text-muted-foreground/60">&rsaquo;</span>
+            <span className="text-muted-foreground/60">{t("components.newgoaldialog.rsaquo.jsx-text", { defaultValue: "&rsaquo;" })}</span>
             <span>{newGoalDefaults.parentId ? "New sub-goal" : "New goal"}</span>
           </div>
           <div className="flex items-center gap-1">
@@ -145,7 +148,7 @@ export function NewGoalDialog() {
               className="text-muted-foreground"
               onClick={() => { reset(); closeNewGoal(); }}
             >
-              <span className="text-lg leading-none">&times;</span>
+              <span className="text-lg leading-none">{t("components.newgoaldialog.times.jsx-text", { defaultValue: "&times;" })}</span>
             </Button>
           </div>
         </div>
@@ -154,7 +157,7 @@ export function NewGoalDialog() {
         <div className="px-4 pt-4 pb-2 shrink-0">
           <input
             className="w-full text-lg font-semibold bg-transparent outline-none placeholder:text-muted-foreground/50"
-            placeholder="Goal title"
+            placeholder={t("components.newgoaldialog.goal_title.attr_placeholder", { defaultValue: "Goal title" })}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => {
@@ -173,7 +176,7 @@ export function NewGoalDialog() {
             ref={descriptionEditorRef}
             value={description}
             onChange={setDescription}
-            placeholder="Add description..."
+            placeholder={t("components.newgoaldialog.add_description.attr_placeholder", { defaultValue: "Add description..." })}
             bordered={false}
             contentClassName={cn("text-sm text-muted-foreground", expanded ? "min-h-[220px]" : "min-h-[120px]")}
             imageUploadHandler={async (file) => {
@@ -248,8 +251,7 @@ export function NewGoalDialog() {
                 )}
                 onClick={() => { setParentId(""); setParentOpen(false); }}
               >
-                No parent
-              </button>
+                {t("components.newgoaldialog.no_parent.jsx-text", { defaultValue: "\n                No parent\n              " })}</button>
               {(goals ?? []).map((g) => (
                 <button
                   key={g.id}

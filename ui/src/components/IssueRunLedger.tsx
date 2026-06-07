@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import type { ActivityEvent, Issue, Agent } from "@paperclipai/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router";
@@ -408,6 +409,8 @@ export function IssueRunLedger({
   activityEvents,
   renderActivityEvent,
 }: IssueRunLedgerProps) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
   const [watchdogDecisionError, setWatchdogDecisionError] = useState<string | null>(null);
@@ -491,6 +494,8 @@ export function IssueRunLedgerContent({
   watchdogDecisionError,
   onWatchdogDecision,
 }: IssueRunLedgerContentProps) {
+const { t } = useTranslation();
+
   const ledgerRuns = useMemo(() => mergeRuns(runs, liveRuns, activeRun), [activeRun, liveRuns, runs]);
   const latestRun = ledgerRuns[0] ?? null;
   const latestSilentRun = useMemo(
@@ -535,10 +540,10 @@ export function IssueRunLedgerContent({
   }, [activityEvents, canRenderActivityEvents, ledgerRuns]);
 
   return (
-    <section className="space-y-3" aria-label="Task run ledger">
+    <section className="space-y-3" aria-label={t("components.issuerunledger.task_run_ledger.attr_aria-label", { defaultValue: "Task run ledger" })}>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-sm font-medium text-muted-foreground">Run ledger</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{t("components.issuerunledger.run_ledger.jsx-text", { defaultValue: "Run ledger" })}</h3>
           <p className="text-xs text-muted-foreground">
             {latestRun
               ? runSummary(latestRun, agentMap)
@@ -552,15 +557,14 @@ export function IssueRunLedgerContent({
             to={`/agents/${latestRun.agentId}/runs/${latestRun.runId}`}
             className="shrink-0 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            Latest run
-          </Link>
+            {t("components.issuerunledger.latest_run.jsx-text", { defaultValue: "\n            Latest run\n          " })}</Link>
         ) : null}
       </div>
 
       {children.total > 0 ? (
         <div className="rounded-md border border-border/70 px-3 py-2">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-foreground">Child work</span>
+            <span className="font-medium text-foreground">{t("components.issuerunledger.child_work.jsx-text", { defaultValue: "Child work" })}</span>
             <span className="text-muted-foreground">
               {children.active.length > 0
                 ? `${children.active.length} active, ${children.done} done, ${children.cancelled} cancelled`
@@ -582,8 +586,7 @@ export function IssueRunLedgerContent({
               ))}
               {children.active.length > 4 ? (
                 <span className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground">
-                  +{children.active.length - 4} more
-                </span>
+                  +{children.active.length - 4} {t("components.issuerunledger.more.jsx-text", { defaultValue: " more\n                " })}</span>
               ) : null}
             </div>
           ) : null}
@@ -605,20 +608,19 @@ export function IssueRunLedgerContent({
               : "Output silence watchdog warning"}
           </p>
           <p className="mt-1">
-            Latest active run has been silent for{" "}
+            {t("components.issuerunledger.latest_active_run_has_been_silen.jsx-text", { defaultValue: "\n            Latest active run has been silent for" })}{" "}
             {formatSilenceAge(latestSilentRun.outputSilence.silenceAgeMs) ?? "an extended period"}.
             {latestSilentRun.outputSilence.evaluationIssueIdentifier ? (
               <>
                 {" "}
-                Review{" "}
+                {t("components.issuerunledger.review.jsx-text", { defaultValue: "\n                Review" })}{" "}
                 <Link
                   to={`/issues/${latestSilentRun.outputSilence.evaluationIssueIdentifier}`}
                   className="font-medium underline underline-offset-2"
                 >
                   {latestSilentRun.outputSilence.evaluationIssueIdentifier}
                 </Link>
-                {" "}for recovery context.
-              </>
+                {" "}{t("components.issuerunledger.for_recovery_context.jsx-text", { defaultValue: "for recovery context.\n              " })}</>
             ) : null}
           </p>
           {onWatchdogDecision && canRecordWatchdogDecisions ? (
@@ -634,8 +636,7 @@ export function IssueRunLedgerContent({
                   })}
                 disabled={pendingWatchdogDecision != null}
               >
-                Continue monitoring
-              </button>
+                {t("components.issuerunledger.continue_monitoring.jsx-text", { defaultValue: "\n                Continue monitoring\n              " })}</button>
               <button
                 type="button"
                 className="rounded-md border border-border bg-background/80 px-2 py-1 text-[11px] text-foreground hover:bg-background"
@@ -649,8 +650,7 @@ export function IssueRunLedgerContent({
                   })}
                 disabled={pendingWatchdogDecision != null}
               >
-                Snooze 1h
-              </button>
+                {t("components.issuerunledger.snooze_1h.jsx-text", { defaultValue: "\n                Snooze 1h\n              " })}</button>
               <button
                 type="button"
                 className="rounded-md border border-border bg-background/80 px-2 py-1 text-[11px] text-foreground hover:bg-background"
@@ -663,8 +663,7 @@ export function IssueRunLedgerContent({
                   })}
                 disabled={pendingWatchdogDecision != null}
               >
-                Mark false positive
-              </button>
+                {t("components.issuerunledger.mark_false_positive.jsx-text", { defaultValue: "\n                Mark false positive\n              " })}</button>
             </div>
           ) : null}
           {watchdogDecisionError ? (
@@ -702,22 +701,21 @@ export function IssueRunLedgerContent({
                 className="space-y-1.5 rounded-lg border border-border/60 px-3 py-2 text-xs text-muted-foreground"
               >
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="font-medium text-foreground">Run</span>
+                  <span className="font-medium text-foreground">{t("components.issuerunledger.run.jsx-text", { defaultValue: "Run" })}</span>
                   <Link
                     to={`/agents/${run.agentId}/runs/${run.runId}`}
                     className="min-w-0 max-w-full truncate font-mono text-foreground hover:underline"
                   >
                     {run.runId.slice(0, 8)}
                   </Link>
-                  <span>by {agentName}</span>
+                  <span>{t("components.issuerunledger.by.jsx-text", { defaultValue: "by " })}{agentName}</span>
                   <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] capitalize text-muted-foreground">
                     {statusLabel(run.status)}
                   </span>
                   {run.isLive ? (
                     <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[11px] text-cyan-700 dark:text-cyan-300">
                       <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                      live
-                    </span>
+                      {t("components.issuerunledger.live.jsx-text", { defaultValue: "\n                      live\n                    " })}</span>
                   ) : null}
                   <span
                     className={cn(
@@ -730,8 +728,7 @@ export function IssueRunLedgerContent({
                   </span>
                   {exhausted ? (
                     <span className="rounded-md border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[11px] font-medium text-red-700 dark:text-red-300">
-                      Exhausted
-                    </span>
+                      {t("components.issuerunledger.exhausted.jsx-text", { defaultValue: "\n                      Exhausted\n                    " })}</span>
                   ) : null}
                   {continuation ? (
                     <span className="text-[11px] text-muted-foreground">{continuation}</span>
@@ -782,15 +779,15 @@ export function IssueRunLedgerContent({
 
                 <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
                   <div className="min-w-0">
-                    <span className="text-foreground">Elapsed</span>{" "}
+                    <span className="text-foreground">{t("components.issuerunledger.elapsed.jsx-text", { defaultValue: "Elapsed" })}</span>{" "}
                     {duration ?? "unknown"}
                   </div>
                   <div className="min-w-0">
-                    <span className="text-foreground">Last useful action</span>{" "}
+                    <span className="text-foreground">{t("components.issuerunledger.last_useful_action.jsx-text", { defaultValue: "Last useful action" })}</span>{" "}
                     {lastUsefulActionLabel(run)}
                   </div>
                   <div className="min-w-0">
-                    <span className="text-foreground">Stop</span>{" "}
+                    <span className="text-foreground">{t("components.issuerunledger.stop.jsx-text", { defaultValue: "Stop" })}</span>{" "}
                     {stopStatusLabel(run, stopReason)}
                   </div>
                 </div>
@@ -801,7 +798,7 @@ export function IssueRunLedgerContent({
                     {retryState.secondary ? <p>{retryState.secondary}</p> : null}
                     {retryState.retryOfRunId ? (
                       <p>
-                        Retry of{" "}
+                        {t("components.issuerunledger.retry_of.jsx-text", { defaultValue: "\n                        Retry of" })}{" "}
                         <Link
                           to={`/agents/${run.agentId}/runs/${retryState.retryOfRunId}`}
                           className="font-mono text-foreground hover:underline"
@@ -835,7 +832,7 @@ export function IssueRunLedgerContent({
 
                 {run.nextAction ? (
                   <div className="min-w-0 rounded-md bg-accent/40 px-2 py-1.5 text-xs leading-5">
-                    <span className="font-medium text-foreground">Next action: </span>
+                    <span className="font-medium text-foreground">{t("components.issuerunledger.next_action.jsx-text", { defaultValue: "Next action: " })}</span>
                     <span className="break-words text-muted-foreground">{run.nextAction}</span>
                   </div>
                 ) : null}
@@ -844,8 +841,7 @@ export function IssueRunLedgerContent({
           })}
           {feedItems.length > 20 ? (
             <div className="px-3 py-2 text-xs text-muted-foreground">
-              {feedItems.length - 20} older items not shown
-            </div>
+              {feedItems.length - 20} {t("components.issuerunledger.older_items_not_shown.jsx-text", { defaultValue: " older items not shown\n            " })}</div>
           ) : null}
         </div>
       )}

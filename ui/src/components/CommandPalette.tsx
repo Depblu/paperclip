@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { useNavigate } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { useCompany } from "../context/CompanyContext";
@@ -41,6 +42,8 @@ export function buildFullSearchPath(query: string) {
 }
 
 export function CommandPalette() {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -121,7 +124,7 @@ export function CommandPalette() {
         if (v && isMobile) setSidebarOpen(false);
       }}>
       <CommandInput
-        placeholder="Search tasks, agents, projects..."
+        placeholder={t("components.commandpalette.search_tasks_agents_projects.attr_placeholder", { defaultValue: "Search tasks, agents, projects..." })}
         value={query}
         onValueChange={setQuery}
         onKeyDown={(event) => {
@@ -135,10 +138,9 @@ export function CommandPalette() {
         <CommandEmpty>
           {showSearchAll ? (
             <span>
-              No quick task matches. Press{" "}
+              {t("components.commandpalette.no_quick_task_matches_press.jsx-text", { defaultValue: "\n              No quick task matches. Press" })}{" "}
               <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[10px]">↵</kbd>{" "}
-              to <span className="font-medium">search all</span> or keep typing to refine.
-            </span>
+              to <span className="font-medium">{t("components.commandpalette.search_all.jsx-text", { defaultValue: "search all" })}</span> {t("components.commandpalette.or_keep_typing_to_refine.jsx-text", { defaultValue: " or keep typing to refine.\n            " })}</span>
           ) : (
             "No results found."
           )}
@@ -154,10 +156,10 @@ export function CommandPalette() {
             >
               <Search className="mr-2 h-4 w-4" />
               <span className="flex-1 truncate">
-                Search all for <span className="font-semibold">&ldquo;{searchQuery}&rdquo;</span>
+                {t("components.commandpalette.search_all_for.jsx-text", { defaultValue: "\n                Search all for " })}<span className="font-semibold">{t("components.commandpalette.ldquo.jsx-text", { defaultValue: "&ldquo;" })}{searchQuery}{t("components.commandpalette.rdquo.jsx-text", { defaultValue: "&rdquo;" })}</span>
               </span>
               <span className="ml-auto inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <span>open full search</span>
+                <span>{t("components.commandpalette.open_full_search.jsx-text", { defaultValue: "open full search" })}</span>
                 <kbd className="rounded border border-border bg-background px-1 py-0.5 text-[10px]">↵</kbd>
               </span>
             </CommandItem>
@@ -174,8 +176,7 @@ export function CommandPalette() {
             }}
           >
             <SquarePen className="mr-2 h-4 w-4" />
-            Create new task
-            <span className="ml-auto text-xs text-muted-foreground">C</span>
+            {t("components.commandpalette.create_new_task.jsx-text", { defaultValue: "\n            Create new task\n            " })}<span className="ml-auto text-xs text-muted-foreground">C</span>
           </CommandItem>
           <CommandItem
             onSelect={() => {
@@ -184,12 +185,10 @@ export function CommandPalette() {
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Create new agent
-          </CommandItem>
+            {t("components.commandpalette.create_new_agent.jsx-text", { defaultValue: "\n            Create new agent\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/projects")}>
             <Plus className="mr-2 h-4 w-4" />
-            Create new project
-          </CommandItem>
+            {t("components.commandpalette.create_new_project.jsx-text", { defaultValue: "\n            Create new project\n          " })}</CommandItem>
         </CommandGroup>
 
         <CommandSeparator />
@@ -197,36 +196,28 @@ export function CommandPalette() {
         <CommandGroup heading="Pages">
           <CommandItem onSelect={() => go("/dashboard")}>
             <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
-          </CommandItem>
+            {t("components.commandpalette.dashboard.jsx-text", { defaultValue: "\n            Dashboard\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/inbox")}>
             <Inbox className="mr-2 h-4 w-4" />
-            Inbox
-          </CommandItem>
+            {t("components.commandpalette.inbox.jsx-text", { defaultValue: "\n            Inbox\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/issues")}>
             <CircleDot className="mr-2 h-4 w-4" />
-            Tasks
-          </CommandItem>
+            {t("components.commandpalette.tasks.jsx-text", { defaultValue: "\n            Tasks\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/projects")}>
             <Hexagon className="mr-2 h-4 w-4" />
-            Projects
-          </CommandItem>
+            {t("components.commandpalette.projects.jsx-text", { defaultValue: "\n            Projects\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/goals")}>
             <Target className="mr-2 h-4 w-4" />
-            Goals
-          </CommandItem>
+            {t("components.commandpalette.goals.jsx-text", { defaultValue: "\n            Goals\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/agents")}>
             <Bot className="mr-2 h-4 w-4" />
-            Agents
-          </CommandItem>
+            {t("components.commandpalette.agents.jsx-text", { defaultValue: "\n            Agents\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/costs")}>
             <DollarSign className="mr-2 h-4 w-4" />
-            Costs
-          </CommandItem>
+            {t("components.commandpalette.costs.jsx-text", { defaultValue: "\n            Costs\n          " })}</CommandItem>
           <CommandItem onSelect={() => go("/activity")}>
             <History className="mr-2 h-4 w-4" />
-            Activity
-          </CommandItem>
+            {t("components.commandpalette.activity.jsx-text", { defaultValue: "\n            Activity\n          " })}</CommandItem>
         </CommandGroup>
 
         {visibleIssues.length > 0 && (

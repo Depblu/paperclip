@@ -1,4 +1,5 @@
 import { Eye } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import type { IssueProductivityReview } from "@paperclipai/shared";
 import { Link } from "../lib/router";
 import { cn } from "../lib/utils";
@@ -35,6 +36,8 @@ export function ProductivityReviewBadge({
   className?: string;
   hideLabel?: boolean;
 }) {
+const { t } = useTranslation();
+
   const label = productivityReviewTriggerLabel(review.trigger);
   const reviewIdentifier = review.reviewIdentifier ?? review.reviewIssueId.slice(0, 8);
   const reviewPath = createIssueDetailPath(review.reviewIdentifier ?? review.reviewIssueId);
@@ -52,23 +55,22 @@ export function ProductivityReviewBadge({
           aria-label={`Under review · productivity review ${reviewIdentifier} (${label})`}
         >
           <Eye className="h-3 w-3" aria-hidden />
-          {hideLabel ? null : <span>Under review</span>}
+          {hideLabel ? null : <span>{t("components.productivityreviewbadge.under_review.jsx-text", { defaultValue: "Under review" })}</span>}
         </Link>
       </TooltipTrigger>
       <TooltipContent>
         <div className="space-y-1 text-xs">
-          <div className="font-semibold">Productivity review open</div>
+          <div className="font-semibold">{t("components.productivityreviewbadge.productivity_review_open.jsx-text", { defaultValue: "Productivity review open" })}</div>
           <div>
-            <span className="text-muted-foreground">Trigger:</span> {label}
+            <span className="text-muted-foreground">{t("components.productivityreviewbadge.trigger.jsx-text", { defaultValue: "Trigger:" })}</span> {label}
           </div>
           {typeof review.noCommentStreak === "number" && review.noCommentStreak > 0 ? (
             <div>
-              <span className="text-muted-foreground">No-comment streak:</span>{" "}
-              {review.noCommentStreak} runs
-            </div>
+              <span className="text-muted-foreground">{t("components.productivityreviewbadge.no_comment_streak.jsx-text", { defaultValue: "No-comment streak:" })}</span>{" "}
+              {review.noCommentStreak} {t("components.productivityreviewbadge.runs.jsx-text", { defaultValue: " runs\n            " })}</div>
           ) : null}
           <div>
-            <span className="text-muted-foreground">Review:</span> {reviewIdentifier} ({statusLabel})
+            <span className="text-muted-foreground">{t("components.productivityreviewbadge.review.jsx-text", { defaultValue: "Review:" })}</span> {reviewIdentifier} ({statusLabel})
           </div>
         </div>
       </TooltipContent>

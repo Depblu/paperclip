@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import type {
   Agent,
   IssueRecoveryAction,
@@ -215,6 +216,8 @@ function MetadataRow({
   label: string;
   children: React.ReactNode;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-[7.5rem_1fr] gap-x-3 gap-y-0 px-3 py-1.5 text-xs sm:px-4">
       <dt className="truncate text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
@@ -226,6 +229,8 @@ function MetadataRow({
 }
 
 function MissingValue() {
+const { t } = useTranslation();
+
   return <span className="text-muted-foreground">—</span>;
 }
 
@@ -238,6 +243,8 @@ function AgentLink({
   agentMap?: ReadonlyMap<string, Agent>;
   fallback?: string | null;
 }) {
+const { t } = useTranslation();
+
   if (!agentId) {
     return fallback ? <span>{fallback}</span> : <MissingValue />;
   }
@@ -265,12 +272,14 @@ function RunChip({
   agentId: string | null | undefined;
   status?: string | null;
 }) {
+const { t } = useTranslation();
+
   if (!runId) return <MissingValue />;
   const short = shortenRunId(runId);
   const inner = (
     <>
       <code className="rounded bg-background/80 px-1.5 py-0.5 font-mono text-[11px] text-foreground/80">
-        run {short}
+        {t("components.issuerecoveryactioncard.run.jsx-text", { defaultValue: "\n        run " })}{short}
       </code>
       {status ? (
         <span className="font-sans text-[11px] text-muted-foreground">{status}</span>
@@ -336,6 +345,8 @@ export function IssueRecoveryActionCard({
   canFalsePositive = false,
   className,
 }: IssueRecoveryActionCardProps) {
+const { t } = useTranslation();
+
   const cardState: RecoveryCardCardState = forcedState ?? deriveRecoveryCardState(action);
   const tone = STATE_TONE[cardState];
   const ToneIcon = tone.Icon;
@@ -420,67 +431,67 @@ export function IssueRecoveryActionCard({
         </div>
       </header>
       <dl className={cn("border-t bg-background/40 dark:bg-background/20", tone.divider)}>
-        <MetadataRow label="Owner">
+        <MetadataRow label={t("components.issuerecoveryactioncard.owner.attr_label", { defaultValue: "Owner" })}>
           <span className="inline-flex flex-wrap items-center gap-1.5">
             {action.ownerType === "agent" && action.ownerAgentId ? (
               <>
-                <span className="text-muted-foreground">Recovery:</span>
+                <span className="text-muted-foreground">{t("components.issuerecoveryactioncard.recovery.jsx-text", { defaultValue: "Recovery:" })}</span>
                 <AgentLink agentId={action.ownerAgentId} agentMap={agentMap} />
               </>
             ) : action.ownerType === "board" ? (
-              <span className="font-medium">Board</span>
+              <span className="font-medium">{t("components.issuerecoveryactioncard.board.jsx-text", { defaultValue: "Board" })}</span>
             ) : action.ownerType === "user" && action.ownerUserId ? (
-              <span className="font-medium">user {action.ownerUserId.slice(0, 6)}</span>
+              <span className="font-medium">{t("components.issuerecoveryactioncard.user.jsx-text", { defaultValue: "user " })}{action.ownerUserId.slice(0, 6)}</span>
             ) : action.ownerType === "system" ? (
-              <span className="font-medium">System</span>
+              <span className="font-medium">{t("components.issuerecoveryactioncard.system.jsx-text", { defaultValue: "System" })}</span>
             ) : (
-              <span className="text-muted-foreground">unassigned — pick one to wake them</span>
+              <span className="text-muted-foreground">{t("components.issuerecoveryactioncard.unassigned_pick_one_to_wake_them.jsx-text", { defaultValue: "unassigned — pick one to wake them" })}</span>
             )}
             {action.returnOwnerAgentId ? (
               <>
-                <span className="text-muted-foreground">→ Returns to:</span>
+                <span className="text-muted-foreground">{t("components.issuerecoveryactioncard.returns_to.jsx-text", { defaultValue: "→ Returns to:" })}</span>
                 <AgentLink agentId={action.returnOwnerAgentId} agentMap={agentMap} />
               </>
             ) : null}
           </span>
         </MetadataRow>
-        <MetadataRow label="Source run">
+        <MetadataRow label={t("components.issuerecoveryactioncard.source_run.attr_label", { defaultValue: "Source run" })}>
           <RunChip runId={sourceRunId} agentId={action.previousOwnerAgentId} />
         </MetadataRow>
         {correctiveRunId ? (
-          <MetadataRow label="Corrective run">
+          <MetadataRow label={t("components.issuerecoveryactioncard.corrective_run.attr_label", { defaultValue: "Corrective run" })}>
             <RunChip runId={correctiveRunId} agentId={action.previousOwnerAgentId} />
           </MetadataRow>
         ) : null}
-        <MetadataRow label="Evidence">
+        <MetadataRow label={t("components.issuerecoveryactioncard.evidence.attr_label", { defaultValue: "Evidence" })}>
           {evidenceSummary ? (
             <span className="break-words font-mono text-[11px] text-foreground/80">{evidenceSummary}</span>
           ) : (
             <MissingValue />
           )}
         </MetadataRow>
-        <MetadataRow label="Next action">
+        <MetadataRow label={t("components.issuerecoveryactioncard.next_action.attr_label", { defaultValue: "Next action" })}>
           {action.nextAction ? <span>{action.nextAction}</span> : <MissingValue />}
         </MetadataRow>
-        <MetadataRow label="Wake">
+        <MetadataRow label={t("components.issuerecoveryactioncard.wake.attr_label", { defaultValue: "Wake" })}>
           <span className="inline-flex flex-wrap items-center gap-1.5">
             {wakeSummary ? <span>{wakeSummary}</span> : <MissingValue />}
             {showAttempt ? (
               <span className="rounded-md border border-border/50 bg-background/60 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                attempt {action.attemptCount} of {action.maxAttempts}
+                {t("components.issuerecoveryactioncard.attempt.jsx-text", { defaultValue: "\n                attempt " })}{action.attemptCount} {t("components.issuerecoveryactioncard.of.jsx-text", { defaultValue: " of " })}{action.maxAttempts}
               </span>
             ) : null}
             {showTimeoutInline ? (
               <span className="rounded-md border border-border/50 bg-background/60 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                Times out {formatTimeShort(action.timeoutAt) ?? "soon"}
+                {t("components.issuerecoveryactioncard.times_out.jsx-text", { defaultValue: "\n                Times out " })}{formatTimeShort(action.timeoutAt) ?? "soon"}
               </span>
             ) : null}
           </span>
         </MetadataRow>
         {cardState === "resolved" && action.outcome ? (
-          <MetadataRow label="Resolution">
+          <MetadataRow label={t("components.issuerecoveryactioncard.resolution.attr_label", { defaultValue: "Resolution" })}>
             <span className={cn("font-medium", tone.labelClass)}>
-              Resolved as {OUTCOME_LABEL[action.outcome]}
+              {t("components.issuerecoveryactioncard.resolved_as.jsx-text", { defaultValue: "\n              Resolved as " })}{OUTCOME_LABEL[action.outcome]}
               {action.resolvedAt ? ` · ${formatTimeShort(action.resolvedAt) ?? ""}` : ""}
             </span>
           </MetadataRow>
@@ -495,10 +506,9 @@ export function IssueRecoveryActionCard({
                 size="sm"
                 variant="default"
                 data-testid="recovery-action-resolve-trigger"
-                aria-label="Resolve recovery"
+                aria-label={t("components.issuerecoveryactioncard.resolve_recovery.attr_aria-label", { defaultValue: "Resolve recovery" })}
               >
-                Resolve…
-              </Button>
+                {t("components.issuerecoveryactioncard.resolve.jsx-text", { defaultValue: "\n                Resolve…\n              " })}</Button>
             </PopoverTrigger>
             <PopoverContent
               align="start"
@@ -506,8 +516,7 @@ export function IssueRecoveryActionCard({
               className="w-72 p-1.5"
             >
               <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                Resolve recovery
-              </div>
+                {t("components.issuerecoveryactioncard.resolve_recovery.jsx-text", { defaultValue: "\n                Resolve recovery\n              " })}</div>
               <div className="flex flex-col">
                 {visibleResolveOptions.map((option) => (
                   <button
@@ -529,12 +538,10 @@ export function IssueRecoveryActionCard({
           </Popover>
           {cardState === "observe_only" ? (
             <span className="text-[11px] text-muted-foreground">
-              Recovery is observing without interrupting the live run.
-            </span>
+              {t("components.issuerecoveryactioncard.recovery_is_observing_without_in.jsx-text", { defaultValue: "\n              Recovery is observing without interrupting the live run.\n            " })}</span>
           ) : (
             <span className="text-[11px] text-muted-foreground">
-              The card stays open until an explicit decision is recorded.
-            </span>
+              {t("components.issuerecoveryactioncard.the_card_stays_open_until_an_exp.jsx-text", { defaultValue: "\n              The card stays open until an explicit decision is recorded.\n            " })}</span>
           )}
         </div>
       ) : null}

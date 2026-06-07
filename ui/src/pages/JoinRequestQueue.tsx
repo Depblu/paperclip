@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserPlus2 } from "lucide-react";
 import { accessApi } from "@/api/access";
@@ -11,6 +12,8 @@ import { useToast } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
 
 export function JoinRequestQueue() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -56,11 +59,11 @@ export function JoinRequestQueue() {
   });
 
   if (!selectedCompanyId) {
-    return <div className="text-sm text-muted-foreground">Select a company to review join requests.</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.joinrequestqueue.select_a_company_to_review_join_.jsx-text", { defaultValue: "Select a company to review join requests." })}</div>;
   }
 
   if (requestsQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading join requests…</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.joinrequestqueue.loading_join_requests.jsx-text", { defaultValue: "Loading join requests…" })}</div>;
   }
 
   if (requestsQuery.error) {
@@ -78,16 +81,15 @@ export function JoinRequestQueue() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <UserPlus2 className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Join Request Queue</h1>
+          <h1 className="text-lg font-semibold">{t("pages.joinrequestqueue.join_request_queue.jsx-text", { defaultValue: "Join Request Queue" })}</h1>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Review human and agent join requests outside the mixed inbox feed. This queue uses the same approval mutations as the inline inbox cards.
-        </p>
+          {t("pages.joinrequestqueue.review_human_and_agent_join_requ.jsx-text", { defaultValue: "\n          Review human and agent join requests outside the mixed inbox feed. This queue uses the same approval mutations as the inline inbox cards.\n        " })}</p>
       </div>
 
       <div className="flex flex-wrap gap-3 rounded-xl border border-border bg-card p-4">
         <label className="space-y-2 text-sm">
-          <span className="font-medium">Status</span>
+          <span className="font-medium">{t("pages.joinrequestqueue.status.jsx-text", { defaultValue: "Status" })}</span>
           <select
             className="rounded-md border border-border bg-background px-3 py-2"
             value={status}
@@ -95,13 +97,13 @@ export function JoinRequestQueue() {
               setStatus(event.target.value as "pending_approval" | "approved" | "rejected")
             }
           >
-            <option value="pending_approval">Pending approval</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
+            <option value="pending_approval">{t("pages.joinrequestqueue.pending_approval.jsx-text", { defaultValue: "Pending approval" })}</option>
+            <option value="approved">{t("pages.joinrequestqueue.approved.jsx-text", { defaultValue: "Approved" })}</option>
+            <option value="rejected">{t("pages.joinrequestqueue.rejected.jsx-text", { defaultValue: "Rejected" })}</option>
           </select>
         </label>
         <label className="space-y-2 text-sm">
-          <span className="font-medium">Request type</span>
+          <span className="font-medium">{t("pages.joinrequestqueue.request_type.jsx-text", { defaultValue: "Request type" })}</span>
           <select
             className="rounded-md border border-border bg-background px-3 py-2"
             value={requestType}
@@ -109,9 +111,9 @@ export function JoinRequestQueue() {
               setRequestType(event.target.value as "all" | "human" | "agent")
             }
           >
-            <option value="all">All</option>
-            <option value="human">Human</option>
-            <option value="agent">Agent</option>
+            <option value="all">{t("pages.joinrequestqueue.all.jsx-text", { defaultValue: "All" })}</option>
+            <option value="human">{t("pages.joinrequestqueue.human.jsx-text", { defaultValue: "Human" })}</option>
+            <option value="agent">{t("pages.joinrequestqueue.agent.jsx-text", { defaultValue: "Agent" })}</option>
           </select>
         </label>
       </div>
@@ -119,8 +121,7 @@ export function JoinRequestQueue() {
       <div className="space-y-4">
         {(requestsQuery.data ?? []).length === 0 ? (
           <div className="rounded-xl border border-dashed border-border px-4 py-8 text-sm text-muted-foreground">
-            No join requests match the current filters.
-          </div>
+            {t("pages.joinrequestqueue.no_join_requests_match_the_curre.jsx-text", { defaultValue: "\n            No join requests match the current filters.\n          " })}</div>
         ) : (
           requestsQuery.data!.map((request) => (
             <div key={request.id} className="rounded-xl border border-border bg-card p-4">
@@ -154,21 +155,19 @@ export function JoinRequestQueue() {
                       onClick={() => rejectMutation.mutate(request.id)}
                       disabled={rejectMutation.isPending}
                     >
-                      Reject
-                    </Button>
+                      {t("pages.joinrequestqueue.reject.jsx-text", { defaultValue: "\n                      Reject\n                    " })}</Button>
                     <Button
                       onClick={() => approveMutation.mutate(request.id)}
                       disabled={approveMutation.isPending}
                     >
-                      Approve
-                    </Button>
+                      {t("pages.joinrequestqueue.approve.jsx-text", { defaultValue: "\n                      Approve\n                    " })}</Button>
                   </div>
                 ) : null}
               </div>
 
               <div className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
                 <div className="rounded-lg border border-border bg-background px-3 py-2">
-                  <div className="text-xs font-medium uppercase tracking-wide">Invite context</div>
+                  <div className="text-xs font-medium uppercase tracking-wide">{t("pages.joinrequestqueue.invite_context.jsx-text", { defaultValue: "Invite context" })}</div>
                   <div className="mt-2">
                     {request.invite
                       ? `${request.invite.allowedJoinTypes} join invite${request.invite.humanRole ? ` • default role ${request.invite.humanRole}` : ""}`
@@ -179,9 +178,9 @@ export function JoinRequestQueue() {
                   ) : null}
                 </div>
                 <div className="rounded-lg border border-border bg-background px-3 py-2">
-                  <div className="text-xs font-medium uppercase tracking-wide">Request details</div>
-                  <div className="mt-2">Submitted {new Date(request.createdAt).toLocaleString()}</div>
-                  <div>Source IP {request.requestIp}</div>
+                  <div className="text-xs font-medium uppercase tracking-wide">{t("pages.joinrequestqueue.request_details.jsx-text", { defaultValue: "Request details" })}</div>
+                  <div className="mt-2">{t("pages.joinrequestqueue.submitted.jsx-text", { defaultValue: "Submitted " })}{new Date(request.createdAt).toLocaleString()}</div>
+                  <div>{t("pages.joinrequestqueue.source_ip.jsx-text", { defaultValue: "Source IP " })}{request.requestIp}</div>
                   {request.requestType === "agent" && request.capabilities ? <div>{request.capabilities}</div> : null}
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   Agent,
@@ -351,6 +352,8 @@ function FrontmatterCard({
   data: FrontmatterData;
   onSkillClick?: (skill: string) => void;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="rounded-md border border-border bg-accent/20 px-4 py-3 mb-4">
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
@@ -498,6 +501,8 @@ function ExportPreviewPane({
   allFiles: Record<string, CompanyPortabilityFileEntry>;
   onSkillClick?: (skill: string) => void;
 }) {
+const { t } = useTranslation();
+
   if (!selectedFile || content === null) {
     return (
       <EmptyState icon={Package} message="Select a file to preview its contents." />
@@ -546,8 +551,7 @@ function ExportPreviewPane({
           </pre>
         ) : (
           <div className="rounded-lg border border-border bg-accent/10 px-4 py-3 text-sm text-muted-foreground">
-            Binary asset preview is not available for this file type.
-          </div>
+            {t("pages.companyexport.binary_asset_preview_is_not_avai.jsx-text", { defaultValue: "\n            Binary asset preview is not available for this file type.\n          " })}</div>
         )}
       </div>
     </div>
@@ -578,6 +582,8 @@ function expandAncestors(filePath: string): string[] {
 }
 
 export function CompanyExport() {
+const { t } = useTranslation();
+
   const { selectedCompanyId, selectedCompany } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToastActions();
@@ -935,14 +941,12 @@ export function CompanyExport() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <span className="font-medium">
-              {selectedCompany?.name ?? "Company"} export
-            </span>
+              {selectedCompany?.name ?? "Company"} {t("pages.companyexport.export.jsx-text", { defaultValue: " export\n            " })}</span>
             <span className="text-muted-foreground">
-              {selectedCount} / {totalFiles} file{totalFiles === 1 ? "" : "s"} selected
-            </span>
+              {selectedCount} / {totalFiles} {t("pages.companyexport.file.jsx-text", { defaultValue: " file" })}{totalFiles === 1 ? "" : "s"} {t("pages.companyexport.selected.jsx-text", { defaultValue: " selected\n            " })}</span>
             {warnings.length > 0 && (
               <span className="text-amber-500">
-                {warnings.length} warning{warnings.length === 1 ? "" : "s"}
+                {warnings.length} {t("pages.companyexport.warning.jsx-text", { defaultValue: " warning" })}{warnings.length === 1 ? "" : "s"}
               </span>
             )}
           </div>
@@ -972,7 +976,7 @@ export function CompanyExport() {
       <div className="grid gap-4 xl:h-[calc(100vh-12rem)] xl:grid-cols-[19rem_minmax(0,1fr)] xl:gap-0">
         <aside className="flex max-h-[24rem] flex-col overflow-hidden border-b border-border xl:max-h-none xl:border-b-0 xl:border-r">
           <div className="border-b border-border px-4 py-3 shrink-0">
-            <h2 className="text-base font-semibold">Package files</h2>
+            <h2 className="text-base font-semibold">{t("pages.companyexport.package_files.jsx-text", { defaultValue: "Package files" })}</h2>
           </div>
           <div className="border-b border-border px-3 py-2 shrink-0">
             <div className="flex items-center gap-2 rounded-md border border-border px-2 py-1">
@@ -981,7 +985,7 @@ export function CompanyExport() {
                 type="text"
                 value={treeSearch}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search files..."
+                placeholder={t("pages.companyexport.search_files.attr_placeholder", { defaultValue: "Search files..." })}
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 data-page-search-target="true"
               />
@@ -1005,7 +1009,7 @@ export function CompanyExport() {
                   onClick={() => setTaskLimit((prev) => prev + TASKS_PAGE_SIZE)}
                   className="w-full rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
-                  Show more tasks ({visibleTaskChildren} of {totalTaskChildren})
+                  {t("pages.companyexport.show_more_tasks.jsx-text", { defaultValue: "\n                  Show more tasks (" })}{visibleTaskChildren} {t("pages.companyexport.of.jsx-text", { defaultValue: " of " })}{totalTaskChildren})
                 </button>
               </div>
             )}

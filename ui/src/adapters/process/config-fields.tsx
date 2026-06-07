@@ -1,4 +1,5 @@
 import type { AdapterConfigFieldsProps } from "../types";
+import { useTranslation } from "@/i18n";
 import {
   Field,
   DraftInput,
@@ -32,9 +33,11 @@ export function ProcessConfigFields({
   eff,
   mark,
 }: AdapterConfigFieldsProps) {
+const { t } = useTranslation();
+
   return (
     <>
-      <Field label="Command" hint={help.command}>
+      <Field label={t("misc.config_fields.command.attr_label", { defaultValue: "Command" })} hint={help.command}>
         <DraftInput
           value={
             isCreate
@@ -48,10 +51,10 @@ export function ProcessConfigFields({
           }
           immediate
           className={inputClass}
-          placeholder="e.g. node, python"
+          placeholder={t("misc.config_fields.e_g_node_python.attr_placeholder", { defaultValue: "e.g. node, python" })}
         />
       </Field>
-      <Field label="Args (comma-separated)" hint={help.args}>
+      <Field label={t("misc.config_fields.args_comma_separated.attr_label", { defaultValue: "Args (comma-separated)" })} hint={help.args}>
         <DraftInput
           value={
             isCreate
@@ -69,7 +72,7 @@ export function ProcessConfigFields({
           }
           immediate
           className={inputClass}
-          placeholder="e.g. script.js, --flag"
+          placeholder={t("misc.config_fields.e_g_script_js_flag.attr_placeholder", { defaultValue: "e.g. script.js, --flag" })}
         />
       </Field>
     </>

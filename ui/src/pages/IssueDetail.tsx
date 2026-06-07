@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type ReactNode, type Ref } from "react";
+import { useTranslation } from "@/i18n";
 import { pickTextColorForPillBg } from "@/lib/color-contrast";
 import { Link, useLocation, useNavigate, useNavigationType, useParams } from "@/lib/router";
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient, type InfiniteData, type QueryClient } from "@tanstack/react-query";
@@ -378,6 +379,8 @@ function mergeOptimisticFeedbackVote(
 }
 
 function ActorIdentity({ evt, agentMap, userProfileMap }: { evt: ActivityEvent; agentMap: Map<string, Agent>; userProfileMap?: Map<string, import("../lib/company-members").CompanyUserProfile> }) {
+const { t } = useTranslation();
+
   const id = evt.actorId;
   if (evt.actorType === "agent") {
     const agent = agentMap.get(id);
@@ -398,6 +401,8 @@ function IssueSectionSkeleton({
   titleWidth?: string;
   rows?: number;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-3 rounded-lg border border-border p-3">
       <Skeleton className={cn("h-4", titleWidth)} />
@@ -411,6 +416,8 @@ function IssueSectionSkeleton({
 }
 
 function IssueChatSkeleton() {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-3 rounded-lg border border-border p-3">
       <div className="space-y-2">
@@ -446,6 +453,8 @@ function IssueDetailLoadingState({
 }: {
   headerSeed: ReturnType<typeof readIssueDetailHeaderSeed>;
 }) {
+const { t } = useTranslation();
+
   const identifier = headerSeed?.identifier ?? headerSeed?.id.slice(0, 8) ?? null;
 
   return (
@@ -464,8 +473,7 @@ function IssueDetailLoadingState({
               {headerSeed.originKind === "routine_execution" && headerSeed.originId ? (
                 <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400 shrink-0">
                   <Repeat className="h-3 w-3" />
-                  Routine
-                </span>
+                  {t("pages.issuedetail.routine.jsx-text", { defaultValue: "\n                  Routine\n                " })}</span>
               ) : null}
               {headerSeed.projectId ? (
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground rounded px-1 -mx-1 py-0.5 min-w-0">
@@ -477,8 +485,7 @@ function IssueDetailLoadingState({
               ) : (
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground opacity-50 px-1 -mx-1 py-0.5">
                   <Hexagon className="h-3 w-3 shrink-0" />
-                  No project
-                </span>
+                  {t("pages.issuedetail.no_project.jsx-text", { defaultValue: "\n                  No project\n                " })}</span>
               )}
             </>
           ) : (
@@ -543,6 +550,8 @@ function InboxMobileToolbar({
   onProperties,
   onHide,
 }: InboxMobileToolbarProps) {
+const { t } = useTranslation();
+
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -561,7 +570,7 @@ function InboxMobileToolbar({
             navigate(backHref);
           }
         }}
-        aria-label="Back to inbox"
+        aria-label={t("pages.issuedetail.back_to_inbox.attr_aria-label", { defaultValue: "Back to inbox" })}
       >
         <ArrowLeft className="h-5 w-5" />
       </Button>
@@ -573,7 +582,7 @@ function InboxMobileToolbar({
             size="icon-sm"
             onClick={onArchive}
             disabled={archivePending}
-            aria-label="Archive from inbox"
+            aria-label={t("pages.issuedetail.archive_from_inbox.attr_aria-label", { defaultValue: "Archive from inbox" })}
           >
             <Archive className="h-5 w-5" />
           </Button>
@@ -581,7 +590,7 @@ function InboxMobileToolbar({
 
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="More actions">
+            <Button variant="ghost" size="icon-sm" aria-label={t("pages.issuedetail.more_actions.attr_aria-label", { defaultValue: "More actions" })}>
               <MoreVertical className="h-5 w-5" />
             </Button>
           </PopoverTrigger>
@@ -591,23 +600,20 @@ function InboxMobileToolbar({
               onClick={() => { onCopy(); setMenuOpen(false); }}
             >
               <Copy className="h-3 w-3" />
-              Copy as markdown
-            </button>
+              {t("pages.issuedetail.copy_as_markdown.jsx-text", { defaultValue: "\n              Copy as markdown\n            " })}</button>
             <button
               className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
               onClick={() => { onProperties(); setMenuOpen(false); }}
             >
               <SlidersHorizontal className="h-3 w-3" />
-              Properties
-            </button>
+              {t("pages.issuedetail.properties.jsx-text", { defaultValue: "\n              Properties\n            " })}</button>
             {issueIdProp && (
               <button
                 className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-destructive"
                 onClick={() => { onHide(); setMenuOpen(false); }}
               >
                 <EyeOff className="h-3 w-3" />
-                Hide this task
-              </button>
+                {t("pages.issuedetail.hide_this_task.jsx-text", { defaultValue: "\n                Hide this task\n              " })}</button>
             )}
           </PopoverContent>
         </Popover>
@@ -750,6 +756,8 @@ const IssueDetailChatTab = memo(function IssueDetailChatTab({
   onResumeFromBacklog,
   resumeFromBacklogPending,
 }: IssueDetailChatTabProps) {
+const { t } = useTranslation();
+
   const { data: activity } = useQuery({
     queryKey: queryKeys.issues.activity(issueId),
     queryFn: () => activityApi.forIssue(issueId),
@@ -1005,6 +1013,8 @@ function IssueDetailActivityTab({
   checkingMonitorNow,
   handoffFocusSignal = 0,
 }: IssueDetailActivityTabProps) {
+const { t } = useTranslation();
+
   const { data: activity, isLoading: activityLoading } = useQuery({
     queryKey: queryKeys.issues.activity(issueId),
     queryFn: () => activityApi.forIssue(issueId),
@@ -1116,13 +1126,13 @@ function IssueDetailActivityTab({
     <>
       {shouldShowCostSummary && (
         <div className="mb-3 px-3 py-2 rounded-lg border border-border">
-          <div className="text-sm font-medium text-muted-foreground mb-1">Cost Summary</div>
+          <div className="text-sm font-medium text-muted-foreground mb-1">{t("pages.issuedetail.cost_summary.jsx-text", { defaultValue: "Cost Summary" })}</div>
           {!issueCostSummary.hasCost && !issueCostSummary.hasTokens && !hasIssueTreeCost ? (
-            <div className="text-xs text-muted-foreground">No cost data yet.</div>
+            <div className="text-xs text-muted-foreground">{t("pages.issuedetail.no_cost_data_yet.jsx-text", { defaultValue: "No cost data yet." })}</div>
           ) : (
             <div className="space-y-1 text-xs text-muted-foreground tabular-nums">
               <div className="flex flex-wrap gap-3">
-                <span className="font-medium text-foreground">This task</span>
+                <span className="font-medium text-foreground">{t("pages.issuedetail.this_task.jsx-text", { defaultValue: "This task" })}</span>
                 {issueCostSummary.hasCost ? (
                   <span className="font-medium text-foreground">
                     ${issueCostSummary.cost.toFixed(4)}
@@ -1130,7 +1140,7 @@ function IssueDetailActivityTab({
                 ) : null}
                 {issueCostSummary.hasTokens ? (
                   <span>
-                    Tokens {formatTokens(issueCostSummary.totalTokens)}
+                    {t("pages.issuedetail.tokens.jsx-text", { defaultValue: "\n                    Tokens " })}{formatTokens(issueCostSummary.totalTokens)}
                     {issueCostSummary.cached > 0
                       ? ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)}, cached ${formatTokens(issueCostSummary.cached)})`
                       : ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)})`}
@@ -1138,18 +1148,18 @@ function IssueDetailActivityTab({
                 ) : null}
                 {issueCostSummary.hasRuntime ? (
                   <span>
-                    Runtime {formatDurationMs(issueCostSummary.runtimeMs)}
+                    {t("pages.issuedetail.runtime.jsx-text", { defaultValue: "\n                    Runtime " })}{formatDurationMs(issueCostSummary.runtimeMs)}
                     {` (${issueCostSummary.runCount} run${issueCostSummary.runCount === 1 ? "" : "s"})`}
                   </span>
                 ) : null}
                 {!issueCostSummary.hasCost && !issueCostSummary.hasTokens && !issueCostSummary.hasRuntime ? (
-                  <span>No direct cost data.</span>
+                  <span>{t("pages.issuedetail.no_direct_cost_data.jsx-text", { defaultValue: "No direct cost data." })}</span>
                 ) : null}
               </div>
               {hasIssueTreeCost && issueTreeCostSummary ? (
                 <div className="flex flex-wrap gap-3">
                   <span className="font-medium text-foreground">
-                    Including sub-tasks {(issueTreeCostSummary.costCents / 100).toLocaleString(undefined, {
+                    {t("pages.issuedetail.including_sub_tasks.jsx-text", { defaultValue: "\n                    Including sub-tasks " })}{(issueTreeCostSummary.costCents / 100).toLocaleString(undefined, {
                       style: "currency",
                       currency: "USD",
                       minimumFractionDigits: 4,
@@ -1157,18 +1167,18 @@ function IssueDetailActivityTab({
                     })}
                   </span>
                   <span>
-                    Tokens {formatTokens(issueTreeCostTokens)}
+                    {t("pages.issuedetail.tokens.jsx-text", { defaultValue: "\n                    Tokens " })}{formatTokens(issueTreeCostTokens)}
                     {issueTreeCostSummary.cachedInputTokens > 0
                       ? ` (in ${formatTokens(issueTreeCostSummary.inputTokens)}, out ${formatTokens(issueTreeCostSummary.outputTokens)}, cached ${formatTokens(issueTreeCostSummary.cachedInputTokens)})`
                       : ` (in ${formatTokens(issueTreeCostSummary.inputTokens)}, out ${formatTokens(issueTreeCostSummary.outputTokens)})`}
                   </span>
                   {issueTreeCostSummary.runCount > 0 ? (
                     <span>
-                      Runtime {formatDurationMs(issueTreeCostSummary.runtimeMs)}
+                      {t("pages.issuedetail.runtime.jsx-text", { defaultValue: "\n                      Runtime " })}{formatDurationMs(issueTreeCostSummary.runtimeMs)}
                       {` (${issueTreeCostSummary.runCount} run${issueTreeCostSummary.runCount === 1 ? "" : "s"})`}
                     </span>
                   ) : null}
-                  <span>{issueTreeCostSummary.issueCount} task{issueTreeCostSummary.issueCount === 1 ? "" : "s"}</span>
+                  <span>{issueTreeCostSummary.issueCount} {t("pages.issuedetail.task.jsx-text", { defaultValue: " task" })}{issueTreeCostSummary.issueCount === 1 ? "" : "s"}</span>
                 </div>
               ) : null}
             </div>
@@ -1237,6 +1247,8 @@ function IssueDetailActivityTab({
 }
 
 export function IssueDetail() {
+const { t } = useTranslation();
+
   const { issueId } = useParams<{ issueId: string }>();
   const { selectedCompanyId } = useCompany();
   const { openNewIssue } = useDialogActions();
@@ -3322,8 +3334,8 @@ export function IssueDetail() {
         <Paperclip className="h-3.5 w-3.5 mr-1.5" />
         {uploadAttachment.isPending || importMarkdownDocument.isPending ? "Uploading..." : (
           <>
-            <span className="hidden sm:inline">Upload attachment</span>
-            <span className="sm:hidden">Upload</span>
+            <span className="hidden sm:inline">{t("pages.issuedetail.upload_attachment.jsx-text", { defaultValue: "Upload attachment" })}</span>
+            <span className="sm:hidden">{t("pages.issuedetail.upload.jsx-text", { defaultValue: "Upload" })}</span>
           </>
         )}
       </Button>
@@ -3362,8 +3374,7 @@ export function IssueDetail() {
       {issue.hiddenAt && (
         <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           <EyeOff className="h-4 w-4 shrink-0" />
-          This task is hidden
-        </div>
+          {t("pages.issuedetail.this_task_is_hidden.jsx-text", { defaultValue: "\n          This task is hidden\n        " })}</div>
       )}
       {activePauseHold && (
         <div className="rounded-md border border-amber-500/35 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
@@ -3406,7 +3417,7 @@ export function IssueDetail() {
                       setTreeControlOpen(true);
                     }}
                   >
-                    View affected ({childIssues.length === 0 ? 1 : heldDescendantCount})
+                    {t("pages.issuedetail.view_affected.jsx-text", { defaultValue: "\n                    View affected (" })}{childIssues.length === 0 ? 1 : heldDescendantCount})
                   </Button>
                   {canShowSubtreeControls ? (
                     <Button
@@ -3419,15 +3430,14 @@ export function IssueDetail() {
                         setTreeControlOpen(true);
                       }}
                     >
-                      Cancel subtree...
-                    </Button>
+                      {t("pages.issuedetail.cancel_subtree.jsx-text", { defaultValue: "\n                      Cancel subtree...\n                    " })}</Button>
                   ) : null}
                 </div>
               ) : null}
             </div>
           ) : (
             <div className="text-xs">
-              This task is paused by ancestor{" "}
+              {t("pages.issuedetail.this_task_is_paused_by_ancestor.jsx-text", { defaultValue: "\n              This task is paused by ancestor" })}{" "}
               {activePauseHoldRoot?.identifier ? (
                 <Link to={createIssueDetailPath(activePauseHoldRoot.identifier)} className="underline">
                   {activePauseHoldRoot.identifier}
@@ -3435,8 +3445,7 @@ export function IssueDetail() {
               ) : (
                 activePauseHold.rootIssueId.slice(0, 8)
               )}
-              . Resume from the root task to deliver deferred work.
-            </div>
+              {t("pages.issuedetail.resume_from_the_root_task_to_del.jsx-text", { defaultValue: "\n              . Resume from the root task to deliver deferred work.\n            " })}</div>
           )}
         </div>
       )}
@@ -3460,8 +3469,7 @@ export function IssueDetail() {
                 <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400" />
               </span>
-              Live
-            </span>
+              {t("pages.issuedetail.live.jsx-text", { defaultValue: "\n              Live\n            " })}</span>
           )}
 
           {issue.originKind === "routine_execution" && issue.originId && (
@@ -3470,8 +3478,7 @@ export function IssueDetail() {
               className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 border border-violet-500/30 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400 shrink-0 hover:bg-violet-500/20 transition-colors"
             >
               <Repeat className="h-3 w-3" />
-              Routine
-            </Link>
+              {t("pages.issuedetail.routine.jsx-text", { defaultValue: "\n              Routine\n            " })}</Link>
           )}
 
           {issue.productivityReview ? (
@@ -3481,31 +3488,28 @@ export function IssueDetail() {
           {issue.originKind === "issue_productivity_review" ? (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 shrink-0"
-              title="This task is a productivity review."
+              title={t("pages.issuedetail.this_task_is_a_productivity_revi.attr_title", { defaultValue: "This task is a productivity review." })}
             >
               <Eye className="h-3 w-3" />
-              Productivity review
-            </span>
+              {t("pages.issuedetail.productivity_review.jsx-text", { defaultValue: "\n              Productivity review\n            " })}</span>
           ) : null}
 
           {issue.workMode === "planning" ? (
             <span
               className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 shrink-0"
-              title="This task is in planning mode."
+              title={t("pages.issuedetail.this_task_is_in_planning_mode.attr_title", { defaultValue: "This task is in planning mode." })}
             >
-              Planning
-            </span>
+              {t("pages.issuedetail.planning.jsx-text", { defaultValue: "\n              Planning\n            " })}</span>
           ) : null}
 
           {hasAssignedBacklogBlocker(issue.blockedBy) ? (
             <span
               data-testid="issue-detail-parked-blocker"
               className="inline-flex items-center gap-1 rounded-full border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 shrink-0"
-              title="Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee."
+              title={t("pages.issuedetail.blocked_by_parked_work_at_least_.attr_title", { defaultValue: "Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee." })}
             >
               <Flag className="h-3 w-3" />
-              Blocked by parked work
-            </span>
+              {t("pages.issuedetail.blocked_by_parked_work.jsx-text", { defaultValue: "\n              Blocked by parked work\n            " })}</span>
           ) : null}
 
           {issue.projectId ? (
@@ -3519,8 +3523,7 @@ export function IssueDetail() {
           ) : (
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground opacity-50 px-1 -mx-1 py-0.5">
               <Hexagon className="h-3 w-3 shrink-0" />
-              No project
-            </span>
+              {t("pages.issuedetail.no_project.jsx-text", { defaultValue: "\n              No project\n            " })}</span>
           )}
 
           {(issue.labels ?? []).length > 0 && (
@@ -3550,7 +3553,7 @@ export function IssueDetail() {
                 variant="ghost"
                 size="icon-xs"
                 onClick={copyIssueToClipboard}
-                title="Copy task as markdown"
+                title={t("pages.issuedetail.copy_task_as_markdown.attr_title", { defaultValue: "Copy task as markdown" })}
               >
                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               </Button>
@@ -3558,7 +3561,7 @@ export function IssueDetail() {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => setMobilePropsOpen(true)}
-                title="Properties"
+                title={t("pages.issuedetail.properties.attr_title", { defaultValue: "Properties" })}
               >
                 <SlidersHorizontal className="h-4 w-4" />
               </Button>
@@ -3574,8 +3577,8 @@ export function IssueDetail() {
                   if (!archivePending && issue?.id) archiveFromInbox.mutate(issue.id);
                 }}
                 disabled={archivePending}
-                title="Archive from inbox"
-                aria-label="Archive from inbox"
+                title={t("pages.issuedetail.archive_from_inbox.attr_title", { defaultValue: "Archive from inbox" })}
+                aria-label={t("pages.issuedetail.archive_from_inbox.attr_aria-label", { defaultValue: "Archive from inbox" })}
               >
                 <Archive className="h-4 w-4" />
               </Button>
@@ -3584,7 +3587,7 @@ export function IssueDetail() {
               variant="ghost"
               size="icon-xs"
               onClick={copyIssueToClipboard}
-              title="Copy task as markdown"
+              title={t("pages.issuedetail.copy_task_as_markdown.attr_title", { defaultValue: "Copy task as markdown" })}
             >
               {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
             </Button>
@@ -3596,7 +3599,7 @@ export function IssueDetail() {
                 panelVisible ? "opacity-0 pointer-events-none w-0 overflow-hidden" : "opacity-100",
               )}
               onClick={() => setPanelVisible(true)}
-              title="Show properties"
+              title={t("pages.issuedetail.show_properties.attr_title", { defaultValue: "Show properties" })}
             >
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
@@ -3607,8 +3610,8 @@ export function IssueDetail() {
                   variant="ghost"
                   size="icon-xs"
                   className="shrink-0"
-                  aria-label="More task actions"
-                  title="More task actions"
+                  aria-label={t("pages.issuedetail.more_task_actions.attr_aria-label", { defaultValue: "More task actions" })}
+                  title={t("pages.issuedetail.more_task_actions.attr_title", { defaultValue: "More task actions" })}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
@@ -3631,8 +3634,7 @@ export function IssueDetail() {
                   }}
                 >
                   <PauseCircle className="h-3 w-3" />
-                  Pause work...
-                </button>
+                  {t("pages.issuedetail.pause_work.jsx-text", { defaultValue: "\n                  Pause work...\n                " })}</button>
               ) : null}
               {canResumeLeafWork ? (
                 <button
@@ -3645,8 +3647,7 @@ export function IssueDetail() {
                   }}
                 >
                   <PlayCircle className="h-3 w-3" />
-                  Resume work
-                </button>
+                  {t("pages.issuedetail.resume_work.jsx-text", { defaultValue: "\n                  Resume work\n                " })}</button>
               ) : null}
               {canShowSubtreeControls ? (
                 <>
@@ -3660,8 +3661,7 @@ export function IssueDetail() {
                     }}
                   >
                     <PauseCircle className="h-3 w-3" />
-                    Pause subtree...
-                  </button>
+                    {t("pages.issuedetail.pause_subtree.jsx-text", { defaultValue: "\n                    Pause subtree...\n                  " })}</button>
                   {canResumeSubtree ? (
                     <button
                       className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
@@ -3673,8 +3673,7 @@ export function IssueDetail() {
                       }}
                     >
                       <PlayCircle className="h-3 w-3" />
-                      Resume subtree
-                    </button>
+                      {t("pages.issuedetail.resume_subtree.jsx-text", { defaultValue: "\n                      Resume subtree\n                    " })}</button>
                   ) : null}
                   <button
                     className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-destructive"
@@ -3686,8 +3685,7 @@ export function IssueDetail() {
                     }}
                   >
                     <XCircle className="h-3 w-3" />
-                    Cancel subtree...
-                  </button>
+                    {t("pages.issuedetail.cancel_subtree.jsx-text", { defaultValue: "\n                    Cancel subtree...\n                  " })}</button>
                   {canRestoreSubtree ? (
                     <button
                       className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
@@ -3700,8 +3698,7 @@ export function IssueDetail() {
                       }}
                     >
                       <Repeat className="h-3 w-3" />
-                      Restore subtree...
-                    </button>
+                      {t("pages.issuedetail.restore_subtree.jsx-text", { defaultValue: "\n                      Restore subtree...\n                    " })}</button>
                   ) : null}
                 </>
               ) : null}
@@ -3716,8 +3713,7 @@ export function IssueDetail() {
                 }}
               >
                 <EyeOff className="h-3 w-3" />
-                Hide this task
-              </button>
+                {t("pages.issuedetail.hide_this_task.jsx-text", { defaultValue: "\n                Hide this task\n              " })}</button>
             </PopoverContent>
             </Popover>
           </div>
@@ -3735,7 +3731,7 @@ export function IssueDetail() {
           onSave={(description) => updateIssue.mutateAsync({ description })}
           as="p"
           className="text-[15px] leading-7 text-foreground"
-          placeholder="Add a description..."
+          placeholder={t("pages.issuedetail.add_a_description.attr_placeholder", { defaultValue: "Add a description..." })}
           multiline
           foldable
           mentions={mentionOptions}
@@ -3793,7 +3789,7 @@ export function IssueDetail() {
       {showRichSubIssuesSection ? (
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-medium text-muted-foreground">Sub-tasks</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">{t("pages.issuedetail.sub_tasks.jsx-text", { defaultValue: "Sub-tasks" })}</h3>
           </div>
           <IssuesList
             issues={childIssues}
@@ -3820,8 +3816,7 @@ export function IssueDetail() {
         <div className="flex flex-wrap items-center justify-end gap-2 min-w-0">
           <Button variant="outline" size="sm" onClick={openNewSubIssue} className="shrink-0 shadow-none">
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            New Sub-task
-          </Button>
+            {t("pages.issuedetail.new_sub_task.jsx-text", { defaultValue: "\n            New Sub-task\n          " })}</Button>
         </div>
       )}
 
@@ -3912,16 +3907,13 @@ export function IssueDetail() {
         <TabsList variant="line" className="w-full justify-start gap-1">
           <TabsTrigger value="chat" className="gap-1.5">
             <MessageSquare className="h-3.5 w-3.5" />
-            Chat
-          </TabsTrigger>
+            {t("pages.issuedetail.chat.jsx-text", { defaultValue: "\n            Chat\n          " })}</TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5">
             <ActivityIcon className="h-3.5 w-3.5" />
-            Activity
-          </TabsTrigger>
+            {t("pages.issuedetail.activity.jsx-text", { defaultValue: "\n            Activity\n          " })}</TabsTrigger>
           <TabsTrigger value="related-work" className="gap-1.5">
             <ListTree className="h-3.5 w-3.5" />
-            Related work
-          </TabsTrigger>
+            {t("pages.issuedetail.related_work.jsx-text", { defaultValue: "\n            Related work\n          " })}</TabsTrigger>
           {issuePluginTabItems.map((item) => (
             <TabsTrigger key={item.value} value={item.value}>
               {item.label}
@@ -4062,18 +4054,16 @@ export function IssueDetail() {
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-6 py-4">
             {treeControlMode === "cancel" ? (
               <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
-                Cancelling a subtree is destructive. Non-terminal tasks will be marked cancelled, and running or queued work will be interrupted where possible.
-              </div>
+                {t("pages.issuedetail.cancelling_a_subtree_is_destruct.jsx-text", { defaultValue: "\n                Cancelling a subtree is destructive. Non-terminal tasks will be marked cancelled, and running or queued work will be interrupted where possible.\n              " })}</div>
             ) : null}
 
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">
-                Reason (optional)
-              </label>
+                {t("pages.issuedetail.reason_optional.jsx-text", { defaultValue: "\n                Reason (optional)\n              " })}</label>
               <Textarea
                 value={treeControlReason}
                 onChange={(event) => setTreeControlReason(event.target.value)}
-                placeholder="Explain why this subtree control is being applied..."
+                placeholder={t("pages.issuedetail.explain_why_this_subtree_control.attr_placeholder", { defaultValue: "Explain why this subtree control is being applied..." })}
                 className="min-h-[88px]"
               />
             </div>
@@ -4089,7 +4079,7 @@ export function IssueDetail() {
                     onChange={(event) => setTreeControlWakeAgentsOnResume(event.target.checked)}
                   />
                   <span>
-                    <span className="block font-medium">Wake affected agents ({previewAffectedAgentCount})</span>
+                    <span className="block font-medium">{t("pages.issuedetail.wake_affected_agents.jsx-text", { defaultValue: "Wake affected agents (" })}{previewAffectedAgentCount})</span>
                     <span className="text-xs text-muted-foreground">
                       {previewAffectedAgentCount === 0
                         ? "No assigned agents are eligible to wake from this preview."
@@ -4120,7 +4110,7 @@ export function IssueDetail() {
                   checked={treeControlCancelConfirmed}
                   onChange={(event) => setTreeControlCancelConfirmed(event.target.checked)}
                 />
-                <span>I understand this will cancel {previewAffectedIssueCount} tasks.</span>
+                <span>{t("pages.issuedetail.i_understand_this_will_cancel.jsx-text", { defaultValue: "I understand this will cancel " })}{previewAffectedIssueCount} {t("pages.issuedetail.tasks.jsx-text", { defaultValue: " tasks." })}</span>
               </label>
             ) : null}
 
@@ -4142,8 +4132,7 @@ export function IssueDetail() {
                       void refetchTreeControlPreview();
                     }}
                   >
-                    Retry preview
-                  </Button>
+                    {t("pages.issuedetail.retry_preview.jsx-text", { defaultValue: "\n                    Retry preview\n                  " })}</Button>
                 </div>
               ) : treeControlPreview ? (
                 <div className="space-y-2">
@@ -4174,7 +4163,7 @@ export function IssueDetail() {
                             </span>
                             <span className="min-w-0 flex-1 truncate">{candidate.title}</span>
                             {candidate.skipped && candidate.skipReason === "terminal_status" ? (
-                              <span className="shrink-0 text-xs text-muted-foreground">Complete</span>
+                              <span className="shrink-0 text-xs text-muted-foreground">{t("pages.issuedetail.complete.jsx-text", { defaultValue: "Complete" })}</span>
                             ) : null}
                           </Link>
                         </div>
@@ -4183,14 +4172,13 @@ export function IssueDetail() {
                   ) : null}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">Preview unavailable.</p>
+                <p className="text-xs text-muted-foreground">{t("pages.issuedetail.preview_unavailable.jsx-text", { defaultValue: "Preview unavailable." })}</p>
               )}
             </div>
           </div>
           <DialogFooter className="border-t border-border/60 bg-background px-6 py-4">
             <Button variant="outline" onClick={() => setTreeControlOpen(false)} disabled={executeTreeControl.isPending}>
-              Close
-            </Button>
+              {t("pages.issuedetail.close.jsx-text", { defaultValue: "\n              Close\n            " })}</Button>
             <Button
               onClick={() => executeTreeControl.mutate()}
               disabled={executeTreeControl.isPending || !canApplyTreeControl}
@@ -4206,7 +4194,7 @@ export function IssueDetail() {
       <Sheet open={mobilePropsOpen} onOpenChange={setMobilePropsOpen}>
         <SheetContent side="bottom" className="max-h-[85dvh] pb-[env(safe-area-inset-bottom)]">
           <SheetHeader>
-            <SheetTitle className="text-sm">Properties</SheetTitle>
+            <SheetTitle className="text-sm">{t("pages.issuedetail.properties.jsx-text", { defaultValue: "Properties" })}</SheetTitle>
           </SheetHeader>
           <ScrollArea className="flex-1 overflow-y-auto">
             <div className="px-4 pb-4">

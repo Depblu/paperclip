@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS,
@@ -30,6 +31,8 @@ const reassignmentIssueStatuses = "backlog,todo,in_progress,in_review,blocked,fa
 type EditableMemberStatus = "pending" | "active" | "suspended";
 
 export function CompanyAccess() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -201,11 +204,11 @@ export function CompanyAccess() {
   }, [removingMember]);
 
   if (!selectedCompanyId) {
-    return <div className="text-sm text-muted-foreground">Select a company to manage access.</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyaccess.select_a_company_to_manage_acces.jsx-text", { defaultValue: "Select a company to manage access." })}</div>;
   }
 
   if (membersQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading company access…</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyaccess.loading_company_access.jsx-text", { defaultValue: "Loading company access…" })}</div>;
   }
 
   if (membersQuery.error) {
@@ -238,43 +241,38 @@ export function CompanyAccess() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Company Members</h1>
+          <h1 className="text-lg font-semibold">{t("pages.companyaccess.company_members.jsx-text", { defaultValue: "Company Members" })}</h1>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Manage the people who can work in {selectedCompany?.name}. Members can collaborate across the company by default.
-        </p>
+          {t("pages.companyaccess.manage_the_people_who_can_work_i.jsx-text", { defaultValue: "\n          Manage the people who can work in " })}{selectedCompany?.name}{t("pages.companyaccess.members_can_collaborate_across_t.jsx-text", { defaultValue: ". Members can collaborate across the company by default.\n        " })}</p>
         <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Core keeps this page focused on membership, invite approvals, and safe member removal.
-        </div>
+          {t("pages.companyaccess.core_keeps_this_page_focused_on_.jsx-text", { defaultValue: "\n          Core keeps this page focused on membership, invite approvals, and safe member removal.\n        " })}</div>
       </div>
 
       {access && !access.currentUserRole && (
         <div className="rounded-xl border border-amber-500/40 px-4 py-3 text-sm text-amber-200">
-          This account can manage access here through instance-admin privileges, but it does not currently hold an active company membership.
-        </div>
+          {t("pages.companyaccess.this_account_can_manage_access_h.jsx-text", { defaultValue: "\n          This account can manage access here through instance-admin privileges, but it does not currently hold an active company membership.\n        " })}</div>
       )}
 
       <section className="space-y-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-base font-semibold">Humans</h2>
+            <h2 className="text-base font-semibold">{t("pages.companyaccess.humans.jsx-text", { defaultValue: "Humans" })}</h2>
           </div>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            Manage human company memberships and status here.
-          </p>
+            {t("pages.companyaccess.manage_human_company_memberships.jsx-text", { defaultValue: "\n            Manage human company memberships and status here.\n          " })}</p>
         </div>
 
         {access?.canApproveJoinRequests && pendingHumanJoinRequests.length > 0 ? (
           <div className="space-y-3 rounded-xl border border-border px-4 py-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h3 className="text-sm font-semibold">Pending human joins</h3>
+                <h3 className="text-sm font-semibold">{t("pages.companyaccess.pending_human_joins.jsx-text", { defaultValue: "Pending human joins" })}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Review pending join requests before they become active company members.
-                </p>
+                  {t("pages.companyaccess.review_pending_join_requests_bef.jsx-text", { defaultValue: "\n                  Review pending join requests before they become active company members.\n                " })}</p>
               </div>
-              <Badge variant="outline">{pendingHumanJoinRequests.length} pending</Badge>
+              <Badge variant="outline">{pendingHumanJoinRequests.length} {t("pages.companyaccess.pending.jsx-text", { defaultValue: " pending" })}</Badge>
             </div>
             <div className="space-y-3">
               {pendingHumanJoinRequests.map((request) => (
@@ -311,13 +309,13 @@ export function CompanyAccess() {
 
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="grid grid-cols-[minmax(0,1.5fr)_120px_120px_180px] gap-3 border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <div>User account</div>
+            <div>{t("pages.companyaccess.user_account.jsx-text", { defaultValue: "User account" })}</div>
             <div>Role</div>
-            <div>Status</div>
+            <div>{t("pages.companyaccess.status.jsx-text", { defaultValue: "Status" })}</div>
             <div className="text-right">Action</div>
           </div>
           {members.length === 0 ? (
-            <div className="px-4 py-8 text-sm text-muted-foreground">No user memberships found for this company yet.</div>
+            <div className="px-4 py-8 text-sm text-muted-foreground">{t("pages.companyaccess.no_user_memberships_found_for_th.jsx-text", { defaultValue: "No user memberships found for this company yet." })}</div>
           ) : (
             members.map((member) => {
               const removalReason = member.removal?.reason ?? null;
@@ -344,8 +342,7 @@ export function CompanyAccess() {
                   <div className="space-y-1 text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => setEditingMemberId(member.id)}>
-                        Edit
-                      </Button>
+                        {t("pages.companyaccess.edit.jsx-text", { defaultValue: "\n                        Edit\n                      " })}</Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -354,8 +351,7 @@ export function CompanyAccess() {
                         title={removalReason ?? undefined}
                       >
                         <Trash2 className="mr-1 h-3.5 w-3.5" />
-                        Remove
-                      </Button>
+                        {t("pages.companyaccess.remove.jsx-text", { defaultValue: "\n                        Remove\n                      " })}</Button>
                     </div>
                     {removalReason ? (
                       <div className="text-xs text-muted-foreground">{removalReason}</div>
@@ -371,16 +367,16 @@ export function CompanyAccess() {
       <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMemberId(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit member</DialogTitle>
+            <DialogTitle>{t("pages.companyaccess.edit_member.jsx-text", { defaultValue: "Edit member" })}</DialogTitle>
             <DialogDescription>
-              Update company role and membership status for {editingMember?.user?.name || editingMember?.user?.email || editingMember?.principalId}.
+              {t("pages.companyaccess.update_company_role_and_membersh.jsx-text", { defaultValue: "\n              Update company role and membership status for " })}{editingMember?.user?.name || editingMember?.user?.email || editingMember?.principalId}.
             </DialogDescription>
           </DialogHeader>
           {editingMember && (
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm">
-                  <span className="font-medium">Company role</span>
+                  <span className="font-medium">{t("pages.companyaccess.company_role.jsx-text", { defaultValue: "Company role" })}</span>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
                     value={draftRole ?? ""}
@@ -388,7 +384,7 @@ export function CompanyAccess() {
                       setDraftRole((event.target.value || null) as CompanyMember["membershipRole"])
                     }
                   >
-                    <option value="">Unset</option>
+                    <option value="">{t("pages.companyaccess.unset.jsx-text", { defaultValue: "Unset" })}</option>
                     {Object.entries(HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -397,7 +393,7 @@ export function CompanyAccess() {
                   </select>
                 </label>
                 <label className="space-y-2 text-sm">
-                  <span className="font-medium">Membership status</span>
+                  <span className="font-medium">{t("pages.companyaccess.membership_status.jsx-text", { defaultValue: "Membership status" })}</span>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
                     value={draftStatus}
@@ -405,9 +401,9 @@ export function CompanyAccess() {
                       setDraftStatus(event.target.value as EditableMemberStatus)
                     }
                   >
-                    <option value="active">Active</option>
-                    <option value="pending">Pending</option>
-                    <option value="suspended">Suspended</option>
+                    <option value="active">{t("pages.companyaccess.active.jsx-text", { defaultValue: "Active" })}</option>
+                    <option value="pending">{t("pages.companyaccess.pending.jsx-text", { defaultValue: "Pending" })}</option>
+                    <option value="suspended">{t("pages.companyaccess.suspended.jsx-text", { defaultValue: "Suspended" })}</option>
                   </select>
                 </label>
               </div>
@@ -415,8 +411,7 @@ export function CompanyAccess() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingMemberId(null)}>
-              Cancel
-            </Button>
+              {t("pages.companyaccess.cancel.jsx-text", { defaultValue: "\n              Cancel\n            " })}</Button>
             <Button
               onClick={() => {
                 if (!editingMember) return;
@@ -437,10 +432,9 @@ export function CompanyAccess() {
       <Dialog open={!!removingMember} onOpenChange={(open) => !open && setRemovingMemberId(null)}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Remove member</DialogTitle>
+            <DialogTitle>{t("pages.companyaccess.remove_member.jsx-text", { defaultValue: "Remove member" })}</DialogTitle>
             <DialogDescription>
-              Archive {memberDisplayName(removingMember)} and move active assignments before hiding this user from assignment fields.
-            </DialogDescription>
+              {t("pages.companyaccess.archive.jsx-text", { defaultValue: "\n              Archive " })}{memberDisplayName(removingMember)} {t("pages.companyaccess.and_move_active_assignments_befo.jsx-text", { defaultValue: " and move active assignments before hiding this user from assignment fields.\n            " })}</DialogDescription>
           </DialogHeader>
           {removingMember && (
             <div className="space-y-5">
@@ -456,15 +450,15 @@ export function CompanyAccess() {
 
               {assignedIssues.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Task reassignment</div>
+                  <div className="text-sm font-medium">{t("pages.companyaccess.task_reassignment.jsx-text", { defaultValue: "Task reassignment" })}</div>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                     value={reassignmentTarget}
                     onChange={(event) => setReassignmentTarget(event.target.value)}
                   >
-                    <option value="__unassigned">Leave unassigned</option>
+                    <option value="__unassigned">{t("pages.companyaccess.leave_unassigned.jsx-text", { defaultValue: "Leave unassigned" })}</option>
                     {activeReassignmentUsers.length > 0 ? (
-                      <optgroup label="Humans">
+                      <optgroup label={t("pages.companyaccess.humans.attr_label", { defaultValue: "Humans" })}>
                         {activeReassignmentUsers.map((member) => (
                           <option key={member.id} value={`user:${member.principalId}`}>
                             {memberDisplayName(member)}
@@ -473,7 +467,7 @@ export function CompanyAccess() {
                       </optgroup>
                     ) : null}
                     {activeReassignmentAgents.length > 0 ? (
-                      <optgroup label="Agents">
+                      <optgroup label={t("pages.companyaccess.agents.attr_label", { defaultValue: "Agents" })}>
                         {activeReassignmentAgents.map((agent) => (
                           <option key={agent.id} value={`agent:${agent.id}`}>
                             {agent.name} ({agent.role})
@@ -491,7 +485,7 @@ export function CompanyAccess() {
                     ))}
                     {assignedIssues.length > 6 ? (
                       <div className="px-3 py-2 text-sm text-muted-foreground">
-                        {assignedIssues.length - 6} more task{assignedIssues.length - 6 === 1 ? "" : "s"}
+                        {assignedIssues.length - 6} {t("pages.companyaccess.more_task.jsx-text", { defaultValue: " more task" })}{assignedIssues.length - 6 === 1 ? "" : "s"}
                       </div>
                     ) : null}
                   </div>
@@ -501,8 +495,7 @@ export function CompanyAccess() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setRemovingMemberId(null)}>
-              Cancel
-            </Button>
+              {t("pages.companyaccess.cancel.jsx-text", { defaultValue: "\n              Cancel\n            " })}</Button>
             <Button
               variant="destructive"
               onClick={() => {
@@ -524,6 +517,8 @@ export function CompanyAccess() {
 }
 
 export function CompanyAccessLegacyRoute() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { slots, isLoading, errorMessage } = usePluginSlots({
@@ -545,7 +540,7 @@ export function CompanyAccessLegacyRoute() {
   }
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Checking for advanced permission extensions...</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyaccess.checking_for_advanced_permission.jsx-text", { defaultValue: "Checking for advanced permission extensions..." })}</div>;
   }
 
   return (
@@ -553,29 +548,27 @@ export function CompanyAccessLegacyRoute() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Advanced Permissions</h1>
+          <h1 className="text-lg font-semibold">{t("pages.companyaccess.advanced_permissions.jsx-text", { defaultValue: "Advanced Permissions" })}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Advanced access, scoped assignment, and explicit grant controls are provided by installed company settings extensions.
-        </p>
+          {t("pages.companyaccess.advanced_access_scoped_assignmen.jsx-text", { defaultValue: "\n          Advanced access, scoped assignment, and explicit grant controls are provided by installed company settings extensions.\n        " })}</p>
       </div>
 
       <div className="space-y-4 rounded-xl border border-border px-5 py-5">
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold">Advanced permissions unavailable</h2>
+          <h2 className="text-sm font-semibold">{t("pages.companyaccess.advanced_permissions_unavailable.jsx-text", { defaultValue: "Advanced permissions unavailable" })}</h2>
           <p className="text-sm text-muted-foreground">
-            Core Paperclip keeps enforcing company boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.
-          </p>
+            {t("pages.companyaccess.core_paperclip_keeps_enforcing_c.jsx-text", { defaultValue: "\n            Core Paperclip keeps enforcing company boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.\n          " })}</p>
           {errorMessage ? (
-            <p className="text-sm text-destructive">Plugin extensions unavailable: {errorMessage}</p>
+            <p className="text-sm text-destructive">{t("pages.companyaccess.plugin_extensions_unavailable.jsx-text", { defaultValue: "Plugin extensions unavailable: " })}{errorMessage}</p>
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/company/settings/members">Open Members</Link>
+            <Link to="/company/settings/members">{t("pages.companyaccess.open_members.jsx-text", { defaultValue: "Open Members" })}</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/company/settings/invites">Open Invites</Link>
+            <Link to="/company/settings/invites">{t("pages.companyaccess.open_invites.jsx-text", { defaultValue: "Open Invites" })}</Link>
           </Button>
         </div>
       </div>
@@ -619,6 +612,8 @@ function PendingJoinRequestCard({
   onApprove: () => void;
   onReject: () => void;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="rounded-xl border border-border px-4 py-4">
       <div className="flex flex-wrap items-start justify-between gap-4">

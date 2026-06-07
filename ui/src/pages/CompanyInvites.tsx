@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, ExternalLink, MailPlus } from "lucide-react";
 import { accessApi } from "@/api/access";
@@ -45,6 +46,8 @@ function isInviteHistoryRow(value: unknown): value is Awaited<ReturnType<typeof 
 }
 
 export function CompanyInvites() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -188,11 +191,11 @@ export function CompanyInvites() {
   });
 
   if (!selectedCompanyId) {
-    return <div className="text-sm text-muted-foreground">Select a company to manage invites.</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyinvites.select_a_company_to_manage_invit.jsx-text", { defaultValue: "Select a company to manage invites." })}</div>;
   }
 
   if (invitesQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading invites…</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyinvites.loading_invites.jsx-text", { defaultValue: "Loading invites…" })}</div>;
   }
 
   if (invitesQuery.error) {
@@ -210,23 +213,21 @@ export function CompanyInvites() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <MailPlus className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Company Invites</h1>
+          <h1 className="text-lg font-semibold">{t("pages.companyinvites.company_invites.jsx-text", { defaultValue: "Company Invites" })}</h1>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Invite people to request access to this company. New invite links are copied to your clipboard when they are generated.
-        </p>
+          {t("pages.companyinvites.invite_people_to_request_access_.jsx-text", { defaultValue: "\n          Invite people to request access to this company. New invite links are copied to your clipboard when they are generated.\n        " })}</p>
       </div>
 
       <section className="space-y-4 rounded-xl border border-border p-5">
         <div className="space-y-1">
-          <h2 className="text-sm font-semibold">Invite a person</h2>
+          <h2 className="text-sm font-semibold">{t("pages.companyinvites.invite_a_person.jsx-text", { defaultValue: "Invite a person" })}</h2>
           <p className="text-sm text-muted-foreground">
-            Generate a human invite link and choose the default access it should request.
-          </p>
+            {t("pages.companyinvites.generate_a_human_invite_link_and.jsx-text", { defaultValue: "\n            Generate a human invite link and choose the default access it should request.\n          " })}</p>
         </div>
 
         <fieldset className="space-y-3">
-          <legend className="text-sm font-medium">Choose a role</legend>
+          <legend className="text-sm font-medium">{t("pages.companyinvites.choose_a_role.jsx-text", { defaultValue: "Choose a role" })}</legend>
           <div className="rounded-xl border border-border">
             {inviteRoleOptions.map((option, index) => {
               const checked = humanRole === option.value;
@@ -248,8 +249,7 @@ export function CompanyInvites() {
                       <span className="text-sm font-medium">{option.label}</span>
                       {option.value === "operator" ? (
                         <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                          Default
-                        </span>
+                          {t("pages.companyinvites.default.jsx-text", { defaultValue: "\n                          Default\n                        " })}</span>
                       ) : null}
                     </span>
                     <span className="block max-w-2xl text-sm text-muted-foreground">{option.description}</span>
@@ -262,34 +262,31 @@ export function CompanyInvites() {
         </fieldset>
 
         <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
-          Each invite link is single-use. Human invitees get the selected role immediately after sign-in; agent invites still create a join request for approval.
-        </div>
+          {t("pages.companyinvites.each_invite_link_is_single_use_h.jsx-text", { defaultValue: "\n          Each invite link is single-use. Human invitees get the selected role immediately after sign-in; agent invites still create a join request for approval.\n        " })}</div>
 
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => createInviteMutation.mutate()} disabled={createInviteMutation.isPending}>
             {createInviteMutation.isPending ? "Creating…" : "Create invite"}
           </Button>
-          <span className="text-sm text-muted-foreground">Invite history below keeps the audit trail.</span>
+          <span className="text-sm text-muted-foreground">{t("pages.companyinvites.invite_history_below_keeps_the_a.jsx-text", { defaultValue: "Invite history below keeps the audit trail." })}</span>
         </div>
 
         {latestInviteUrl ? (
           <div className="space-y-3 rounded-lg border border-border px-4 py-4">
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-medium">Latest invite link</div>
+                <div className="text-sm font-medium">{t("pages.companyinvites.latest_invite_link.jsx-text", { defaultValue: "Latest invite link" })}</div>
                 {latestInviteCopied ? (
                   <div className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                     <Check className="h-3.5 w-3.5" />
-                    Copied
-                  </div>
+                    {t("pages.companyinvites.copied.jsx-text", { defaultValue: "\n                    Copied\n                  " })}</div>
                 ) : null}
               </div>
               <div className="text-sm text-muted-foreground">
-                This URL includes the current Paperclip domain returned by the server.
-              </div>
+                {t("pages.companyinvites.this_url_includes_the_current_pa.jsx-text", { defaultValue: "\n                This URL includes the current Paperclip domain returned by the server.\n              " })}</div>
             </div>
             <label className="block space-y-1">
-              <span className="sr-only">Latest invite URL</span>
+              <span className="sr-only">{t("pages.companyinvites.latest_invite_url.jsx-text", { defaultValue: "Latest invite URL" })}</span>
               <input
                 ref={latestInviteInputRef}
                 readOnly
@@ -297,7 +294,7 @@ export function CompanyInvites() {
                 onFocus={(event) => event.currentTarget.select()}
                 onClick={(event) => event.currentTarget.select()}
                 className="w-full rounded-md border border-border bg-muted/60 px-3 py-2 text-sm text-foreground outline-none transition-colors selection:bg-primary selection:text-primary-foreground focus:border-ring"
-                aria-label="Latest invite URL"
+                aria-label={t("pages.companyinvites.latest_invite_url.attr_aria-label", { defaultValue: "Latest invite URL" })}
               />
             </label>
             <div className="flex flex-wrap gap-2">
@@ -311,13 +308,11 @@ export function CompanyInvites() {
                 }}
               >
                 <Copy className="h-4 w-4" />
-                Copy link
-              </Button>
+                {t("pages.companyinvites.copy_link.jsx-text", { defaultValue: "\n                Copy link\n              " })}</Button>
               <Button size="sm" variant="outline" asChild>
                 <a href={latestInviteUrl} target="_blank" rel="noreferrer">
                   <ExternalLink className="h-4 w-4" />
-                  Open invite
-                </a>
+                  {t("pages.companyinvites.open_invite.jsx-text", { defaultValue: "\n                  Open invite\n                " })}</a>
               </Button>
             </div>
           </div>
@@ -327,31 +322,28 @@ export function CompanyInvites() {
       <section className="rounded-xl border border-border">
         <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold">Invite history</h2>
+            <h2 className="text-sm font-semibold">{t("pages.companyinvites.invite_history.jsx-text", { defaultValue: "Invite history" })}</h2>
             <p className="text-sm text-muted-foreground">
-              Review invite status, audience, inviter, and any linked join request.
-            </p>
+              {t("pages.companyinvites.review_invite_status_audience_in.jsx-text", { defaultValue: "\n              Review invite status, audience, inviter, and any linked join request.\n            " })}</p>
           </div>
           <Link to="/inbox/requests" className="text-sm underline underline-offset-4">
-            Open join request queue
-          </Link>
+            {t("pages.companyinvites.open_join_request_queue.jsx-text", { defaultValue: "\n            Open join request queue\n          " })}</Link>
         </div>
 
         {inviteHistory.length === 0 ? (
           <div className="border-t border-border px-5 py-8 text-sm text-muted-foreground">
-            No invites have been created for this company yet.
-          </div>
+            {t("pages.companyinvites.no_invites_have_been_created_for.jsx-text", { defaultValue: "\n            No invites have been created for this company yet.\n          " })}</div>
         ) : (
           <div className="border-t border-border">
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="px-5 py-3 font-medium text-muted-foreground">State</th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">For</th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">Invited by</th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">Created</th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">Join request</th>
+                    <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.state.jsx-text", { defaultValue: "State" })}</th>
+                    <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.for.jsx-text", { defaultValue: "For" })}</th>
+                    <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.invited_by.jsx-text", { defaultValue: "Invited by" })}</th>
+                    <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.created.jsx-text", { defaultValue: "Created" })}</th>
+                    <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.join_request.jsx-text", { defaultValue: "Join request" })}</th>
                     <th className="px-5 py-3 text-right font-medium text-muted-foreground">Action</th>
                   </tr>
                 </thead>
@@ -376,8 +368,7 @@ export function CompanyInvites() {
                       <td className="px-5 py-3 align-top">
                         {invite.relatedJoinRequestId ? (
                           <Link to="/inbox/requests" className="underline underline-offset-4">
-                            Review request
-                          </Link>
+                            {t("pages.companyinvites.review_request.jsx-text", { defaultValue: "\n                            Review request\n                          " })}</Link>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
@@ -390,10 +381,9 @@ export function CompanyInvites() {
                             onClick={() => revokeMutation.mutate(invite.id)}
                             disabled={revokeMutation.isPending}
                           >
-                            Revoke
-                          </Button>
+                            {t("pages.companyinvites.revoke.jsx-text", { defaultValue: "\n                            Revoke\n                          " })}</Button>
                         ) : (
-                          <span className="text-xs text-muted-foreground">Inactive</span>
+                          <span className="text-xs text-muted-foreground">{t("pages.companyinvites.inactive.jsx-text", { defaultValue: "Inactive" })}</span>
                         )}
                       </td>
                     </tr>

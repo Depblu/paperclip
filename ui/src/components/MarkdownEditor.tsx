@@ -13,6 +13,7 @@ import {
   type TouchEvent as ReactTouchEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "@/i18n";
 import {
   CodeMirrorEditor,
   MDXEditor,
@@ -576,6 +577,8 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
   onSubmit,
   readOnly = false,
 }: MarkdownEditorProps, forwardedRef) {
+const { t } = useTranslation();
+
   const editorValue = useMemo(() => prepareMarkdownForEditor(value), [value]);
   const { slashCommands } = useEditorAutocomplete();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1064,7 +1067,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
         )}
       >
         <div className="flex items-start justify-between gap-3 px-3 pt-2 text-xs text-muted-foreground">
-          <p>Rich editor unavailable for this markdown. Showing raw source instead.</p>
+          <p>{t("components.markdowneditor.rich_editor_unavailable_for_this.jsx-text", { defaultValue: "Rich editor unavailable for this markdown. Showing raw source instead." })}</p>
           <button
             type="button"
             className="shrink-0 underline underline-offset-2 hover:text-foreground"
@@ -1072,8 +1075,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
               setRichEditorError(null);
             }}
           >
-            Retry rich editor
-          </button>
+            {t("components.markdowneditor.retry_rich_editor.jsx-text", { defaultValue: "\n            Retry rich editor\n          " })}</button>
         </div>
         <textarea
           ref={fallbackTextareaRef}
@@ -1320,23 +1322,19 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
                 </span>
                 {option.kind === "project" && option.projectId && (
                   <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Project
-                  </span>
+                    {t("components.markdowneditor.project.jsx-text", { defaultValue: "\n                    Project\n                  " })}</span>
                 )}
                 {option.kind === "user" && (
                   <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
-                    User
-                  </span>
+                    {t("components.markdowneditor.user.jsx-text", { defaultValue: "\n                    User\n                  " })}</span>
                 )}
                 {option.kind === "skill" && (
                   <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Skill
-                  </span>
+                    {t("components.markdowneditor.skill.jsx-text", { defaultValue: "\n                    Skill\n                  " })}</span>
                 )}
                 {option.kind === "routine" && (
                   <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Routine
-                  </span>
+                    {t("components.markdowneditor.routine.jsx-text", { defaultValue: "\n                    Routine\n                  " })}</span>
                 )}
               </button>
             ))}
@@ -1351,8 +1349,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
             !bordered && "inset-0 rounded-sm",
           )}
         >
-          Drop {onDropFile ? "file" : "image"} to upload
-        </div>
+          {t("components.markdowneditor.drop.jsx-text", { defaultValue: "\n          Drop " })}{onDropFile ? "file" : "image"} {t("components.markdowneditor.to_upload.jsx-text", { defaultValue: " to upload\n        " })}</div>
       )}
       {uploadError && (
         <p className="px-3 pb-2 text-xs text-destructive">{uploadError}</p>

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
@@ -47,6 +48,8 @@ const projectStatuses = [
 ];
 
 export function NewProjectDialog() {
+const { t } = useTranslation();
+
   const { newProjectOpen, closeNewProject } = useDialog();
   const { selectedCompanyId, selectedCompany } = useCompany();
   const queryClient = useQueryClient();
@@ -222,8 +225,8 @@ export function NewProjectDialog() {
                 {selectedCompany.name.slice(0, 3).toUpperCase()}
               </span>
             )}
-            <span className="text-muted-foreground/60">&rsaquo;</span>
-            <span>New project</span>
+            <span className="text-muted-foreground/60">{t("components.newprojectdialog.rsaquo.jsx-text", { defaultValue: "&rsaquo;" })}</span>
+            <span>{t("components.newprojectdialog.new_project.jsx-text", { defaultValue: "New project" })}</span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -240,7 +243,7 @@ export function NewProjectDialog() {
               className="text-muted-foreground"
               onClick={() => { reset(); closeNewProject(); }}
             >
-              <span className="text-lg leading-none">&times;</span>
+              <span className="text-lg leading-none">{t("components.newprojectdialog.times.jsx-text", { defaultValue: "&times;" })}</span>
             </Button>
           </div>
         </div>
@@ -249,7 +252,7 @@ export function NewProjectDialog() {
         <div className="px-4 pt-4 pb-2 shrink-0">
           <input
             className="w-full text-lg font-semibold bg-transparent outline-none placeholder:text-muted-foreground/50"
-            placeholder="Project name"
+            placeholder={t("components.newprojectdialog.project_name.attr_placeholder", { defaultValue: "Project name" })}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
@@ -268,7 +271,7 @@ export function NewProjectDialog() {
             ref={descriptionEditorRef}
             value={description}
             onChange={setDescription}
-            placeholder="Add description..."
+            placeholder={t("components.newprojectdialog.add_description.attr_placeholder", { defaultValue: "Add description..." })}
             bordered={false}
             mentions={mentionOptions}
             contentClassName={cn("text-sm text-muted-foreground", expanded ? "min-h-[220px]" : "min-h-[120px]")}
@@ -282,15 +285,14 @@ export function NewProjectDialog() {
         <div className="px-4 pt-3 pb-3 space-y-3 border-t border-border">
           <div>
             <div className="mb-1 flex items-center gap-1.5">
-              <label className="block text-xs text-muted-foreground">Repo URL</label>
-              <span className="text-xs text-muted-foreground/50">optional</span>
+              <label className="block text-xs text-muted-foreground">{t("components.newprojectdialog.repo_url.jsx-text", { defaultValue: "Repo URL" })}</label>
+              <span className="text-xs text-muted-foreground/50">{t("components.newprojectdialog.optional.jsx-text", { defaultValue: "optional" })}</span>
               <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <HelpCircle className="h-3 w-3 text-muted-foreground/50 cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">
-                  Link a GitHub repository so agents can clone, read, and push code for this project.
-                </TooltipContent>
+                  {t("components.newprojectdialog.link_a_github_repository_so_agen.jsx-text", { defaultValue: "\n                  Link a GitHub repository so agents can clone, read, and push code for this project.\n                " })}</TooltipContent>
               </Tooltip>
             </div>
             <input
@@ -303,15 +305,14 @@ export function NewProjectDialog() {
 
           <div>
             <div className="mb-1 flex items-center gap-1.5">
-              <label className="block text-xs text-muted-foreground">Local folder</label>
-              <span className="text-xs text-muted-foreground/50">optional</span>
+              <label className="block text-xs text-muted-foreground">{t("components.newprojectdialog.local_folder.jsx-text", { defaultValue: "Local folder" })}</label>
+              <span className="text-xs text-muted-foreground/50">{t("components.newprojectdialog.optional.jsx-text", { defaultValue: "optional" })}</span>
               <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <HelpCircle className="h-3 w-3 text-muted-foreground/50 cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">
-                  Set an absolute path on this machine where local agents will read and write files for this project.
-                </TooltipContent>
+                  {t("components.newprojectdialog.set_an_absolute_path_on_this_mac.jsx-text", { defaultValue: "\n                  Set an absolute path on this machine where local agents will read and write files for this project.\n                " })}</TooltipContent>
               </Tooltip>
             </div>
             <div className="flex items-center gap-2">
@@ -389,8 +390,7 @@ export function NewProjectDialog() {
                   className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-muted-foreground"
                   onClick={() => setGoalOpen(false)}
                 >
-                  No goal
-                </button>
+                  {t("components.newprojectdialog.no_goal.jsx-text", { defaultValue: "\n                  No goal\n                " })}</button>
               )}
               {availableGoals.map((g) => (
                 <button
@@ -406,8 +406,7 @@ export function NewProjectDialog() {
               ))}
               {selectedGoals.length > 0 && availableGoals.length === 0 && (
                 <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                  All goals already selected.
-                </div>
+                  {t("components.newprojectdialog.all_goals_already_selected.jsx-text", { defaultValue: "\n                  All goals already selected.\n                " })}</div>
               )}
             </PopoverContent>
           </Popover>
@@ -420,7 +419,7 @@ export function NewProjectDialog() {
               className="bg-transparent outline-none text-xs w-24"
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
-              placeholder="Target date"
+              placeholder={t("components.newprojectdialog.target_date.attr_placeholder", { defaultValue: "Target date" })}
             />
           </div>
         </div>
@@ -428,7 +427,7 @@ export function NewProjectDialog() {
         {/* Footer */}
         <div className="flex items-center justify-between px-4 py-2.5 border-t border-border">
           {createProject.isError ? (
-            <p className="text-xs text-destructive">Failed to create project.</p>
+            <p className="text-xs text-destructive">{t("components.newprojectdialog.failed_to_create_project.jsx-text", { defaultValue: "Failed to create project." })}</p>
           ) : (
             <span />
           )}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -172,6 +173,8 @@ function TriggerEditor({
   onRotate: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
+const { t } = useTranslation();
+
   const [draft, setDraft] = useState({
     label: trigger.label ?? "",
     cronExpression: trigger.cronExpression ?? "",
@@ -206,7 +209,7 @@ function TriggerEditor({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs">Label</Label>
+          <Label className="text-xs">{t("pages.routinedetail.label.jsx-text", { defaultValue: "Label" })}</Label>
           <Input
             value={draft.label}
             onChange={(event) => setDraft((current) => ({ ...current, label: event.target.value }))}
@@ -214,7 +217,7 @@ function TriggerEditor({
         </div>
         {trigger.kind === "schedule" && (
           <div className="md:col-span-2 space-y-1.5">
-            <Label className="text-xs">Schedule</Label>
+            <Label className="text-xs">{t("pages.routinedetail.schedule.jsx-text", { defaultValue: "Schedule" })}</Label>
             <ScheduleEditor
               value={draft.cronExpression}
               onChange={(cronExpression) => setDraft((current) => ({ ...current, cronExpression }))}
@@ -224,7 +227,7 @@ function TriggerEditor({
         {trigger.kind === "webhook" && (
           <>
             <div className="space-y-1.5">
-              <Label className="text-xs">Signing mode</Label>
+              <Label className="text-xs">{t("pages.routinedetail.signing_mode.jsx-text", { defaultValue: "Signing mode" })}</Label>
               <Select
                 value={draft.signingMode}
                 onValueChange={(signingMode) => setDraft((current) => ({ ...current, signingMode }))}
@@ -241,7 +244,7 @@ function TriggerEditor({
             </div>
             {!SIGNING_MODES_WITHOUT_REPLAY_WINDOW.has(draft.signingMode) && (
               <div className="space-y-1.5">
-                <Label className="text-xs">Replay window (seconds)</Label>
+                <Label className="text-xs">{t("pages.routinedetail.replay_window_seconds.jsx-text", { defaultValue: "Replay window (seconds)" })}</Label>
                 <Input
                   value={draft.replayWindowSec}
                   onChange={(event) => setDraft((current) => ({ ...current, replayWindowSec: event.target.value }))}
@@ -253,13 +256,12 @@ function TriggerEditor({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {trigger.lastResult && <span className="text-xs text-muted-foreground">Last: {trigger.lastResult}</span>}
+        {trigger.lastResult && <span className="text-xs text-muted-foreground">{t("pages.routinedetail.last.jsx-text", { defaultValue: "Last: " })}{trigger.lastResult}</span>}
         <div className="ml-auto flex items-center gap-2">
           {trigger.kind === "webhook" && (
             <Button variant="outline" size="sm" onClick={() => onRotate(trigger.id)}>
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-              Rotate secret
-            </Button>
+              {t("pages.routinedetail.rotate_secret.jsx-text", { defaultValue: "\n              Rotate secret\n            " })}</Button>
           )}
           <Button
             variant="outline"
@@ -267,8 +269,7 @@ function TriggerEditor({
             onClick={() => onSave(trigger.id, buildRoutineTriggerPatch(trigger, draft, getLocalTimezone()))}
           >
             <Save className="mr-1.5 h-3.5 w-3.5" />
-            Save trigger
-          </Button>
+            {t("pages.routinedetail.save_trigger.jsx-text", { defaultValue: "\n            Save trigger\n          " })}</Button>
           <Button
             variant="ghost"
             size="sm"
@@ -284,6 +285,8 @@ function TriggerEditor({
 }
 
 export function RoutineDetail() {
+const { t } = useTranslation();
+
   const { routineId } = useParams<{ routineId: string }>();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -782,7 +785,7 @@ export function RoutineDetail() {
           <textarea
             ref={titleInputRef}
             className="w-full resize-none overflow-hidden bg-transparent text-xl font-bold outline-none placeholder:text-muted-foreground/50"
-            placeholder="Routine title"
+            placeholder={t("pages.routinedetail.routine_title.attr_placeholder", { defaultValue: "Routine title" })}
             rows={1}
             value={editDraft.title}
             onChange={(event) => {
@@ -811,7 +814,7 @@ export function RoutineDetail() {
           />
           {routine.managedByPlugin ? (
             <Badge variant="outline" className="gap-1 text-xs text-muted-foreground">
-              Managed by {routine.managedByPlugin.pluginDisplayName}
+              {t("pages.routinedetail.managed_by.jsx-text", { defaultValue: "\n              Managed by " })}{routine.managedByPlugin.pluginDisplayName}
               <span className="font-mono text-[10px]">{routine.managedByPlugin.resourceKey}</span>
             </Badge>
           ) : null}
@@ -851,14 +854,14 @@ export function RoutineDetail() {
         <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 space-y-3 text-sm">
           <div>
             <p className="font-medium">{secretMessage.title}</p>
-            <p className="text-xs text-muted-foreground">Save this now. Paperclip will not show the secret value again.</p>
+            <p className="text-xs text-muted-foreground">{t("pages.routinedetail.save_this_now_paperclip_will_not.jsx-text", { defaultValue: "Save this now. Paperclip will not show the secret value again." })}</p>
           </div>
           <div className="space-y-3">
             {secretMessage.entries.map((entry, index) => (
               <div key={`${entry.webhookUrl}-${index}`} className="space-y-2">
                 {secretMessage.entries.length > 1 && (
                   <p className="text-xs font-medium text-muted-foreground">
-                    Webhook trigger {index + 1} of {secretMessage.entries.length}
+                    {t("pages.routinedetail.webhook_trigger.jsx-text", { defaultValue: "\n                    Webhook trigger " })}{index + 1} {t("pages.routinedetail.of.jsx-text", { defaultValue: " of " })}{secretMessage.entries.length}
                   </p>
                 )}
                 <div className="flex items-center gap-2">
@@ -872,8 +875,7 @@ export function RoutineDetail() {
                   <Input value={entry.webhookSecret} readOnly className="flex-1" />
                   <Button variant="outline" size="sm" onClick={() => copySecretValue("Webhook secret", entry.webhookSecret)}>
                     <Copy className="h-3.5 w-3.5 mr-1" />
-                    Secret
-                  </Button>
+                    {t("pages.routinedetail.secret.jsx-text", { defaultValue: "\n                    Secret\n                  " })}</Button>
                 </div>
               </div>
             ))}
@@ -886,11 +888,9 @@ export function RoutineDetail() {
         <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              <p className="font-medium text-amber-200">Out of date</p>
+              <p className="font-medium text-amber-200">{t("pages.routinedetail.out_of_date.jsx-text", { defaultValue: "Out of date" })}</p>
               <p className="text-xs text-muted-foreground">
-                This routine changed while you were editing. Reload to merge the latest revision before
-                saving again.
-              </p>
+                {t("pages.routinedetail.this_routine_changed_while_you_w.jsx-text", { defaultValue: "\n                This routine changed while you were editing. Reload to merge the latest revision before saving again.\n              " })}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -904,8 +904,7 @@ export function RoutineDetail() {
                   queryClient.invalidateQueries({ queryKey: queryKeys.routines.detail(routineId!) });
                 }}
               >
-                Reload latest
-              </Button>
+                {t("pages.routinedetail.reload_latest.jsx-text", { defaultValue: "\n                Reload latest\n              " })}</Button>
             </div>
           </div>
         </div>
@@ -913,20 +912,19 @@ export function RoutineDetail() {
 
       {!routine.assigneeAgentId ? (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-900 dark:text-amber-200">
-          Default agent required. This routine can stay as a draft and still run manually, but automation stays paused until you assign a default agent.
-        </div>
+          {t("pages.routinedetail.default_agent_required_this_rout.jsx-text", { defaultValue: "\n          Default agent required. This routine can stay as a draft and still run manually, but automation stays paused until you assign a default agent.\n        " })}</div>
       ) : null}
 
       {/* Assignment row */}
       <div className="overflow-x-auto overscroll-x-contain">
         <div className="inline-flex min-w-full flex-wrap items-center gap-2 text-sm text-muted-foreground sm:min-w-max sm:flex-nowrap">
-          <span>For</span>
+          <span>{t("pages.routinedetail.for.jsx-text", { defaultValue: "For" })}</span>
           <InlineEntitySelector
             ref={assigneeSelectorRef}
             value={editDraft.assigneeAgentId}
             options={assigneeOptions}
             recentOptionIds={recentAssigneeIds}
-            placeholder="Assignee"
+            placeholder={t("pages.routinedetail.assignee.attr_placeholder", { defaultValue: "Assignee" })}
             noneLabel="No assignee"
             searchPlaceholder="Search assignees..."
             emptyMessage="No assignees found."
@@ -952,7 +950,7 @@ export function RoutineDetail() {
                   <span className="truncate">{option.label}</span>
                 )
               ) : (
-                <span className="text-muted-foreground">Assignee</span>
+                <span className="text-muted-foreground">{t("pages.routinedetail.assignee.jsx-text", { defaultValue: "Assignee" })}</span>
               )
             }
             renderOption={(option) => {
@@ -966,13 +964,13 @@ export function RoutineDetail() {
               );
             }}
           />
-          <span>in</span>
+          <span>{t("pages.routinedetail.in.jsx-text", { defaultValue: "in" })}</span>
           <InlineEntitySelector
             ref={projectSelectorRef}
             value={editDraft.projectId}
             options={projectOptions}
             recentOptionIds={recentProjectIds}
-            placeholder="Project"
+            placeholder={t("pages.routinedetail.project.attr_placeholder", { defaultValue: "Project" })}
             noneLabel="No project"
             searchPlaceholder="Search projects..."
             emptyMessage="No projects found."
@@ -991,7 +989,7 @@ export function RoutineDetail() {
                   <span className="truncate">{option.label}</span>
                 </>
               ) : (
-                <span className="text-muted-foreground">Project</span>
+                <span className="text-muted-foreground">{t("pages.routinedetail.project.jsx-text", { defaultValue: "Project" })}</span>
               )
             }
             renderOption={(option) => {
@@ -1016,7 +1014,7 @@ export function RoutineDetail() {
         ref={descriptionEditorRef}
         value={editDraft.description}
         onChange={(description) => setEditDraft((current) => ({ ...current, description }))}
-        placeholder="Add instructions..."
+        placeholder={t("pages.routinedetail.add_instructions.attr_placeholder", { defaultValue: "Add instructions..." })}
         bordered={false}
         contentClassName="min-h-[120px] text-[15px] leading-7"
         mentions={mentionOptions}
@@ -1037,13 +1035,13 @@ export function RoutineDetail() {
       {/* Advanced delivery settings */}
       <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <CollapsibleTrigger className="flex w-full items-center justify-between text-left">
-          <span className="text-sm font-medium">Advanced delivery settings</span>
+          <span className="text-sm font-medium">{t("pages.routinedetail.advanced_delivery_settings.jsx-text", { defaultValue: "Advanced delivery settings" })}</span>
           {advancedOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Concurrency</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{t("pages.routinedetail.concurrency.jsx-text", { defaultValue: "Concurrency" })}</p>
               <Select
                 value={editDraft.concurrencyPolicy}
                 onValueChange={(concurrencyPolicy) => setEditDraft((current) => ({ ...current, concurrencyPolicy }))}
@@ -1060,7 +1058,7 @@ export function RoutineDetail() {
               <p className="text-xs text-muted-foreground">{concurrencyPolicyDescriptions[editDraft.concurrencyPolicy]}</p>
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Catch-up</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{t("pages.routinedetail.catch_up.jsx-text", { defaultValue: "Catch-up" })}</p>
               <Select
                 value={editDraft.catchUpPolicy}
                 onValueChange={(catchUpPolicy) => setEditDraft((current) => ({ ...current, catchUpPolicy }))}
@@ -1083,7 +1081,7 @@ export function RoutineDetail() {
       {/* Save bar */}
       <div className="flex items-center justify-between">
         {isEditDirty ? (
-          <span className="text-xs text-amber-600">Unsaved changes</span>
+          <span className="text-xs text-amber-600">{t("pages.routinedetail.unsaved_changes.jsx-text", { defaultValue: "Unsaved changes" })}</span>
         ) : (
           <span />
         )}
@@ -1092,8 +1090,7 @@ export function RoutineDetail() {
           disabled={saveRoutine.isPending || !editDraft.title.trim()}
         >
           <Save className="mr-2 h-4 w-4" />
-          Save routine
-        </Button>
+          {t("pages.routinedetail.save_routine.jsx-text", { defaultValue: "\n          Save routine\n        " })}</Button>
       </div>
 
       <Separator />
@@ -1103,34 +1100,29 @@ export function RoutineDetail() {
         <TabsList variant="line" className="w-full justify-start gap-1">
           <TabsTrigger value="triggers" className="gap-1.5">
             <Clock3 className="h-3.5 w-3.5" />
-            Triggers
-          </TabsTrigger>
+            {t("pages.routinedetail.triggers.jsx-text", { defaultValue: "\n            Triggers\n          " })}</TabsTrigger>
           <TabsTrigger value="runs" className="gap-1.5">
             <Play className="h-3.5 w-3.5" />
-            Runs
-            {hasLiveRun && <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />}
+            {t("pages.routinedetail.runs.jsx-text", { defaultValue: "\n            Runs\n            " })}{hasLiveRun && <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />}
           </TabsTrigger>
 <TabsTrigger value="activity" className="gap-1.5">
             <ActivityIcon className="h-3.5 w-3.5" />
-            Activity
-          </TabsTrigger>
+            {t("pages.routinedetail.activity.jsx-text", { defaultValue: "\n            Activity\n          " })}</TabsTrigger>
           <TabsTrigger value="secrets" className="gap-1.5">
             <KeyRound className="h-3.5 w-3.5" />
-            Secrets
-          </TabsTrigger>
+            {t("pages.routinedetail.secrets.jsx-text", { defaultValue: "\n            Secrets\n          " })}</TabsTrigger>
           <TabsTrigger value="history" className="gap-1.5">
             <HistoryIcon className="h-3.5 w-3.5" />
-            History
-          </TabsTrigger>
+            {t("pages.routinedetail.history.jsx-text", { defaultValue: "\n            History\n          " })}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="triggers" className="space-y-4">
           {/* Add trigger form */}
           <div className="rounded-lg border border-border p-4 space-y-3">
-            <p className="text-sm font-medium">Add trigger</p>
+            <p className="text-sm font-medium">{t("pages.routinedetail.add_trigger.jsx-text", { defaultValue: "Add trigger" })}</p>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label className="text-xs">Kind</Label>
+                <Label className="text-xs">{t("pages.routinedetail.kind.jsx-text", { defaultValue: "Kind" })}</Label>
                 <Select value={newTrigger.kind} onValueChange={(kind) => setNewTrigger((current) => ({ ...current, kind }))}>
                   <SelectTrigger>
                     <SelectValue />
@@ -1146,7 +1138,7 @@ export function RoutineDetail() {
               </div>
               {newTrigger.kind === "schedule" && (
                 <div className="md:col-span-2 space-y-1.5">
-                  <Label className="text-xs">Schedule</Label>
+                  <Label className="text-xs">{t("pages.routinedetail.schedule.jsx-text", { defaultValue: "Schedule" })}</Label>
                   <ScheduleEditor
                     value={newTrigger.cronExpression}
                     onChange={(cronExpression) => setNewTrigger((current) => ({ ...current, cronExpression }))}
@@ -1156,7 +1148,7 @@ export function RoutineDetail() {
               {newTrigger.kind === "webhook" && (
                 <>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Signing mode</Label>
+                    <Label className="text-xs">{t("pages.routinedetail.signing_mode.jsx-text", { defaultValue: "Signing mode" })}</Label>
                     <Select value={newTrigger.signingMode} onValueChange={(signingMode) => setNewTrigger((current) => ({ ...current, signingMode }))}>
                       <SelectTrigger>
                         <SelectValue />
@@ -1171,7 +1163,7 @@ export function RoutineDetail() {
                   </div>
                   {!SIGNING_MODES_WITHOUT_REPLAY_WINDOW.has(newTrigger.signingMode) && (
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Replay window (seconds)</Label>
+                      <Label className="text-xs">{t("pages.routinedetail.replay_window_seconds.jsx-text", { defaultValue: "Replay window (seconds)" })}</Label>
                       <Input value={newTrigger.replayWindowSec} onChange={(event) => setNewTrigger((current) => ({ ...current, replayWindowSec: event.target.value }))} />
                     </div>
                   )}
@@ -1187,7 +1179,7 @@ export function RoutineDetail() {
 
           {/* Existing triggers */}
           {routine.triggers.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No triggers configured yet.</p>
+            <p className="text-xs text-muted-foreground">{t("pages.routinedetail.no_triggers_configured_yet.jsx-text", { defaultValue: "No triggers configured yet." })}</p>
           ) : (
             <div className="space-y-3">
               {routine.triggers.map((trigger) => (
@@ -1208,7 +1200,7 @@ export function RoutineDetail() {
             <LiveRunWidget issueId={activeIssueId} companyId={routine.companyId} />
           )}
           {(routineRuns ?? []).length === 0 ? (
-            <p className="text-xs text-muted-foreground">No runs yet.</p>
+            <p className="text-xs text-muted-foreground">{t("pages.routinedetail.no_runs_yet.jsx-text", { defaultValue: "No runs yet." })}</p>
           ) : (
             <div className="border border-border rounded-lg divide-y divide-border">
               {(routineRuns ?? []).map((run) => (
@@ -1236,7 +1228,7 @@ export function RoutineDetail() {
 
         <TabsContent value="activity">
           {(activity ?? []).length === 0 ? (
-            <p className="text-xs text-muted-foreground">No activity yet.</p>
+            <p className="text-xs text-muted-foreground">{t("pages.routinedetail.no_activity_yet.jsx-text", { defaultValue: "No activity yet." })}</p>
           ) : (
             <div className="border border-border rounded-lg divide-y divide-border">
               {(activity ?? []).map((event) => (
@@ -1264,9 +1256,7 @@ export function RoutineDetail() {
 
         <TabsContent value="secrets" className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Routine secrets apply to every task this routine creates. They override matching keys in
-            project and agent env. <span className="font-mono">PAPERCLIP_*</span> variables are reserved.
-          </p>
+            {t("pages.routinedetail.routine_secrets_apply_to_every_t.jsx-text", { defaultValue: "\n            Routine secrets apply to every task this routine creates. They override matching keys in project and agent env. " })}<span className="font-mono">{t("pages.routinedetail.paperclip.jsx-text", { defaultValue: "PAPERCLIP_*" })}</span> {t("pages.routinedetail.variables_are_reserved.jsx-text", { defaultValue: " variables are reserved.\n          " })}</p>
           <EnvVarEditor
             value={(editDraft.env ?? {}) as Record<string, EnvBinding>}
             secrets={availableSecrets}

@@ -1,4 +1,5 @@
 import type { QuotaWindow } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { cn, quotaSourceDisplayName } from "@/lib/utils";
 
 interface ClaudeSubscriptionPanelProps {
@@ -56,6 +57,8 @@ export function ClaudeSubscriptionPanel({
   source = null,
   error = null,
 }: ClaudeSubscriptionPanelProps) {
+const { t } = useTranslation();
+
   const ordered = orderedWindows(windows);
 
   return (
@@ -63,11 +66,9 @@ export function ClaudeSubscriptionPanel({
       <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Anthropic subscription
-          </div>
+            {t("components.claudesubscriptionpanel.anthropic_subscription.jsx-text", { defaultValue: "\n            Anthropic subscription\n          " })}</div>
           <div className="mt-1 text-sm text-muted-foreground">
-            Live Claude quota windows.
-          </div>
+            {t("components.claudesubscriptionpanel.live_claude_quota_windows.jsx-text", { defaultValue: "\n            Live Claude quota windows.\n          " })}</div>
         </div>
         {source ? (
           <span className="shrink-0 border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -120,8 +121,7 @@ export function ClaudeSubscriptionPanel({
                 </div>
                 {window.usedPercent != null ? (
                   <div className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-                    {window.usedPercent}% used
-                  </div>
+                    {window.usedPercent}{t("components.claudesubscriptionpanel.used.jsx-text", { defaultValue: "% used\n                  " })}</div>
                 ) : null}
               </div>
 

@@ -1,4 +1,5 @@
 import { memo, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import type { Issue, IssueRecoveryAction } from "@paperclipai/shared";
@@ -17,6 +18,8 @@ import { RunChatSurface } from "./RunChatSurface";
 import { useLiveRunTranscripts } from "./transcript/useLiveRunTranscripts";
 
 function RunCardRecoveryChip({ action }: { action: IssueRecoveryAction }) {
+const { t } = useTranslation();
+
   const state = deriveActiveRecoveryDisplayState(action);
   if (!state) return null;
   const tone = RECOVERY_CHIP_DEFAULT_TONE[state];
@@ -75,6 +78,8 @@ export function ActiveAgentsPanel({
   queryScope = "dashboard",
   showMoreLink = true,
 }: ActiveAgentsPanelProps) {
+const { t } = useTranslation();
+
   const { data: liveRuns } = useQuery({
     queryKey: [...queryKeys.liveRuns(companyId), queryScope, { minRunCount, fetchLimit }],
     queryFn: () => heartbeatsApi.liveRunsForCompany(companyId, { minCount: minRunCount, limit: fetchLimit }),
@@ -143,7 +148,7 @@ export function ActiveAgentsPanel({
       {showMoreLink && hiddenRunCount > 0 && (
         <div className="mt-3 flex justify-end text-xs text-muted-foreground">
           <Link to="/dashboard/live" className="hover:text-foreground hover:underline">
-            {hiddenRunCount} more active/recent run{hiddenRunCount === 1 ? "" : "s"}
+            {hiddenRunCount} {t("components.activeagentspanel.more_active_recent_run.jsx-text", { defaultValue: " more active/recent run" })}{hiddenRunCount === 1 ? "" : "s"}
           </Link>
         </div>
       )}
@@ -168,6 +173,8 @@ const AgentRunCard = memo(function AgentRunCard({
   isActive: boolean;
   className?: string;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className={cn(
       "flex h-[320px] flex-col overflow-hidden rounded-xl border shadow-sm",

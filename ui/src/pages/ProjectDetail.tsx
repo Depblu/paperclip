@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useParams, useNavigate, useLocation, Navigate } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PROJECT_COLORS, PROJECT_ICON_NAMES, isUuidLike, type BudgetPolicySummary } from "@paperclipai/shared";
@@ -77,6 +78,8 @@ function OverviewContent({
   onUpdate: (data: Record<string, unknown>) => void;
   imageUploadHandler?: (file: File) => Promise<string>;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <InlineEditor
@@ -85,21 +88,21 @@ function OverviewContent({
         nullable
         as="p"
         className="text-sm text-muted-foreground"
-        placeholder="Add a description..."
+        placeholder={t("pages.projectdetail.add_a_description.attr_placeholder", { defaultValue: "Add a description..." })}
         multiline
         imageUploadHandler={imageUploadHandler}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="text-muted-foreground">Status</span>
+          <span className="text-muted-foreground">{t("pages.projectdetail.status.jsx-text", { defaultValue: "Status" })}</span>
           <div className="mt-1">
             <StatusBadge status={project.status} />
           </div>
         </div>
         {project.targetDate && (
           <div>
-            <span className="text-muted-foreground">Target Date</span>
+            <span className="text-muted-foreground">{t("pages.projectdetail.target_date.jsx-text", { defaultValue: "Target Date" })}</span>
             <p>{project.targetDate}</p>
           </div>
         )}
@@ -123,6 +126,8 @@ function ProjectTilePicker({
   onSelectIcon: (icon: string) => void;
   onSelectColor: (color: string | null) => void;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -147,16 +152,16 @@ function ProjectTilePicker({
         <button
           type="button"
           className="shrink-0 rounded-lg cursor-pointer hover:ring-2 hover:ring-foreground/20 transition-[box-shadow]"
-          aria-label="Change project icon and color"
+          aria-label={t("pages.projectdetail.change_project_icon_and_color.attr_aria-label", { defaultValue: "Change project icon and color" })}
         >
           <ProjectTile color={color} icon={icon} size="md" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-3" align="start">
         {/* Icon search + grid */}
-        <p className="text-xs font-medium text-muted-foreground mb-2">Icon</p>
+        <p className="text-xs font-medium text-muted-foreground mb-2">{t("pages.projectdetail.icon.jsx-text", { defaultValue: "Icon" })}</p>
         <Input
-          placeholder="Search icons..."
+          placeholder={t("pages.projectdetail.search_icons.attr_placeholder", { defaultValue: "Search icons..." })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-2 h-8 text-sm"
@@ -178,7 +183,7 @@ function ProjectTilePicker({
             </button>
           ))}
           {filteredIcons.length === 0 && (
-            <p className="col-span-7 text-xs text-muted-foreground text-center py-2">No icons match</p>
+            <p className="col-span-7 text-xs text-muted-foreground text-center py-2">{t("pages.projectdetail.no_icons_match.jsx-text", { defaultValue: "No icons match" })}</p>
           )}
         </div>
 
@@ -195,8 +200,8 @@ function ProjectTilePicker({
                   ? "ring-2 ring-foreground ring-offset-1 ring-offset-background rounded-md"
                   : ""
               }`}
-              aria-label="Reset to neutral gray"
-              title="Neutral (default)"
+              aria-label={t("pages.projectdetail.reset_to_neutral_gray.attr_aria-label", { defaultValue: "Reset to neutral gray" })}
+              title={t("pages.projectdetail.neutral_default.attr_title", { defaultValue: "Neutral (default)" })}
             >
               <ProjectTile color={null} size="sm" />
             </button>
@@ -224,6 +229,8 @@ function ProjectTilePicker({
 /* ── List (issues) tab content ── */
 
 function ProjectIssuesList({ projectId, companyId }: { projectId: string; companyId: string }) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
 
   const { data: agents } = useQuery({
@@ -285,6 +292,8 @@ function ProjectPluginOperationsList({
   companyId: string;
   pluginKey: string;
 }) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const originKindPrefix = `plugin:${pluginKey}`;
 
@@ -340,6 +349,8 @@ function ProjectPluginOperationsList({
 /* ── Main project page ── */
 
 export function ProjectDetail() {
+const { t } = useTranslation();
+
   const { companyPrefix, projectId, filter } = useParams<{
     companyPrefix?: string;
     projectId: string;
@@ -726,8 +737,7 @@ export function ProjectDetail() {
       {showLeftProjectNotice ? (
         <div className="flex items-center gap-3 border border-yellow-300/35 bg-yellow-300/10 px-3 py-2 text-sm text-yellow-100">
           <p className="min-w-0 flex-1">
-            You left this project. It no longer appears in your sidebar.
-          </p>
+            {t("pages.projectdetail.you_left_this_project_it_no_long.jsx-text", { defaultValue: "\n            You left this project. It no longer appears in your sidebar.\n          " })}</p>
           <MembershipAction
             compact
             state="left"
@@ -750,7 +760,7 @@ export function ProjectDetail() {
           <button
             type="button"
             className="h-6 w-6 shrink-0 text-yellow-100/70 hover:text-yellow-100"
-            aria-label="Dismiss project membership notice"
+            aria-label={t("pages.projectdetail.dismiss_project_membership_notic.attr_aria-label", { defaultValue: "Dismiss project membership notice" })}
             onClick={() => setDismissedLeftProjectIds((current) => new Set(current).add(project.id))}
           >
             ×
@@ -776,13 +786,12 @@ export function ProjectDetail() {
           {project.pauseReason === "budget" ? (
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-red-200">
               <span className="h-2 w-2 rounded-full bg-red-400" />
-              Paused by budget hard stop
-            </div>
+              {t("pages.projectdetail.paused_by_budget_hard_stop.jsx-text", { defaultValue: "\n              Paused by budget hard stop\n            " })}</div>
           ) : null}
           {project.managedByPlugin ? (
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: project.color ?? "#6366f1" }} />
-              Managed by {project.managedByPlugin.pluginDisplayName}
+              {t("pages.projectdetail.managed_by.jsx-text", { defaultValue: "\n              Managed by " })}{project.managedByPlugin.pluginDisplayName}
             </div>
           ) : null}
         </div>
@@ -875,7 +884,7 @@ export function ProjectDetail() {
             />
           )
         ) : (
-          <p className="text-sm text-muted-foreground">Loading workspaces...</p>
+          <p className="text-sm text-muted-foreground">{t("pages.projectdetail.loading_workspaces.jsx-text", { defaultValue: "Loading workspaces..." })}</p>
         )
       ) : null}
 

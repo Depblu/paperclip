@@ -1,4 +1,5 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useTranslation } from "@/i18n";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { accessApi } from "../api/access";
 import { useDialogActions } from "../context/DialogContext";
@@ -424,6 +425,8 @@ function IssueSearchInput({
   value: string;
   onDebouncedChange?: (search: string) => void;
 }) {
+const { t } = useTranslation();
+
   const [draftValue, setDraftValue] = useState(value);
   const lastCommittedValueRef = useRef(value);
 
@@ -470,9 +473,9 @@ function IssueSearchInput({
             e.currentTarget.blur();
           }
         }}
-        placeholder="Search tasks..."
+        placeholder={t("components.issueslist.search_tasks.attr_placeholder", { defaultValue: "Search tasks..." })}
         className="pl-7 text-xs sm:text-sm"
-        aria-label="Search tasks"
+        aria-label={t("components.issueslist.search_tasks.attr_aria-label", { defaultValue: "Search tasks" })}
         data-page-search-target="true"
       />
     </div>
@@ -488,6 +491,8 @@ function SubIssueProgressSummaryStrip({
   issueLinkState?: unknown;
   parentIssueIdForCostSummary?: string;
 }) {
+const { t } = useTranslation();
+
   const target = summary.target;
   const targetIssue = target?.issue ?? null;
   const targetPathId = targetIssue?.identifier ?? targetIssue?.id ?? "";
@@ -520,8 +525,7 @@ function SubIssueProgressSummaryStrip({
               {summary.doneCount}/{summary.totalCount} done
             </span>
             <span className="text-muted-foreground">
-              {summary.inProgressCount} in progress
-            </span>
+              {summary.inProgressCount} {t("components.issueslist.in_progress.jsx-text", { defaultValue: " in progress\n            " })}</span>
             <span className="text-muted-foreground">
               {summary.blockedCount} blocked
             </span>
@@ -535,17 +539,15 @@ function SubIssueProgressSummaryStrip({
                     costSummary.issueCount === 1 ? "" : "s"
                   }`}
                 >
-                  {formatTokens(totalTokens)} tokens
-                </span>
+                  {formatTokens(totalTokens)} {t("components.issueslist.tokens.jsx-text", { defaultValue: " tokens\n                " })}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {formatDurationMs(costSummary.runtimeMs)} runtime
-                </span>
+                  {formatDurationMs(costSummary.runtimeMs)} {t("components.issueslist.runtime.jsx-text", { defaultValue: " runtime\n                " })}</span>
               </>
             )}
           </div>
           <div
             role="progressbar"
-            aria-label="Sub-tasks completion progress"
+            aria-label={t("components.issueslist.sub_tasks_completion_progress.attr_aria-label", { defaultValue: "Sub-tasks completion progress" })}
             aria-valuemin={0}
             aria-valuenow={summary.doneCount}
             aria-valuemax={summary.totalCount}
@@ -582,11 +584,11 @@ function SubIssueProgressSummaryStrip({
               </Link>
             </>
           ) : summary.totalCount === 0 ? (
-            <div className="text-sm font-medium text-foreground">No active sub-tasks</div>
+            <div className="text-sm font-medium text-foreground">{t("components.issueslist.no_active_sub_tasks.jsx-text", { defaultValue: "No active sub-tasks" })}</div>
           ) : summary.doneCount === summary.totalCount ? (
-            <div className="text-sm font-medium text-foreground">All sub-tasks done</div>
+            <div className="text-sm font-medium text-foreground">{t("components.issueslist.all_sub_tasks_done.jsx-text", { defaultValue: "All sub-tasks done" })}</div>
           ) : (
-            <div className="text-sm font-medium text-foreground">No actionable sub-tasks</div>
+            <div className="text-sm font-medium text-foreground">{t("components.issueslist.no_actionable_sub_tasks.jsx-text", { defaultValue: "No actionable sub-tasks" })}</div>
           )}
         </div>
       </div>
@@ -623,6 +625,8 @@ export function IssuesList({
   onSearchChange,
   onUpdateIssue,
 }: IssuesListProps) {
+const { t } = useTranslation();
+
   const rootRef = useRef<HTMLDivElement | null>(null);
   const { selectedCompanyId } = useCompany();
   const { openNewIssue } = useDialogActions();
@@ -1353,14 +1357,14 @@ export function IssuesList({
             <button
               className={`p-1.5 transition-colors ${viewState.viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "list" })}
-              title="List view"
+              title={t("components.issueslist.list_view.attr_title", { defaultValue: "List view" })}
             >
               <List className="h-3.5 w-3.5" />
             </button>
             <button
               className={`p-1.5 transition-colors ${viewState.viewMode === "board" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "board" })}
-              title="Board view"
+              title={t("components.issueslist.board_view.attr_title", { defaultValue: "Board view" })}
             >
               <Columns3 className="h-3.5 w-3.5" />
             </button>
@@ -1411,7 +1415,7 @@ export function IssuesList({
                       "h-8 shrink-0 gap-1.5 px-2",
                       viewState.boardColumnPageSize !== KANBAN_COLUMN_DEFAULT_PAGE_SIZE && "bg-accent",
                     )}
-                    title="Cards per column"
+                    title={t("components.issueslist.cards_per_column.attr_title", { defaultValue: "Cards per column" })}
                   >
                     <ListCollapse className="h-3.5 w-3.5" />
                     <span className="min-w-4 text-xs tabular-nums">{viewState.boardColumnPageSize}</span>
@@ -1431,7 +1435,7 @@ export function IssuesList({
                         )}
                         onClick={() => updateView({ boardColumnPageSize: pageSize })}
                       >
-                        <span>{pageSize} per column</span>
+                        <span>{pageSize} {t("components.issueslist.per_column.jsx-text", { defaultValue: " per column" })}</span>
                         {viewState.boardColumnPageSize === pageSize && <Check className="h-3.5 w-3.5" />}
                       </button>
                     ))}
@@ -1449,7 +1453,7 @@ export function IssuesList({
                   boardColumnPageSize: KANBAN_COLUMN_DEFAULT_PAGE_SIZE,
                 })}
                 disabled={!boardDensityCustomized}
-                title="Reset board density"
+                title={t("components.issueslist.reset_board_density.attr_title", { defaultValue: "Reset board density" })}
               >
                 <RotateCcw className="h-3.5 w-3.5" />
               </Button>
@@ -1461,7 +1465,7 @@ export function IssuesList({
             visibleColumnSet={visibleIssueColumnSet}
             onToggleColumn={toggleIssueColumn}
             onResetColumns={() => setIssueColumns(DEFAULT_INBOX_ISSUE_COLUMNS)}
-            title="Choose which task columns stay visible"
+            title={t("components.issueslist.choose_which_task_columns_stay_v.attr_title", { defaultValue: "Choose which task columns stay visible" })}
             iconOnly
           />
 
@@ -1483,7 +1487,7 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Sort">
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title={t("components.issueslist.sort.attr_title", { defaultValue: "Sort" })}>
                   <ArrowUpDown className="h-3.5 w-3.5" />
                 </Button>
               </PopoverTrigger>
@@ -1527,7 +1531,7 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Group">
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title={t("components.issueslist.group.attr_title", { defaultValue: "Group" })}>
                   <Layers className="h-3.5 w-3.5" />
                 </Button>
               </PopoverTrigger>
@@ -1564,13 +1568,11 @@ export function IssuesList({
       {error && <p className="text-sm text-destructive">{error.message}</p>}
       {!searchWithinLoadedIssues && normalizedIssueSearch.length > 0 && searchedIssues.length === ISSUE_SEARCH_RESULT_LIMIT && (
         <p className="text-xs text-muted-foreground">
-          Showing up to {ISSUE_SEARCH_RESULT_LIMIT} matches. Refine the search to narrow further.
-        </p>
+          {t("components.issueslist.showing_up_to.jsx-text", { defaultValue: "\n          Showing up to " })}{ISSUE_SEARCH_RESULT_LIMIT} {t("components.issueslist.matches_refine_the_search_to_nar.jsx-text", { defaultValue: " matches. Refine the search to narrow further.\n        " })}</p>
       )}
       {boardColumnLimitReached && (
         <p className="text-xs text-muted-foreground">
-          Some board columns are showing up to {ISSUE_BOARD_COLUMN_RESULT_LIMIT} tasks. Refine filters or search to reveal the rest.
-        </p>
+          {t("components.issueslist.some_board_columns_are_showing_u.jsx-text", { defaultValue: "\n          Some board columns are showing up to " })}{ISSUE_BOARD_COLUMN_RESULT_LIMIT} {t("components.issueslist.tasks_refine_filters_or_search_t.jsx-text", { defaultValue: " tasks. Refine filters or search to reveal the rest.\n        " })}</p>
       )}
       {!isLoading && filtered.length === 0 && viewState.viewMode === "list" && (
         <EmptyState
@@ -1748,19 +1750,18 @@ export function IssuesList({
                           <>
                             {hasChildren && !isExpanded ? (
                               <span className="ml-1.5 text-xs text-muted-foreground">
-                                ({totalDescendants} sub-task{totalDescendants !== 1 ? "s" : ""})
+                                ({totalDescendants} {t("components.issueslist.sub_task.jsx-text", { defaultValue: " sub-task" })}{totalDescendants !== 1 ? "s" : ""})
                               </span>
                             ) : null}
                             {issueBadge ? (
                               issueBadge === "Paused" ? (
                                 <span
                                   className={cn("ml-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium", statusBadge.paused)}
-                                  aria-label="Paused"
-                                  title="Paused"
+                                  aria-label={t("components.issueslist.paused.attr_aria-label", { defaultValue: "Paused" })}
+                                  title={t("components.issueslist.paused.attr_title", { defaultValue: "Paused" })}
                                 >
                                   <CircleSlash2 className="h-3 w-3" />
-                                  Paused
-                                </span>
+                                  {t("components.issueslist.paused.jsx-text", { defaultValue: "\n                                  Paused\n                                " })}</span>
                               ) : (
                                 <span className="ml-1.5 inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
                                   {issueBadge}
@@ -1770,12 +1771,11 @@ export function IssuesList({
                             {isSuccessfulRunHandoffRequired(issue) ? (
                               <span
                                 className="ml-1.5 inline-flex items-center gap-1 rounded-full border border-amber-400/45 bg-amber-50/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-300/35 dark:bg-amber-400/10 dark:text-amber-300"
-                                aria-label="Needs next step"
-                                title="This task needs a next step"
+                                aria-label={t("components.issueslist.needs_next_step.attr_aria-label", { defaultValue: "Needs next step" })}
+                                title={t("components.issueslist.this_task_needs_a_next_step.attr_title", { defaultValue: "This task needs a next step" })}
                               >
                                 <CircleDot className="h-3 w-3" />
-                                Needs next step
-                              </span>
+                                {t("components.issueslist.needs_next_step.jsx-text", { defaultValue: "\n                                Needs next step\n                              " })}</span>
                             ) : null}
                           </>
                         )}
@@ -1867,8 +1867,7 @@ export function IssuesList({
                                           <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-muted-foreground/35 bg-muted/30">
                                             <User className="h-3.5 w-3.5" />
                                           </span>
-                                          Assignee
-                                        </span>
+                                          {t("components.issueslist.assignee.jsx-text", { defaultValue: "\n                                          Assignee\n                                        " })}</span>
                                       )}
                                     </button>
                                   </PopoverTrigger>
@@ -1880,7 +1879,7 @@ export function IssuesList({
                                   >
                                     <input
                                       className="mb-1 w-full border-b border-border bg-transparent px-2 py-1.5 text-xs outline-none placeholder:text-muted-foreground/50"
-                                      placeholder="Search assignees..."
+                                      placeholder={t("components.issueslist.search_assignees.attr_placeholder", { defaultValue: "Search assignees..." })}
                                       value={assigneeSearch}
                                       onChange={(e) => setAssigneeSearch(e.target.value)}
                                       autoFocus
@@ -1897,8 +1896,7 @@ export function IssuesList({
                                           assignIssue(issue.id, null, null);
                                         }}
                                       >
-                                        No assignee
-                                      </button>
+                                        {t("components.issueslist.no_assignee.jsx-text", { defaultValue: "\n                                        No assignee\n                                      " })}</button>
                                       {currentUserId && (
                                         <button
                                           className={cn(
@@ -1912,7 +1910,7 @@ export function IssuesList({
                                           }}
                                         >
                                           <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                          <span>Me</span>
+                                          <span>{t("components.issueslist.me.jsx-text", { defaultValue: "Me" })}</span>
                                         </button>
                                       )}
                                       {(agents ?? [])

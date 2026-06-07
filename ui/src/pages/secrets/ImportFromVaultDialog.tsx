@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -122,6 +123,8 @@ function StatusBadge({
 }: {
   status: RemoteSecretImportCandidate["status"];
 }) {
+const { t } = useTranslation();
+
   const Icon =
     status === "conflict"
       ? AlertTriangle
@@ -137,6 +140,8 @@ function StatusBadge({
 }
 
 function RowResultBadge({ status }: { status: RemoteSecretImportRowResult["status"] }) {
+const { t } = useTranslation();
+
   switch (status) {
     case "imported":
       return (
@@ -144,8 +149,7 @@ function RowResultBadge({ status }: { status: RemoteSecretImportRowResult["statu
           variant="outline"
           className="gap-1 px-1.5 py-0 font-normal text-emerald-600 border-emerald-500/40 dark:text-emerald-400"
         >
-          <CheckCircle2 className="h-3 w-3" /> Created
-        </Badge>
+          <CheckCircle2 className="h-3 w-3" /> {t("pages.importfromvaultdialog.created.jsx-text", { defaultValue: " Created\n        " })}</Badge>
       );
     case "skipped":
       return (
@@ -153,8 +157,7 @@ function RowResultBadge({ status }: { status: RemoteSecretImportRowResult["statu
           variant="outline"
           className="gap-1 px-1.5 py-0 font-normal text-muted-foreground border-border/60"
         >
-          <Link2 className="h-3 w-3" /> Skipped
-        </Badge>
+          <Link2 className="h-3 w-3" /> {t("pages.importfromvaultdialog.skipped.jsx-text", { defaultValue: " Skipped\n        " })}</Badge>
       );
     case "error":
     default:
@@ -163,8 +166,7 @@ function RowResultBadge({ status }: { status: RemoteSecretImportRowResult["statu
           variant="outline"
           className="gap-1 px-1.5 py-0 font-normal text-destructive border-destructive/40"
         >
-          <XCircle className="h-3 w-3" /> Failed
-        </Badge>
+          <XCircle className="h-3 w-3" /> {t("pages.importfromvaultdialog.failed.jsx-text", { defaultValue: " Failed\n        " })}</Badge>
       );
   }
 }
@@ -330,6 +332,8 @@ export function ImportFromVaultDialog({
   onImportComplete,
   onManageVaults,
 }: ImportFromVaultDialogProps) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const toast = useToastActions();
   const awsVaults = useMemo(() => awsVaultOptions(providerConfigs), [providerConfigs]);
@@ -647,18 +651,16 @@ export function ImportFromVaultDialog({
         <header className="flex items-start justify-between gap-3 border-b border-border/60 px-5 py-4">
           <div className="flex flex-col gap-1">
             <DialogTitle className="text-base font-semibold">
-              Import from AWS Secrets Manager
-            </DialogTitle>
+              {t("pages.importfromvaultdialog.import_from_aws_secrets_manager.jsx-text", { defaultValue: "\n              Import from AWS Secrets Manager\n            " })}</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Bring AWS-managed secrets into Paperclip as external references.
-            </DialogDescription>
+              {t("pages.importfromvaultdialog.bring_aws_managed_secrets_into_p.jsx-text", { defaultValue: "\n              Bring AWS-managed secrets into Paperclip as external references.\n            " })}</DialogDescription>
             <Stepper step={step} />
           </div>
           <button
             type="button"
             className="rounded-sm text-muted-foreground transition-opacity hover:opacity-100 opacity-70"
             onClick={() => handleClose()}
-            aria-label="Close import dialog"
+            aria-label={t("pages.importfromvaultdialog.close_import_dialog.attr_aria-label", { defaultValue: "Close import dialog" })}
           >
             <X className="h-4 w-4" />
           </button>
@@ -722,8 +724,7 @@ export function ImportFromVaultDialog({
           <div className="flex items-center gap-2">
             {step !== "result" && (
               <Button variant="ghost" size="sm" onClick={() => handleClose()}>
-                Cancel
-              </Button>
+                {t("pages.importfromvaultdialog.cancel.jsx-text", { defaultValue: "\n                Cancel\n              " })}</Button>
             )}
             {step === "review" && (
               <Button
@@ -732,8 +733,7 @@ export function ImportFromVaultDialog({
                 onClick={() => setStep("select")}
                 disabled={importMutation.isPending}
               >
-                Back
-              </Button>
+                {t("pages.importfromvaultdialog.back.jsx-text", { defaultValue: "\n                Back\n              " })}</Button>
             )}
             {step === "select" && (
               <Button
@@ -741,8 +741,7 @@ export function ImportFromVaultDialog({
                 onClick={() => setStep("review")}
                 disabled={totalSelected === 0}
               >
-                Continue → Review
-              </Button>
+                {t("pages.importfromvaultdialog.continue_review.jsx-text", { defaultValue: "\n                Continue → Review\n              " })}</Button>
             )}
             {step === "review" && (
               <Button
@@ -756,8 +755,7 @@ export function ImportFromVaultDialog({
               >
                 {importMutation.isPending ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Importing…
-                  </>
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> {t("pages.importfromvaultdialog.importing.jsx-text", { defaultValue: " Importing…\n                  " })}</>
                 ) : (
                   `Import ${draftList.length}`
                 )}
@@ -765,8 +763,7 @@ export function ImportFromVaultDialog({
             )}
             {step === "result" && (
               <Button size="sm" onClick={() => handleClose(true)}>
-                Done
-              </Button>
+                {t("pages.importfromvaultdialog.done.jsx-text", { defaultValue: "\n                Done\n              " })}</Button>
             )}
           </div>
         </footer>
@@ -776,6 +773,8 @@ export function ImportFromVaultDialog({
 }
 
 function Stepper({ step }: { step: Step }) {
+const { t } = useTranslation();
+
   const steps: { id: Step; label: string }[] = [
     { id: "select", label: "Select" },
     { id: "review", label: "Review" },
@@ -843,6 +842,8 @@ interface SelectStepProps {
 }
 
 function SelectStep(props: SelectStepProps) {
+const { t } = useTranslation();
+
   const {
     awsVaults,
     eligible,
@@ -889,7 +890,7 @@ function SelectStep(props: SelectStepProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3">
-        <label className="text-xs uppercase tracking-wide text-muted-foreground">Vault</label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">{t("pages.importfromvaultdialog.vault.jsx-text", { defaultValue: "Vault" })}</label>
         {awsVaults.length === 1 && eligible.length === 1 ? (
           <span className="text-xs font-medium" data-testid="vault-static-label">
             {eligible[0].displayName}
@@ -899,8 +900,8 @@ function SelectStep(props: SelectStepProps) {
             value={vaultId ?? undefined}
             onValueChange={onVaultChange}
           >
-            <SelectTrigger size="sm" className="text-xs" aria-label="Select AWS vault">
-              <SelectValue placeholder="Select an AWS vault" />
+            <SelectTrigger size="sm" className="text-xs" aria-label={t("pages.importfromvaultdialog.select_aws_vault.attr_aria-label", { defaultValue: "Select AWS vault" })}>
+              <SelectValue placeholder={t("pages.importfromvaultdialog.select_an_aws_vault.attr_placeholder", { defaultValue: "Select an AWS vault" })} />
             </SelectTrigger>
             <SelectContent>
               {awsVaults.map((vault) => {
@@ -915,10 +916,10 @@ function SelectStep(props: SelectStepProps) {
                     <span className="flex items-center gap-2">
                       <span>{vault.displayName}</span>
                       {vault.isDefault && (
-                        <Badge variant="outline" className="px-1 py-0 text-[10px]">default</Badge>
+                        <Badge variant="outline" className="px-1 py-0 text-[10px]">{t("pages.importfromvaultdialog.default.jsx-text", { defaultValue: "default" })}</Badge>
                       )}
                       {vault.status === "warning" && (
-                        <Badge variant="outline" className="px-1 py-0 text-[10px] text-amber-500 border-amber-500/40">warning</Badge>
+                        <Badge variant="outline" className="px-1 py-0 text-[10px] text-amber-500 border-amber-500/40">{t("pages.importfromvaultdialog.warning.jsx-text", { defaultValue: "warning" })}</Badge>
                       )}
                       {blocked && (
                         <Badge variant="outline" className="px-1 py-0 text-[10px] text-muted-foreground">
@@ -938,9 +939,9 @@ function SelectStep(props: SelectStepProps) {
           <Input
             value={searchInput}
             onChange={(event) => onSearchInput(event.target.value)}
-            placeholder="Search by name, ARN, tag"
+            placeholder={t("pages.importfromvaultdialog.search_by_name_arn_tag.attr_placeholder", { defaultValue: "Search by name, ARN, tag" })}
             className="pl-7 pr-7 text-xs"
-            aria-label="Search remote secrets"
+            aria-label={t("pages.importfromvaultdialog.search_remote_secrets.attr_aria-label", { defaultValue: "Search remote secrets" })}
             data-testid="vault-search"
           />
           {showSearchSpinner && (
@@ -953,7 +954,7 @@ function SelectStep(props: SelectStepProps) {
           size="sm"
           onClick={onRefresh}
           disabled={previewLoading || !vaultId}
-          aria-label="Refresh remote secrets"
+          aria-label={t("pages.importfromvaultdialog.refresh_remote_secrets.attr_aria-label", { defaultValue: "Refresh remote secrets" })}
         >
           <RefreshCw className={cn("h-3.5 w-3.5", previewLoading && "animate-spin")} />
         </Button>
@@ -962,8 +963,7 @@ function SelectStep(props: SelectStepProps) {
       {selectedNotVisible > 0 && (
         <div className="flex items-center justify-between border-b border-border/60 bg-muted/20 px-5 py-1.5 text-xs text-muted-foreground">
           <span>
-            {selection.size} selected · {selectedNotVisible} not visible with current search
-          </span>
+            {selection.size} {t("pages.importfromvaultdialog.selected.jsx-text", { defaultValue: " selected · " })}{selectedNotVisible} {t("pages.importfromvaultdialog.not_visible_with_current_search.jsx-text", { defaultValue: " not visible with current search\n          " })}</span>
           <Button
             variant="ghost"
             size="sm"
@@ -994,11 +994,11 @@ function SelectStep(props: SelectStepProps) {
                     disabled={selectableInLoaded.length === 0}
                   />
                 </th>
-                <th className="px-2 py-2 text-left font-medium">Remote name</th>
-                <th className="px-2 py-2 text-left font-medium">Reference</th>
-                <th className="px-2 py-2 text-left font-medium">Last changed</th>
-                <th className="px-2 py-2 text-left font-medium">Suggested name</th>
-                <th className="px-2 py-2 text-left font-medium">State</th>
+                <th className="px-2 py-2 text-left font-medium">{t("pages.importfromvaultdialog.remote_name.jsx-text", { defaultValue: "Remote name" })}</th>
+                <th className="px-2 py-2 text-left font-medium">{t("pages.importfromvaultdialog.reference.jsx-text", { defaultValue: "Reference" })}</th>
+                <th className="px-2 py-2 text-left font-medium">{t("pages.importfromvaultdialog.last_changed.jsx-text", { defaultValue: "Last changed" })}</th>
+                <th className="px-2 py-2 text-left font-medium">{t("pages.importfromvaultdialog.suggested_name.jsx-text", { defaultValue: "Suggested name" })}</th>
+                <th className="px-2 py-2 text-left font-medium">{t("pages.importfromvaultdialog.state.jsx-text", { defaultValue: "State" })}</th>
               </tr>
             </thead>
             <tbody data-testid="vault-table-body">
@@ -1054,8 +1054,7 @@ function SelectStep(props: SelectStepProps) {
                         {candidate.status === "duplicate" &&
                           candidate.conflicts.find((c) => c.type === "exact_reference")?.existingSecretId && (
                             <span className="text-[11px] text-muted-foreground">
-                              Already imported
-                            </span>
+                              {t("pages.importfromvaultdialog.already_imported.jsx-text", { defaultValue: "\n                              Already imported\n                            " })}</span>
                           )}
                       </div>
                       {candidate.status === "conflict" && candidate.conflicts.length > 0 && (
@@ -1081,9 +1080,8 @@ function SelectStep(props: SelectStepProps) {
         {hasNextPage && !previewError && (
           <div className="flex items-center justify-between border-t border-border/60 px-5 py-2 text-xs text-muted-foreground">
             <span>
-              {candidates.length} loaded
-              {selectableInLoaded.length > 0 && (
-                <span> · {selectableInLoaded.length} selectable</span>
+              {candidates.length} {t("pages.importfromvaultdialog.loaded.jsx-text", { defaultValue: " loaded\n              " })}{selectableInLoaded.length > 0 && (
+                <span> · {selectableInLoaded.length} {t("pages.importfromvaultdialog.selectable.jsx-text", { defaultValue: " selectable" })}</span>
               )}
             </span>
             <Button
@@ -1095,8 +1093,7 @@ function SelectStep(props: SelectStepProps) {
             >
               {pageLoading ? (
                 <>
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Loading…
-                </>
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> {t("pages.importfromvaultdialog.loading.jsx-text", { defaultValue: " Loading…\n                " })}</>
               ) : (
                 `Load ${PAGE_SIZE} more`
               )}
@@ -1109,6 +1106,8 @@ function SelectStep(props: SelectStepProps) {
 }
 
 function PreviewErrorBanner({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+const { t } = useTranslation();
+
   const isPermission = isPermissionError(error);
   const isThrottling = isThrottlingError(error);
   const message = readableErrorMessage(error);
@@ -1134,8 +1133,7 @@ function PreviewErrorBanner({ error, onRetry }: { error: unknown; onRetry: () =>
         </div>
         <div className="mt-2 flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={onRetry}>
-            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Retry
-          </Button>
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {t("pages.importfromvaultdialog.retry.jsx-text", { defaultValue: " Retry\n          " })}</Button>
           {isPermission && (
             <a
               href="https://docs.aws.amazon.com/service-authorization/latest/reference/list_awssecretsmanager.html"
@@ -1143,7 +1141,7 @@ function PreviewErrorBanner({ error, onRetry }: { error: unknown; onRetry: () =>
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs font-medium underline"
             >
-              IAM reference <ExternalLink className="h-3 w-3" />
+              {t("pages.importfromvaultdialog.iam_reference.jsx-text", { defaultValue: "\n              IAM reference " })}<ExternalLink className="h-3 w-3" />
             </a>
           )}
         </div>
@@ -1153,6 +1151,8 @@ function PreviewErrorBanner({ error, onRetry }: { error: unknown; onRetry: () =>
 }
 
 function SkeletonRows({ rows }: { rows: number }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-1.5 p-3">
       {Array.from({ length: rows }).map((_, idx) => (
@@ -1163,6 +1163,8 @@ function SkeletonRows({ rows }: { rows: number }) {
 }
 
 function EmptyCandidates({ query }: { query: string }) {
+const { t } = useTranslation();
+
   if (query) {
     return (
       <EmptyState
@@ -1188,6 +1190,8 @@ interface ReviewStepProps {
 }
 
 function ReviewStep({ drafts, reviewErrors, updateDraft, removeDraft, importing }: ReviewStepProps) {
+const { t } = useTranslation();
+
   if (drafts.length === 0) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center p-6">
@@ -1205,11 +1209,10 @@ function ReviewStep({ drafts, reviewErrors, updateDraft, removeDraft, importing 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-3 border-b border-border/60 bg-muted/20 px-5 py-3 text-xs">
-        <span className="font-medium">{ready} secrets ready to import</span>
+        <span className="font-medium">{ready} {t("pages.importfromvaultdialog.secrets_ready_to_import.jsx-text", { defaultValue: " secrets ready to import" })}</span>
         {blocked > 0 && (
           <span className="text-amber-600 dark:text-amber-400">
-            {blocked} need attention before import
-          </span>
+            {blocked} {t("pages.importfromvaultdialog.need_attention_before_import.jsx-text", { defaultValue: " need attention before import\n          " })}</span>
         )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto" data-testid="review-list">
@@ -1237,7 +1240,7 @@ function ReviewStep({ drafts, reviewErrors, updateDraft, removeDraft, importing 
                   </div>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     <label className="flex flex-col gap-1 text-xs">
-                      <span className="text-muted-foreground">Paperclip name</span>
+                      <span className="text-muted-foreground">{t("pages.importfromvaultdialog.paperclip_name.jsx-text", { defaultValue: "Paperclip name" })}</span>
                       <Input
                         value={draft.name}
                         onChange={(e) =>
@@ -1268,7 +1271,7 @@ function ReviewStep({ drafts, reviewErrors, updateDraft, removeDraft, importing 
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-xs">
-                      <span className="text-muted-foreground">Description (optional)</span>
+                      <span className="text-muted-foreground">{t("pages.importfromvaultdialog.description_optional.jsx-text", { defaultValue: "Description (optional)" })}</span>
                       <Input
                         value={draft.description}
                         onChange={(e) =>
@@ -1318,6 +1321,8 @@ interface ResultStepProps {
 }
 
 function ResultStep({ result, draftList }: ResultStepProps) {
+const { t } = useTranslation();
+
   const grouped = useMemo(() => {
     const created: RemoteSecretImportRowResult[] = [];
     const skipped: RemoteSecretImportRowResult[] = [];
@@ -1348,20 +1353,20 @@ function ResultStep({ result, draftList }: ResultStepProps) {
       <div className="border-b border-border/60 px-5 py-3" data-testid="result-summary">
         <h3 className="text-sm font-semibold">{heading}</h3>
         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span className="text-emerald-600 dark:text-emerald-400">✓ {result.importedCount} created</span>
-          <span>⊘ {result.skippedCount} skipped</span>
-          <span className="text-destructive">⨯ {result.errorCount} failed</span>
+          <span className="text-emerald-600 dark:text-emerald-400">✓ {result.importedCount} {t("pages.importfromvaultdialog.created.jsx-text", { defaultValue: " created" })}</span>
+          <span>⊘ {result.skippedCount} {t("pages.importfromvaultdialog.skipped.jsx-text", { defaultValue: " skipped" })}</span>
+          <span className="text-destructive">⨯ {result.errorCount} {t("pages.importfromvaultdialog.failed.jsx-text", { defaultValue: " failed" })}</span>
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {grouped.created.length > 0 && (
-          <ResultGroup label="Created" rows={grouped.created} draftLookup={draftLookup} />
+          <ResultGroup label={t("pages.importfromvaultdialog.created.attr_label", { defaultValue: "Created" })} rows={grouped.created} draftLookup={draftLookup} />
         )}
         {grouped.skipped.length > 0 && (
-          <ResultGroup label="Skipped" rows={grouped.skipped} draftLookup={draftLookup} />
+          <ResultGroup label={t("pages.importfromvaultdialog.skipped.attr_label", { defaultValue: "Skipped" })} rows={grouped.skipped} draftLookup={draftLookup} />
         )}
         {grouped.failed.length > 0 && (
-          <ResultGroup label="Failed" rows={grouped.failed} draftLookup={draftLookup} />
+          <ResultGroup label={t("pages.importfromvaultdialog.failed.attr_label", { defaultValue: "Failed" })} rows={grouped.failed} draftLookup={draftLookup} />
         )}
       </div>
     </div>
@@ -1377,6 +1382,8 @@ function ResultGroup({
   rows: RemoteSecretImportRowResult[];
   draftLookup: Map<string, DraftSelection>;
 }) {
+const { t } = useTranslation();
+
   return (
     <section>
       <header className="bg-muted/30 px-5 py-1.5 text-xs uppercase tracking-wide text-muted-foreground">
@@ -1443,6 +1450,8 @@ function FooterStatus({
   blockedReviewCount,
   result,
 }: FooterStatusProps) {
+const { t } = useTranslation();
+
   if (step === "select") {
     return (
       <div className="text-xs text-muted-foreground">
@@ -1455,8 +1464,7 @@ function FooterStatus({
   if (step === "review") {
     return (
       <div className="text-xs text-muted-foreground">
-        {readyReviewCount} ready
-        {blockedReviewCount > 0 && (
+        {readyReviewCount} {t("pages.importfromvaultdialog.ready.jsx-text", { defaultValue: " ready\n        " })}{blockedReviewCount > 0 && (
           <span className="ml-2 text-amber-600 dark:text-amber-400">
             · {blockedReviewCount} blocked
           </span>
@@ -1467,9 +1475,9 @@ function FooterStatus({
   if (result) {
     return (
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span>{result.importedCount} created</span>
-        <span>{result.skippedCount} skipped</span>
-        <span>{result.errorCount} failed</span>
+        <span>{result.importedCount} {t("pages.importfromvaultdialog.created.jsx-text", { defaultValue: " created" })}</span>
+        <span>{result.skippedCount} {t("pages.importfromvaultdialog.skipped.jsx-text", { defaultValue: " skipped" })}</span>
+        <span>{result.errorCount} {t("pages.importfromvaultdialog.failed.jsx-text", { defaultValue: " failed" })}</span>
       </div>
     );
   }

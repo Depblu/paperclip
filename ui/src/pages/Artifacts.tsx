@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ArrowLeft, Check, Layers, Package, Search, X } from "lucide-react";
 import type { To } from "react-router-dom";
@@ -62,6 +63,8 @@ export function artifactGroupByLabel(value: ArtifactGroupBy): string {
 }
 
 export function Artifacts() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -253,15 +256,15 @@ export function Artifacts() {
           <Input
             value={draftQuery}
             onChange={(event) => setDraftQuery(event.currentTarget.value)}
-            placeholder="Search artifacts..."
-            aria-label="Search artifacts"
+            placeholder={t("pages.artifacts.search_artifacts.attr_placeholder", { defaultValue: "Search artifacts..." })}
+            aria-label={t("pages.artifacts.search_artifacts.attr_aria-label", { defaultValue: "Search artifacts" })}
             className="h-9 pl-9 pr-9 text-sm"
           />
           {draftQuery.length > 0 ? (
             <button
               type="button"
               onClick={() => setDraftQuery("")}
-              aria-label="Clear artifact search"
+              aria-label={t("pages.artifacts.clear_artifact_search.attr_aria-label", { defaultValue: "Clear artifact search" })}
               className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
@@ -277,7 +280,7 @@ export function Artifacts() {
                 variant="outline"
                 size="icon"
                 aria-label={`Group artifacts (currently ${artifactGroupByLabel(groupBy)})`}
-                title="Group artifacts"
+                title={t("pages.artifacts.group_artifacts.attr_title", { defaultValue: "Group artifacts" })}
                 data-testid="artifact-group-control"
                 data-group-by={groupBy}
                 className={cn("h-8 w-8 shrink-0", grouping && "bg-accent")}
@@ -286,7 +289,7 @@ export function Artifacts() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuLabel>Group by</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("pages.artifacts.group_by.jsx-text", { defaultValue: "Group by" })}</DropdownMenuLabel>
               {ARTIFACT_GROUP_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
@@ -302,7 +305,7 @@ export function Artifacts() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Filter artifacts by type">
+          <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label={t("pages.artifacts.filter_artifacts_by_type.attr_aria-label", { defaultValue: "Filter artifacts by type" })}>
             {ARTIFACT_KIND_FILTERS.map((filter) => (
               <button
                 key={filter.value}
@@ -332,8 +335,7 @@ export function Artifacts() {
             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            All stacks
-          </Link>
+            {t("pages.artifacts.all_stacks.jsx-text", { defaultValue: "\n            All stacks\n          " })}</Link>
           {selectedGroup ? (
             <span className="truncate text-muted-foreground">
               <span className="text-foreground/80">{selectedGroup.issue.identifier}</span>{" "}

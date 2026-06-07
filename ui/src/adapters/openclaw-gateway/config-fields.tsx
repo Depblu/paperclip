@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Eye, EyeOff } from "lucide-react";
 import type { AdapterConfigFieldsProps } from "../types";
 import {
@@ -25,6 +26,8 @@ function SecretField({
   onCommit: (v: string) => void;
   placeholder?: string;
 }) {
+const { t } = useTranslation();
+
   const [visible, setVisible] = useState(false);
   return (
     <Field label={label}>
@@ -64,6 +67,8 @@ export function OpenClawGatewayConfigFields({
   eff,
   mark,
 }: AdapterConfigFieldsProps) {
+const { t } = useTranslation();
+
   const configuredHeaders =
     config.headers && typeof config.headers === "object" && !Array.isArray(config.headers)
       ? (config.headers as Record<string, unknown>)
@@ -98,7 +103,7 @@ export function OpenClawGatewayConfigFields({
 
   return (
     <>
-      <Field label="Gateway URL" hint={help.webhookUrl}>
+      <Field label={t("misc.config_fields.gateway_url.attr_label", { defaultValue: "Gateway URL" })} hint={help.webhookUrl}>
         <DraftInput
           value={
             isCreate
@@ -112,7 +117,7 @@ export function OpenClawGatewayConfigFields({
           }
           immediate
           className={inputClass}
-          placeholder="ws://127.0.0.1:18789"
+          placeholder={t("misc.config_fields.ws_127_0_0_1_18789.attr_placeholder", { defaultValue: "ws://127.0.0.1:18789" })}
         />
       </Field>
 
@@ -134,7 +139,7 @@ export function OpenClawGatewayConfigFields({
 
       {!isCreate && (
         <>
-          <Field label="Paperclip API URL override">
+          <Field label={t("misc.config_fields.paperclip_api_url_override.attr_label", { defaultValue: "Paperclip API URL override" })}>
             <DraftInput
               value={
                 eff(
@@ -150,45 +155,45 @@ export function OpenClawGatewayConfigFields({
             />
           </Field>
 
-          <Field label="Claimed API key path">
+          <Field label={t("misc.config_fields.claimed_api_key_path.attr_label", { defaultValue: "Claimed API key path" })}>
             <DraftInput
               value={eff("adapterConfig", "claimedApiKeyPath", String(config.claimedApiKeyPath ?? ""))}
               onCommit={(v) => mark("adapterConfig", "claimedApiKeyPath", v || undefined)}
               immediate
               className={inputClass}
-              placeholder="~/.openclaw/workspace/paperclip-claimed-api-key.json"
+              placeholder={t("misc.config_fields.openclaw_workspace_paperclip_cla.attr_placeholder", { defaultValue: "~/.openclaw/workspace/paperclip-claimed-api-key.json" })}
             />
           </Field>
 
-          <Field label="Session strategy">
+          <Field label={t("misc.config_fields.session_strategy.attr_label", { defaultValue: "Session strategy" })}>
             <select
               value={sessionStrategy}
               onChange={(e) => mark("adapterConfig", "sessionKeyStrategy", e.target.value)}
               className={inputClass}
             >
-              <option value="fixed">Fixed</option>
-              <option value="issue">Per issue</option>
-              <option value="run">Per run</option>
+              <option value="fixed">{t("misc.config_fields.fixed.jsx-text", { defaultValue: "Fixed" })}</option>
+              <option value="issue">{t("misc.config_fields.per_issue.jsx-text", { defaultValue: "Per issue" })}</option>
+              <option value="run">{t("misc.config_fields.per_run.jsx-text", { defaultValue: "Per run" })}</option>
             </select>
           </Field>
 
           {sessionStrategy === "fixed" && (
-            <Field label="Session key">
+            <Field label={t("misc.config_fields.session_key.attr_label", { defaultValue: "Session key" })}>
               <DraftInput
                 value={eff("adapterConfig", "sessionKey", String(config.sessionKey ?? "paperclip"))}
                 onCommit={(v) => mark("adapterConfig", "sessionKey", v || undefined)}
                 immediate
                 className={inputClass}
-                placeholder="paperclip"
+                placeholder={t("misc.config_fields.paperclip.attr_placeholder", { defaultValue: "paperclip" })}
               />
             </Field>
           )}
 
           <SecretField
-            label="Gateway auth token (x-openclaw-token)"
+            label={t("misc.config_fields.gateway_auth_token_x_openclaw_to.attr_label", { defaultValue: "Gateway auth token (x-openclaw-token)" })}
             value={effectiveGatewayToken}
             onCommit={commitGatewayToken}
-            placeholder="OpenClaw gateway token"
+            placeholder={t("misc.config_fields.openclaw_gateway_token.attr_placeholder", { defaultValue: "OpenClaw gateway token" })}
           />
 
           <Field label="Role">
@@ -197,11 +202,11 @@ export function OpenClawGatewayConfigFields({
               onCommit={(v) => mark("adapterConfig", "role", v || undefined)}
               immediate
               className={inputClass}
-              placeholder="operator"
+              placeholder={t("misc.config_fields.operator.attr_placeholder", { defaultValue: "operator" })}
             />
           </Field>
 
-          <Field label="Scopes (comma-separated)">
+          <Field label={t("misc.config_fields.scopes_comma_separated.attr_label", { defaultValue: "Scopes (comma-separated)" })}>
             <DraftInput
               value={eff("adapterConfig", "scopes", parseScopes(config.scopes ?? ["operator.admin"]))}
               onCommit={(v) => {
@@ -213,11 +218,11 @@ export function OpenClawGatewayConfigFields({
               }}
               immediate
               className={inputClass}
-              placeholder="operator.admin"
+              placeholder={t("misc.config_fields.operator_admin.attr_placeholder", { defaultValue: "operator.admin" })}
             />
           </Field>
 
-          <Field label="Wait timeout (ms)">
+          <Field label={t("misc.config_fields.wait_timeout_ms.attr_label", { defaultValue: "Wait timeout (ms)" })}>
             <DraftInput
               value={eff("adapterConfig", "waitTimeoutMs", String(config.waitTimeoutMs ?? "120000"))}
               onCommit={(v) => {
@@ -234,11 +239,9 @@ export function OpenClawGatewayConfigFields({
             />
           </Field>
 
-          <Field label="Device auth">
+          <Field label={t("misc.config_fields.device_auth.attr_label", { defaultValue: "Device auth" })}>
             <div className="text-xs text-muted-foreground leading-relaxed">
-              Always enabled for gateway agents. Paperclip persists a device key during onboarding so pairing approvals
-              remain stable across runs.
-            </div>
+              {t("misc.config_fields.always_enabled_for_gateway_agent.jsx-text", { defaultValue: "\n              Always enabled for gateway agents. Paperclip persists a device key during onboarding so pairing approvals remain stable across runs.\n            " })}</div>
           </Field>
         </>
       )}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Puzzle, ArrowLeft, ShieldAlert, ActivitySquare, CheckCircle, XCircle, Loader2, Clock, Cpu, Webhook, CalendarClock, AlertTriangle, FolderOpen, Save } from "lucide-react";
 import type { PluginLocalFolderDeclaration } from "@paperclipai/shared";
@@ -60,6 +61,8 @@ import {
  * @see doc/plugins/PLUGIN_SPEC.md §19.8 — Plugin Settings UI.
  */
 export function PluginSettings() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { companyPrefix, pluginId } = useParams<{ companyPrefix?: string; pluginId: string }>();
@@ -128,7 +131,7 @@ export function PluginSettings() {
   }, [pluginId]);
 
   if (pluginLoading) {
-    return <div className="p-4 text-sm text-muted-foreground">Loading plugin details...</div>;
+    return <div className="p-4 text-sm text-muted-foreground">{t("pages.pluginsettings.loading_plugin_details.jsx-text", { defaultValue: "Loading plugin details..." })}</div>;
   }
 
   if (!plugin) {
@@ -186,19 +189,19 @@ export function PluginSettings() {
         <TabsContent value="configuration" className="space-y-6">
           <div className="space-y-8">
             <section className="space-y-5">
-              <h2 className="text-base font-semibold">About</h2>
+              <h2 className="text-base font-semibold">{t("pages.pluginsettings.about.jsx-text", { defaultValue: "About" })}</h2>
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.8fr)]">
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">{t("pages.pluginsettings.description.jsx-text", { defaultValue: "Description" })}</h3>
                   <p className="text-sm leading-6 text-foreground/90">{pluginDescription}</p>
                 </div>
                 <div className="space-y-4 text-sm">
                   <div className="space-y-1.5">
-                    <h3 className="font-medium text-muted-foreground">Author</h3>
+                    <h3 className="font-medium text-muted-foreground">{t("pages.pluginsettings.author.jsx-text", { defaultValue: "Author" })}</h3>
                     <p className="text-foreground">{plugin.manifestJson.author}</p>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-medium text-muted-foreground">Categories</h3>
+                    <h3 className="font-medium text-muted-foreground">{t("pages.pluginsettings.categories.jsx-text", { defaultValue: "Categories" })}</h3>
                     <div className="flex flex-wrap gap-2">
                       {plugin.categories.length > 0 ? (
                         plugin.categories.map((category) => (
@@ -207,7 +210,7 @@ export function PluginSettings() {
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-foreground">None</span>
+                        <span className="text-foreground">{t("pages.pluginsettings.none.jsx-text", { defaultValue: "None" })}</span>
                       )}
                     </div>
                   </div>
@@ -219,7 +222,7 @@ export function PluginSettings() {
 
             <section className="space-y-4">
               <div className="space-y-1">
-                <h2 className="text-base font-semibold">Settings</h2>
+                <h2 className="text-base font-semibold">{t("pages.pluginsettings.settings.jsx-text", { defaultValue: "Settings" })}</h2>
               </div>
               {hasLocalFolders ? (
                 <PluginLocalFoldersSettings
@@ -253,21 +256,18 @@ export function PluginSettings() {
                 />
               ) : environmentDrivers.length > 0 ? (
                 <div className="rounded-md border border-border/60 bg-muted/20 px-4 py-3 text-sm">
-                  <p className="font-medium text-foreground">Configure this plugin from Company Environments.</p>
+                  <p className="font-medium text-foreground">{t("pages.pluginsettings.configure_this_plugin_from_compa.jsx-text", { defaultValue: "Configure this plugin from Company Environments." })}</p>
                   <p className="mt-1 text-muted-foreground">
-                    {driverLabel || "This plugin"} registers environment runtime settings there so credentials stay
-                    company-scoped instead of instance-global.
-                  </p>
+                    {driverLabel || "This plugin"} {t("pages.pluginsettings.registers_environment_runtime_se.jsx-text", { defaultValue: " registers environment runtime settings there so credentials stay company-scoped instead of instance-global.\n                  " })}</p>
                   <div className="mt-3">
                     <Link to="/company/settings/environments">
-                      <Button variant="outline" size="sm">Open Company Environments</Button>
+                      <Button variant="outline" size="sm">{t("pages.pluginsettings.open_company_environments.jsx-text", { defaultValue: "Open Company Environments" })}</Button>
                     </Link>
                   </div>
                 </div>
               ) : !hasLocalFolders ? (
                 <p className="text-sm text-muted-foreground">
-                  This plugin does not require any settings.
-                </p>
+                  {t("pages.pluginsettings.this_plugin_does_not_require_any.jsx-text", { defaultValue: "\n                  This plugin does not require any settings.\n                " })}</p>
               ) : null}
             </section>
           </div>
@@ -280,11 +280,9 @@ export function PluginSettings() {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-1.5">
                     <Cpu className="h-4 w-4" />
-                    Runtime Dashboard
-                  </CardTitle>
+                    {t("pages.pluginsettings.runtime_dashboard.jsx-text", { defaultValue: "\n                    Runtime Dashboard\n                  " })}</CardTitle>
                   <CardDescription>
-                    Worker process, scheduled jobs, and webhook deliveries
-                  </CardDescription>
+                    {t("pages.pluginsettings.worker_process_scheduled_jobs_an.jsx-text", { defaultValue: "\n                    Worker process, scheduled jobs, and webhook deliveries\n                  " })}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {dashboardData ? (
@@ -292,12 +290,11 @@ export function PluginSettings() {
                       <div>
                         <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
                           <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
-                          Worker Process
-                        </h3>
+                          {t("pages.pluginsettings.worker_process.jsx-text", { defaultValue: "\n                          Worker Process\n                        " })}</h3>
                         {dashboardData.worker ? (
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Status</span>
+                              <span className="text-muted-foreground">{t("pages.pluginsettings.status.jsx-text", { defaultValue: "Status" })}</span>
                               <Badge variant={dashboardData.worker.status === "running" ? "default" : "secondary"}>
                                 {dashboardData.worker.status}
                               </Badge>
@@ -307,11 +304,11 @@ export function PluginSettings() {
                               <span className="font-mono text-xs">{dashboardData.worker.pid ?? "—"}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Uptime</span>
+                              <span className="text-muted-foreground">{t("pages.pluginsettings.uptime.jsx-text", { defaultValue: "Uptime" })}</span>
                               <span className="text-xs">{formatUptime(dashboardData.worker.uptime)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Pending RPCs</span>
+                              <span className="text-muted-foreground">{t("pages.pluginsettings.pending_rpcs.jsx-text", { defaultValue: "Pending RPCs" })}</span>
                               <span className="text-xs">{dashboardData.worker.pendingRequests}</span>
                             </div>
                             {dashboardData.worker.totalCrashes > 0 && (
@@ -319,15 +316,13 @@ export function PluginSettings() {
                                 <div className="flex justify-between col-span-2">
                                   <span className="text-muted-foreground flex items-center gap-1">
                                     <AlertTriangle className="h-3 w-3 text-amber-500" />
-                                    Crashes
-                                  </span>
+                                    {t("pages.pluginsettings.crashes.jsx-text", { defaultValue: "\n                                    Crashes\n                                  " })}</span>
                                   <span className="text-xs">
-                                    {dashboardData.worker.consecutiveCrashes} consecutive / {dashboardData.worker.totalCrashes} total
-                                  </span>
+                                    {dashboardData.worker.consecutiveCrashes} {t("pages.pluginsettings.consecutive.jsx-text", { defaultValue: " consecutive / " })}{dashboardData.worker.totalCrashes} {t("pages.pluginsettings.total.jsx-text", { defaultValue: " total\n                                  " })}</span>
                                 </div>
                                 {dashboardData.worker.lastCrashAt && (
                                   <div className="flex justify-between col-span-2">
-                                    <span className="text-muted-foreground">Last Crash</span>
+                                    <span className="text-muted-foreground">{t("pages.pluginsettings.last_crash.jsx-text", { defaultValue: "Last Crash" })}</span>
                                     <span className="text-xs">{formatTimestamp(dashboardData.worker.lastCrashAt)}</span>
                                   </div>
                                 )}
@@ -335,7 +330,7 @@ export function PluginSettings() {
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">No worker process registered.</p>
+                          <p className="text-sm text-muted-foreground italic">{t("pages.pluginsettings.no_worker_process_registered.jsx-text", { defaultValue: "No worker process registered." })}</p>
                         )}
                       </div>
 
@@ -344,8 +339,7 @@ export function PluginSettings() {
                       <div>
                         <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
                           <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
-                          Recent Job Runs
-                        </h3>
+                          {t("pages.pluginsettings.recent_job_runs.jsx-text", { defaultValue: "\n                          Recent Job Runs\n                        " })}</h3>
                         {dashboardData.recentJobRuns.length > 0 ? (
                           <div className="space-y-2">
                             {dashboardData.recentJobRuns.map((run) => (
@@ -370,7 +364,7 @@ export function PluginSettings() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">No job runs recorded yet.</p>
+                          <p className="text-sm text-muted-foreground italic">{t("pages.pluginsettings.no_job_runs_recorded_yet.jsx-text", { defaultValue: "No job runs recorded yet." })}</p>
                         )}
                       </div>
 
@@ -379,8 +373,7 @@ export function PluginSettings() {
                       <div>
                         <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
                           <Webhook className="h-3.5 w-3.5 text-muted-foreground" />
-                          Recent Webhook Deliveries
-                        </h3>
+                          {t("pages.pluginsettings.recent_webhook_deliveries.jsx-text", { defaultValue: "\n                          Recent Webhook Deliveries\n                        " })}</h3>
                         {dashboardData.recentWebhookDeliveries.length > 0 ? (
                           <div className="space-y-2">
                             {dashboardData.recentWebhookDeliveries.map((delivery) => (
@@ -402,19 +395,18 @@ export function PluginSettings() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">No webhook deliveries recorded yet.</p>
+                          <p className="text-sm text-muted-foreground italic">{t("pages.pluginsettings.no_webhook_deliveries_recorded_y.jsx-text", { defaultValue: "No webhook deliveries recorded yet." })}</p>
                         )}
                       </div>
 
                       <div className="flex items-center gap-1.5 border-t border-border/50 pt-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        Last checked: {new Date(dashboardData.checkedAt).toLocaleTimeString()}
+                        {t("pages.pluginsettings.last_checked.jsx-text", { defaultValue: "\n                        Last checked: " })}{new Date(dashboardData.checkedAt).toLocaleTimeString()}
                       </div>
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Runtime diagnostics are unavailable right now.
-                    </p>
+                      {t("pages.pluginsettings.runtime_diagnostics_are_unavaila.jsx-text", { defaultValue: "\n                      Runtime diagnostics are unavailable right now.\n                    " })}</p>
                   )}
                 </CardContent>
               </Card>
@@ -424,9 +416,8 @@ export function PluginSettings() {
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-1.5">
                       <ActivitySquare className="h-4 w-4" />
-                      Recent Logs
-                    </CardTitle>
-                    <CardDescription>Last {recentLogs.length} log entries</CardDescription>
+                      {t("pages.pluginsettings.recent_logs.jsx-text", { defaultValue: "\n                      Recent Logs\n                    " })}</CardTitle>
+                    <CardDescription>{t("pages.pluginsettings.last.jsx-text", { defaultValue: "Last " })}{recentLogs.length} {t("pages.pluginsettings.log_entries.jsx-text", { defaultValue: " log entries" })}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="max-h-64 space-y-1 overflow-y-auto font-mono text-xs">
@@ -459,16 +450,15 @@ export function PluginSettings() {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-1.5">
                     <ActivitySquare className="h-4 w-4" />
-                    Health Status
-                  </CardTitle>
+                    {t("pages.pluginsettings.health_status.jsx-text", { defaultValue: "\n                    Health Status\n                  " })}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {healthLoading ? (
-                    <p className="text-sm text-muted-foreground">Checking health...</p>
+                    <p className="text-sm text-muted-foreground">{t("pages.pluginsettings.checking_health.jsx-text", { defaultValue: "Checking health..." })}</p>
                   ) : healthData ? (
                     <div className="space-y-4 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Overall</span>
+                        <span className="text-muted-foreground">{t("pages.pluginsettings.overall.jsx-text", { defaultValue: "Overall" })}</span>
                         <Badge variant={healthData.healthy ? "default" : "destructive"}>
                           {healthData.status}
                         </Badge>
@@ -500,10 +490,10 @@ export function PluginSettings() {
                   ) : (
                     <div className="space-y-3 text-sm text-muted-foreground">
                       <div className="flex items-center justify-between">
-                        <span>Lifecycle</span>
+                        <span>{t("pages.pluginsettings.lifecycle.jsx-text", { defaultValue: "Lifecycle" })}</span>
                         <Badge variant={statusVariant}>{displayStatus}</Badge>
                       </div>
-                      <p>Health checks run once the plugin is ready.</p>
+                      <p>{t("pages.pluginsettings.health_checks_run_once_the_plugi.jsx-text", { defaultValue: "Health checks run once the plugin is ready." })}</p>
                       {plugin.lastError ? (
                         <div className="break-words rounded border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
                           {plugin.lastError}
@@ -516,25 +506,25 @@ export function PluginSettings() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Details</CardTitle>
+                  <CardTitle className="text-base">{t("pages.pluginsettings.details.jsx-text", { defaultValue: "Details" })}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm text-muted-foreground">
                   <div className="flex justify-between gap-3">
-                    <span>Plugin ID</span>
+                    <span>{t("pages.pluginsettings.plugin_id.jsx-text", { defaultValue: "Plugin ID" })}</span>
                     <span className="font-mono text-xs text-right">{plugin.id}</span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Plugin Key</span>
+                    <span>{t("pages.pluginsettings.plugin_key.jsx-text", { defaultValue: "Plugin Key" })}</span>
                     <span className="font-mono text-xs text-right">{plugin.pluginKey}</span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>NPM Package</span>
+                    <span>{t("pages.pluginsettings.npm_package.jsx-text", { defaultValue: "NPM Package" })}</span>
                     <span className="max-w-[170px] truncate text-right text-xs" title={plugin.packageName}>
                       {plugin.packageName}
                     </span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Version</span>
+                    <span>{t("pages.pluginsettings.version.jsx-text", { defaultValue: "Version" })}</span>
                     <span className="text-right text-foreground">v{plugin.manifestJson.version ?? plugin.version}</span>
                   </div>
                 </CardContent>
@@ -544,8 +534,7 @@ export function PluginSettings() {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-1.5">
                     <ShieldAlert className="h-4 w-4" />
-                    Permissions
-                  </CardTitle>
+                    {t("pages.pluginsettings.permissions.jsx-text", { defaultValue: "\n                    Permissions\n                  " })}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {pluginCapabilities.length > 0 ? (
@@ -557,7 +546,7 @@ export function PluginSettings() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground italic">No special permissions requested.</p>
+                    <p className="text-sm text-muted-foreground italic">{t("pages.pluginsettings.no_special_permissions_requested.jsx-text", { defaultValue: "No special permissions requested." })}</p>
                   )}
                 </CardContent>
               </Card>
@@ -580,6 +569,8 @@ interface PluginLocalFoldersSettingsProps {
 }
 
 function PluginLocalFoldersSettings({ pluginId, companyId, declarations }: PluginLocalFoldersSettingsProps) {
+const { t } = useTranslation();
+
   const { data, isLoading, error } = useQuery({
     queryKey: companyId
       ? queryKeys.plugins.localFolders(pluginId, companyId)
@@ -593,8 +584,7 @@ function PluginLocalFoldersSettings({ pluginId, companyId, declarations }: Plugi
   if (!companyId) {
     return (
       <div className="rounded-md border border-border/60 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-        Select a company to configure this plugin's local folders.
-      </div>
+        {t("pages.pluginsettings.select_a_company_to_configure_th.jsx-text", { defaultValue: "\n        Select a company to configure this plugin's local folders.\n      " })}</div>
     );
   }
 
@@ -602,7 +592,7 @@ function PluginLocalFoldersSettings({ pluginId, companyId, declarations }: Plugi
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <FolderOpen className="h-4 w-4 text-muted-foreground" />
-        <h3 className="text-sm font-medium">Local folders</h3>
+        <h3 className="text-sm font-medium">{t("pages.pluginsettings.local_folders.jsx-text", { defaultValue: "Local folders" })}</h3>
       </div>
       {error ? (
         <div className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -612,8 +602,7 @@ function PluginLocalFoldersSettings({ pluginId, companyId, declarations }: Plugi
       {isLoading ? (
         <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading local folders...
-        </div>
+          {t("pages.pluginsettings.loading_local_folders.jsx-text", { defaultValue: "\n          Loading local folders...\n        " })}</div>
       ) : (
         <div className="space-y-3">
           {declarations.map((declaration) => (
@@ -639,6 +628,8 @@ interface PluginLocalFolderRowProps {
 }
 
 function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: PluginLocalFolderRowProps) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const serverPath = status?.path ?? "";
   const [pathValue, setPathValue] = useState(serverPath);
@@ -713,10 +704,10 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
       </div>
 
       <div className="grid gap-3 text-sm sm:grid-cols-3">
-        <FolderStatusMetric label="Configured" value={status?.configured ? "Yes" : "No"} ok={!!status?.configured} />
-        <FolderStatusMetric label="Readable" value={status?.readable ? "Yes" : "No"} ok={!!status?.readable} />
+        <FolderStatusMetric label={t("pages.pluginsettings.configured.attr_label", { defaultValue: "Configured" })} value={status?.configured ? "Yes" : "No"} ok={!!status?.configured} />
+        <FolderStatusMetric label={t("pages.pluginsettings.readable.attr_label", { defaultValue: "Readable" })} value={status?.readable ? "Yes" : "No"} ok={!!status?.readable} />
         <FolderStatusMetric
-          label="Writable"
+          label={t("pages.pluginsettings.writable.attr_label", { defaultValue: "Writable" })}
           value={access === "read" ? "Not requested" : status?.writable ? "Yes" : "No"}
           ok={access === "read" || !!status?.writable}
         />
@@ -724,7 +715,7 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
 
       {status?.path ? (
         <div className="space-y-1 text-sm">
-          <div className="text-xs font-medium text-muted-foreground">Configured path</div>
+          <div className="text-xs font-medium text-muted-foreground">{t("pages.pluginsettings.configured_path.jsx-text", { defaultValue: "Configured path" })}</div>
           <div className="break-all rounded-md bg-muted/60 px-2 py-1.5 font-mono text-xs text-foreground">
             {status.path}
           </div>
@@ -733,8 +724,7 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground" htmlFor={`local-folder-${declaration.folderKey}`}>
-          Local folder path
-        </label>
+          {t("pages.pluginsettings.local_folder_path.jsx-text", { defaultValue: "\n          Local folder path\n        " })}</label>
         <div className="flex items-center gap-2">
           <input
             id={`local-folder-${declaration.folderKey}`}
@@ -757,8 +747,7 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
             ) : (
               <Save className="h-3.5 w-3.5" />
             )}
-            Save
-          </Button>
+            {t("pages.pluginsettings.save.jsx-text", { defaultValue: "\n            Save\n          " })}</Button>
         </div>
       </div>
 
@@ -766,7 +755,7 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
 
       {status?.problems?.length ? (
         <div className="space-y-2 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          <div className="font-medium">Validation problems</div>
+          <div className="font-medium">{t("pages.pluginsettings.validation_problems.jsx-text", { defaultValue: "Validation problems" })}</div>
           <ul className="space-y-1">
             {status.problems.map((problem, index) => (
               <li key={`${problem.code}:${problem.path ?? ""}:${index}`}>
@@ -794,6 +783,8 @@ function PluginLocalFolderRow({ pluginId, companyId, declaration, status }: Plug
 }
 
 function FolderStatusMetric({ label, value, ok }: { label: string; value: string; ok: boolean }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex items-center justify-between rounded-md border border-border/60 px-2.5 py-2">
       <span className="text-muted-foreground">{label}</span>
@@ -809,6 +800,8 @@ function FolderRequirements({
   status?: PluginLocalFolderStatus;
   declaration: PluginLocalFolderDeclaration;
 }) {
+const { t } = useTranslation();
+
   const requiredDirectories = status?.requiredDirectories ?? declaration.requiredDirectories ?? [];
   const requiredFiles = status?.requiredFiles ?? declaration.requiredFiles ?? [];
   const missingDirectories = status?.missingDirectories ?? requiredDirectories;
@@ -820,14 +813,14 @@ function FolderRequirements({
   return (
     <div className="grid gap-3 text-sm md:grid-cols-2">
       <RequirementList
-        title="Required directories"
+        title={t("pages.pluginsettings.required_directories.attr_title", { defaultValue: "Required directories" })}
         items={requiredDirectories}
         missingItems={missingDirectories}
         missingLabel="Missing directories"
         inspectionUnavailable={rootNotInspected}
       />
       <RequirementList
-        title="Required files"
+        title={t("pages.pluginsettings.required_files.attr_title", { defaultValue: "Required files" })}
         items={requiredFiles}
         missingItems={missingFiles}
         missingLabel="Missing files"
@@ -857,20 +850,20 @@ function RequirementList({
   missingLabel: string;
   inspectionUnavailable?: boolean;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-2 rounded-md border border-border/60 px-3 py-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-muted-foreground">{title}</span>
         {inspectionUnavailable ? (
           <Badge variant="secondary" className="text-[10px]">
-            Not inspected
-          </Badge>
+            {t("pages.pluginsettings.not_inspected.jsx-text", { defaultValue: "\n            Not inspected\n          " })}</Badge>
         ) : missingItems.length > 0 ? (
           <Badge variant="destructive" className="text-[10px]">
-            {missingItems.length} missing
-          </Badge>
+            {missingItems.length} {t("pages.pluginsettings.missing.jsx-text", { defaultValue: " missing\n          " })}</Badge>
         ) : (
-          <Badge variant="outline" className="text-[10px]">Present</Badge>
+          <Badge variant="outline" className="text-[10px]">{t("pages.pluginsettings.present.jsx-text", { defaultValue: "Present" })}</Badge>
         )}
       </div>
       {items.length > 0 ? (
@@ -894,10 +887,10 @@ function RequirementList({
           })}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">None declared.</p>
+        <p className="text-xs text-muted-foreground">{t("pages.pluginsettings.none_declared.jsx-text", { defaultValue: "None declared." })}</p>
       )}
       {inspectionUnavailable ? (
-        <p className="text-xs text-amber-700 dark:text-amber-300">Configured root was not inspected.</p>
+        <p className="text-xs text-amber-700 dark:text-amber-300">{t("pages.pluginsettings.configured_root_was_not_inspecte.jsx-text", { defaultValue: "Configured root was not inspected." })}</p>
       ) : missingItems.length > 0 ? (
         <p className="text-xs text-destructive">{missingLabel}: {missingItems.join(", ")}</p>
       ) : null}
@@ -936,6 +929,8 @@ interface PluginConfigFormProps {
  * re-renders on field changes, not the entire page.
  */
 function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginStatus, supportsConfigTest }: PluginConfigFormProps) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
 
   // Form values: start with saved values, fall back to schema defaults
@@ -1034,8 +1029,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Loading configuration...
-      </div>
+        {t("pages.pluginsettings.loading_configuration.jsx-text", { defaultValue: "\n        Loading configuration...\n      " })}</div>
     );
   }
 
@@ -1084,8 +1078,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
           {saveMutation.isPending ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Saving...
-            </>
+              {t("pages.pluginsettings.saving.jsx-text", { defaultValue: "\n              Saving...\n            " })}</>
           ) : (
             "Save Configuration"
           )}
@@ -1100,8 +1093,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
             {testMutation.isPending ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Testing...
-              </>
+                {t("pages.pluginsettings.testing.jsx-text", { defaultValue: "\n                Testing...\n              " })}</>
             ) : (
               "Test Configuration"
             )}
@@ -1170,6 +1162,8 @@ function formatTimestamp(epochMs: number): string {
  * Status indicator dot for job run statuses.
  */
 function JobStatusDot({ status }: { status: string }) {
+const { t } = useTranslation();
+
   const colorClass =
     status === "success" || status === "succeeded"
       ? "bg-green-500"
@@ -1192,6 +1186,8 @@ function JobStatusDot({ status }: { status: string }) {
  * Status indicator dot for webhook delivery statuses.
  */
 function DeliveryStatusDot({ status }: { status: string }) {
+const { t } = useTranslation();
+
   const colorClass =
     status === "processed" || status === "success"
       ? "bg-green-500"

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   DocumentAnnotationComment,
@@ -69,6 +70,8 @@ export interface AnnotationPanelProps {
 }
 
 export function DocumentAnnotationPanel(props: AnnotationPanelProps) {
+const { t } = useTranslation();
+
   if (props.isMobile) {
     return (
       <Sheet open={props.open} onOpenChange={props.onOpenChange}>
@@ -78,7 +81,7 @@ export function DocumentAnnotationPanel(props: AnnotationPanelProps) {
           className="paperclip-doc-annotation-sheet z-[60] flex max-h-[88vh] flex-col rounded-none border-t border-border bg-popover p-0 text-popover-foreground shadow-2xl"
         >
           <SheetTitle className="sr-only">
-            Comments on {props.documentKey} revision {props.documentRevisionNumber}
+            {t("components.documentannotationpanel.comments_on.jsx-text", { defaultValue: "\n            Comments on " })}{props.documentKey} {t("components.documentannotationpanel.revision.jsx-text", { defaultValue: " revision " })}{props.documentRevisionNumber}
           </SheetTitle>
           <div className="mx-auto mt-2 h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/30" aria-hidden="true" />
           <AnnotationPanelBody {...props} />
@@ -106,6 +109,8 @@ export function DocumentAnnotationPanel(props: AnnotationPanelProps) {
 }
 
 function AnnotationPanelBody(props: AnnotationPanelProps) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<AnnotationFilter>("open");
   const [composerValue, setComposerValue] = useState("");
@@ -208,9 +213,9 @@ function AnnotationPanelBody(props: AnnotationPanelProps) {
         className="flex items-start justify-between gap-2 border-b border-border bg-popover px-3 py-2.5"
       >
         <div className="min-w-0 leading-tight">
-          <p className="text-sm font-medium">Comments</p>
+          <p className="text-sm font-medium">{t("components.documentannotationpanel.comments.jsx-text", { defaultValue: "Comments" })}</p>
           <p className="text-[11px] text-muted-foreground">
-            rev {props.documentRevisionNumber}
+            {t("components.documentannotationpanel.rev.jsx-text", { defaultValue: "\n            rev " })}{props.documentRevisionNumber}
           </p>
         </div>
         <Button
@@ -222,7 +227,7 @@ function AnnotationPanelBody(props: AnnotationPanelProps) {
             props.onFocusThread(null);
             props.onOpenChange(false);
           }}
-          aria-label="Close annotation panel"
+          aria-label={t("components.documentannotationpanel.close_annotation_panel.attr_aria-label", { defaultValue: "Close annotation panel" })}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -312,7 +317,7 @@ function AnnotationPanelBody(props: AnnotationPanelProps) {
             rows={3}
             value={composerValue}
             onChange={(event) => setComposerValue(event.target.value)}
-            placeholder="Write a comment…"
+            placeholder={t("components.documentannotationpanel.write_a_comment.attr_placeholder", { defaultValue: "Write a comment…" })}
             disabled={props.newCommentDisabled}
             className="resize-y rounded-none text-sm"
           />
@@ -331,8 +336,7 @@ function AnnotationPanelBody(props: AnnotationPanelProps) {
                 setComposerValue("");
               }}
             >
-              Cancel
-            </Button>
+              {t("components.documentannotationpanel.cancel.jsx-text", { defaultValue: "\n              Cancel\n            " })}</Button>
             <Button
               type="button"
               size="sm"
@@ -368,6 +372,8 @@ function ThreadCard(props: {
   agentMap?: ReadonlyMap<string, Pick<Agent, "id" | "name">>;
   userProfileMap?: ReadonlyMap<string, CompanyUserProfile>;
 }) {
+const { t } = useTranslation();
+
   const { thread } = props;
   const statusVariant: { variant: "default" | "outline" | "secondary"; label: string } =
     thread.status === "resolved"
@@ -427,7 +433,7 @@ function ThreadCard(props: {
               rows={2}
               value={props.replyDraft}
               onChange={(event) => props.onReplyChange(event.target.value)}
-              placeholder="Reply…"
+              placeholder={t("components.documentannotationpanel.reply.attr_placeholder", { defaultValue: "Reply…" })}
               className="resize-y rounded-none text-sm"
               disabled={props.pendingReply}
             />
@@ -442,12 +448,10 @@ function ThreadCard(props: {
               >
                 {thread.status === "resolved" ? (
                   <>
-                    <RotateCcw className="h-3 w-3" /> Reopen
-                  </>
+                    <RotateCcw className="h-3 w-3" /> {t("components.documentannotationpanel.reopen.jsx-text", { defaultValue: " Reopen\n                  " })}</>
                 ) : (
                   <>
-                    <Check className="h-3 w-3" /> Resolve
-                  </>
+                    <Check className="h-3 w-3" /> {t("components.documentannotationpanel.resolve.jsx-text", { defaultValue: " Resolve\n                  " })}</>
                 )}
               </Button>
               <Button
@@ -465,8 +469,8 @@ function ThreadCard(props: {
                     variant="ghost"
                     size="icon-xs"
                     className="text-muted-foreground"
-                    title="More actions"
-                    aria-label="More thread actions"
+                    title={t("components.documentannotationpanel.more_actions.attr_title", { defaultValue: "More actions" })}
+                    aria-label={t("components.documentannotationpanel.more_thread_actions.attr_aria-label", { defaultValue: "More thread actions" })}
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </Button>
@@ -479,8 +483,7 @@ function ThreadCard(props: {
                     }}
                   >
                     <Copy className="h-3.5 w-3.5" />
-                    Copy link
-                  </DropdownMenuItem>
+                    {t("components.documentannotationpanel.copy_link.jsx-text", { defaultValue: "\n                    Copy link\n                  " })}</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -488,7 +491,7 @@ function ThreadCard(props: {
         ) : (
           <p className="px-3 py-2 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
-              {thread.comments.length} comment{thread.comments.length === 1 ? "" : "s"}
+              {thread.comments.length} {t("components.documentannotationpanel.comment.jsx-text", { defaultValue: " comment" })}{thread.comments.length === 1 ? "" : "s"}
             </span>
             {latestComment ? <span className="ml-1">· {truncate(latestComment.body, 120)}</span> : null}
           </p>
@@ -509,6 +512,8 @@ function CommentRow({
   agentMap?: ReadonlyMap<string, Pick<Agent, "id" | "name">>;
   userProfileMap?: ReadonlyMap<string, CompanyUserProfile>;
 }) {
+const { t } = useTranslation();
+
   const author = resolveAuthor(comment, { agentMap, userProfileMap });
   return (
     <div
@@ -523,7 +528,7 @@ function CommentRow({
         <span className="min-w-0 truncate">
           <span className="font-medium text-foreground">{author.name}</span>
           {author.role === "agent" ? (
-            <span className="ml-1 text-muted-foreground">· agent</span>
+            <span className="ml-1 text-muted-foreground">{t("components.documentannotationpanel.agent.jsx-text", { defaultValue: "· agent" })}</span>
           ) : null}
         </span>
         <span className="text-muted-foreground">{relativeTime(comment.createdAt)}</span>

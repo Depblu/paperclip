@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardApi } from "../api/dashboard";
@@ -35,6 +36,8 @@ function getRecentIssues(issues: Issue[]): Issue[] {
 }
 
 export function Dashboard() {
+const { t } = useTranslation();
+
   const { selectedCompanyId, companies } = useCompany();
   const { openOnboarding } = useDialogActions();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -202,15 +205,13 @@ export function Dashboard() {
           <div className="flex items-center gap-2.5">
             <Bot className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <p className="text-sm text-amber-900 dark:text-amber-100">
-              You have no agents.
-            </p>
+              {t("pages.dashboard.you_have_no_agents.jsx-text", { defaultValue: "\n              You have no agents.\n            " })}</p>
           </div>
           <button
             onClick={() => openOnboarding({ initialStep: 2, companyId: selectedCompanyId! })}
             className="text-sm font-medium text-amber-700 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 underline underline-offset-2 shrink-0"
           >
-            Create one here
-          </button>
+            {t("pages.dashboard.create_one_here.jsx-text", { defaultValue: "\n            Create one here\n          " })}</button>
         </div>
       )}
 
@@ -224,16 +225,14 @@ export function Dashboard() {
                 <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
                 <div>
                   <p className="text-sm font-medium text-red-50">
-                    {data.budgets.activeIncidents} active budget incident{data.budgets.activeIncidents === 1 ? "" : "s"}
+                    {data.budgets.activeIncidents} {t("pages.dashboard.active_budget_incident.jsx-text", { defaultValue: " active budget incident" })}{data.budgets.activeIncidents === 1 ? "" : "s"}
                   </p>
                   <p className="text-xs text-red-100/70">
-                    {data.budgets.pausedAgents} agents paused · {data.budgets.pausedProjects} projects paused · {data.budgets.pendingApprovals} pending budget approvals
-                  </p>
+                    {data.budgets.pausedAgents} {t("pages.dashboard.agents_paused.jsx-text", { defaultValue: " agents paused · " })}{data.budgets.pausedProjects} {t("pages.dashboard.projects_paused.jsx-text", { defaultValue: " projects paused · " })}{data.budgets.pendingApprovals} {t("pages.dashboard.pending_budget_approvals.jsx-text", { defaultValue: " pending budget approvals\n                  " })}</p>
                 </div>
               </div>
               <Link to="/costs" className="text-sm underline underline-offset-2 text-red-100">
-                Open budgets
-              </Link>
+                {t("pages.dashboard.open_budgets.jsx-text", { defaultValue: "\n                Open budgets\n              " })}</Link>
             </div>
           ) : null}
 
@@ -241,24 +240,23 @@ export function Dashboard() {
             <MetricCard
               icon={Bot}
               value={data.agents.active + data.agents.running + data.agents.paused + data.agents.error}
-              label="Agents Enabled"
+              label={t("pages.dashboard.agents_enabled.attr_label", { defaultValue: "Agents Enabled" })}
               to="/agents"
               description={
                 <span>
-                  {data.agents.running} running{", "}
-                  {data.agents.paused} paused{", "}
-                  {data.agents.error} errors
-                </span>
+                  {data.agents.running} {t("pages.dashboard.running.jsx-text", { defaultValue: " running" })}{", "}
+                  {data.agents.paused} {t("pages.dashboard.paused.jsx-text", { defaultValue: " paused" })}{", "}
+                  {data.agents.error} {t("pages.dashboard.errors.jsx-text", { defaultValue: " errors\n                " })}</span>
               }
             />
             <MetricCard
               icon={CircleDot}
               value={data.tasks.inProgress}
-              label="Tasks In Progress"
+              label={t("pages.dashboard.tasks_in_progress.attr_label", { defaultValue: "Tasks In Progress" })}
               to="/issues"
               description={
                 <span>
-                  {data.tasks.open} open{", "}
+                  {data.tasks.open} {t("pages.dashboard.open.jsx-text", { defaultValue: " open" })}{", "}
                   {data.tasks.blocked} blocked
                 </span>
               }
@@ -266,7 +264,7 @@ export function Dashboard() {
             <MetricCard
               icon={DollarSign}
               value={formatCents(data.costs.monthSpendCents)}
-              label="Month Spend"
+              label={t("pages.dashboard.month_spend.attr_label", { defaultValue: "Month Spend" })}
               to="/costs"
               description={
                 <span>
@@ -279,7 +277,7 @@ export function Dashboard() {
             <MetricCard
               icon={ShieldCheck}
               value={data.pendingApprovals + data.budgets.pendingApprovals}
-              label="Pending Approvals"
+              label={t("pages.dashboard.pending_approvals.attr_label", { defaultValue: "Pending Approvals" })}
               to="/approvals"
               description={
                 <span>
@@ -292,16 +290,16 @@ export function Dashboard() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <ChartCard title="Run Activity" subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.run_activity.attr_title", { defaultValue: "Run Activity" })} subtitle="Last 14 days">
               <RunActivityChart activity={data.runActivity} />
             </ChartCard>
-            <ChartCard title="Tasks by Priority" subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.tasks_by_priority.attr_title", { defaultValue: "Tasks by Priority" })} subtitle="Last 14 days">
               <PriorityChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title="Tasks by Status" subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.tasks_by_status.attr_title", { defaultValue: "Tasks by Status" })} subtitle="Last 14 days">
               <IssueStatusChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title="Success Rate" subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.success_rate.attr_title", { defaultValue: "Success Rate" })} subtitle="Last 14 days">
               <SuccessRateChart activity={data.runActivity} />
             </ChartCard>
           </div>
@@ -318,8 +316,7 @@ export function Dashboard() {
             {recentActivity.length > 0 && (
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                  Recent Activity
-                </h3>
+                  {t("pages.dashboard.recent_activity.jsx-text", { defaultValue: "\n                  Recent Activity\n                " })}</h3>
                 <div className="border border-border divide-y divide-border overflow-hidden">
                   {recentActivity.map((event) => (
                     <ActivityRow
@@ -339,11 +336,10 @@ export function Dashboard() {
             {/* Recent Tasks */}
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                Recent Tasks
-              </h3>
+                {t("pages.dashboard.recent_tasks.jsx-text", { defaultValue: "\n                Recent Tasks\n              " })}</h3>
               {recentIssues.length === 0 ? (
                 <div className="border border-border p-4">
-                  <p className="text-sm text-muted-foreground">No tasks yet.</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.dashboard.no_tasks_yet.jsx-text", { defaultValue: "No tasks yet." })}</p>
                 </div>
               ) : (
                 <div className="border border-border divide-y divide-border overflow-hidden">
@@ -375,7 +371,7 @@ export function Dashboard() {
                                 ? <span className="hidden sm:inline-flex"><Identity name={name} size="sm" /></span>
                                 : null;
                             })()}
-                            <span className="text-xs text-muted-foreground sm:hidden">&middot;</span>
+                            <span className="text-xs text-muted-foreground sm:hidden">{t("pages.dashboard.middot.jsx-text", { defaultValue: "&middot;" })}</span>
                             <span className="text-xs text-muted-foreground shrink-0 sm:order-last">
                               {timeAgo(issue.updatedAt)}
                             </span>

@@ -65,6 +65,8 @@ function deriveUserSlug(name: string | null | undefined, email: string | null | 
 }
 
 function MenuAction({ label, description, icon: Icon, onClick, href, external = false }: MenuActionProps) {
+const { t } = useTranslation();
+
   const className =
     "flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-accent/60";
 
@@ -190,7 +192,7 @@ export function SidebarAccountMenu({
                 </div>
                 <p className="truncate text-sm text-muted-foreground">{secondaryLabel}</p>
                 {version ? (
-                  <p className="mt-1 text-xs text-muted-foreground">Paperclip v{version}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("components.sidebaraccountmenu.paperclip_v.jsx-text", { defaultValue: "Paperclip v" })}{version}</p>
                 ) : null}
               </div>
             </div>

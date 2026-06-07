@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, Navigate, useParams } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { useCompany } from "@/context/CompanyContext";
@@ -23,6 +24,8 @@ import { NotFoundPage } from "./NotFound";
  * @see doc/plugins/PLUGIN_SPEC.md §24.4 — Company-Context Plugin Page
  */
 export function PluginPage() {
+const { t } = useTranslation();
+
   const params = useParams<{
     companyPrefix?: string;
     pluginId?: string;
@@ -130,13 +133,13 @@ export function PluginPage() {
     }
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">Select a company to view this page.</p>
+        <p className="text-sm text-muted-foreground">{t("pages.pluginpage.select_a_company_to_view_this_pa.jsx-text", { defaultValue: "Select a company to view this page." })}</p>
       </div>
     );
   }
 
   if (!contributions) {
-    return <div className="text-sm text-muted-foreground">Loading…</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.pluginpage.loading.jsx-text", { defaultValue: "Loading…" })}</div>;
   }
 
   if (!pluginId && pluginRoutePath) {
@@ -146,8 +149,7 @@ export function PluginPage() {
     if (duplicateMatches.length > 1) {
       return (
         <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          Multiple plugins declare the route <code>{pluginRoutePath}</code>. Use the plugin-id route until the conflict is resolved.
-        </div>
+          {t("pages.pluginpage.multiple_plugins_declare_the_rou.jsx-text", { defaultValue: "\n          Multiple plugins declare the route " })}<code>{pluginRoutePath}</code>{t("pages.pluginpage.use_the_plugin_id_route_until_th.jsx-text", { defaultValue: ". Use the plugin-id route until the conflict is resolved.\n        " })}</div>
       );
     }
   }
@@ -168,8 +170,7 @@ export function PluginPage() {
           <Button variant="ghost" size="sm" asChild>
             <Link to={companyPrefix ? `/${companyPrefix}/dashboard` : "/dashboard"}>
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Back
-            </Link>
+              {t("pages.pluginpage.back.jsx-text", { defaultValue: "\n              Back\n            " })}</Link>
           </Button>
         </div>
       )}

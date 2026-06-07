@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "@/i18n";
 import { ArrowLeft, RadioTower } from "lucide-react";
 import { Link } from "@/lib/router";
 import { ActiveAgentsPanel } from "../components/ActiveAgentsPanel";
@@ -9,6 +10,8 @@ import { useCompany } from "../context/CompanyContext";
 const DASHBOARD_LIVE_RUN_LIMIT = 50;
 
 export function DashboardLive() {
+const { t } = useTranslation();
+
   const { selectedCompanyId, companies } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
 
@@ -37,19 +40,17 @@ export function DashboardLive() {
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Dashboard
-          </Link>
-          <h1 className="mt-2 text-2xl font-semibold tracking-normal text-foreground">Live agent runs</h1>
+            {t("pages.dashboardlive.dashboard.jsx-text", { defaultValue: "\n            Dashboard\n          " })}</Link>
+          <h1 className="mt-2 text-2xl font-semibold tracking-normal text-foreground">{t("pages.dashboardlive.live_agent_runs.jsx-text", { defaultValue: "Live agent runs" })}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Active runs first, followed by the most recent completed runs.
-          </p>
+            {t("pages.dashboardlive.active_runs_first_followed_by_th.jsx-text", { defaultValue: "\n            Active runs first, followed by the most recent completed runs.\n          " })}</p>
         </div>
-        <div className="text-sm text-muted-foreground">Showing up to {DASHBOARD_LIVE_RUN_LIMIT}</div>
+        <div className="text-sm text-muted-foreground">{t("pages.dashboardlive.showing_up_to.jsx-text", { defaultValue: "Showing up to " })}{DASHBOARD_LIVE_RUN_LIMIT}</div>
       </div>
 
       <ActiveAgentsPanel
         companyId={selectedCompanyId}
-        title="Active / recent"
+        title={t("pages.dashboardlive.active_recent.attr_title", { defaultValue: "Active / recent" })}
         minRunCount={DASHBOARD_LIVE_RUN_LIMIT}
         fetchLimit={DASHBOARD_LIVE_RUN_LIMIT}
         cardLimit={DASHBOARD_LIVE_RUN_LIMIT}

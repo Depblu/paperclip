@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "@/i18n";
 import { ChevronLeft, CloudUpload, KeyRound, MailPlus, MonitorCog, Puzzle, Settings, SlidersHorizontal, Users } from "lucide-react";
 import { sidebarBadgesApi } from "@/api/sidebarBadges";
 import { instanceSettingsApi } from "@/api/instanceSettings";
@@ -11,6 +12,8 @@ import { usePluginSlots } from "@/plugins/slots";
 import { SidebarNavItem } from "./SidebarNavItem";
 
 export function CompanySettingsSidebar() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { isMobile, setSidebarOpen } = useSidebar();
   const { slots: companySettingsPluginSlots } = usePluginSlots({
@@ -58,31 +61,30 @@ export function CompanySettingsSidebar() {
         <div className="flex items-center gap-2 px-2 py-1">
           <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="flex-1 truncate text-sm font-bold text-foreground">
-            Company Settings
-          </span>
+            {t("components.companysettingssidebar.company_settings.jsx-text", { defaultValue: "\n            Company Settings\n          " })}</span>
         </div>
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide px-3 py-2">
         <div className="flex flex-col gap-0.5">
-          <SidebarNavItem to="/company/settings" label="General" icon={SlidersHorizontal} end />
+          <SidebarNavItem to="/company/settings" label={t("components.companysettingssidebar.general.attr_label", { defaultValue: "General" })} icon={SlidersHorizontal} end />
           <SidebarNavItem
             to="/company/settings/environments"
-            label="Environments"
+            label={t("components.companysettingssidebar.environments.attr_label", { defaultValue: "Environments" })}
             icon={MonitorCog}
             end
           />
           {showCloudUpstream ? (
             <SidebarNavItem
               to="/company/settings/cloud-upstream"
-              label="Cloud upstream"
+              label={t("components.companysettingssidebar.cloud_upstream.attr_label", { defaultValue: "Cloud upstream" })}
               icon={CloudUpload}
               end
             />
           ) : null}
           <SidebarNavItem
             to="/company/settings/members"
-            label="Members"
+            label={t("components.companysettingssidebar.members.attr_label", { defaultValue: "Members" })}
             icon={Users}
             badge={badges?.joinRequests ?? 0}
             end
@@ -98,8 +100,8 @@ export function CompanySettingsSidebar() {
                 end
               />
             ))}
-          <SidebarNavItem to="/company/settings/invites" label="Invites" icon={MailPlus} end />
-          <SidebarNavItem to="/company/settings/secrets" label="Secrets" icon={KeyRound} end />
+          <SidebarNavItem to="/company/settings/invites" label={t("components.companysettingssidebar.invites.attr_label", { defaultValue: "Invites" })} icon={MailPlus} end />
+          <SidebarNavItem to="/company/settings/secrets" label={t("components.companysettingssidebar.secrets.attr_label", { defaultValue: "Secrets" })} icon={KeyRound} end />
         </div>
       </nav>
     </aside>

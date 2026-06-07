@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { CompanySecret, EnvBinding, SecretVersionSelector } from "@paperclipai/shared";
 import { AlertCircle, X } from "lucide-react";
 import { cn } from "../lib/utils";
@@ -75,6 +76,8 @@ export function EnvVarEditor({
   onCreateSecret: (name: string, value: string) => Promise<CompanySecret>;
   onChange: (env: Record<string, EnvBinding> | undefined) => void;
 }) {
+const { t } = useTranslation();
+
   const [rows, setRows] = useState<Row[]>(() => toRows(value));
   const [sealError, setSealError] = useState<string | null>(null);
   const valueRef = useRef(value);
@@ -195,8 +198,8 @@ export function EnvVarEditor({
                 })
               }
             >
-              <option value="plain">Plain</option>
-              <option value="secret">Secret</option>
+              <option value="plain">{t("components.envvareditor.plain.jsx-text", { defaultValue: "Plain" })}</option>
+              <option value="secret">{t("components.envvareditor.secret.jsx-text", { defaultValue: "Secret" })}</option>
             </select>
             {row.source === "secret" ? (
               <>
@@ -205,9 +208,9 @@ export function EnvVarEditor({
                   value={row.secretId}
                   onChange={(event) => updateRow(index, { secretId: event.target.value })}
                 >
-                  <option value="">Select secret...</option>
+                  <option value="">{t("components.envvareditor.select_secret.jsx-text", { defaultValue: "Select secret..." })}</option>
                   {row.secretId && !secrets.some((s) => s.id === row.secretId) ? (
-                    <option value={row.secretId}>Missing ({row.secretId.slice(0, 8)}…)</option>
+                    <option value={row.secretId}>{t("components.envvareditor.missing.jsx-text", { defaultValue: "Missing (" })}{row.secretId.slice(0, 8)}{t("components.envvareditor..jsx-text", { defaultValue: "…)" })}</option>
                   ) : null}
                   {secrets.map((secret) => (
                     <option key={secret.id} value={secret.id}>
@@ -224,9 +227,9 @@ export function EnvVarEditor({
                     updateRow(index, { version: raw === "latest" ? "latest" : Number.parseInt(raw, 10) });
                   }}
                   disabled={!row.secretId}
-                  aria-label="Version"
+                  aria-label={t("components.envvareditor.version.attr_aria-label", { defaultValue: "Version" })}
                 >
-                  <option value="latest">latest</option>
+                  <option value="latest">{t("components.envvareditor.latest.jsx-text", { defaultValue: "latest" })}</option>
                   {(() => {
                     const selected = secrets.find((s) => s.id === row.secretId);
                     if (!selected) return null;
@@ -246,10 +249,9 @@ export function EnvVarEditor({
                   className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent/50 transition-colors shrink-0"
                   onClick={() => sealRow(index)}
                   disabled={!row.key.trim() || !row.plainValue}
-                  title="Create secret from current plain value"
+                  title={t("components.envvareditor.create_secret_from_current_plain.attr_title", { defaultValue: "Create secret from current plain value" })}
                 >
-                  New
-                </button>
+                  {t("components.envvareditor.new.jsx-text", { defaultValue: "\n                  New\n                " })}</button>
               </>
             ) : (
               <>
@@ -264,10 +266,9 @@ export function EnvVarEditor({
                   className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent/50 transition-colors shrink-0"
                   onClick={() => sealRow(index)}
                   disabled={!row.key.trim() || !row.plainValue}
-                  title="Store value as secret and replace with reference"
+                  title={t("components.envvareditor.store_value_as_secret_and_replac.attr_title", { defaultValue: "Store value as secret and replace with reference" })}
                 >
-                  Seal
-                </button>
+                  {t("components.envvareditor.seal.jsx-text", { defaultValue: "\n                  Seal\n                " })}</button>
               </>
             )}
             {!isTrailing ? (
@@ -301,7 +302,7 @@ export function EnvVarEditor({
           <p className="text-[11px] text-amber-700 dark:text-amber-400 inline-flex items-start gap-1">
             <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
             <span>
-              {issues.length} secret binding{issues.length === 1 ? "" : "s"} need attention:{" "}
+              {issues.length} {t("components.envvareditor.secret_binding.jsx-text", { defaultValue: " secret binding" })}{issues.length === 1 ? "" : "s"} {t("components.envvareditor.need_attention.jsx-text", { defaultValue: " need attention:" })}{" "}
               {issues.map((issue, idx) => (
                 <span key={idx} className="font-mono">
                   {issue.key}
@@ -309,15 +310,12 @@ export function EnvVarEditor({
                   {idx < issues.length - 1 ? ", " : ""}
                 </span>
               ))}
-              . Runs will fail until you remap or re-enable.
-            </span>
+              {t("components.envvareditor.runs_will_fail_until_you_remap_o.jsx-text", { defaultValue: "\n              . Runs will fail until you remap or re-enable.\n            " })}</span>
           </p>
         );
       })()}
       <p className="text-[11px] text-muted-foreground/60">
-        Set KEY to the env var name the process expects, for example GH_TOKEN. Choose Secret to resolve a stored
-        value at run start. PAPERCLIP_* variables are injected automatically.
-      </p>
+        {t("components.envvareditor.set_key_to_the_env_var_name_the_.jsx-text", { defaultValue: "\n        Set KEY to the env var name the process expects, for example GH_TOKEN. Choose Secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.\n      " })}</p>
     </div>
   );
 }

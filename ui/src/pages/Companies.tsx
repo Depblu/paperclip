@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCompany } from "../context/CompanyContext";
 import { useDialogActions } from "../context/DialogContext";
@@ -29,6 +30,8 @@ import {
 } from "lucide-react";
 
 export function Companies() {
+const { t } = useTranslation();
+
   const {
     companies,
     selectedCompanyId,
@@ -92,12 +95,11 @@ export function Companies() {
       <div className="flex items-center justify-end">
         <Button size="sm" onClick={() => openOnboarding()}>
           <Plus className="h-3.5 w-3.5 mr-1.5" />
-          New Company
-        </Button>
+          {t("pages.companies.new_company.jsx-text", { defaultValue: "\n          New Company\n        " })}</Button>
       </div>
 
       <div className="h-6">
-        {loading && <p className="text-sm text-muted-foreground">Loading companies...</p>}
+        {loading && <p className="text-sm text-muted-foreground">{t("pages.companies.loading_companies.jsx-text", { defaultValue: "Loading companies..." })}</p>}
         {error && <p className="text-sm text-destructive">{error.message}</p>}
       </div>
 
@@ -215,16 +217,14 @@ export function Companies() {
                         onClick={() => startEdit(company.id, company.name)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                        Rename
-                      </DropdownMenuItem>
+                        {t("pages.companies.rename.jsx-text", { defaultValue: "\n                        Rename\n                      " })}</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         variant="destructive"
                         onClick={() => setConfirmDeleteId(company.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        Delete Company
-                      </DropdownMenuItem>
+                        {t("pages.companies.delete_company.jsx-text", { defaultValue: "\n                        Delete Company\n                      " })}</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -250,12 +250,12 @@ export function Companies() {
                     {formatCents(company.spentMonthlyCents)}
                     {company.budgetMonthlyCents > 0
                       ? <> / {formatCents(company.budgetMonthlyCents)} <span className="text-xs">({budgetPct}%)</span></>
-                      : <span className="text-xs ml-1">Unlimited budget</span>}
+                      : <span className="text-xs ml-1">{t("pages.companies.unlimited_budget.jsx-text", { defaultValue: "Unlimited budget" })}</span>}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 ml-auto">
                   <Calendar className="h-3.5 w-3.5" />
-                  <span>Created {relativeTime(company.createdAt)}</span>
+                  <span>{t("pages.companies.created.jsx-text", { defaultValue: "Created " })}{relativeTime(company.createdAt)}</span>
                 </div>
               </div>
 
@@ -266,8 +266,7 @@ export function Companies() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p className="text-sm text-destructive font-medium">
-                    Delete this company and all its data? This cannot be undone.
-                  </p>
+                    {t("pages.companies.delete_this_company_and_all_its_.jsx-text", { defaultValue: "\n                    Delete this company and all its data? This cannot be undone.\n                  " })}</p>
                   <div className="flex items-center gap-2 ml-4 shrink-0">
                     <Button
                       variant="ghost"
@@ -275,8 +274,7 @@ export function Companies() {
                       onClick={() => setConfirmDeleteId(null)}
                       disabled={deleteMutation.isPending}
                     >
-                      Cancel
-                    </Button>
+                      {t("pages.companies.cancel.jsx-text", { defaultValue: "\n                      Cancel\n                    " })}</Button>
                     <Button
                       variant="destructive"
                       size="sm"

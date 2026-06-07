@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Apple, Monitor, Terminal } from "lucide-react";
 import {
   Dialog,
@@ -61,6 +62,8 @@ export function PathInstructionsModal({
   open,
   onOpenChange,
 }: PathInstructionsModalProps) {
+const { t } = useTranslation();
+
   const [platform, setPlatform] = useState<Platform>(detectPlatform);
 
   const current = instructions[platform];
@@ -69,12 +72,11 @@ export function PathInstructionsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">How to get a full path</DialogTitle>
+          <DialogTitle className="text-base">{t("components.pathinstructionsmodal.how_to_get_a_full_path.jsx-text", { defaultValue: "How to get a full path" })}</DialogTitle>
           <DialogDescription>
-            Paste the absolute path (e.g.{" "}
+            {t("components.pathinstructionsmodal.paste_the_absolute_path_e_g.jsx-text", { defaultValue: "\n            Paste the absolute path (e.g." })}{" "}
             <code className="text-xs bg-muted px-1 py-0.5 rounded">/Users/you/project</code>
-            ) into the input field.
-          </DialogDescription>
+            {t("components.pathinstructionsmodal.into_the_input_field.jsx-text", { defaultValue: "\n            ) into the input field.\n          " })}</DialogDescription>
         </DialogHeader>
 
         {/* Platform tabs */}
@@ -124,6 +126,8 @@ export function PathInstructionsModal({
  * Drop-in replacement for the old showDirectoryPicker buttons.
  */
 export function ChoosePathButton({ className }: { className?: string }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -135,8 +139,7 @@ export function ChoosePathButton({ className }: { className?: string }) {
         )}
         onClick={() => setOpen(true)}
       >
-        Choose
-      </button>
+        {t("components.pathinstructionsmodal.choose.jsx-text", { defaultValue: "\n        Choose\n      " })}</button>
       <PathInstructionsModal open={open} onOpenChange={setOpen} />
     </>
   );

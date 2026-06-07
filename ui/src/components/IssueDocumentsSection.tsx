@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   Agent,
@@ -188,6 +189,8 @@ export function IssueDocumentsSection({
   /** Force a doc into edit mode on mount (Storybook-only). */
   forceEditDocumentKey?: string | null;
 }) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const location = useLocation();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
@@ -789,19 +792,19 @@ export function IssueDocumentsSection({
           {extraActions}
           <Button variant="outline" size="sm" onClick={beginNewDocument} className="shrink-0">
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            <span className="hidden sm:inline">New document</span>
-            <span className="sm:hidden">New</span>
+            <span className="hidden sm:inline">{t("components.issuedocumentssection.new_document.jsx-text", { defaultValue: "New document" })}</span>
+            <span className="sm:hidden">{t("components.issuedocumentssection.new.jsx-text", { defaultValue: "New" })}</span>
           </Button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <h3 className="w-full text-sm font-medium text-muted-foreground shrink-0 sm:w-auto">Documents</h3>
+          <h3 className="w-full text-sm font-medium text-muted-foreground shrink-0 sm:w-auto">{t("components.issuedocumentssection.documents.jsx-text", { defaultValue: "Documents" })}</h3>
           <div className="flex flex-wrap items-center gap-2 min-w-0 sm:ml-auto">
             {extraActions}
             <Button variant="outline" size="sm" onClick={beginNewDocument} className="shrink-0">
               <Plus className="mr-1.5 h-3.5 w-3.5" />
-              <span className="hidden sm:inline">New document</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">{t("components.issuedocumentssection.new_document.jsx-text", { defaultValue: "New document" })}</span>
+              <span className="sm:hidden">{t("components.issuedocumentssection.new.jsx-text", { defaultValue: "New" })}</span>
             </Button>
           </div>
         </div>
@@ -821,7 +824,7 @@ export function IssueDocumentsSection({
             onChange={(event) =>
               setDraft((current) => current ? { ...current, key: event.target.value.toLowerCase() } : current)
             }
-            placeholder="Document key"
+            placeholder={t("components.issuedocumentssection.document_key.attr_placeholder", { defaultValue: "Document key" })}
           />
           {newDocumentKeyError && (
             <p className="text-xs text-destructive">{newDocumentKeyError}</p>
@@ -832,7 +835,7 @@ export function IssueDocumentsSection({
               onChange={(event) =>
                 setDraft((current) => current ? { ...current, title: event.target.value } : current)
               }
-              placeholder="Optional title"
+              placeholder={t("components.issuedocumentssection.optional_title.attr_placeholder", { defaultValue: "Optional title" })}
             />
           )}
           <MarkdownEditor
@@ -840,7 +843,7 @@ export function IssueDocumentsSection({
             onChange={(body) =>
               setDraft((current) => current ? { ...current, body } : current)
             }
-            placeholder="Markdown body"
+            placeholder={t("components.issuedocumentssection.markdown_body.attr_placeholder", { defaultValue: "Markdown body" })}
             bordered={false}
             className="bg-transparent"
             contentClassName="min-h-[220px] text-[15px] leading-7"
@@ -851,8 +854,7 @@ export function IssueDocumentsSection({
           <div className="flex items-center justify-end gap-2">
             <Button variant="outline" size="sm" onClick={cancelDraft}>
               <X className="mr-1.5 h-3.5 w-3.5" />
-              Cancel
-            </Button>
+              {t("components.issuedocumentssection.cancel.jsx-text", { defaultValue: "\n              Cancel\n            " })}</Button>
             <Button
               size="sm"
               onClick={() => void commitDraft(draft, { clearAfterSave: false, trackAutosave: false })}
@@ -945,14 +947,14 @@ export function IssueDocumentsSection({
                             isHistoricalPreview && "text-amber-300 hover:text-amber-200",
                           )}
                         >
-                          rev {displayedRevisionNumber}
+                          {t("components.issuedocumentssection.rev.jsx-text", { defaultValue: "\n                          rev " })}{displayedRevisionNumber}
                           <ChevronDown className="h-3 w-3" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-72">
-                        <DropdownMenuLabel>Revision history</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("components.issuedocumentssection.revision_history.jsx-text", { defaultValue: "Revision history" })}</DropdownMenuLabel>
                         {revisionMenuOpenKey === doc.key && isFetchingDocumentRevisions && rawRevisionHistory.length === 0 ? (
-                          <DropdownMenuItem disabled>Loading revisions...</DropdownMenuItem>
+                          <DropdownMenuItem disabled>{t("components.issuedocumentssection.loading_revisions.jsx-text", { defaultValue: "Loading revisions..." })}</DropdownMenuItem>
                         ) : revisionHistory.length > 0 ? (
                           <DropdownMenuRadioGroup value={selectedRevisionId ?? currentRevision.id ?? ""}>
                             {revisionHistory.map((revision) => {
@@ -966,11 +968,10 @@ export function IssueDocumentsSection({
                                 >
                                   <div className="flex min-w-0 flex-col">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-medium">rev {revision.revisionNumber}</span>
+                                      <span className="font-medium">{t("components.issuedocumentssection.rev.jsx-text", { defaultValue: "rev " })}{revision.revisionNumber}</span>
                                       {isCurrentRevision ? (
                                         <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                                          Current
-                                        </span>
+                                          {t("components.issuedocumentssection.current.jsx-text", { defaultValue: "\n                                          Current\n                                        " })}</span>
                                       ) : null}
                                     </div>
                                     <span className="text-xs text-muted-foreground">
@@ -982,7 +983,7 @@ export function IssueDocumentsSection({
                             })}
                           </DropdownMenuRadioGroup>
                         ) : (
-                          <DropdownMenuItem disabled>No revisions yet</DropdownMenuItem>
+                          <DropdownMenuItem disabled>{t("components.issuedocumentssection.no_revisions_yet.jsx-text", { defaultValue: "No revisions yet" })}</DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -990,7 +991,7 @@ export function IssueDocumentsSection({
                       href={`#document-${encodeURIComponent(doc.key)}`}
                       className="truncate text-[11px] text-muted-foreground transition-colors hover:text-foreground hover:underline"
                     >
-                      updated {relativeTime(displayedUpdatedAt)}
+                      {t("components.issuedocumentssection.updated.jsx-text", { defaultValue: "\n                      updated " })}{relativeTime(displayedUpdatedAt)}
                     </a>
                     {!isSystemIssueDocumentKey(doc.key) ? (
                       <DocumentAnnotationsCountChip
@@ -1020,7 +1021,7 @@ export function IssueDocumentsSection({
                       {isLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
                     </Button>
                   ) : isLocked ? (
-                    <span title="Locked document" aria-label="Locked document" className="inline-flex h-6 w-6 items-center justify-center text-amber-300">
+                    <span title={t("components.issuedocumentssection.locked_document.attr_title", { defaultValue: "Locked document" })} aria-label={t("components.issuedocumentssection.locked_document.attr_aria-label", { defaultValue: "Locked document" })} className="inline-flex h-6 w-6 items-center justify-center text-amber-300">
                       <Lock className="h-3.5 w-3.5" />
                     </span>
                   ) : null}
@@ -1046,7 +1047,7 @@ export function IssueDocumentsSection({
                         variant="ghost"
                         size="icon-xs"
                         className="text-muted-foreground"
-                        title="Document actions"
+                        title={t("components.issuedocumentssection.document_actions.attr_title", { defaultValue: "Document actions" })}
                       >
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </Button>
@@ -1055,21 +1056,18 @@ export function IssueDocumentsSection({
                       {!isHistoricalPreview && !isLocked ? (
                         <DropdownMenuItem onClick={() => beginEdit(doc.key)}>
                           <FilePenLine className="h-3.5 w-3.5" />
-                          Edit document
-                        </DropdownMenuItem>
+                          {t("components.issuedocumentssection.edit_document.jsx-text", { defaultValue: "\n                          Edit document\n                        " })}</DropdownMenuItem>
                       ) : null}
                       {!isHistoricalPreview && !isLocked ? <DropdownMenuSeparator /> : null}
                       <DropdownMenuItem
                         onClick={() => downloadDocumentFile(doc.key, displayedBody)}
                       >
                         <Download className="h-3.5 w-3.5" />
-                        Download document
-                      </DropdownMenuItem>
+                        {t("components.issuedocumentssection.download_document.jsx-text", { defaultValue: "\n                        Download document\n                      " })}</DropdownMenuItem>
                       {doc.latestRevisionNumber > 1 ? (
                         <DropdownMenuItem onClick={() => setDiffViewKey(doc.key)}>
                           <Diff className="h-3.5 w-3.5" />
-                          View diff
-                        </DropdownMenuItem>
+                          {t("components.issuedocumentssection.view_diff.jsx-text", { defaultValue: "\n                          View diff\n                        " })}</DropdownMenuItem>
                       ) : null}
                       {canDeleteDocuments && !isLocked ? <DropdownMenuSeparator /> : null}
                       {canDeleteDocuments && !isLocked ? (
@@ -1078,8 +1076,7 @@ export function IssueDocumentsSection({
                           onClick={() => setConfirmDeleteKey(doc.key)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          Delete document
-                        </DropdownMenuItem>
+                          {t("components.issuedocumentssection.delete_document.jsx-text", { defaultValue: "\n                          Delete document\n                        " })}</DropdownMenuItem>
                       ) : null}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -1109,11 +1106,10 @@ export function IssueDocumentsSection({
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-1">
                           <p className="text-sm font-medium text-amber-200">
-                            Viewing revision {selectedHistoricalRevision.revisionNumber}
+                            {t("components.issuedocumentssection.viewing_revision.jsx-text", { defaultValue: "\n                            Viewing revision " })}{selectedHistoricalRevision.revisionNumber}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            This is a historical preview. Restoring it creates a new latest revision and keeps history append-only.
-                          </p>
+                            {t("components.issuedocumentssection.this_is_a_historical_preview_res.jsx-text", { defaultValue: "\n                            This is a historical preview. Restoring it creates a new latest revision and keeps history append-only.\n                          " })}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           <Button
@@ -1121,8 +1117,7 @@ export function IssueDocumentsSection({
                             size="sm"
                             onClick={() => returnToLatestRevision(doc.key)}
                           >
-                            Return to latest
-                          </Button>
+                            {t("components.issuedocumentssection.return_to_latest.jsx-text", { defaultValue: "\n                            Return to latest\n                          " })}</Button>
                           {!isLocked ? (
                             <Button
                               size="sm"
@@ -1145,10 +1140,9 @@ export function IssueDocumentsSection({
                     <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-3">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-1">
-                          <p className="text-sm font-medium text-amber-200">Out of date</p>
+                          <p className="text-sm font-medium text-amber-200">{t("components.issuedocumentssection.out_of_date.jsx-text", { defaultValue: "Out of date" })}</p>
                           <p className="text-xs text-muted-foreground">
-                            This document changed while you were editing. Your local draft is preserved and autosave is paused.
-                          </p>
+                            {t("components.issuedocumentssection.this_document_changed_while_you_.jsx-text", { defaultValue: "\n                            This document changed while you were editing. Your local draft is preserved and autosave is paused.\n                          " })}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           <Button
@@ -1169,15 +1163,13 @@ export function IssueDocumentsSection({
                             size="sm"
                             onClick={() => keepConflictedDraft(doc.key)}
                           >
-                            Keep my draft
-                          </Button>
+                            {t("components.issuedocumentssection.keep_my_draft.jsx-text", { defaultValue: "\n                            Keep my draft\n                          " })}</Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => reloadDocumentFromServer(doc.key)}
                           >
-                            Reload remote
-                          </Button>
+                            {t("components.issuedocumentssection.reload_remote.jsx-text", { defaultValue: "\n                            Reload remote\n                          " })}</Button>
                           <Button
                             size="sm"
                             onClick={() => void overwriteDocumentFromDraft(doc.key)}
@@ -1190,9 +1182,9 @@ export function IssueDocumentsSection({
                       {activeConflict.showRemote && (
                         <div className="mt-3 rounded-md border border-border/70 bg-background/60 p-3">
                           <div className="mb-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-                            <span>Remote revision {activeConflict.serverDocument.latestRevisionNumber}</span>
+                            <span>{t("components.issuedocumentssection.remote_revision.jsx-text", { defaultValue: "Remote revision " })}{activeConflict.serverDocument.latestRevisionNumber}</span>
                             <span>•</span>
-                            <span>updated {relativeTime(activeConflict.serverDocument.updatedAt)}</span>
+                            <span>{t("components.issuedocumentssection.updated.jsx-text", { defaultValue: "updated " })}{relativeTime(activeConflict.serverDocument.updatedAt)}</span>
                           </div>
                           {!isPlanKey(doc.key) && activeConflict.serverDocument.title ? (
                             <p className="mb-2 text-sm font-medium">{activeConflict.serverDocument.title}</p>
@@ -1209,7 +1201,7 @@ export function IssueDocumentsSection({
                         markDocumentDirty(doc.key);
                         setDraft((current) => current ? { ...current, title: event.target.value } : current);
                       }}
-                      placeholder="Optional title"
+                      placeholder={t("components.issuedocumentssection.optional_title.attr_placeholder", { defaultValue: "Optional title" })}
                     />
                   )}
                   <div
@@ -1248,7 +1240,7 @@ export function IssueDocumentsSection({
                               return current;
                             });
                           }}
-                          placeholder="Markdown body"
+                          placeholder={t("components.issuedocumentssection.markdown_body.attr_placeholder", { defaultValue: "Markdown body" })}
                           bordered={false}
                           className="bg-transparent"
                           contentClassName={documentBodyContentClassName}
@@ -1306,8 +1298,7 @@ export function IssueDocumentsSection({
               {confirmDeleteKey === doc.key && (
                 <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3">
                   <p className="text-sm text-destructive font-medium">
-                    Delete this document? This cannot be undone.
-                  </p>
+                    {t("components.issuedocumentssection.delete_this_document_this_cannot.jsx-text", { defaultValue: "\n                    Delete this document? This cannot be undone.\n                  " })}</p>
                   <div className="flex items-center gap-2 shrink-0">
                     <Button
                       variant="ghost"
@@ -1315,8 +1306,7 @@ export function IssueDocumentsSection({
                       onClick={() => setConfirmDeleteKey(null)}
                       disabled={deleteDocument.isPending}
                     >
-                      Cancel
-                    </Button>
+                      {t("components.issuedocumentssection.cancel.jsx-text", { defaultValue: "\n                      Cancel\n                    " })}</Button>
                     <Button
                       variant="destructive"
                       size="sm"

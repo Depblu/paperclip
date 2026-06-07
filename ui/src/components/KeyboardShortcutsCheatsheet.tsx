@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from "@/i18n";
 
 interface ShortcutEntry {
   keys: string[];
@@ -48,6 +49,8 @@ const sections: ShortcutSection[] = [
 ];
 
 function KeyCap({ children }: { children: string }) {
+const { t } = useTranslation();
+
   return (
     <kbd className="inline-flex h-6 min-w-6 items-center justify-center rounded border border-border bg-muted px-1.5 font-mono text-xs font-medium text-foreground shadow-[0_1px_0_1px_hsl(var(--border))]">
       {children}
@@ -56,6 +59,8 @@ function KeyCap({ children }: { children: string }) {
 }
 
 export function KeyboardShortcutsCheatsheetContent() {
+const { t } = useTranslation();
+
   return (
     <>
       <div className="divide-y divide-border border-t border-border">
@@ -74,7 +79,7 @@ export function KeyboardShortcutsCheatsheetContent() {
                   <div className="flex items-center gap-1">
                     {shortcut.keys.map((key, i) => (
                       <span key={key} className="flex items-center gap-1">
-                        {i > 0 && <span className="text-xs text-muted-foreground">then</span>}
+                        {i > 0 && <span className="text-xs text-muted-foreground">{t("components.keyboardshortcutscheatsheet.then.jsx-text", { defaultValue: "then" })}</span>}
                         <KeyCap>{key}</KeyCap>
                       </span>
                     ))}
@@ -87,8 +92,7 @@ export function KeyboardShortcutsCheatsheetContent() {
       </div>
       <div className="border-t border-border px-5 py-3">
         <p className="text-xs text-muted-foreground">
-          Press <KeyCap>Esc</KeyCap> to close &middot; Shortcuts are disabled in text fields
-        </p>
+          {t("components.keyboardshortcutscheatsheet.press.jsx-text", { defaultValue: "\n          Press " })}<KeyCap>{t("components.keyboardshortcutscheatsheet.esc.jsx-text", { defaultValue: "Esc" })}</KeyCap> {t("components.keyboardshortcutscheatsheet.to_close_middot_shortcuts_are_di.jsx-text", { defaultValue: " to close &middot; Shortcuts are disabled in text fields\n        " })}</p>
       </div>
     </>
   );
@@ -101,11 +105,13 @@ export function KeyboardShortcutsCheatsheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+const { t } = useTranslation();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden" showCloseButton={false}>
         <DialogHeader className="px-5 pt-5 pb-3">
-          <DialogTitle className="text-base">Keyboard shortcuts</DialogTitle>
+          <DialogTitle className="text-base">{t("components.keyboardshortcutscheatsheet.keyboard_shortcuts.jsx-text", { defaultValue: "Keyboard shortcuts" })}</DialogTitle>
         </DialogHeader>
         <KeyboardShortcutsCheatsheetContent />
       </DialogContent>

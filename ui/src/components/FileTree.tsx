@@ -1,4 +1,5 @@
 import type { KeyboardEvent, ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { useMemo, useRef, useState } from "react";
 import { cn } from "../lib/utils";
 import {
@@ -276,6 +277,8 @@ export function FileTree({
   empty,
   ariaLabel = "Files",
 }: FileTreeProps) {
+const { t } = useTranslation();
+
   const effectiveCheckedFiles = checkedFiles ?? new Set<string>();
   const visibleNodes = useMemo(
     () => flattenVisibleNodes(nodes, expandedDirs),
@@ -363,14 +366,12 @@ export function FileTree({
                 statusBadge.error ?? statusBadgeDefault,
               )}
             >
-              error
-            </span>
+              {t("components.filetree.error.jsx-text", { defaultValue: "\n              error\n            " })}</span>
             <span className="min-w-0 text-destructive">{error.message}</span>
           </div>
           {error.retry && (
             <Button type="button" size="xs" variant="outline" onClick={error.retry}>
-              Retry
-            </Button>
+              {t("components.filetree.retry.jsx-text", { defaultValue: "\n              Retry\n            " })}</Button>
           )}
         </div>
       </div>

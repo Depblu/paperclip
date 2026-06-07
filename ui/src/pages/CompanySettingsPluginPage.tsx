@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { useParams } from "@/lib/router";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { useCompany } from "@/context/CompanyContext";
@@ -6,6 +7,8 @@ import { PluginSlotMount, usePluginSlots } from "@/plugins/slots";
 import { NotFoundPage } from "./NotFound";
 
 export function CompanySettingsPluginPage() {
+const { t } = useTranslation();
+
   const params = useParams<{
     companyPrefix?: string;
     settingsRoutePath?: string;
@@ -50,17 +53,17 @@ export function CompanySettingsPluginPage() {
     if (hasInvalidCompanyPrefix) {
       return <NotFoundPage scope="invalid_company_prefix" requestedPrefix={routeCompanyPrefix} />;
     }
-    return <div className="text-sm text-muted-foreground">Select a company to view this page.</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companysettingspluginpage.select_a_company_to_view_this_pa.jsx-text", { defaultValue: "Select a company to view this page." })}</div>;
   }
 
   if (!settingsRoutePath || isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading...</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companysettingspluginpage.loading.jsx-text", { defaultValue: "Loading..." })}</div>;
   }
 
   if (errorMessage) {
     return (
       <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-        Plugin extensions unavailable: {errorMessage}
+        {t("pages.companysettingspluginpage.plugin_extensions_unavailable.jsx-text", { defaultValue: "\n        Plugin extensions unavailable: " })}{errorMessage}
       </div>
     );
   }
@@ -68,8 +71,7 @@ export function CompanySettingsPluginPage() {
   if (pageSlots.length > 1) {
     return (
       <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-        Multiple plugins declare the company settings route <code>{settingsRoutePath}</code>. Disable one plugin or change its route.
-      </div>
+        {t("pages.companysettingspluginpage.multiple_plugins_declare_the_com.jsx-text", { defaultValue: "\n        Multiple plugins declare the company settings route " })}<code>{settingsRoutePath}</code>{t("pages.companysettingspluginpage.disable_one_plugin_or_change_its.jsx-text", { defaultValue: ". Disable one plugin or change its route.\n      " })}</div>
     );
   }
 

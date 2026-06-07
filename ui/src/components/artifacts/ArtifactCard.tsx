@@ -1,4 +1,5 @@
 import { type SyntheticEvent, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Download, ExternalLink, Paperclip, Play } from "lucide-react";
 import type { CompanyArtifact } from "@/api/artifacts";
 import { Link } from "@/lib/router";
@@ -14,6 +15,8 @@ interface ArtifactCardProps {
  * shifting layout as previews load (or fail to load).
  */
 function PreviewFrame({ children, className }: { children: React.ReactNode; className?: string }) {
+const { t } = useTranslation();
+
   return (
     <div className={cn("relative aspect-video w-full overflow-hidden bg-accent/20", className)}>
       {children}
@@ -22,6 +25,8 @@ function PreviewFrame({ children, className }: { children: React.ReactNode; clas
 }
 
 function PlaceholderPreview({ label }: { label?: string }) {
+const { t } = useTranslation();
+
   return (
     <PreviewFrame className="flex items-center justify-center">
       <div className="flex flex-col items-center gap-1.5 text-muted-foreground/50">
@@ -33,9 +38,11 @@ function PlaceholderPreview({ label }: { label?: string }) {
 }
 
 function ImagePreview({ artifact }: { artifact: CompanyArtifact }) {
+const { t } = useTranslation();
+
   const [errored, setErrored] = useState(false);
   if (errored || !artifact.contentPath) {
-    return <PlaceholderPreview label="Image" />;
+    return <PlaceholderPreview label={t("components.artifactcard.image.attr_label", { defaultValue: "Image" })} />;
   }
   return (
     <PreviewFrame>
@@ -51,6 +58,8 @@ function ImagePreview({ artifact }: { artifact: CompanyArtifact }) {
 }
 
 function VideoPreview({ artifact }: { artifact: CompanyArtifact }) {
+const { t } = useTranslation();
+
   const [errored, setErrored] = useState(false);
   const [frameReady, setFrameReady] = useState(false);
   const thumbnailSeekRequested = useRef(false);
@@ -132,6 +141,8 @@ function VideoPreview({ artifact }: { artifact: CompanyArtifact }) {
 }
 
 function TextPreview({ artifact }: { artifact: CompanyArtifact }) {
+const { t } = useTranslation();
+
   const preview = artifact.previewText?.trim();
   if (!preview) {
     return <PlaceholderPreview label={artifact.source === "document" ? "Document" : "Text"} />;
@@ -149,6 +160,8 @@ function TextPreview({ artifact }: { artifact: CompanyArtifact }) {
 }
 
 export function ArtifactPreview({ artifact }: { artifact: CompanyArtifact }) {
+const { t } = useTranslation();
+
   switch (artifact.mediaKind) {
     case "image":
       return <ImagePreview artifact={artifact} />;
@@ -158,7 +171,7 @@ export function ArtifactPreview({ artifact }: { artifact: CompanyArtifact }) {
     case "document":
       return <TextPreview artifact={artifact} />;
     case "file":
-      return <PlaceholderPreview label="File" />;
+      return <PlaceholderPreview label={t("components.artifactcard.file.attr_label", { defaultValue: "File" })} />;
     case "empty":
     default:
       return <PlaceholderPreview />;
@@ -176,6 +189,8 @@ function SecondaryAction({
   title: string;
   children: React.ReactNode;
 }) {
+const { t } = useTranslation();
+
   return (
     <a
       href={href}
@@ -191,6 +206,8 @@ function SecondaryAction({
 }
 
 export function ArtifactCard({ artifact }: ArtifactCardProps) {
+const { t } = useTranslation();
+
   return (
     <Link
       to={artifact.href}
@@ -211,12 +228,12 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
           </h3>
           <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
             {artifact.openPath ? (
-              <SecondaryAction href={artifact.openPath} title="Open file in new tab">
+              <SecondaryAction href={artifact.openPath} title={t("components.artifactcard.open_file_in_new_tab.attr_title", { defaultValue: "Open file in new tab" })}>
                 <ExternalLink className="h-3.5 w-3.5" />
               </SecondaryAction>
             ) : null}
             {artifact.downloadPath ? (
-              <SecondaryAction href={artifact.downloadPath} download title="Download file">
+              <SecondaryAction href={artifact.downloadPath} download title={t("components.artifactcard.download_file.attr_title", { defaultValue: "Download file" })}>
                 <Download className="h-3.5 w-3.5" />
               </SecondaryAction>
             ) : null}
@@ -224,7 +241,7 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
         </div>
 
         <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground/65">
-          <span>Last edited {formatDate(artifact.updatedAt)}</span>
+          <span>{t("components.artifactcard.last_edited.jsx-text", { defaultValue: "Last edited " })}{formatDate(artifact.updatedAt)}</span>
           {artifact.createdByAgent ? (
             <>
               <span className="text-muted-foreground/50">·</span>

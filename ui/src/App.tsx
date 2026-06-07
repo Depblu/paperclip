@@ -153,15 +153,21 @@ function boardRoutes() {
 }
 
 function InboxRootRedirect() {
+const { t } = useTranslation();
+
   return <Navigate to={`/inbox/${loadLastInboxTab()}`} replace />;
 }
 
 function LegacySettingsRedirect() {
+const { t } = useTranslation();
+
   const location = useLocation();
   return <Navigate to={`/instance/settings/general${location.search}${location.hash}`} replace />;
 }
 
 function OnboardingRoutePage() {
+const { t } = useTranslation();
+
   const { companies } = useCompany();
   const { openOnboarding } = useDialogActions();
   const { companyPrefix } = useParams<{ companyPrefix?: string }>();
@@ -202,11 +208,13 @@ function OnboardingRoutePage() {
 }
 
 function CompanyRootRedirect() {
+const { t } = useTranslation();
+
   const { companies, selectedCompany, loading } = useCompany();
   const location = useLocation();
 
   if (loading) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("misc.app.loading.jsx-text", { defaultValue: "Loading..." })}</div>;
   }
 
   const targetCompany = selectedCompany ?? companies[0] ?? null;
@@ -226,11 +234,13 @@ function CompanyRootRedirect() {
 }
 
 function UnprefixedBoardRedirect() {
+const { t } = useTranslation();
+
   const location = useLocation();
   const { companies, selectedCompany, loading } = useCompany();
 
   if (loading) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("misc.app.loading.jsx-text", { defaultValue: "Loading..." })}</div>;
   }
 
   const targetCompany = selectedCompany ?? companies[0] ?? null;
@@ -278,6 +288,8 @@ function NoCompaniesStartPage() {
 }
 
 export function App() {
+const { t } = useTranslation();
+
   return (
     <>
       <Routes>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PatchInstanceGeneralSettings, BackupRetentionPolicy } from "@paperclipai/shared";
 import {
@@ -21,6 +22,8 @@ import { cn } from "../lib/utils";
 const FEEDBACK_TERMS_URL = import.meta.env.VITE_FEEDBACK_TERMS_URL?.trim() || "https://paperclip.ing/tos";
 
 export function InstanceGeneralSettings() {
+const { t } = useTranslation();
+
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -64,7 +67,7 @@ export function InstanceGeneralSettings() {
   });
 
   if (generalQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading general settings...</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.instancegeneralsettings.loading_general_settings.jsx-text", { defaultValue: "Loading general settings..." })}</div>;
   }
 
   if (generalQuery.error) {
@@ -87,12 +90,10 @@ export function InstanceGeneralSettings() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">General</h1>
+          <h1 className="text-lg font-semibold">{t("pages.instancegeneralsettings.general.jsx-text", { defaultValue: "General" })}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Configure instance-wide preferences including log display, keyboard shortcuts, backup
-          retention, and data sharing.
-        </p>
+          {t("pages.instancegeneralsettings.configure_instance_wide_preferen.jsx-text", { defaultValue: "\n          Configure instance-wide preferences including log display, keyboard shortcuts, backup retention, and data sharing.\n        " })}</p>
       </div>
 
       {actionError && (
@@ -104,7 +105,7 @@ export function InstanceGeneralSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold">Deployment and auth</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.deployment_and_auth.jsx-text", { defaultValue: "Deployment and auth" })}</h2>
             <ModeBadge
               deploymentMode={healthQuery.data?.deploymentMode}
               deploymentExposure={healthQuery.data?.deploymentExposure}
@@ -119,15 +120,15 @@ export function InstanceGeneralSettings() {
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             <StatusBox
-              label="Auth readiness"
+              label={t("pages.instancegeneralsettings.auth_readiness.attr_label", { defaultValue: "Auth readiness" })}
               value={healthQuery.data?.authReady ? "Ready" : "Not ready"}
             />
             <StatusBox
-              label="Bootstrap status"
+              label={t("pages.instancegeneralsettings.bootstrap_status.attr_label", { defaultValue: "Bootstrap status" })}
               value={healthQuery.data?.bootstrapStatus === "bootstrap_pending" ? "Setup required" : "Ready"}
             />
             <StatusBox
-              label="Bootstrap invite"
+              label={t("pages.instancegeneralsettings.bootstrap_invite.attr_label", { defaultValue: "Bootstrap invite" })}
               value={healthQuery.data?.bootstrapInviteActive ? "Active" : "None"}
             />
           </div>
@@ -137,18 +138,15 @@ export function InstanceGeneralSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Censor username in logs</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.censor_username_in_logs.jsx-text", { defaultValue: "Censor username in logs" })}</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Hide the username segment in home-directory paths and similar operator-visible log output. Standalone
-              username mentions outside of paths are not yet masked in the live transcript view. This is off by
-              default.
-            </p>
+              {t("pages.instancegeneralsettings.hide_the_username_segment_in_hom.jsx-text", { defaultValue: "\n              Hide the username segment in home-directory paths and similar operator-visible log output. Standalone username mentions outside of paths are not yet masked in the live transcript view. This is off by default.\n            " })}</p>
           </div>
           <ToggleSwitch
             checked={censorUsernameInLogs}
             onCheckedChange={() => updateGeneralMutation.mutate({ censorUsernameInLogs: !censorUsernameInLogs })}
             disabled={updateGeneralMutation.isPending}
-            aria-label="Toggle username log censoring"
+            aria-label={t("pages.instancegeneralsettings.toggle_username_log_censoring.attr_aria-label", { defaultValue: "Toggle username log censoring" })}
           />
         </div>
       </section>
@@ -156,17 +154,15 @@ export function InstanceGeneralSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Keyboard shortcuts</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.keyboard_shortcuts.jsx-text", { defaultValue: "Keyboard shortcuts" })}</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Enable app keyboard shortcuts, including inbox navigation and global shortcuts like creating tasks or
-              toggling panels. This is off by default.
-            </p>
+              {t("pages.instancegeneralsettings.enable_app_keyboard_shortcuts_in.jsx-text", { defaultValue: "\n              Enable app keyboard shortcuts, including inbox navigation and global shortcuts like creating tasks or toggling panels. This is off by default.\n            " })}</p>
           </div>
           <ToggleSwitch
             checked={keyboardShortcuts}
             onCheckedChange={() => updateGeneralMutation.mutate({ keyboardShortcuts: !keyboardShortcuts })}
             disabled={updateGeneralMutation.isPending}
-            aria-label="Toggle keyboard shortcuts"
+            aria-label={t("pages.instancegeneralsettings.toggle_keyboard_shortcuts.attr_aria-label", { defaultValue: "Toggle keyboard shortcuts" })}
           />
         </div>
       </section>
@@ -174,16 +170,13 @@ export function InstanceGeneralSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="space-y-5">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Backup retention</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.backup_retention.jsx-text", { defaultValue: "Backup retention" })}</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Configure how long automatic database backups are retained. Backups run roughly
-              every hour and are compressed with gzip. Within the daily window all backups are
-              kept; beyond that, one backup per week and one per month are preserved.
-            </p>
+              {t("pages.instancegeneralsettings.configure_how_long_automatic_dat.jsx-text", { defaultValue: "\n              Configure how long automatic database backups are retained. Backups run roughly every hour and are compressed with gzip. Within the daily window all backups are kept; beyond that, one backup per week and one per month are preserved.\n            " })}</p>
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Daily</h3>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("pages.instancegeneralsettings.daily.jsx-text", { defaultValue: "Daily" })}</h3>
             <div className="flex flex-wrap gap-2">
               {DAILY_RETENTION_PRESETS.map((days) => {
                 const active = backupRetention.dailyDays === days;
@@ -204,7 +197,7 @@ export function InstanceGeneralSettings() {
                       })
                     }
                   >
-                    <div className="text-sm font-medium">{days} days</div>
+                    <div className="text-sm font-medium">{days} {t("pages.instancegeneralsettings.days.jsx-text", { defaultValue: " days" })}</div>
                   </button>
                 );
               })}
@@ -212,7 +205,7 @@ export function InstanceGeneralSettings() {
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Weekly</h3>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("pages.instancegeneralsettings.weekly.jsx-text", { defaultValue: "Weekly" })}</h3>
             <div className="flex flex-wrap gap-2">
               {WEEKLY_RETENTION_PRESETS.map((weeks) => {
                 const active = backupRetention.weeklyWeeks === weeks;
@@ -242,7 +235,7 @@ export function InstanceGeneralSettings() {
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Monthly</h3>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("pages.instancegeneralsettings.monthly.jsx-text", { defaultValue: "Monthly" })}</h3>
             <div className="flex flex-wrap gap-2">
               {MONTHLY_RETENTION_PRESETS.map((months) => {
                 const active = backupRetention.monthlyMonths === months;
@@ -276,11 +269,9 @@ export function InstanceGeneralSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">AI feedback sharing</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.ai_feedback_sharing.jsx-text", { defaultValue: "AI feedback sharing" })}</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Control whether thumbs up and thumbs down votes can send the voted AI output to
-              Paperclip Labs. Votes are always saved locally.
-            </p>
+              {t("pages.instancegeneralsettings.control_whether_thumbs_up_and_th.jsx-text", { defaultValue: "\n              Control whether thumbs up and thumbs down votes can send the voted AI output to Paperclip Labs. Votes are always saved locally.\n            " })}</p>
             {FEEDBACK_TERMS_URL ? (
               <a
                 href={FEEDBACK_TERMS_URL}
@@ -288,15 +279,12 @@ export function InstanceGeneralSettings() {
                 rel="noreferrer"
                 className="inline-flex text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                Read our terms of service
-              </a>
+                {t("pages.instancegeneralsettings.read_our_terms_of_service.jsx-text", { defaultValue: "\n                Read our terms of service\n              " })}</a>
             ) : null}
           </div>
           {feedbackDataSharingPreference === "prompt" ? (
             <div className="rounded-lg border border-border/70 bg-accent/20 px-3 py-2 text-sm text-muted-foreground">
-              No default is saved yet. The next thumbs up or thumbs down choice will ask once and
-              then save the answer here.
-            </div>
+              {t("pages.instancegeneralsettings.no_default_is_saved_yet_the_next.jsx-text", { defaultValue: "\n              No default is saved yet. The next thumbs up or thumbs down choice will ask once and then save the answer here.\n            " })}</div>
           ) : null}
           <div className="flex flex-wrap gap-2">
             {[
@@ -340,22 +328,19 @@ export function InstanceGeneralSettings() {
             })}
           </div>
           <p className="text-xs text-muted-foreground">
-            To retest the first-use prompt in local dev, remove the{" "}
-            <code>feedbackDataSharingPreference</code> key from the{" "}
-            <code>instance_settings.general</code> JSON row for this instance, or set it back to{" "}
-            <code>"prompt"</code>. Unset and <code>"prompt"</code> both mean no default has been
-            chosen yet.
-          </p>
+            {t("pages.instancegeneralsettings.to_retest_the_first_use_prompt_i.jsx-text", { defaultValue: "\n            To retest the first-use prompt in local dev, remove the" })}{" "}
+            <code>{t("pages.instancegeneralsettings.feedbackdatasharingpreference.jsx-text", { defaultValue: "feedbackDataSharingPreference" })}</code> {t("pages.instancegeneralsettings.key_from_the.jsx-text", { defaultValue: " key from the" })}{" "}
+            <code>{t("pages.instancegeneralsettings.instance_settings_general.jsx-text", { defaultValue: "instance_settings.general" })}</code> {t("pages.instancegeneralsettings.json_row_for_this_instance_or_se.jsx-text", { defaultValue: " JSON row for this instance, or set it back to" })}{" "}
+            <code>{t("pages.instancegeneralsettings.prompt.jsx-text", { defaultValue: "\"prompt\"" })}</code>{t("pages.instancegeneralsettings.unset_and.jsx-text", { defaultValue: ". Unset and " })}<code>{t("pages.instancegeneralsettings.prompt.jsx-text", { defaultValue: "\"prompt\"" })}</code> {t("pages.instancegeneralsettings.both_mean_no_default_has_been_ch.jsx-text", { defaultValue: " both mean no default has been chosen yet.\n          " })}</p>
         </div>
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Sign out</h2>
+            <h2 className="text-sm font-semibold">{t("pages.instancegeneralsettings.sign_out.jsx-text", { defaultValue: "Sign out" })}</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Sign out of this Paperclip instance. You will be redirected to the login page.
-            </p>
+              {t("pages.instancegeneralsettings.sign_out_of_this_paperclip_insta.jsx-text", { defaultValue: "\n              Sign out of this Paperclip instance. You will be redirected to the login page.\n            " })}</p>
           </div>
           <Button
             variant="outline"
@@ -373,6 +358,8 @@ export function InstanceGeneralSettings() {
 }
 
 function StatusBox({ label, value }: { label: string; value: string }) {
+const { t } = useTranslation();
+
   return (
     <div className="rounded-lg border border-border bg-background px-3 py-3">
       <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</div>

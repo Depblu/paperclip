@@ -1,4 +1,5 @@
 import { ChevronsUpDown, Plus, Settings } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { useCompany } from "../context/CompanyContext";
 import {
@@ -31,6 +32,8 @@ interface CompanySwitcherProps {
 }
 
 export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanySwitcherProps = {}) {
+const { t } = useTranslation();
+
   const [internalOpen, setInternalOpen] = useState(false);
   const { companies, selectedCompany, setSelectedCompanyId } = useCompany();
   const sidebarCompanies = companies.filter((company) => company.status !== "archived");
@@ -56,7 +59,7 @@ export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanyS
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[220px]">
-        <DropdownMenuLabel>Companies</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("components.companyswitcher.companies.jsx-text", { defaultValue: "Companies" })}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {sidebarCompanies.map((company) => (
           <DropdownMenuItem
@@ -69,20 +72,18 @@ export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanyS
           </DropdownMenuItem>
         ))}
         {sidebarCompanies.length === 0 && (
-          <DropdownMenuItem disabled>No companies</DropdownMenuItem>
+          <DropdownMenuItem disabled>{t("components.companyswitcher.no_companies.jsx-text", { defaultValue: "No companies" })}</DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/company/settings" className="no-underline text-inherit">
             <Settings className="h-4 w-4 mr-2" />
-            Company Settings
-          </Link>
+            {t("components.companyswitcher.company_settings.jsx-text", { defaultValue: "\n            Company Settings\n          " })}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/companies" className="no-underline text-inherit">
             <Plus className="h-4 w-4 mr-2" />
-            Manage Companies
-          </Link>
+            {t("components.companyswitcher.manage_companies.jsx-text", { defaultValue: "\n            Manage Companies\n          " })}</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

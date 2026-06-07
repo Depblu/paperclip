@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { Agent } from "@paperclipai/shared";
 import {
   Popover,
@@ -27,6 +28,8 @@ export function ReportsToPicker({
   disabledEmptyLabel?: string;
   chooseLabel?: string;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const exclude = new Set(excludeAgentIds);
   const rows = agents.filter(
@@ -51,7 +54,7 @@ export function ReportsToPicker({
           {unknownManager ? (
             <>
               <User className="h-3 w-3 shrink-0 text-muted-foreground" />
-              <span className="min-w-0 truncate text-muted-foreground">Unknown manager (stale ID)</span>
+              <span className="min-w-0 truncate text-muted-foreground">{t("components.reportstopicker.unknown_manager_stale_id.jsx-text", { defaultValue: "Unknown manager (stale ID)" })}</span>
             </>
           ) : current ? (
             <>
@@ -87,20 +90,17 @@ export function ReportsToPicker({
             setOpen(false);
           }}
         >
-          No manager
-        </button>
+          {t("components.reportstopicker.no_manager.jsx-text", { defaultValue: "\n          No manager\n        " })}</button>
         {terminatedManager && (
           <div className="flex min-w-0 items-center gap-2 overflow-hidden px-2 py-1.5 text-xs text-muted-foreground border-b border-border mb-0.5">
             <AgentIcon icon={current.icon} className="shrink-0 h-3 w-3" />
             <span className="min-w-0 truncate">
-              Current: {current.name} (terminated)
-            </span>
+              {t("components.reportstopicker.current.jsx-text", { defaultValue: "\n              Current: " })}{current.name} {t("components.reportstopicker.terminated.jsx-text", { defaultValue: " (terminated)\n            " })}</span>
           </div>
         )}
         {unknownManager && (
           <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border mb-0.5">
-            Saved manager is missing from this company. Choose a new manager or clear.
-          </div>
+            {t("components.reportstopicker.saved_manager_is_missing_from_th.jsx-text", { defaultValue: "\n            Saved manager is missing from this company. Choose a new manager or clear.\n          " })}</div>
         )}
         {rows.map((a) => (
           <button

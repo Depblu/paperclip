@@ -30,6 +30,7 @@ import {
   type ComponentType,
 } from "react";
 import * as ReactModule from "react";
+import { useTranslation, i18n } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import type {
   PluginLauncherDeclaration,
@@ -720,11 +721,12 @@ class PluginSlotErrorBoundary extends Component<PluginSlotErrorBoundaryProps, Pl
   }
 
   override render() {
+    // Class components can't use hooks; call t() via the i18n instance.
+    const t = (key: string, opts: { defaultValue: string }) => i18n.t(key, opts);
     if (this.state.hasError) {
       return (
         <div className={cn("rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1 text-xs text-destructive", this.props.className)}>
-          {this.props.slot.pluginDisplayName}: failed to render
-        </div>
+          {this.props.slot.pluginDisplayName}{t("misc.slots.failed_to_render.jsx-text", { defaultValue: ": failed to render\n        " })}</div>
       );
     }
     return this.props.children;
@@ -742,6 +744,8 @@ function PluginWebComponentMount({
   context: PluginSlotContext;
   className?: string;
 }) {
+const { t } = useTranslation();
+
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -802,6 +806,8 @@ function PluginBridgeScope({
   context: PluginSlotContext;
   children: ReactNode;
 }) {
+const { t } = useTranslation();
+
   const { data: session } = useQuery({
     queryKey: queryKeys.auth.session,
     queryFn: () => authApi.getSession(),
@@ -823,6 +829,8 @@ export function PluginSlotMount({
   className,
   missingBehavior = "hidden",
 }: PluginSlotMountProps) {
+const { t } = useTranslation();
+
   usePluginRegistrySubscription();
   const [, forceRerender] = useState(0);
   const component = resolveRegisteredComponent(slot);
@@ -895,6 +903,8 @@ export function PluginSlotOutlet({
   errorClassName,
   missingBehavior = "hidden",
 }: PluginSlotOutletProps) {
+const { t } = useTranslation();
+
   const { slots, errorMessage } = usePluginSlots({
     slotTypes,
     entityType,
@@ -904,7 +914,7 @@ export function PluginSlotOutlet({
   if (errorMessage) {
     return (
       <div className={cn("rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1 text-xs text-destructive", errorClassName)}>
-        Plugin extensions unavailable: {errorMessage}
+        {t("misc.slots.plugin_extensions_unavailable.jsx-text", { defaultValue: "\n        Plugin extensions unavailable: " })}{errorMessage}
       </div>
     );
   }

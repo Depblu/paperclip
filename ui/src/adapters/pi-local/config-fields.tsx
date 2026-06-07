@@ -1,4 +1,5 @@
 import type { AdapterConfigFieldsProps } from "../types";
+import { useTranslation } from "@/i18n";
 import {
   Field,
   DraftInput,
@@ -19,9 +20,11 @@ export function PiLocalConfigFields({
   mark,
   hideInstructionsFile,
 }: AdapterConfigFieldsProps) {
+const { t } = useTranslation();
+
   if (hideInstructionsFile) return null;
   return (
-    <Field label="Agent instructions file" hint={instructionsFileHint}>
+    <Field label={t("misc.config_fields.agent_instructions_file.attr_label", { defaultValue: "Agent instructions file" })} hint={instructionsFileHint}>
       <div className="flex items-center gap-2">
         <DraftInput
           value={

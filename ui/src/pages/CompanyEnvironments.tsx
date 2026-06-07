@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AGENT_ADAPTER_TYPES,
@@ -148,17 +149,20 @@ function summarizeSandboxConfig(config: Record<string, unknown>): string | null 
 }
 
 function SupportMark({ supported }: { supported: boolean }) {
+const { t } = useTranslation();
+
   return supported ? (
     <span className="inline-flex items-center gap-1 text-green-700 dark:text-green-400">
       <Check className="h-3 w-3" />
-      Yes
-    </span>
+      {t("pages.companyenvironments.yes.jsx-text", { defaultValue: "\n      Yes\n    " })}</span>
   ) : (
-    <span className="text-muted-foreground">No</span>
+    <span className="text-muted-foreground">{t("pages.companyenvironments.no.jsx-text", { defaultValue: "No" })}</span>
   );
 }
 
 export function CompanyEnvironments() {
+const { t } = useTranslation();
+
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -397,7 +401,7 @@ export function CompanyEnvironments() {
       Object.keys(sandboxConfigErrors).length === 0);
 
   if (!selectedCompanyId) {
-    return <div className="text-sm text-muted-foreground">Select a company to manage environments.</div>;
+    return <div className="text-sm text-muted-foreground">{t("pages.companyenvironments.select_a_company_to_manage_envir.jsx-text", { defaultValue: "Select a company to manage environments." })}</div>;
   }
 
   if (!environmentsEnabled) {
@@ -405,11 +409,10 @@ export function CompanyEnvironments() {
       <div className="max-w-3xl space-y-4">
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Company Environments</h1>
+          <h1 className="text-lg font-semibold">{t("pages.companyenvironments.company_environments.jsx-text", { defaultValue: "Company Environments" })}</h1>
         </div>
         <div className="rounded-md border border-border px-4 py-4 text-sm text-muted-foreground">
-          Enable Environments in instance experimental settings to manage company execution targets.
-        </div>
+          {t("pages.companyenvironments.enable_environments_in_instance_.jsx-text", { defaultValue: "\n          Enable Environments in instance experimental settings to manage company execution targets.\n        " })}</div>
       </div>
     );
   }
@@ -419,39 +422,34 @@ export function CompanyEnvironments() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Company Environments</h1>
+          <h1 className="text-lg font-semibold">{t("pages.companyenvironments.company_environments.jsx-text", { defaultValue: "Company Environments" })}</h1>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Define reusable execution targets for projects, task workspaces, and remote-capable adapters.
-        </p>
+          {t("pages.companyenvironments.define_reusable_execution_target.jsx-text", { defaultValue: "\n          Define reusable execution targets for projects, task workspaces, and remote-capable adapters.\n        " })}</p>
       </div>
 
       <div className="space-y-4 rounded-md border border-border px-4 py-4">
         <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-          Environment choices use the same adapter support matrix as agent defaults. SSH is always available for
-          remote-managed adapters, and sandbox environments appear only when a run-capable sandbox provider plugin is
-          installed.
-        </div>
+          {t("pages.companyenvironments.environment_choices_use_the_same.jsx-text", { defaultValue: "\n          Environment choices use the same adapter support matrix as agent defaults. SSH is always available for remote-managed adapters, and sandbox environments appear only when a run-capable sandbox provider plugin is installed.\n        " })}</div>
         {sandboxCreationEnabled ? (
           <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            Installed sandbox providers:{" "}
+            {t("pages.companyenvironments.installed_sandbox_providers.jsx-text", { defaultValue: "\n            Installed sandbox providers:" })}{" "}
             <span className="font-medium text-foreground">
               {discoveredPluginSandboxProviders.map((provider) => provider.displayName).join(", ")}
             </span>
-            . These are not adapter types. They back the Sandbox driver for adapters that support sandbox execution.
-          </div>
+            {t("pages.companyenvironments.these_are_not_adapter_types_they.jsx-text", { defaultValue: "\n            . These are not adapter types. They back the Sandbox driver for adapters that support sandbox execution.\n          " })}</div>
         ) : null}
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[34rem] text-left text-xs">
-            <caption className="sr-only">Environment support by adapter</caption>
+            <caption className="sr-only">{t("pages.companyenvironments.environment_support_by_adapter.jsx-text", { defaultValue: "Environment support by adapter" })}</caption>
             <thead className="border-b border-border text-muted-foreground">
               <tr>
-                <th className="py-2 pr-3 font-medium">Adapter</th>
-                <th className="px-3 py-2 font-medium">Local</th>
+                <th className="py-2 pr-3 font-medium">{t("pages.companyenvironments.adapter.jsx-text", { defaultValue: "Adapter" })}</th>
+                <th className="px-3 py-2 font-medium">{t("pages.companyenvironments.local.jsx-text", { defaultValue: "Local" })}</th>
                 <th className="px-3 py-2 font-medium">SSH</th>
                 {sandboxSupportVisible ? (
-                  <th className="px-3 py-2 font-medium">Sandbox via plugin</th>
+                  <th className="px-3 py-2 font-medium">{t("pages.companyenvironments.sandbox_via_plugin.jsx-text", { defaultValue: "Sandbox via plugin" })}</th>
                 ) : null}
               </tr>
             </thead>
@@ -486,7 +484,7 @@ export function CompanyEnvironments() {
 
         <div className="space-y-3">
           {(environments ?? []).length === 0 ? (
-            <div className="text-sm text-muted-foreground">No environments saved for this company yet.</div>
+            <div className="text-sm text-muted-foreground">{t("pages.companyenvironments.no_environments_saved_for_this_c.jsx-text", { defaultValue: "No environments saved for this company yet." })}</div>
           ) : (
             (environments ?? []).map((environment) => {
               const probe = probeResults[environment.id] ?? null;
@@ -521,7 +519,7 @@ export function CompanyEnvironments() {
                           })()}
                         </div>
                       ) : (
-                        <div className="text-xs text-muted-foreground">Runs on this Paperclip host.</div>
+                        <div className="text-xs text-muted-foreground">{t("pages.companyenvironments.runs_on_this_paperclip_host.jsx-text", { defaultValue: "Runs on this Paperclip host." })}</div>
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -581,7 +579,7 @@ export function CompanyEnvironments() {
                 onChange={(e) => setEnvironmentForm((current) => ({ ...current, name: e.target.value }))}
               />
             </Field>
-            <Field label="Description" hint="Optional note about what this machine is for.">
+            <Field label={t("pages.companyenvironments.description.attr_label", { defaultValue: "Description" })} hint="Optional note about what this machine is for.">
               <input
                 className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                 type="text"
@@ -589,7 +587,7 @@ export function CompanyEnvironments() {
                 onChange={(e) => setEnvironmentForm((current) => ({ ...current, description: e.target.value }))}
               />
             </Field>
-            <Field label="Driver" hint="Local runs on this host. SSH stores a remote machine target. Sandbox stores plugin-backed provider config on the shared environment seam.">
+            <Field label={t("pages.companyenvironments.driver.attr_label", { defaultValue: "Driver" })} hint="Local runs on this host. SSH stores a remote machine target. Sandbox stores plugin-backed provider config on the shared environment seam.">
               <select
                 className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                 value={environmentForm.driver}
@@ -622,13 +620,13 @@ export function CompanyEnvironments() {
                 {sandboxCreationEnabled || environmentForm.driver === "sandbox" ? (
                   <option value="sandbox">Sandbox</option>
                 ) : null}
-                <option value="local">Local</option>
+                <option value="local">{t("pages.companyenvironments.local.jsx-text", { defaultValue: "Local" })}</option>
               </select>
             </Field>
 
             {environmentForm.driver === "ssh" ? (
               <div className="grid gap-3 md:grid-cols-2">
-                <Field label="Host" hint="DNS name or IP address for the remote machine.">
+                <Field label={t("pages.companyenvironments.host.attr_label", { defaultValue: "Host" })} hint="DNS name or IP address for the remote machine.">
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -636,7 +634,7 @@ export function CompanyEnvironments() {
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshHost: e.target.value }))}
                   />
                 </Field>
-                <Field label="Port" hint="Defaults to 22.">
+                <Field label={t("pages.companyenvironments.port.attr_label", { defaultValue: "Port" })} hint="Defaults to 22.">
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="number"
@@ -646,7 +644,7 @@ export function CompanyEnvironments() {
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshPort: e.target.value }))}
                   />
                 </Field>
-                <Field label="Username" hint="SSH login user.">
+                <Field label={t("pages.companyenvironments.username.attr_label", { defaultValue: "Username" })} hint="SSH login user.">
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -654,7 +652,7 @@ export function CompanyEnvironments() {
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshUsername: e.target.value }))}
                   />
                 </Field>
-                <Field label="Remote workspace path" hint="Absolute path that Paperclip will verify during SSH connection tests.">
+                <Field label={t("pages.companyenvironments.remote_workspace_path.attr_label", { defaultValue: "Remote workspace path" })} hint="Absolute path that Paperclip will verify during SSH connection tests.">
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -664,7 +662,7 @@ export function CompanyEnvironments() {
                       setEnvironmentForm((current) => ({ ...current, sshRemoteWorkspacePath: e.target.value }))}
                   />
                 </Field>
-                <Field label="Private key" hint="Optional PEM private key. Leave blank to rely on the server's SSH agent or default keychain.">
+                <Field label={t("pages.companyenvironments.private_key.attr_label", { defaultValue: "Private key" })} hint="Optional PEM private key. Leave blank to rely on the server's SSH agent or default keychain.">
                   <div className="space-y-2">
                     <select
                       className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
@@ -676,7 +674,7 @@ export function CompanyEnvironments() {
                           sshPrivateKey: e.target.value ? "" : current.sshPrivateKey,
                         }))}
                     >
-                      <option value="">No saved secret</option>
+                      <option value="">{t("pages.companyenvironments.no_saved_secret.jsx-text", { defaultValue: "No saved secret" })}</option>
                       {(secrets ?? []).map((secret) => (
                         <option key={secret.id} value={secret.id}>{secret.name}</option>
                       ))}
@@ -689,7 +687,7 @@ export function CompanyEnvironments() {
                     />
                   </div>
                 </Field>
-                <Field label="Known hosts" hint="Optional known_hosts block used when strict host key checking is enabled.">
+                <Field label={t("pages.companyenvironments.known_hosts.attr_label", { defaultValue: "Known hosts" })} hint="Optional known_hosts block used when strict host key checking is enabled.">
                   <textarea
                     className="h-32 w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-xs font-mono outline-none"
                     value={environmentForm.sshKnownHosts}
@@ -698,7 +696,7 @@ export function CompanyEnvironments() {
                 </Field>
                 <div className="md:col-span-2">
                   <ToggleField
-                    label="Strict host key checking"
+                    label={t("pages.companyenvironments.strict_host_key_checking.attr_label", { defaultValue: "Strict host key checking" })}
                     hint="Keep this on unless you deliberately want probe-time host key acceptance disabled."
                     checked={environmentForm.sshStrictHostKeyChecking}
                     onChange={(checked) =>
@@ -710,7 +708,7 @@ export function CompanyEnvironments() {
 
             {environmentForm.driver === "sandbox" ? (
               <div className="space-y-3">
-                <Field label="Provider" hint="Installed run-capable sandbox provider plugins appear here.">
+                <Field label={t("pages.companyenvironments.provider.attr_label", { defaultValue: "Provider" })} hint="Installed run-capable sandbox provider plugins appear here.">
                   <select
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     value={environmentForm.sandboxProvider}
@@ -751,8 +749,7 @@ export function CompanyEnvironments() {
                   />
                 ) : (
                   <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-                    This provider does not declare additional configuration fields.
-                  </div>
+                    {t("pages.companyenvironments.this_provider_does_not_declare_a.jsx-text", { defaultValue: "\n                    This provider does not declare additional configuration fields.\n                  " })}</div>
                 )}
               </div>
             ) : null}
@@ -778,8 +775,7 @@ export function CompanyEnvironments() {
                   onClick={handleCancelEnvironmentEdit}
                   disabled={environmentMutation.isPending}
                 >
-                  Cancel
-                </Button>
+                  {t("pages.companyenvironments.cancel.jsx-text", { defaultValue: "\n                  Cancel\n                " })}</Button>
               ) : null}
               {environmentForm.driver !== "local" ? (
                 <Button

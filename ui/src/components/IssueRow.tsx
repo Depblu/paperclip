@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import type { Issue, IssueRecoveryAction } from "@paperclipai/shared";
 import { Link } from "@/lib/router";
 import { Eye, Flag, X } from "lucide-react";
@@ -64,6 +65,8 @@ export function IssueRow({
   archiveDisabled,
   className,
 }: IssueRowProps) {
+const { t } = useTranslation();
+
   const issuePathId = issue.identifier ?? issue.id;
   const identifier = issue.identifier ?? issue.id.slice(0, 8);
   const showUnreadSlot = unreadState !== null;
@@ -78,7 +81,7 @@ export function IssueRow({
         selected ? "border-muted-foreground text-muted-foreground" : null,
       )}
       title={`Productivity review: ${productivityReviewTriggerLabel(productivityReview.trigger)}`}
-      aria-label="Productivity review open"
+      aria-label={t("components.issuerow.productivity_review_open.attr_aria-label", { defaultValue: "Productivity review open" })}
     >
       <Eye className="h-2.5 w-2.5" aria-hidden />
     </span>
@@ -95,11 +98,10 @@ export function IssueRow({
     <span
       data-testid="issue-row-parked-blocker"
       className="ml-1.5 inline-flex shrink-0 items-center gap-0.5 rounded-full border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300"
-      title="Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee."
+      title={t("components.issuerow.blocked_by_parked_work_at_least_.attr_title", { defaultValue: "Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee." })}
     >
       <Flag className="h-2.5 w-2.5" aria-hidden />
-      Blocked by parked work
-    </span>
+      {t("components.issuerow.blocked_by_parked_work.jsx-text", { defaultValue: "\n      Blocked by parked work\n    " })}</span>
   ) : null;
 
   return (
@@ -155,8 +157,7 @@ export function IssueRow({
           {mobileMeta ? (
             <>
               <span className="text-xs text-muted-foreground sm:hidden" aria-hidden="true">
-                &middot;
-              </span>
+                {t("components.issuerow.middot.jsx-text", { defaultValue: "\n                &middot;\n              " })}</span>
               <span className="text-xs text-muted-foreground sm:hidden">{mobileMeta}</span>
             </>
           ) : null}
@@ -192,7 +193,7 @@ export function IssueRow({
                 "inline-flex h-4 w-4 items-center justify-center rounded-full transition-colors",
                 selected ? "hover:bg-muted/80" : "hover:bg-blue-500/20",
               )}
-              aria-label="Mark as read"
+              aria-label={t("components.issuerow.mark_as_read.attr_aria-label", { defaultValue: "Mark as read" })}
             >
               <span
                 className={cn(
@@ -219,7 +220,7 @@ export function IssueRow({
               }}
               disabled={archiveDisabled}
               className="inline-flex h-4 w-4 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 disabled:pointer-events-none disabled:opacity-30"
-              aria-label="Dismiss from inbox"
+              aria-label={t("components.issuerow.dismiss_from_inbox.attr_aria-label", { defaultValue: "Dismiss from inbox" })}
             >
               <X className="h-3.5 w-3.5" />
             </button>

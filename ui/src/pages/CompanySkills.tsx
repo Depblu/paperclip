@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type SVGProps } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useNavigate, useParams, useSearchParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
@@ -105,6 +106,8 @@ const SKILL_TREE_STEP_INDENT = 24;
 const SKILL_TREE_ROW_HEIGHT_CLASS = "min-h-9";
 
 function VercelMark(props: SVGProps<SVGSVGElement>) {
+const { t } = useTranslation();
+
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M12 4 21 19H3z" />
@@ -344,6 +347,8 @@ function SourceFilterMenu({
   value: SourceFilter;
   onChange: (next: SourceFilter) => void;
 }) {
+const { t } = useTranslation();
+
   const filters: SourceFilter[] = ["all", "company", "bundled", "optional", "external"];
   const activeFilterCount = value === "all" ? 0 : 1;
   return (
@@ -364,7 +369,7 @@ function SourceFilterMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Source</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("pages.companyskills.source.jsx-text", { defaultValue: "Source" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={value} onValueChange={(next) => onChange(next as SourceFilter)}>
           {filters.map((filter) => (
             <DropdownMenuRadioItem key={filter} value={filter}>
@@ -391,6 +396,8 @@ function CatalogFilterMenu({
   onKindChange: (next: "all" | "bundled" | "optional") => void;
   onCategoryChange: (next: string) => void;
 }) {
+const { t } = useTranslation();
+
   const activeFilterCount = (kindFilter === "all" ? 0 : 1) + (categoryFilter ? 1 : 0);
   return (
     <DropdownMenu>
@@ -412,14 +419,14 @@ function CatalogFilterMenu({
       <DropdownMenuContent align="end" className="max-h-[min(28rem,70vh)] w-56 overflow-y-auto">
         <DropdownMenuLabel>Type</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={kindFilter} onValueChange={(next) => onKindChange(next as "all" | "bundled" | "optional")}>
-          <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="bundled">Bundled</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="optional">Optional</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="all">{t("pages.companyskills.all.jsx-text", { defaultValue: "All" })}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="bundled">{t("pages.companyskills.bundled.jsx-text", { defaultValue: "Bundled" })}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="optional">{t("pages.companyskills.optional.jsx-text", { defaultValue: "Optional" })}</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Category</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("pages.companyskills.category.jsx-text", { defaultValue: "Category" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={categoryFilter || "__all__"} onValueChange={(next) => onCategoryChange(next === "__all__" ? "" : next)}>
-          <DropdownMenuRadioItem value="__all__">All categories</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="__all__">{t("pages.companyskills.all_categories.jsx-text", { defaultValue: "All categories" })}</DropdownMenuRadioItem>
           {categories.map((category) => (
             <DropdownMenuRadioItem key={category} value={category}>
               {category}
@@ -432,6 +439,8 @@ function CatalogFilterMenu({
 }
 
 function TrustChip({ level }: { level: CompanySkillTrustLevel }) {
+const { t } = useTranslation();
+
   const map = {
     markdown_only: {
       icon: ShieldCheck,
@@ -468,6 +477,8 @@ function TrustChip({ level }: { level: CompanySkillTrustLevel }) {
 }
 
 function CompatChip({ compatibility }: { compatibility: CompanySkillCompatibility }) {
+const { t } = useTranslation();
+
   if (compatibility === "compatible") return null;
   const map = {
     unknown: {
@@ -499,6 +510,8 @@ function CompatChip({ compatibility }: { compatibility: CompanySkillCompatibilit
 }
 
 function ProvenanceBadge({ packageName, packageVersion }: { packageName: string | null; packageVersion: string | null }) {
+const { t } = useTranslation();
+
   if (!packageName) return null;
   return (
     <Tooltip>
@@ -508,7 +521,7 @@ function ProvenanceBadge({ packageName, packageVersion }: { packageName: string 
           <span>{packageName}{packageVersion ? ` v${packageVersion}` : ""}</span>
         </span>
       </TooltipTrigger>
-      <TooltipContent>Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash.</TooltipContent>
+      <TooltipContent>{t("pages.companyskills.installed_from_the_app_shipped_s.jsx-text", { defaultValue: "Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash." })}</TooltipContent>
     </Tooltip>
   );
 }
@@ -528,6 +541,8 @@ function NewSkillForm({
   isPending: boolean;
   onCancel: () => void;
 }) {
+const { t } = useTranslation();
+
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
@@ -538,25 +553,24 @@ function NewSkillForm({
         <Input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Skill name"
+          placeholder={t("pages.companyskills.skill_name.attr_placeholder", { defaultValue: "Skill name" })}
           className="h-9 rounded-none border-0 border-b border-border px-0 shadow-none focus-visible:ring-0"
         />
         <Input
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
-          placeholder="optional-shortname"
+          placeholder={t("pages.companyskills.optional_shortname.attr_placeholder", { defaultValue: "optional-shortname" })}
           className="h-9 rounded-none border-0 border-b border-border px-0 shadow-none focus-visible:ring-0"
         />
         <Textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="Short description"
+          placeholder={t("pages.companyskills.short_description.attr_placeholder", { defaultValue: "Short description" })}
           className="min-h-20 rounded-none border-0 border-b border-border px-0 shadow-none focus-visible:ring-0"
         />
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel} disabled={isPending}>
-            Cancel
-          </Button>
+            {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button
             size="sm"
             onClick={() => onCreate({ name, slug: slug || null, description: description || null })}
@@ -599,6 +613,8 @@ function CatalogList({
   onToggleSkill: (catalogRef: string) => void;
   onToggleDir: (catalogRef: string, path: string) => void;
 }) {
+const { t } = useTranslation();
+
   const lowered = catalogFilter.trim().toLowerCase();
   const filtered = skills.filter((skill) => {
     if (kindFilter !== "all" && skill.kind !== kindFilter) return false;
@@ -611,8 +627,7 @@ function CatalogList({
   if (filtered.length === 0) {
     return (
       <div className="px-4 py-6 text-sm text-muted-foreground">
-        No catalog skills match this filter.
-      </div>
+        {t("pages.companyskills.no_catalog_skills_match_this_fil.jsx-text", { defaultValue: "\n        No catalog skills match this filter.\n      " })}</div>
     );
   }
 
@@ -688,7 +703,7 @@ function CatalogList({
       {bundled.length > 0 && kindFilter !== "optional" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Bundled · {bundled.length}
+            {t("pages.companyskills.bundled.jsx-text", { defaultValue: "\n            Bundled · " })}{bundled.length}
           </div>
           {bundled.map(renderRow)}
         </div>
@@ -696,7 +711,7 @@ function CatalogList({
       {optional.length > 0 && kindFilter !== "bundled" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Optional · {optional.length}
+            {t("pages.companyskills.optional.jsx-text", { defaultValue: "\n            Optional · " })}{optional.length}
           </div>
           {optional.map(renderRow)}
         </div>
@@ -704,7 +719,7 @@ function CatalogList({
       {installed.length > 0 ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Installed · {installed.length}
+            {t("pages.companyskills.installed.jsx-text", { defaultValue: "\n            Installed · " })}{installed.length}
           </div>
           {installed.map(renderRow)}
         </div>
@@ -738,6 +753,8 @@ function CatalogDetailPane({
   onOpenInstalled: (skillId: string) => void;
   loadingPrimaryAction: boolean;
 }) {
+const { t } = useTranslation();
+
   if (!skill) {
     return <EmptyState icon={Boxes} message="Select a catalog skill to inspect." />;
   }
@@ -754,11 +771,10 @@ function CatalogDetailPane({
           <span>
             <Button disabled>
               <Download className="mr-1.5 h-3.5 w-3.5" />
-              Install skill
-            </Button>
+              {t("pages.companyskills.install_skill.jsx-text", { defaultValue: "\n              Install skill\n            " })}</Button>
           </span>
         </TooltipTrigger>
-        <TooltipContent>This skill cannot be installed — its content is not valid Agent Skills markdown.</TooltipContent>
+        <TooltipContent>{t("pages.companyskills.this_skill_cannot_be_installed_i.jsx-text", { defaultValue: "This skill cannot be installed — its content is not valid Agent Skills markdown." })}</TooltipContent>
       </Tooltip>
     );
   } else if (!isInstalled) {
@@ -772,15 +788,13 @@ function CatalogDetailPane({
     cta = (
       <Button onClick={onUpdate} disabled={loadingPrimaryAction} className="border-amber-500/40 bg-amber-500/20 text-amber-100 hover:bg-amber-500/30">
         <ArrowUpCircle className="mr-1.5 h-3.5 w-3.5" />
-        Update from catalog
-      </Button>
+        {t("pages.companyskills.update_from_catalog.jsx-text", { defaultValue: "\n        Update from catalog\n      " })}</Button>
     );
   } else {
     cta = (
       <Button variant="ghost" onClick={() => installedSkillId && onOpenInstalled(installedSkillId)}>
         <Check className="mr-1.5 h-3.5 w-3.5" />
-        Installed · Open in library
-      </Button>
+        {t("pages.companyskills.installed_open_in_library.jsx-text", { defaultValue: "\n        Installed · Open in library\n      " })}</Button>
     );
   }
 
@@ -815,25 +829,24 @@ function CatalogDetailPane({
               <TooltipTrigger asChild>
                 <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-200">
                   <ArrowUpCircle className="h-3 w-3" aria-hidden="true" />
-                  Update available
-                </span>
+                  {t("pages.companyskills.update_available.jsx-text", { defaultValue: "\n                  Update available\n                " })}</span>
               </TooltipTrigger>
-              <TooltipContent>Catalog content hash has changed since this skill was installed.</TooltipContent>
+              <TooltipContent>{t("pages.companyskills.catalog_content_hash_has_changed.jsx-text", { defaultValue: "Catalog content hash has changed since this skill was installed." })}</TooltipContent>
             </Tooltip>
           ) : null}
           {skill.requires.length > 0 ? (
             <span className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              Requires: {skill.requires.join(", ")}
+              {t("pages.companyskills.requires.jsx-text", { defaultValue: "\n              Requires: " })}{skill.requires.join(", ")}
             </span>
           ) : null}
           {skill.recommendedForRoles.length > 0 ? (
             <span className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              Roles: {skill.recommendedForRoles.join(" · ")}
+              {t("pages.companyskills.roles.jsx-text", { defaultValue: "\n              Roles: " })}{skill.recommendedForRoles.join(" · ")}
             </span>
           ) : null}
           {skill.tags.length > 0 ? (
             <span className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              Tags: {skill.tags.join(" · ")}
+              {t("pages.companyskills.tags.jsx-text", { defaultValue: "\n              Tags: " })}{skill.tags.join(" · ")}
             </span>
           ) : null}
         </div>
@@ -842,13 +855,13 @@ function CatalogDetailPane({
           <span className="uppercase tracking-[0.18em]">Key</span>
           <span className="font-mono">{skill.key}</span>
           <span className="uppercase tracking-[0.18em]">·</span>
-          <span className="uppercase tracking-[0.18em]">Hash</span>
+          <span className="uppercase tracking-[0.18em]">{t("pages.companyskills.hash.jsx-text", { defaultValue: "Hash" })}</span>
           <span className="font-mono">{skill.contentHash.slice(0, 24)}…</span>
           <CopyText
             text={skill.contentHash}
             copiedLabel="Copied hash"
             ariaLabel="Copy content hash"
-            title="Copy content hash"
+            title={t("pages.companyskills.copy_content_hash.attr_title", { defaultValue: "Copy content hash" })}
             className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <Copy className="h-3 w-3" />
@@ -866,7 +879,7 @@ function CatalogDetailPane({
         ) : fileQuery.error ? (
           <div className="text-sm text-destructive">{fileQuery.error instanceof Error ? fileQuery.error.message : "Failed to load file"}</div>
         ) : !fileQuery.data ? (
-          <div className="text-sm text-muted-foreground">Select a file to inspect.</div>
+          <div className="text-sm text-muted-foreground">{t("pages.companyskills.select_a_file_to_inspect.jsx-text", { defaultValue: "Select a file to inspect." })}</div>
         ) : fileQuery.data.markdown ? (
           <MarkdownBody softBreaks={false} linkIssueReferences={false}>{body}</MarkdownBody>
         ) : (
@@ -906,6 +919,8 @@ function InstallPreviewDialog({
   error: string | null;
   onConfirm: (input: { slug: string | null; force: boolean }) => void;
 }) {
+const { t } = useTranslation();
+
   const [slug, setSlug] = useState<string>("");
   const [force, setForce] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -945,33 +960,32 @@ function InstallPreviewDialog({
         <div className="space-y-4 text-sm">
           <div className="rounded-md border border-border p-3">
             <div className="grid grid-cols-[7rem_minmax(0,1fr)] gap-y-2 text-xs">
-              <div className="text-muted-foreground">Trust</div>
+              <div className="text-muted-foreground">{t("pages.companyskills.trust.jsx-text", { defaultValue: "Trust" })}</div>
               <div className="flex items-center gap-2">
                 <TrustChip level={skill.trustLevel} />
                 {skill.trustLevel === "markdown_only" ? (
-                  <span className="text-muted-foreground">Safe</span>
+                  <span className="text-muted-foreground">{t("pages.companyskills.safe.jsx-text", { defaultValue: "Safe" })}</span>
                 ) : skill.trustLevel === "scripts_executables" ? (
-                  <span className="text-amber-200">Review required</span>
+                  <span className="text-amber-200">{t("pages.companyskills.review_required.jsx-text", { defaultValue: "Review required" })}</span>
                 ) : (
-                  <span className="text-muted-foreground">Non-script assets</span>
+                  <span className="text-muted-foreground">{t("pages.companyskills.non_script_assets.jsx-text", { defaultValue: "Non-script assets" })}</span>
                 )}
               </div>
-              <div className="text-muted-foreground">Compatibility</div>
+              <div className="text-muted-foreground">{t("pages.companyskills.compatibility.jsx-text", { defaultValue: "Compatibility" })}</div>
               <div className="flex items-center gap-2">
                 {skill.compatibility === "compatible" ? (
                   <span className="inline-flex items-center gap-1 text-muted-foreground">
                     <Check className="h-3 w-3" aria-hidden="true" />
-                    Compatible
-                  </span>
+                    {t("pages.companyskills.compatible.jsx-text", { defaultValue: "\n                    Compatible\n                  " })}</span>
                 ) : (
                   <CompatChip compatibility={skill.compatibility} />
                 )}
               </div>
-              <div className="text-muted-foreground">Requires</div>
+              <div className="text-muted-foreground">{t("pages.companyskills.requires.jsx-text", { defaultValue: "Requires" })}</div>
               <div className="text-foreground">{skill.requires.length === 0 ? "none" : skill.requires.join(", ")}</div>
-              <div className="text-muted-foreground">Roles</div>
+              <div className="text-muted-foreground">{t("pages.companyskills.roles.jsx-text", { defaultValue: "Roles" })}</div>
               <div className="text-foreground">{skill.recommendedForRoles.length === 0 ? "any" : skill.recommendedForRoles.join(" · ")}</div>
-              <div className="text-muted-foreground">Provenance</div>
+              <div className="text-muted-foreground">{t("pages.companyskills.provenance.jsx-text", { defaultValue: "Provenance" })}</div>
               <div className="min-w-0">
                 <div className="truncate">{packageName ?? "—"}{packageVersion ? ` v${packageVersion}` : ""}</div>
                 <div className="truncate font-mono text-[11px] text-muted-foreground">{skill.contentHash}</div>
@@ -981,7 +995,7 @@ function InstallPreviewDialog({
 
           <div className="rounded-md border border-border">
             <div className="border-b border-border px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
-              Files ({skill.files.length})
+              {t("pages.companyskills.files.jsx-text", { defaultValue: "\n              Files (" })}{skill.files.length})
             </div>
             <div className="max-h-48 overflow-y-auto">
               {skill.files.map((file) => (
@@ -996,8 +1010,7 @@ function InstallPreviewDialog({
 
           {conflict ? (
             <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-              An existing skill with key <span className="font-mono">{conflict.key}</span> is installed (
-              {conflict.sourceLabel ?? conflict.sourceType}). Installing will {defaultAction === "update" ? "overwrite the catalog content" : "replace the existing skill"}.
+              {t("pages.companyskills.an_existing_skill_with_key.jsx-text", { defaultValue: "\n              An existing skill with key " })}<span className="font-mono">{conflict.key}</span> {t("pages.companyskills.is_installed.jsx-text", { defaultValue: " is installed (\n              " })}{conflict.sourceLabel ?? conflict.sourceType}{t("pages.companyskills.installing_will.jsx-text", { defaultValue: "). Installing will " })}{defaultAction === "update" ? "overwrite the catalog content" : "replace the existing skill"}.
             </div>
           ) : null}
 
@@ -1007,17 +1020,16 @@ function InstallPreviewDialog({
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
             {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-            Advanced
-          </button>
+            {t("pages.companyskills.advanced.jsx-text", { defaultValue: "\n            Advanced\n          " })}</button>
           {advancedOpen ? (
             <div className="space-y-3 rounded-md border border-border p-3 text-xs">
               <div>
-                <label className="mb-1 block uppercase tracking-wide text-muted-foreground">Slug override</label>
+                <label className="mb-1 block uppercase tracking-wide text-muted-foreground">{t("pages.companyskills.slug_override.jsx-text", { defaultValue: "Slug override" })}</label>
                 <Input value={slug} onChange={(event) => setSlug(event.target.value)} placeholder={defaultSlug ?? skill.slug} className="h-8" />
               </div>
               <label className="flex items-center gap-2">
                 <Checkbox checked={force} onCheckedChange={(value) => setForce(Boolean(value))} />
-                <span>Force replace existing same-key skill</span>
+                <span>{t("pages.companyskills.force_replace_existing_same_key_.jsx-text", { defaultValue: "Force replace existing same-key skill" })}</span>
               </label>
             </div>
           ) : null}
@@ -1031,8 +1043,7 @@ function InstallPreviewDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
-          </Button>
+            {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button
             variant={confirmVariant}
             onClick={() => onConfirm({ slug: slug.trim().length > 0 ? slug.trim() : null, force })}
@@ -1061,6 +1072,8 @@ function AttachAgentsPopover({
   pending: boolean;
   onSubmit: (nextIds: string[]) => void;
 }) {
+const { t } = useTranslation();
+
   const [filter, setFilter] = useState("");
   const [draft, setDraft] = useState<Set<string>>(new Set(attachedAgentIds));
 
@@ -1080,25 +1093,23 @@ function AttachAgentsPopover({
         <button
           type="button"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          aria-label="Attach to agents"
+          aria-label={t("pages.companyskills.attach_to_agents.attr_aria-label", { defaultValue: "Attach to agents" })}
         >
           <Pencil className="h-3 w-3" />
-          Edit
-        </button>
+          {t("pages.companyskills.edit.jsx-text", { defaultValue: "\n          Edit\n        " })}</button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="border-b border-border px-3 py-2">
           <Input
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
-            placeholder="Filter agents"
+            placeholder={t("pages.companyskills.filter_agents.attr_placeholder", { defaultValue: "Filter agents" })}
             className="h-8"
           />
         </div>
         {eligible.length === 0 ? (
           <div className="px-3 py-4 text-sm text-muted-foreground">
-            No agents in this company support skills yet.
-          </div>
+            {t("pages.companyskills.no_agents_in_this_company_suppor.jsx-text", { defaultValue: "\n            No agents in this company support skills yet.\n          " })}</div>
         ) : (
           <div className="max-h-60 overflow-y-auto py-1">
             {filtered.map((agent) => {
@@ -1136,14 +1147,13 @@ function AttachAgentsPopover({
               );
             })}
             {filtered.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-muted-foreground">No matches.</div>
+              <div className="px-3 py-4 text-sm text-muted-foreground">{t("pages.companyskills.no_matches.jsx-text", { defaultValue: "No matches." })}</div>
             ) : null}
           </div>
         )}
         <div className="flex items-center justify-end gap-2 border-t border-border px-3 py-2">
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={pending}>
-            Cancel
-          </Button>
+            {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button size="sm" onClick={() => onSubmit(Array.from(draft))} disabled={pending}>
             {pending ? "Saving…" : "Save"}
           </Button>
@@ -1172,6 +1182,8 @@ function SkillTree({
   fileHref?: (skillId: string, path: string) => string;
   depth?: number;
 }) {
+const { t } = useTranslation();
+
   return (
     <div>
       {nodes.map((node) => {
@@ -1271,6 +1283,8 @@ function SkillList({
   onSelectPath: (skillId: string, path: string) => void;
   onClearFilters: () => void;
 }) {
+const { t } = useTranslation();
+
   const filteredSkills = skills.filter((skill) => {
     const haystack = `${skill.name} ${skill.key} ${skill.slug} ${skill.sourceLabel ?? ""}`.toLowerCase();
     if (!haystack.includes(skillFilter.toLowerCase())) return false;
@@ -1283,17 +1297,15 @@ function SkillList({
     if (sourceFilter !== "all" && skills.length > 0) {
       return (
         <div className="px-4 py-6 text-sm text-muted-foreground">
-          No {SOURCE_FILTER_LABELS[sourceFilter].toLowerCase()} skills installed.{" "}
+          {t("pages.companyskills.no.jsx-text", { defaultValue: "\n          No " })}{SOURCE_FILTER_LABELS[sourceFilter].toLowerCase()} {t("pages.companyskills.skills_installed.jsx-text", { defaultValue: " skills installed." })}{" "}
           <button type="button" className="text-foreground underline" onClick={onClearFilters}>
-            Clear filter
-          </button>
+            {t("pages.companyskills.clear_filter.jsx-text", { defaultValue: "\n            Clear filter\n          " })}</button>
         </div>
       );
     }
     return (
       <div className="px-4 py-6 text-sm text-muted-foreground">
-        No skills match this filter.
-      </div>
+        {t("pages.companyskills.no_skills_match_this_filter.jsx-text", { defaultValue: "\n        No skills match this filter.\n      " })}</div>
     );
   }
 
@@ -1421,6 +1433,8 @@ function SkillPane({
   onSubmitAttach: (ids: string[]) => void;
   attachPending: boolean;
 }) {
+const { t } = useTranslation();
+
   if (!detail) {
     if (loading) {
       return <PageSkeleton variant="detail" />;
@@ -1486,7 +1500,7 @@ function SkillPane({
         <div className="mt-4 space-y-3 border-t border-border pt-4 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Source</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.source.jsx-text", { defaultValue: "Source" })}</span>
               <span className="flex min-w-0 items-center gap-2">
                 <SourceIcon className="h-3.5 w-3.5 text-muted-foreground" />
                 {detail.sourcePath && displaySourcePath ? (
@@ -1501,7 +1515,7 @@ function SkillPane({
                       text={detail.sourcePath}
                       copiedLabel="Copied path"
                       ariaLabel="Copy source path"
-                      title="Copy source path"
+                      title={t("pages.companyskills.copy_source_path.attr_title", { defaultValue: "Copy source path" })}
                       className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                     >
                       <Copy className="h-3.5 w-3.5" />
@@ -1514,10 +1528,10 @@ function SkillPane({
             </div>
             {detail.sourceType === "github" && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Pin</span>
+                <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.pin.jsx-text", { defaultValue: "Pin" })}</span>
                 <span className="font-mono text-xs">{currentPin ?? "untracked"}</span>
                 {updateStatus?.trackingRef && (
-                  <span className="text-xs text-muted-foreground">tracking {updateStatus.trackingRef}</span>
+                  <span className="text-xs text-muted-foreground">{t("pages.companyskills.tracking.jsx-text", { defaultValue: "tracking " })}{updateStatus.trackingRef}</span>
                 )}
                 <Button
                   variant="ghost"
@@ -1526,8 +1540,7 @@ function SkillPane({
                   disabled={checkUpdatesPending || updateStatusLoading}
                 >
                   <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", (checkUpdatesPending || updateStatusLoading) && "animate-spin")} />
-                  Check for updates
-                </Button>
+                  {t("pages.companyskills.check_for_updates.jsx-text", { defaultValue: "\n                  Check for updates\n                " })}</Button>
                 {updateStatus?.supported && updateStatus.hasUpdate && (
                   <Button
                     size="sm"
@@ -1535,11 +1548,11 @@ function SkillPane({
                     disabled={installUpdatePending}
                   >
                     <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", installUpdatePending && "animate-spin")} />
-                    Install update{latestPin ? ` ${latestPin}` : ""}
+                    {t("pages.companyskills.install_update.jsx-text", { defaultValue: "\n                    Install update" })}{latestPin ? ` ${latestPin}` : ""}
                   </Button>
                 )}
                 {updateStatus?.supported && !updateStatus.hasUpdate && !updateStatusLoading && (
-                  <span className="text-xs text-muted-foreground">Up to date</span>
+                  <span className="text-xs text-muted-foreground">{t("pages.companyskills.up_to_date.jsx-text", { defaultValue: "Up to date" })}</span>
                 )}
                 {!updateStatus?.supported && updateStatus?.reason && (
                   <span className="text-xs text-muted-foreground">{updateStatus.reason}</span>
@@ -1551,12 +1564,12 @@ function SkillPane({
               <span className="font-mono text-xs">{detail.key}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Mode</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.mode.jsx-text", { defaultValue: "Mode" })}</span>
               <span>{detail.editable ? "Editable" : "Read only"}</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Trust</span>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.trust.jsx-text", { defaultValue: "Trust" })}</span>
             <TrustChip level={detail.trustLevel} />
             <CompatChip compatibility={detail.compatibility} />
             {readonlyMetadataValue(detail.metadata, "userModifiedAt") ? (
@@ -1564,10 +1577,9 @@ function SkillPane({
                 <TooltipTrigger asChild>
                   <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/40 bg-violet-500/10 px-2 py-0.5 text-[11px] text-violet-200">
                     <Pencil className="h-3 w-3" aria-hidden="true" />
-                    Locally modified
-                  </span>
+                    {t("pages.companyskills.locally_modified.jsx-text", { defaultValue: "\n                    Locally modified\n                  " })}</span>
                 </TooltipTrigger>
-                <TooltipContent>You have edited this skill after installing. Updates from the catalog will overwrite your changes.</TooltipContent>
+                <TooltipContent>{t("pages.companyskills.you_have_edited_this_skill_after.jsx-text", { defaultValue: "You have edited this skill after installing. Updates from the catalog will overwrite your changes." })}</TooltipContent>
               </Tooltip>
             ) : null}
             {(() => {
@@ -1578,7 +1590,7 @@ function SkillPane({
           </div>
           <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Used by</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.used_by.jsx-text", { defaultValue: "Used by" })}</span>
               <AttachAgentsPopover
                 open={attachPopoverOpen}
                 onOpenChange={setAttachPopoverOpen}
@@ -1589,7 +1601,7 @@ function SkillPane({
               />
             </div>
             {usedBy.length === 0 ? (
-              <span className="text-muted-foreground">No agents attached</span>
+              <span className="text-muted-foreground">{t("pages.companyskills.no_agents_attached.jsx-text", { defaultValue: "No agents attached" })}</span>
             ) : (
               <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {usedBy.map((agent) => (
@@ -1621,8 +1633,7 @@ function SkillPane({
                 >
                   <span className="flex items-center gap-1.5">
                     <Eye className="h-3.5 w-3.5" />
-                    View
-                  </span>
+                    {t("pages.companyskills.view.jsx-text", { defaultValue: "\n                    View\n                  " })}</span>
                 </button>
                 <button
                   className={cn("border-l border-border px-3 py-1.5 text-sm", viewMode === "code" && "text-foreground", viewMode !== "code" && "text-muted-foreground")}
@@ -1630,16 +1641,14 @@ function SkillPane({
                 >
                   <span className="flex items-center gap-1.5">
                     <Code2 className="h-3.5 w-3.5" />
-                    Code
-                  </span>
+                    {t("pages.companyskills.code.jsx-text", { defaultValue: "\n                    Code\n                  " })}</span>
                 </button>
               </div>
             )}
             {editMode && file?.editable && (
               <>
                 <Button variant="ghost" size="sm" onClick={() => setEditMode(false)} disabled={savePending}>
-                  Cancel
-                </Button>
+                  {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n                  Cancel\n                " })}</Button>
                 <Button size="sm" onClick={onSave} disabled={savePending}>
                   <Save className="mr-1.5 h-3.5 w-3.5" />
                   {savePending ? "Saving..." : "Save"}
@@ -1654,7 +1663,7 @@ function SkillPane({
         {fileLoading ? (
           <PageSkeleton variant="detail" />
         ) : !file ? (
-          <div className="text-sm text-muted-foreground">Select a file to inspect.</div>
+          <div className="text-sm text-muted-foreground">{t("pages.companyskills.select_a_file_to_inspect.jsx-text", { defaultValue: "Select a file to inspect." })}</div>
         ) : editMode && file.editable ? (
           file.markdown ? (
             <MarkdownEditor
@@ -1683,6 +1692,8 @@ function SkillPane({
 }
 
 export function CompanySkills() {
+const { t } = useTranslation();
+
   const { "*": routePath } = useParams<{ "*": string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -2247,10 +2258,9 @@ export function CompanySkills() {
       <Dialog open={deleteOpen} onOpenChange={closeDeleteDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove skill</DialogTitle>
+            <DialogTitle>{t("pages.companyskills.remove_skill.jsx-text", { defaultValue: "Remove skill" })}</DialogTitle>
             <DialogDescription>
-              Remove this skill from the company library. If any agents still use it, removal will be blocked until it is detached.
-            </DialogDescription>
+              {t("pages.companyskills.remove_this_skill_from_the_compa.jsx-text", { defaultValue: "\n              Remove this skill from the company library. If any agents still use it, removal will be blocked until it is detached.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <p>
@@ -2260,25 +2270,22 @@ export function CompanySkills() {
             </p>
             {deleteTargetDetail?.usedByAgents?.length ? (
               <div className="rounded-md border border-border px-3 py-3 text-muted-foreground">
-                Currently used by {deleteTargetDetail.usedByAgents.map((agent) => agent.name).join(", ")}.
+                {t("pages.companyskills.currently_used_by.jsx-text", { defaultValue: "\n                Currently used by " })}{deleteTargetDetail.usedByAgents.map((agent) => agent.name).join(", ")}.
               </div>
             ) : null}
             {(deleteTargetDetail?.usedByAgents.length ?? 0) > 0 ? (
               <p className="text-muted-foreground">
-                Detach this skill from all agents to enable removal.
-              </p>
+                {t("pages.companyskills.detach_this_skill_from_all_agent.jsx-text", { defaultValue: "\n                Detach this skill from all agents to enable removal.\n              " })}</p>
             ) : null}
           </div>
           <DialogFooter>
             {(deleteTargetDetail?.usedByAgents.length ?? 0) > 0 ? (
               <Button variant="ghost" onClick={() => closeDeleteDialog(false)}>
-                Close
-              </Button>
+                {t("pages.companyskills.close.jsx-text", { defaultValue: "\n                Close\n              " })}</Button>
             ) : (
               <>
                 <Button variant="ghost" onClick={() => closeDeleteDialog(false)} disabled={deleteSkill.isPending}>
-                  Cancel
-                </Button>
+                  {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n                  Cancel\n                " })}</Button>
                 <Button
                   variant="destructive"
                   onClick={() => deleteSkill.mutate()}
@@ -2295,10 +2302,9 @@ export function CompanySkills() {
       <Dialog open={emptySourceHelpOpen} onOpenChange={setEmptySourceHelpOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add a skill source</DialogTitle>
+            <DialogTitle>{t("pages.companyskills.add_a_skill_source.jsx-text", { defaultValue: "Add a skill source" })}</DialogTitle>
             <DialogDescription>
-              Paste a local path, GitHub URL, or `skills.sh` command into the field first.
-            </DialogDescription>
+              {t("pages.companyskills.paste_a_local_path_github_url_or.jsx-text", { defaultValue: "\n              Paste a local path, GitHub URL, or `skills.sh` command into the field first.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <a
@@ -2308,10 +2314,9 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Browse skills.sh</span>
+                <span className="block font-medium">{t("pages.companyskills.browse_skills_sh.jsx-text", { defaultValue: "Browse skills.sh" })}</span>
                 <span className="mt-1 block text-muted-foreground">
-                  Find install commands and paste one here.
-                </span>
+                  {t("pages.companyskills.find_install_commands_and_paste_.jsx-text", { defaultValue: "\n                  Find install commands and paste one here.\n                " })}</span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             </a>
@@ -2322,10 +2327,9 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Search GitHub</span>
+                <span className="block font-medium">{t("pages.companyskills.search_github.jsx-text", { defaultValue: "Search GitHub" })}</span>
                 <span className="mt-1 block text-muted-foreground">
-                  Look for repositories with `SKILL.md`, then paste the repo URL here.
-                </span>
+                  {t("pages.companyskills.look_for_repositories_with_skill.jsx-text", { defaultValue: "\n                  Look for repositories with `SKILL.md`, then paste the repo URL here.\n                " })}</span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             </a>
@@ -2361,11 +2365,11 @@ export function CompanySkills() {
           <Tabs value={activeView} onValueChange={(value) => setViewParam(value === "catalog" ? "catalog" : "installed")}>
             <TabsList variant="line" className="p-0">
               <TabsTrigger value="installed" className="px-3">
-                <span>Installed</span>
+                <span>{t("pages.companyskills.installed.jsx-text", { defaultValue: "Installed" })}</span>
                 <span className="ml-1.5 text-[11px] text-muted-foreground">{installedSkills.length}</span>
               </TabsTrigger>
               <TabsTrigger value="catalog" className="px-3">
-                <span>Catalog</span>
+                <span>{t("pages.companyskills.catalog.jsx-text", { defaultValue: "Catalog" })}</span>
                 <span className="ml-1.5 text-[11px] text-muted-foreground">{catalogListQuery.data?.length ?? 0}</span>
               </TabsTrigger>
             </TabsList>
@@ -2377,7 +2381,7 @@ export function CompanySkills() {
                 size="icon-sm"
                 onClick={() => scanProjects.mutate()}
                 disabled={scanProjects.isPending}
-                title="Scan project workspaces for skills"
+                title={t("pages.companyskills.scan_project_workspaces_for_skil.attr_title", { defaultValue: "Scan project workspaces for skills" })}
               >
                 <RefreshCw className={cn("h-4 w-4", scanProjects.isPending && "animate-spin")} />
               </Button>
@@ -2386,15 +2390,13 @@ export function CompanySkills() {
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="default">
                   <Plus className="mr-1 h-3.5 w-3.5" />
-                  Add skill
-                  <ChevronDown className="ml-1 h-3.5 w-3.5" />
+                  {t("pages.companyskills.add_skill.jsx-text", { defaultValue: "\n                  Add skill\n                  " })}<ChevronDown className="ml-1 h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => setViewParam("catalog")}>
                   <Boxes className="mr-2 h-4 w-4" />
-                  Browse catalog
-                </DropdownMenuItem>
+                  {t("pages.companyskills.browse_catalog.jsx-text", { defaultValue: "\n                  Browse catalog\n                " })}</DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => {
                     setViewParam("installed");
@@ -2402,8 +2404,7 @@ export function CompanySkills() {
                   }}
                 >
                   <Globe className="mr-2 h-4 w-4" />
-                  Import from URL or path
-                </DropdownMenuItem>
+                  {t("pages.companyskills.import_from_url_or_path.jsx-text", { defaultValue: "\n                  Import from URL or path\n                " })}</DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => {
                     setViewParam("installed");
@@ -2411,8 +2412,7 @@ export function CompanySkills() {
                   }}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  Create blank skill
-                </DropdownMenuItem>
+                  {t("pages.companyskills.create_blank_skill.jsx-text", { defaultValue: "\n                  Create blank skill\n                " })}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -2427,7 +2427,7 @@ export function CompanySkills() {
                   <input
                     value={skillFilter}
                     onChange={(event) => setSkillFilter(event.target.value)}
-                    placeholder="Filter skills"
+                    placeholder={t("pages.companyskills.filter_skills.attr_placeholder", { defaultValue: "Filter skills" })}
                     className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   />
                   <SourceFilterMenu counts={sourceCounts} value={sourceFilter} onChange={setSourceFilter} />
@@ -2437,7 +2437,7 @@ export function CompanySkills() {
                   <input
                     value={source}
                     onChange={(event) => setSource(event.target.value)}
-                    placeholder="Paste path, GitHub URL, or skills.sh command"
+                    placeholder={t("pages.companyskills.paste_path_github_url_or_skills_.attr_placeholder", { defaultValue: "Paste path, GitHub URL, or skills.sh command" })}
                     className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   />
                   <Button
@@ -2474,11 +2474,9 @@ export function CompanySkills() {
                   />
                   <div className="mt-3 flex flex-col items-center gap-2">
                     <Button size="sm" onClick={() => setViewParam("catalog")}>
-                      <Boxes className="mr-1.5 h-3.5 w-3.5" /> Browse catalog
-                    </Button>
+                      <Boxes className="mr-1.5 h-3.5 w-3.5" /> {t("pages.companyskills.browse_catalog.jsx-text", { defaultValue: " Browse catalog\n                    " })}</Button>
                     <Button size="sm" variant="ghost" onClick={() => setEmptySourceHelpOpen(true)}>
-                      Import from URL
-                    </Button>
+                      {t("pages.companyskills.import_from_url.jsx-text", { defaultValue: "\n                      Import from URL\n                    " })}</Button>
                   </div>
                 </div>
               ) : (
@@ -2549,7 +2547,7 @@ export function CompanySkills() {
                   <input
                     value={catalogFilter}
                     onChange={(event) => setCatalogFilter(event.target.value)}
-                    placeholder="Search catalog"
+                    placeholder={t("pages.companyskills.search_catalog.attr_placeholder", { defaultValue: "Search catalog" })}
                     className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   />
                   <CatalogFilterMenu

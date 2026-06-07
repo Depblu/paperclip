@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
 import type { IssueAttachment } from "@paperclipai/shared";
@@ -16,6 +17,8 @@ export function ImageGalleryModal({
   open,
   onOpenChange,
 }: ImageGalleryModalProps) {
+const { t } = useTranslation();
+
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -84,7 +87,7 @@ export function ImageGalleryModal({
                 href={current.contentPath}
                 download={current.originalFilename ?? "image"}
                 className="text-white/50 hover:text-white transition-colors"
-                title="Download"
+                title={t("components.imagegallerymodal.download.attr_title", { defaultValue: "Download" })}
                 onClick={(e) => e.stopPropagation()}
               >
                 <Download className="h-4.5 w-4.5" />
@@ -93,7 +96,7 @@ export function ImageGalleryModal({
                 type="button"
                 onClick={() => onOpenChange(false)}
                 className="text-white/50 hover:text-white transition-colors"
-                title="Close"
+                title={t("components.imagegallerymodal.close.attr_title", { defaultValue: "Close" })}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -109,7 +112,7 @@ export function ImageGalleryModal({
                   type="button"
                   onClick={goPrev}
                   className="rounded-full bg-white/10 p-3 text-white/60 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Previous"
+                  title={t("components.imagegallerymodal.previous.attr_title", { defaultValue: "Previous" })}
                 >
                   <ChevronLeft className="h-7 w-7" />
                 </button>
@@ -134,7 +137,7 @@ export function ImageGalleryModal({
                   type="button"
                   onClick={goNext}
                   className="rounded-full bg-white/10 p-3 text-white/60 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Next"
+                  title={t("components.imagegallerymodal.next.attr_title", { defaultValue: "Next" })}
                 >
                   <ChevronRight className="h-7 w-7" />
                 </button>

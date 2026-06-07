@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { IssueDocument } from "@paperclipai/shared";
 import { ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY } from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ export function IssueContinuationHandoff({
   document,
   focusSignal = 0,
 }: IssueContinuationHandoffProps) {
+const { t } = useTranslation();
+
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
@@ -76,11 +79,10 @@ export function IssueContinuationHandoff({
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-foreground">{title}</span>
             <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase text-muted-foreground">
-              handoff
-            </span>
+              {t("components.issuecontinuationhandoff.handoff.jsx-text", { defaultValue: "\n              handoff\n            " })}</span>
           </div>
           <div className="text-[11px] text-muted-foreground">
-            Updated {relativeTime(document.updatedAt)}
+            {t("components.issuecontinuationhandoff.updated.jsx-text", { defaultValue: "\n            Updated " })}{relativeTime(document.updatedAt)}
             {document.latestRevisionNumber > 0 ? ` - revision ${document.latestRevisionNumber}` : ""}
           </div>
         </div>

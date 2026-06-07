@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useNavigate } from "@/lib/router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -47,6 +48,8 @@ export function RunButton({
   label?: string;
   size?: "sm" | "default";
 }) {
+const { t } = useTranslation();
+
   return (
     <Button variant="outline" size={size} onClick={onClick} disabled={disabled}>
       <Play className="h-3.5 w-3.5 sm:mr-1" />
@@ -68,11 +71,13 @@ export function PauseResumeButton({
   disabled?: boolean;
   size?: "sm" | "default";
 }) {
+const { t } = useTranslation();
+
   if (isPaused) {
     return (
       <Button variant="outline" size={size} onClick={onResume} disabled={disabled}>
         <Play className="h-3.5 w-3.5 sm:mr-1" />
-        <span className="hidden sm:inline">Resume</span>
+        <span className="hidden sm:inline">{t("components.agentactionbuttons.resume.jsx-text", { defaultValue: "Resume" })}</span>
       </Button>
     );
   }
@@ -80,7 +85,7 @@ export function PauseResumeButton({
   return (
     <Button variant="outline" size={size} onClick={onPause} disabled={disabled}>
       <Pause className="h-3.5 w-3.5 sm:mr-1" />
-      <span className="hidden sm:inline">Pause</span>
+      <span className="hidden sm:inline">{t("components.agentactionbuttons.pause.jsx-text", { defaultValue: "Pause" })}</span>
     </Button>
   );
 }
@@ -153,6 +158,8 @@ export function AgentActionButtons({
   children?: React.ReactNode;
   className?: string;
 }) {
+const { t } = useTranslation();
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { openNewIssue } = useDialogActions();
@@ -314,8 +321,7 @@ export function AgentActionButtons({
             ) : (
               <Copy className="h-3 w-3" />
             )}
-            Duplicate Agent
-          </button>
+            {t("components.agentactionbuttons.duplicate_agent.jsx-text", { defaultValue: "\n            Duplicate Agent\n          " })}</button>
           <button
             className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
             onClick={() => {
@@ -324,8 +330,7 @@ export function AgentActionButtons({
             }}
           >
             <Copy className="h-3 w-3" />
-            Copy Agent ID
-          </button>
+            {t("components.agentactionbuttons.copy_agent_id.jsx-text", { defaultValue: "\n            Copy Agent ID\n          " })}</button>
           <button
             className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
             onClick={() => {
@@ -334,8 +339,7 @@ export function AgentActionButtons({
             }}
           >
             <RotateCcw className="h-3 w-3" />
-            Reset Sessions
-          </button>
+            {t("components.agentactionbuttons.reset_sessions.jsx-text", { defaultValue: "\n            Reset Sessions\n          " })}</button>
           <button
             className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-destructive"
             onClick={() => {
@@ -344,8 +348,7 @@ export function AgentActionButtons({
             }}
           >
             <Trash2 className="h-3 w-3" />
-            Terminate
-          </button>
+            {t("components.agentactionbuttons.terminate.jsx-text", { defaultValue: "\n            Terminate\n          " })}</button>
         </PopoverContent>
       </Popover>
     </div>

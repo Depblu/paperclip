@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "@/i18n";
 
 import type { AdapterConfigSchema, ConfigFieldSchema, CreateConfigValues } from "@paperclipai/adapter-utils";
 
@@ -23,6 +24,8 @@ function SelectField({
   options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const selectedOpt = options.find((o) => o.value === value);
   return (
@@ -72,6 +75,8 @@ function ComboboxField({
   onChange: (val: string) => void;
   placeholder?: string;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -189,8 +194,7 @@ function ComboboxField({
             ))}
             {filter && filtered.length === 0 && (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                Use &quot;{filter}&quot; as custom value (press Enter)
-              </div>
+                {t("misc.schema_config_fields.use_quot.jsx-text", { defaultValue: "\n                Use &quot;" })}{filter}{t("misc.schema_config_fields.quot_as_custom_value_press_enter.jsx-text", { defaultValue: "&quot; as custom value (press Enter)\n              " })}</div>
             )}
           </PopoverContent>
         </Popover>
@@ -328,6 +332,8 @@ export function SchemaConfigFields({
   eff,
   mark,
 }: AdapterConfigFieldsProps) {
+const { t } = useTranslation();
+
   const schema = useConfigSchema(adapterType);
 
   const [defaultsApplied, setDefaultsApplied] = useState(false);

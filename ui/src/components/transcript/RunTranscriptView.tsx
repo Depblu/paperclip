@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { TranscriptEntry } from "../../adapters";
 import { MarkdownBody } from "../MarkdownBody";
 import { cn, formatTokens } from "../../lib/utils";
@@ -640,6 +641,8 @@ function TranscriptMessageBlock({
   block: Extract<TranscriptBlock, { type: "message" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const isAssistant = block.role === "assistant";
   const compact = density === "compact";
 
@@ -648,7 +651,7 @@ function TranscriptMessageBlock({
       {!isAssistant && (
         <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           <User className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-          <span>User</span>
+          <span>{t("components.runtranscriptview.user.jsx-text", { defaultValue: "User" })}</span>
         </div>
       )}
       <MarkdownBody
@@ -665,8 +668,7 @@ function TranscriptMessageBlock({
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-70" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current" />
           </span>
-          Streaming
-        </div>
+          {t("components.runtranscriptview.streaming.jsx-text", { defaultValue: "\n          Streaming\n        " })}</div>
       )}
     </div>
   );
@@ -681,6 +683,8 @@ function TranscriptThinkingBlock({
   density: TranscriptDensity;
   className?: string;
 }) {
+const { t } = useTranslation();
+
   return (
     <MarkdownBody
       className={cn(
@@ -701,6 +705,8 @@ function TranscriptToolCard({
   block: Extract<TranscriptBlock, { type: "tool" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(block.status === "error");
   const compact = density === "compact";
   const parsedResult = parseStructuredToolResult(block.result);
@@ -772,16 +778,14 @@ function TranscriptToolCard({
             <div className={cn("grid gap-3", compact ? "grid-cols-1" : "lg:grid-cols-2")}>
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Input
-                </div>
+                  {t("components.runtranscriptview.input.jsx-text", { defaultValue: "\n                  Input\n                " })}</div>
                 <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-foreground/80">
                   {formatToolPayload(block.input) || "<empty>"}
                 </pre>
               </div>
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Result
-                </div>
+                  {t("components.runtranscriptview.result.jsx-text", { defaultValue: "\n                  Result\n                " })}</div>
                 <pre className={cn(
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
                   block.status === "error" ? "text-red-700 dark:text-red-300" : "text-foreground/80",
@@ -809,6 +813,8 @@ function TranscriptCommandGroup({
   block: Extract<TranscriptBlock, { type: "command_group" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const compact = density === "compact";
   const runningItem = [...block.items].reverse().find((item) => item.status === "running");
@@ -873,8 +879,7 @@ function TranscriptCommandGroup({
           )}
           {!subtitle && latestItem?.status === "error" && open && (
             <div className={cn("mt-1", compact ? "text-xs" : "text-sm", statusTone)}>
-              Command failed
-            </div>
+              {t("components.runtranscriptview.command_failed.jsx-text", { defaultValue: "\n              Command failed\n            " })}</div>
           )}
         </div>
         <button
@@ -934,6 +939,8 @@ function TranscriptToolGroup({
   block: Extract<TranscriptBlock, { type: "tool_group" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const compact = density === "compact";
   const runningItem = [...block.items].reverse().find((item) => item.status === "running");
@@ -1035,14 +1042,14 @@ function TranscriptToolGroup({
               </div>
               <div className={cn("grid gap-2 pl-7", compact ? "grid-cols-1" : "lg:grid-cols-2")}>
                 <div>
-                  <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Input</div>
+                  <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("components.runtranscriptview.input.jsx-text", { defaultValue: "Input" })}</div>
                   <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px] text-foreground/80">
                     {formatToolPayload(item.input) || "<empty>"}
                   </pre>
                 </div>
                 {item.result && (
                   <div>
-                    <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Result</div>
+                    <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("components.runtranscriptview.result.jsx-text", { defaultValue: "Result" })}</div>
                     <pre className={cn(
                       "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
                       item.status === "error" ? "text-red-700 dark:text-red-300" : "text-foreground/80",
@@ -1067,6 +1074,8 @@ function TranscriptActivityRow({
   block: Extract<TranscriptBlock, { type: "activity" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex items-start gap-2">
       {block.status === "completed" ? (
@@ -1094,6 +1103,8 @@ function TranscriptEventRow({
   block: Extract<TranscriptBlock, { type: "event" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const compact = density === "compact";
   const toneClasses =
     block.tone === "error"
@@ -1150,6 +1161,8 @@ function TranscriptDiffGroup({
   block: Extract<TranscriptBlock, { type: "diff_group" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const compact = density === "compact";
 
@@ -1247,6 +1260,8 @@ function TranscriptStderrGroup({
   block: Extract<TranscriptBlock, { type: "stderr_group" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const compact = density === "compact";
   return (
@@ -1259,7 +1274,7 @@ function TranscriptStderrGroup({
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((v) => !v); } }}
       >
         <span className={cn("text-[10px] font-semibold uppercase tracking-[0.14em]")}>
-          {block.lines.length} log {block.lines.length === 1 ? "line" : "lines"}
+          {block.lines.length} {t("components.runtranscriptview.log.jsx-text", { defaultValue: " log " })}{block.lines.length === 1 ? "line" : "lines"}
         </span>
         {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
       </div>
@@ -1284,6 +1299,8 @@ function TranscriptSystemGroup({
   block: Extract<TranscriptBlock, { type: "system_group" }>;
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-2 text-blue-700 dark:text-blue-300">
@@ -1296,7 +1313,7 @@ function TranscriptSystemGroup({
       >
         <TerminalSquare className="h-3.5 w-3.5 shrink-0" />
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em]">
-          {block.lines.length} system {block.lines.length === 1 ? "message" : "messages"}
+          {block.lines.length} {t("components.runtranscriptview.system.jsx-text", { defaultValue: " system " })}{block.lines.length === 1 ? "message" : "messages"}
         </span>
         {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
       </div>
@@ -1323,14 +1340,15 @@ function TranscriptStdoutRow({
   density: TranscriptDensity;
   collapseByDefault: boolean;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(!collapseByDefault);
 
   return (
     <div>
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          stdout
-        </span>
+          {t("components.runtranscriptview.stdout.jsx-text", { defaultValue: "\n          stdout\n        " })}</span>
         <button
           type="button"
           className="inline-flex h-5 w-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
@@ -1387,6 +1405,8 @@ function RawTranscriptView({
   entries: TranscriptEntry[];
   density: TranscriptDensity;
 }) {
+const { t } = useTranslation();
+
   const compact = density === "compact";
   const listRef = useRef<HTMLDivElement | null>(null);
   const shouldVirtualize = entries.length > RAW_VIRTUALIZATION_THRESHOLD;
@@ -1474,6 +1494,8 @@ export function RunTranscriptView({
   className,
   thinkingClassName,
 }: RunTranscriptViewProps) {
+const { t } = useTranslation();
+
   const blocks = useMemo(
     () => (mode === "raw" ? [] : normalizeTranscript(entries, streaming)),
     [entries, mode, streaming],

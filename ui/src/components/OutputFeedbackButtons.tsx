@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { FeedbackDataSharingPreference, FeedbackVoteValue } from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +31,8 @@ export function OutputFeedbackButtons({
   rightSlot?: React.ReactNode;
   inline?: boolean;
 }) {
+const { t } = useTranslation();
+
   const [pendingVote, setPendingVote] = useState<{
     vote: FeedbackVoteValue;
     reason?: string;
@@ -124,8 +127,7 @@ export function OutputFeedbackButtons({
           onClick={() => handleVote("up")}
         >
           <ThumbsUp className="mr-1.5 h-3.5 w-3.5" />
-          Helpful
-        </Button>
+          {t("components.outputfeedbackbuttons.helpful.jsx-text", { defaultValue: "\n          Helpful\n        " })}</Button>
         <Button
           type="button"
           size="sm"
@@ -135,17 +137,16 @@ export function OutputFeedbackButtons({
           onClick={() => handleVote("down")}
         >
           <ThumbsDown className="mr-1.5 h-3.5 w-3.5" />
-          Needs work
-        </Button>
+          {t("components.outputfeedbackbuttons.needs_work.jsx-text", { defaultValue: "\n          Needs work\n        " })}</Button>
         {rightSlot ? <div className="ml-auto">{rightSlot}</div> : null}
       </div>
       {collectingDownvoteReason ? (
         <div className="mt-2 rounded-md border border-border/60 bg-accent/20 p-3">
-          <div className="mb-2 text-sm font-medium">What could have been better?</div>
+          <div className="mb-2 text-sm font-medium">{t("components.outputfeedbackbuttons.what_could_have_been_better.jsx-text", { defaultValue: "What could have been better?" })}</div>
           <Textarea
             value={downvoteReason}
             onChange={(event) => setDownvoteReason(event.target.value)}
-            placeholder="Add a short note"
+            placeholder={t("components.outputfeedbackbuttons.add_a_short_note.attr_placeholder", { defaultValue: "Add a short note" })}
             className="min-h-20 resize-y bg-background"
             disabled={disabled || isSaving}
           />
@@ -161,8 +162,7 @@ export function OutputFeedbackButtons({
                 setDownvoteAllowSharing(undefined);
               }}
             >
-              Dismiss
-            </Button>
+              {t("components.outputfeedbackbuttons.dismiss.jsx-text", { defaultValue: "\n              Dismiss\n            " })}</Button>
             <Button
               type="button"
               size="sm"
@@ -191,25 +191,18 @@ export function OutputFeedbackButtons({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Save your feedback sharing preference</DialogTitle>
+            <DialogTitle>{t("components.outputfeedbackbuttons.save_your_feedback_sharing_prefe.jsx-text", { defaultValue: "Save your feedback sharing preference" })}</DialogTitle>
             <DialogDescription>
-              Choose whether voted AI outputs can be shared with Paperclip Labs. This
-              answer becomes the default for future thumbs up and thumbs down votes.
-            </DialogDescription>
+              {t("components.outputfeedbackbuttons.choose_whether_voted_ai_outputs_.jsx-text", { defaultValue: "\n              Choose whether voted AI outputs can be shared with Paperclip Labs. This answer becomes the default for future thumbs up and thumbs down votes.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>
-              This vote is always saved locally.
-            </p>
+              {t("components.outputfeedbackbuttons.this_vote_is_always_saved_locall.jsx-text", { defaultValue: "\n              This vote is always saved locally.\n            " })}</p>
             <p>
-              Choose <span className="font-medium text-foreground">Always allow</span> to share
-              this vote and future voted AI outputs. Choose{" "}
-              <span className="font-medium text-foreground">Don't allow</span> to keep this vote
-              and future votes local.
-            </p>
+              {t("components.outputfeedbackbuttons.choose.jsx-text", { defaultValue: "\n              Choose " })}<span className="font-medium text-foreground">{t("components.outputfeedbackbuttons.always_allow.jsx-text", { defaultValue: "Always allow" })}</span> {t("components.outputfeedbackbuttons.to_share_this_vote_and_future_vo.jsx-text", { defaultValue: " to share this vote and future voted AI outputs. Choose" })}{" "}
+              <span className="font-medium text-foreground">{t("components.outputfeedbackbuttons.don_t_allow.jsx-text", { defaultValue: "Don't allow" })}</span> {t("components.outputfeedbackbuttons.to_keep_this_vote_and_future_vot.jsx-text", { defaultValue: " to keep this vote and future votes local.\n            " })}</p>
             <p>
-              You can change this later in Instance Settings &gt; General.
-            </p>
+              {t("components.outputfeedbackbuttons.you_can_change_this_later_in_ins.jsx-text", { defaultValue: "\n              You can change this later in Instance Settings &gt; General.\n            " })}</p>
             {termsUrl ? (
               <a
                 href={termsUrl}
@@ -217,8 +210,7 @@ export function OutputFeedbackButtons({
                 rel="noreferrer"
                 className="inline-flex text-sm text-foreground underline underline-offset-4"
               >
-                Read our terms of service
-              </a>
+                {t("components.outputfeedbackbuttons.read_our_terms_of_service.jsx-text", { defaultValue: "\n                Read our terms of service\n              " })}</a>
             ) : null}
           </div>
           <DialogFooter>

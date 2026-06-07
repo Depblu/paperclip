@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from "@/lib/router";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { accessApi } from "@/api/access";
 import { ApiError } from "@/api/client";
@@ -8,23 +9,24 @@ import { queryKeys } from "@/lib/queryKeys";
 import { BootstrapPendingPage } from "@/components/BootstrapPendingPage";
 
 function NoBoardAccessPage() {
+const { t } = useTranslation();
+
   return (
     <div className="mx-auto max-w-xl py-10">
       <div className="rounded-lg border border-border bg-card p-6">
-        <h1 className="text-xl font-semibold">No company access</h1>
+        <h1 className="text-xl font-semibold">{t("components.cloudaccessgate.no_company_access.jsx-text", { defaultValue: "No company access" })}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This account is signed in, but it does not have an active company membership or instance-admin access on
-          this Paperclip instance.
-        </p>
+          {t("components.cloudaccessgate.this_account_is_signed_in_but_it.jsx-text", { defaultValue: "\n          This account is signed in, but it does not have an active company membership or instance-admin access on this Paperclip instance.\n        " })}</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Use a company invite or sign in with an account that already belongs to this org.
-        </p>
+          {t("components.cloudaccessgate.use_a_company_invite_or_sign_in_.jsx-text", { defaultValue: "\n          Use a company invite or sign in with an account that already belongs to this org.\n        " })}</p>
       </div>
     </div>
   );
 }
 
 export function CloudAccessGate() {
+const { t } = useTranslation();
+
   const location = useLocation();
   const queryClient = useQueryClient();
   const healthQuery = useQuery({
@@ -73,7 +75,7 @@ export function CloudAccessGate() {
     (isAuthenticatedMode && sessionQuery.isLoading) ||
     (isAuthenticatedMode && !isBootstrapPending && !!sessionQuery.data && boardAccessQuery.isLoading)
   ) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("components.cloudaccessgate.loading.jsx-text", { defaultValue: "Loading..." })}</div>;
   }
 
   if (healthQuery.error || boardAccessQuery.error) {
@@ -91,7 +93,7 @@ export function CloudAccessGate() {
   if (isBootstrapPending) {
     const health = healthQuery.data;
     if (!health) {
-      return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading...</div>;
+      return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("components.cloudaccessgate.loading.jsx-text", { defaultValue: "Loading..." })}</div>;
     }
     const claimError = claimMutation.error instanceof ApiError
       ? { status: claimMutation.error.status, message: claimMutation.error.message }

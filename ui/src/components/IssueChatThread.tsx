@@ -29,6 +29,7 @@ import {
   type ReactNode,
 } from "react";
 import { Link, useLocation } from "@/lib/router";
+import { useTranslation } from "@/i18n";
 import type {
   Agent,
   FeedbackDataSharingPreference,
@@ -447,6 +448,8 @@ class IssueChatErrorBoundary extends Component<IssueChatErrorBoundaryProps, Issu
 }
 
 function IssueAssigneePausedNotice({ agent }: { agent: Agent | null }) {
+const { t } = useTranslation();
+
   if (!agent || agent.status !== "paused") return null;
 
   const pauseDetail =
@@ -461,7 +464,7 @@ function IssueAssigneePausedNotice({ agent }: { agent: Agent | null }) {
       <div className="flex items-start gap-2">
         <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 dark:text-orange-300" />
         <p className="min-w-0 leading-5">
-          <span className="font-medium">{agent.name}</span> is paused. New runs will not start until the agent is resumed. {pauseDetail}
+          <span className="font-medium">{agent.name}</span> {t("components.issuechatthread.is_paused_new_runs_will_not_star.jsx-text", { defaultValue: " is paused. New runs will not start until the agent is resumed. " })}{pauseDetail}
         </p>
       </div>
     </div>
@@ -508,16 +511,17 @@ function IssueChatFallbackThread({
   emptyMessage: string;
   variant: "full" | "embedded";
 }) {
+const { t } = useTranslation();
+
   return (
     <div className={cn(variant === "embedded" ? "space-y-3" : "space-y-4")}>
       <div className="rounded-xl border border-amber-300/60 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-200">
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
-            <p className="font-medium">Chat renderer hit an internal state error.</p>
+            <p className="font-medium">{t("components.issuechatthread.chat_renderer_hit_an_internal_st.jsx-text", { defaultValue: "Chat renderer hit an internal state error." })}</p>
             <p className="text-xs opacity-80">
-              Showing a safe fallback transcript instead of crashing the tasks page.
-            </p>
+              {t("components.issuechatthread.showing_a_safe_fallback_transcri.jsx-text", { defaultValue: "\n              Showing a safe fallback transcript instead of crashing the tasks page.\n            " })}</p>
           </div>
         </div>
       </div>
@@ -549,7 +553,7 @@ function IssueChatFallbackThread({
                   {lines.length > 0 ? lines.map((line, index) => (
                     <MarkdownBody key={`${message.id}:fallback:${index}`}>{line}</MarkdownBody>
                   )) : (
-                    <p className="text-sm text-muted-foreground">No message content.</p>
+                    <p className="text-sm text-muted-foreground">{t("components.issuechatthread.no_message_content.jsx-text", { defaultValue: "No message content." })}</p>
                   )}
                 </div>
               </div>
@@ -653,6 +657,8 @@ function commentDateLabel(date: Date | string | undefined): string {
 }
 
 const IssueChatTextPart = memo(function IssueChatTextPart({ text, recessed }: { text: string; recessed?: boolean }) {
+const { t } = useTranslation();
+
   const { onImageClick } = useContext(IssueChatCtx);
   if (isSuccessfulRunHandoffComment(text)) {
     return <SuccessfulRunHandoffCommentCallout text={text} recessed={recessed} onImageClick={onImageClick} />;
@@ -678,6 +684,8 @@ export function SuccessfulRunHandoffCommentCallout({
   recessed?: boolean;
   onImageClick?: (src: string) => void;
 }) {
+const { t } = useTranslation();
+
   const escalated = isSuccessfulRunHandoffEscalationComment(text);
   return (
     <div
@@ -831,6 +839,8 @@ function IssueChatChainOfThought({
   message: ThreadMessage;
   cotParts: readonly IssueChatCoTPart[];
 }) {
+const { t } = useTranslation();
+
   const { agentMap } = useContext(IssueChatCtx);
   const custom = message.metadata.custom as Record<string, unknown>;
   const runAgentId = typeof custom.runAgentId === "string" ? custom.runAgentId : null;
@@ -944,6 +954,8 @@ function IssueChatChainOfThought({
 }
 
 function IssueChatReasoningPart({ text }: { text: string }) {
+const { t } = useTranslation();
+
   const lines = text.split("\n").filter((l) => l.trim());
   const lastLine = lines[lines.length - 1] ?? text.slice(-200);
   const prevRef = useRef(lastLine);
@@ -991,6 +1003,8 @@ function IssueChatReasoningPart({ text }: { text: string }) {
 }
 
 function IssueChatRollingToolPart({ toolParts }: { toolParts: ToolCallMessagePart[] }) {
+const { t } = useTranslation();
+
   const latest = toolParts[toolParts.length - 1];
   if (!latest) return null;
 
@@ -1048,6 +1062,8 @@ function IssueChatRollingToolPart({ toolParts }: { toolParts: ToolCallMessagePar
 }
 
 function CopyablePreBlock({ children, className }: { children: string; className?: string }) {
+const { t } = useTranslation();
+
   const [copied, setCopied] = useState(false);
   return (
     <div className="group/pre relative">
@@ -1058,8 +1074,8 @@ function CopyablePreBlock({ children, className }: { children: string; className
           "absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-md bg-background/80 text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity hover:text-foreground group-hover/pre:opacity-100",
           copied && "opacity-100",
         )}
-        title="Copy"
-        aria-label="Copy"
+        title={t("components.issuechatthread.copy.attr_title", { defaultValue: "Copy" })}
+        aria-label={t("components.issuechatthread.copy.attr_aria-label", { defaultValue: "Copy" })}
         onClick={() => {
           void navigator.clipboard.writeText(children).then(() => {
             setCopied(true);
@@ -1094,6 +1110,8 @@ function IssueChatToolPart({
   result?: unknown;
   isError?: boolean;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const rawArgsText = argsText ?? "";
   const parsedArgs = args ?? parseToolPayload(rawArgsText);
@@ -1145,8 +1163,7 @@ function IssueChatToolPart({
             {nonIntentDetails.length > 0 ? (
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
-                  Input
-                </div>
+                  {t("components.issuechatthread.input.jsx-text", { defaultValue: "\n                  Input\n                " })}</div>
                 <dl className="space-y-1.5">
                   {nonIntentDetails.map((detail) => (
                     <div key={`${detail.label}:${detail.value}`}>
@@ -1163,16 +1180,14 @@ function IssueChatToolPart({
             ) : rawArgsText ? (
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
-                  Input
-                </div>
+                  {t("components.issuechatthread.input.jsx-text", { defaultValue: "\n                  Input\n                " })}</div>
                 <CopyablePreBlock className="overflow-x-auto rounded-md bg-accent/30 p-2 text-[11px] leading-4 text-foreground/70">{rawArgsText}</CopyablePreBlock>
               </div>
             ) : null}
             {result !== undefined ? (
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
-                  Result
-                </div>
+                  {t("components.issuechatthread.result.jsx-text", { defaultValue: "\n                  Result\n                " })}</div>
                 <CopyablePreBlock className="overflow-x-auto rounded-md bg-accent/30 p-2 text-[11px] leading-4 text-foreground/70">{resultText}</CopyablePreBlock>
               </div>
             ) : null}
@@ -1197,6 +1212,8 @@ const IssueChatTextParts = memo(function IssueChatTextParts({
   message: ThreadMessage;
   recessed?: boolean;
 }) {
+const { t } = useTranslation();
+
   return (
     <>
       {message.content
@@ -1255,6 +1272,8 @@ const IssueChatAssistantParts = memo(function IssueChatAssistantParts({
   message: ThreadMessage;
   hasCoT: boolean;
 }) {
+const { t } = useTranslation();
+
   const groupedParts = useMemo(() => groupAssistantParts(message.content), [message.content]);
   return (
     <>
@@ -1287,6 +1306,8 @@ function IssueChatUserMessage({
   message: ThreadMessage;
   isInterruptingQueuedRun: boolean;
 }) {
+const { t } = useTranslation();
+
   const {
     onInterruptQueued,
     onCancelQueued,
@@ -1342,8 +1363,7 @@ function IssueChatUserMessage({
         <SourceTrustBadge sourceTrust={sourceTrust} artifactLabel="comment" />
         {followUpRequested ? (
           <Badge variant="outline" className="text-[10px] uppercase tracking-[0.14em]">
-            Follow-up
-          </Badge>
+            {t("components.issuechatthread.follow_up.jsx-text", { defaultValue: "\n            Follow-up\n          " })}</Badge>
         ) : null}
       </div>
       <div
@@ -1380,13 +1400,12 @@ function IssueChatUserMessage({
                 className="h-6 border-amber-300 px-2 text-[11px] text-amber-900 hover:bg-amber-100/80 hover:text-amber-950 dark:border-amber-500/40 dark:text-amber-100 dark:hover:bg-amber-500/10"
                 onClick={() => onCancelQueued(commentId)}
               >
-                Cancel
-              </Button>
+                {t("components.issuechatthread.cancel.jsx-text", { defaultValue: "\n                Cancel\n              " })}</Button>
             ) : null}
           </div>
         ) : null}
         {deleted ? (
-          <div className="text-sm italic text-muted-foreground">Comment deleted</div>
+          <div className="text-sm italic text-muted-foreground">{t("components.issuechatthread.comment_deleted.jsx-text", { defaultValue: "Comment deleted" })}</div>
         ) : (
           <div className="min-w-0 max-w-full space-y-3">
             <IssueChatTextParts message={message} />
@@ -1396,8 +1415,7 @@ function IssueChatUserMessage({
 
       {pending ? (
         <div className={cn("mt-1 flex px-1 text-[11px] text-muted-foreground", isCurrentUser ? "justify-end" : "justify-start")}>
-          Sending...
-        </div>
+          {t("components.issuechatthread.sending.jsx-text", { defaultValue: "\n          Sending...\n        " })}</div>
       ) : (
         <div
           className={cn(
@@ -1422,8 +1440,8 @@ function IssueChatUserMessage({
             <button
               type="button"
               className="inline-flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-              title="Copy message"
-              aria-label="Copy message"
+              title={t("components.issuechatthread.copy_message.attr_title", { defaultValue: "Copy message" })}
+              aria-label={t("components.issuechatthread.copy_message.attr_aria-label", { defaultValue: "Copy message" })}
               onClick={() => {
                 const text = message.content
                   .filter((p): p is { type: "text"; text: string } => p.type === "text")
@@ -1442,8 +1460,8 @@ function IssueChatUserMessage({
             <button
               type="button"
               className="inline-flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-destructive"
-              title="Delete comment"
-              aria-label="Delete comment"
+              title={t("components.issuechatthread.delete_comment.attr_title", { defaultValue: "Delete comment" })}
+              aria-label={t("components.issuechatthread.delete_comment.attr_aria-label", { defaultValue: "Delete comment" })}
               onClick={handleDeleteComment}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -1474,18 +1492,15 @@ function IssueChatUserMessage({
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete comment?</DialogTitle>
+            <DialogTitle>{t("components.issuechatthread.delete_comment.jsx-text", { defaultValue: "Delete comment?" })}</DialogTitle>
             <DialogDescription>
-              This will replace the comment with a deleted-comment marker.
-            </DialogDescription>
+              {t("components.issuechatthread.this_will_replace_the_comment_wi.jsx-text", { defaultValue: "\n              This will replace the comment with a deleted-comment marker.\n            " })}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancel
-            </Button>
+              {t("components.issuechatthread.cancel.jsx-text", { defaultValue: "\n              Cancel\n            " })}</Button>
             <Button variant="destructive" onClick={confirmDeleteComment}>
-              Delete comment
-            </Button>
+              {t("components.issuechatthread.delete_comment.jsx-text", { defaultValue: "\n              Delete comment\n            " })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1504,6 +1519,8 @@ function IssueChatAssistantMessage({
   isRunActive: boolean;
   isStoppingRun: boolean;
 }) {
+const { t } = useTranslation();
+
   const {
     feedbackDataSharingPreference,
     feedbackTermsUrl,
@@ -1608,22 +1625,19 @@ function IssueChatAssistantMessage({
               <SourceTrustBadge sourceTrust={sourceTrust} artifactLabel="comment" />
               {followUpRequested ? (
                 <Badge variant="outline" className="text-[10px] uppercase tracking-[0.14em]">
-                  Follow-up
-                </Badge>
+                  {t("components.issuechatthread.follow_up.jsx-text", { defaultValue: "\n                  Follow-up\n                " })}</Badge>
               ) : null}
               {isRunning ? (
                 <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-cyan-700 dark:text-cyan-200">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  Running
-                </span>
+                  {t("components.issuechatthread.running.jsx-text", { defaultValue: "\n                  Running\n                " })}</span>
               ) : null}
             </div>
           )}
 
           {deleted ? (
             <div className="rounded-sm bg-muted/40 px-3 py-2 text-sm italic text-muted-foreground">
-              Comment deleted
-            </div>
+              {t("components.issuechatthread.comment_deleted.jsx-text", { defaultValue: "\n              Comment deleted\n            " })}</div>
           ) : !folded ? (
             <>
               <div className="space-y-3">
@@ -1658,8 +1672,8 @@ function IssueChatAssistantMessage({
                 <button
                   type="button"
                   className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  title="Copy message"
-                  aria-label="Copy message"
+                  title={t("components.issuechatthread.copy_message.attr_title", { defaultValue: "Copy message" })}
+                  aria-label={t("components.issuechatthread.copy_message.attr_aria-label", { defaultValue: "Copy message" })}
                   onClick={() => {
                     void navigator.clipboard.writeText(copyText).then(() => {
                       setCopied(true);
@@ -1696,8 +1710,8 @@ function IssueChatAssistantMessage({
                       variant="ghost"
                       size="icon-xs"
                       className="text-muted-foreground hover:text-foreground"
-                      title="More actions"
-                      aria-label="More actions"
+                      title={t("components.issuechatthread.more_actions.attr_title", { defaultValue: "More actions" })}
+                      aria-label={t("components.issuechatthread.more_actions.attr_aria-label", { defaultValue: "More actions" })}
                     >
                       <MoreHorizontal className="h-3.5 w-3.5" />
                     </Button>
@@ -1709,8 +1723,7 @@ function IssueChatAssistantMessage({
                       }}
                     >
                       <Copy className="mr-2 h-3.5 w-3.5" />
-                      Copy message
-                    </DropdownMenuItem>
+                      {t("components.issuechatthread.copy_message.jsx-text", { defaultValue: "\n                      Copy message\n                    " })}</DropdownMenuItem>
                     {canStopRun && onStopRun && runId ? (
                       <DropdownMenuItem
                         disabled={isStoppingRun}
@@ -1735,8 +1748,7 @@ function IssueChatAssistantMessage({
                       <DropdownMenuItem asChild>
                         <Link to={runHref} target="_blank" rel="noreferrer noopener">
                           <Search className="mr-2 h-3.5 w-3.5" />
-                          View run
-                        </Link>
+                          {t("components.issuechatthread.view_run.jsx-text", { defaultValue: "\n                          View run\n                        " })}</Link>
                       </DropdownMenuItem>
                     ) : null}
                   </DropdownMenuContent>
@@ -1761,6 +1773,8 @@ function IssueChatFeedbackButtons({
   termsUrl: string | null;
   onVote: (vote: FeedbackVoteValue, options?: { allowSharing?: boolean; reason?: string }) => Promise<void>;
 }) {
+const { t } = useTranslation();
+
   const [isSaving, setIsSaving] = useState(false);
   const [optimisticVote, setOptimisticVote] = useState<FeedbackVoteValue | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
@@ -1840,8 +1854,8 @@ function IssueChatFeedbackButtons({
             ? "text-green-600 dark:text-green-400"
             : "text-muted-foreground hover:bg-accent hover:text-foreground",
         )}
-        title="Helpful"
-        aria-label="Helpful"
+        title={t("components.issuechatthread.helpful.attr_title", { defaultValue: "Helpful" })}
+        aria-label={t("components.issuechatthread.helpful.attr_aria-label", { defaultValue: "Helpful" })}
         onClick={handleThumbsUp}
       >
         <ThumbsUp className="h-3.5 w-3.5" />
@@ -1857,19 +1871,19 @@ function IssueChatFeedbackButtons({
                 ? "text-amber-600 dark:text-amber-400"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
-            title="Needs work"
-            aria-label="Needs work"
+            title={t("components.issuechatthread.needs_work.attr_title", { defaultValue: "Needs work" })}
+            aria-label={t("components.issuechatthread.needs_work.attr_aria-label", { defaultValue: "Needs work" })}
             onClick={handleThumbsDown}
           >
             <ThumbsDown className="h-3.5 w-3.5" />
           </button>
         </PopoverTrigger>
         <PopoverContent side="top" align="start" className="w-80 p-3">
-          <div className="mb-2 text-sm font-medium">What could have been better?</div>
+          <div className="mb-2 text-sm font-medium">{t("components.issuechatthread.what_could_have_been_better.jsx-text", { defaultValue: "What could have been better?" })}</div>
           <Textarea
             value={downvoteReason}
             onChange={(event) => setDownvoteReason(event.target.value)}
-            placeholder="Add a short note"
+            placeholder={t("components.issuechatthread.add_a_short_note.attr_placeholder", { defaultValue: "Add a short note" })}
             className="min-h-20 resize-y bg-background text-sm"
             disabled={isSaving}
           />
@@ -1884,8 +1898,7 @@ function IssueChatFeedbackButtons({
                 setDownvoteReason("");
               }}
             >
-              Dismiss
-            </Button>
+              {t("components.issuechatthread.dismiss.jsx-text", { defaultValue: "\n              Dismiss\n            " })}</Button>
             <Button
               type="button"
               size="sm"
@@ -1909,21 +1922,16 @@ function IssueChatFeedbackButtons({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Save your feedback sharing preference</DialogTitle>
+            <DialogTitle>{t("components.issuechatthread.save_your_feedback_sharing_prefe.jsx-text", { defaultValue: "Save your feedback sharing preference" })}</DialogTitle>
             <DialogDescription>
-              Choose whether voted AI outputs can be shared with Paperclip Labs. This
-              answer becomes the default for future thumbs up and thumbs down votes.
-            </DialogDescription>
+              {t("components.issuechatthread.choose_whether_voted_ai_outputs_.jsx-text", { defaultValue: "\n              Choose whether voted AI outputs can be shared with Paperclip Labs. This answer becomes the default for future thumbs up and thumbs down votes.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm text-muted-foreground">
-            <p>This vote is always saved locally.</p>
+            <p>{t("components.issuechatthread.this_vote_is_always_saved_locall.jsx-text", { defaultValue: "This vote is always saved locally." })}</p>
             <p>
-              Choose <span className="font-medium text-foreground">Always allow</span> to share
-              this vote and future voted AI outputs. Choose{" "}
-              <span className="font-medium text-foreground">Don't allow</span> to keep this vote
-              and future votes local.
-            </p>
-            <p>You can change this later in Instance Settings &gt; General.</p>
+              {t("components.issuechatthread.choose.jsx-text", { defaultValue: "\n              Choose " })}<span className="font-medium text-foreground">{t("components.issuechatthread.always_allow.jsx-text", { defaultValue: "Always allow" })}</span> {t("components.issuechatthread.to_share_this_vote_and_future_vo.jsx-text", { defaultValue: " to share this vote and future voted AI outputs. Choose" })}{" "}
+              <span className="font-medium text-foreground">{t("components.issuechatthread.don_t_allow.jsx-text", { defaultValue: "Don't allow" })}</span> {t("components.issuechatthread.to_keep_this_vote_and_future_vot.jsx-text", { defaultValue: " to keep this vote and future votes local.\n            " })}</p>
+            <p>{t("components.issuechatthread.you_can_change_this_later_in_ins.jsx-text", { defaultValue: "You can change this later in Instance Settings &gt; General." })}</p>
             {termsUrl ? (
               <a
                 href={termsUrl}
@@ -1931,8 +1939,7 @@ function IssueChatFeedbackButtons({
                 rel="noreferrer"
                 className="inline-flex text-sm text-foreground underline underline-offset-4"
               >
-                Read our terms of service
-              </a>
+                {t("components.issuechatthread.read_our_terms_of_service.jsx-text", { defaultValue: "\n                Read our terms of service\n              " })}</a>
             ) : null}
           </div>
           <DialogFooter>
@@ -1979,6 +1986,8 @@ function ExpiredRequestConfirmationActivity({
   anchorId?: string;
   interaction: RequestConfirmationInteraction;
 }) {
+const { t } = useTranslation();
+
   const {
     agentMap,
     currentUserId,
@@ -2011,7 +2020,7 @@ function ExpiredRequestConfirmationActivity({
     <div className="min-w-0 flex-1">
       <div className={cn("flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs", isCurrentUser && "justify-end")}>
         <span className="font-medium text-foreground">{actorName}</span>
-        <span className="text-muted-foreground">updated this task</span>
+        <span className="text-muted-foreground">{t("components.issuechatthread.updated_this_task.jsx-text", { defaultValue: "updated this task" })}</span>
         <a
           href={anchorId ? `#${anchorId}` : undefined}
           className="text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline"
@@ -2134,6 +2143,8 @@ function isStaleSuccessfulRunHandoffNotice(input: {
 }
 
 function StaleDispositionWarningMetadataRow({ row }: { row: SystemNoticeMetadataRow }) {
+const { t } = useTranslation();
+
   const label = (
     <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
       {row.label}
@@ -2242,8 +2253,10 @@ function StaleDispositionWarningDetails({
 }: {
   sections: SystemNoticeMetadataSection[];
 }) {
+const { t } = useTranslation();
+
   if (sections.length === 0) {
-    return <div className="text-xs leading-5 text-muted-foreground">No additional details.</div>;
+    return <div className="text-xs leading-5 text-muted-foreground">{t("components.issuechatthread.no_additional_details.jsx-text", { defaultValue: "No additional details." })}</div>;
   }
 
   return (
@@ -2277,6 +2290,8 @@ function StaleDispositionWarningRow({
   metadata: IssueCommentMetadata | null;
   runAgentId?: string | null;
 }) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const sections = mapCommentMetadataToSystemNoticeSections(metadata, { runAgentId });
@@ -2294,8 +2309,7 @@ function StaleDispositionWarningRow({
             onClick={() => setOpen((value) => !value)}
           >
             <span className="text-sm font-medium text-foreground/80">
-              Stale disposition warning
-            </span>
+              {t("components.issuechatthread.stale_disposition_warning.jsx-text", { defaultValue: "\n              Stale disposition warning\n            " })}</span>
             <span className="ml-auto flex items-center gap-1.5">
               {message.createdAt ? (
                 <span data-testid="stale-disposition-warning-time" className="text-[11px] text-muted-foreground/50">
@@ -2321,6 +2335,8 @@ function SystemNoticeCommentRow({
   message: ThreadMessage;
   anchorId?: string;
 }) {
+const { t } = useTranslation();
+
   const { onImageClick, agentMap, issueStatus, successfulRunHandoff } = useContext(IssueChatCtx);
   const custom = message.metadata.custom as Record<string, unknown>;
   const presentation = isIssueCommentPresentation(custom.presentation) ? custom.presentation : null;
@@ -2419,8 +2435,8 @@ function SystemNoticeCommentRow({
             <button
               type="button"
               className="inline-flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-              title="Copy link"
-              aria-label="Copy link to system notice"
+              title={t("components.issuechatthread.copy_link.attr_title", { defaultValue: "Copy link" })}
+              aria-label={t("components.issuechatthread.copy_link_to_system_notice.attr_aria-label", { defaultValue: "Copy link to system notice" })}
               onClick={handleCopyLink}
             >
               {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Paperclip className="h-3.5 w-3.5" />}
@@ -2429,8 +2445,8 @@ function SystemNoticeCommentRow({
           <button
             type="button"
             className="inline-flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-            title="Copy notice text"
-            aria-label="Copy system notice"
+            title={t("components.issuechatthread.copy_notice_text.attr_title", { defaultValue: "Copy notice text" })}
+            aria-label={t("components.issuechatthread.copy_system_notice.attr_aria-label", { defaultValue: "Copy system notice" })}
             onClick={handleCopy}
           >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -2442,6 +2458,8 @@ function SystemNoticeCommentRow({
 }
 
 function IssueChatSystemMessage({ message }: { message: ThreadMessage }) {
+const { t } = useTranslation();
+
   const {
     agentMap,
     currentUserId,
@@ -2535,8 +2553,7 @@ function IssueChatSystemMessage({ message }: { message: ThreadMessage }) {
         {statusChange ? (
           <div className={cn("flex flex-wrap items-center gap-1.5 text-xs", isCurrentUser && "justify-end")}>
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Status
-            </span>
+              {t("components.issuechatthread.status.jsx-text", { defaultValue: "\n              Status\n            " })}</span>
             <span className="text-muted-foreground">{humanizeValue(statusChange.from)}</span>
             <ArrowRight className="h-3 w-3 text-muted-foreground" />
             <span className="font-medium text-foreground">{humanizeValue(statusChange.to)}</span>
@@ -2546,8 +2563,7 @@ function IssueChatSystemMessage({ message }: { message: ThreadMessage }) {
         {assigneeChange ? (
           <div className={cn("flex flex-wrap items-center gap-1.5 text-xs", isCurrentUser && "justify-end")}>
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Assignee
-            </span>
+              {t("components.issuechatthread.assignee.jsx-text", { defaultValue: "\n              Assignee\n            " })}</span>
             <span className="text-muted-foreground">
               {formatTimelineAssigneeLabel(assigneeChange.from, agentMap, currentUserId, userLabelMap)}
             </span>
@@ -2561,8 +2577,7 @@ function IssueChatSystemMessage({ message }: { message: ThreadMessage }) {
         {workspaceChange ? (
           <div className={cn("flex flex-wrap items-center gap-1.5 text-xs", isCurrentUser && "justify-end")}>
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Workspace
-            </span>
+              {t("components.issuechatthread.workspace.jsx-text", { defaultValue: "\n              Workspace\n            " })}</span>
             <span className="text-muted-foreground">
               {formatTimelineWorkspaceLabel(workspaceChange.from)}
             </span>
@@ -2622,7 +2637,7 @@ function IssueChatSystemMessage({ message }: { message: ThreadMessage }) {
               <Link to={`/agents/${runAgentId}`} className="font-medium text-foreground transition-colors hover:underline">
                 {displayedRunAgentName}
               </Link>
-              <span className="text-muted-foreground">run</span>
+              <span className="text-muted-foreground">{t("components.issuechatthread.run.jsx-text", { defaultValue: "run" })}</span>
               <Link
                 to={`/agents/${runAgentId}/runs/${runId}`}
                 className="inline-flex items-center rounded-md border border-border bg-accent/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
@@ -2918,6 +2933,8 @@ function findScrollContainer(el: HTMLElement | null): HTMLElement | null {
 }
 
 const VirtualizedIssueChatThreadList = forwardRef<VirtualizedIssueChatThreadListHandle, VirtualizedIssueChatThreadListProps>(function VirtualizedIssueChatThreadList(props, ref) {
+const { t } = useTranslation();
+
   const probeRef = useRef<HTMLDivElement | null>(null);
   // Default to window scroll on first render so the imperative handle is
   // available immediately for hash-target / submit-scroll effects. After mount
@@ -2975,6 +2992,8 @@ const VirtualizedIssueChatThreadListInner = forwardRef<
   mode,
   probeRef,
 }, ref) {
+const { t } = useTranslation();
+
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
   const pendingPrependAnchorRef = useRef<VirtualizedVisibleAnchorSnapshot | null>(null);
@@ -3152,6 +3171,8 @@ function IssueChatDeletedComment({
   message: ThreadMessage;
   deletedAt: string;
 }) {
+const { t } = useTranslation();
+
   const custom = issueChatMessageCustom(message);
   const anchorId = typeof custom.anchorId === "string" ? custom.anchorId : undefined;
   const authorName = typeof custom.authorName === "string" ? custom.authorName : "Comment";
@@ -3165,7 +3186,7 @@ function IssueChatDeletedComment({
       </div>
       <div className="min-w-0 rounded-md border border-dashed border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
         <span className="font-medium text-foreground/80">{authorName}</span>
-        <span> deleted this comment</span>
+        <span> {t("components.issuechatthread.deleted_this_comment.jsx-text", { defaultValue: " deleted this comment" })}</span>
         {deletedDateLabel ? <span className="text-xs"> · {deletedDateLabel}</span> : null}
       </div>
     </div>
@@ -3179,6 +3200,8 @@ const IssueChatMessageRow = memo(function IssueChatMessageRow({
   stoppingRunId,
   interruptingQueuedRunId,
 }: IssueChatMessageRowProps) {
+const { t } = useTranslation();
+
   const kind = issueChatMessageKind(message);
   const deletedAt = issueChatMessageDeletedAt(message);
   const activeVote = issueChatMessageActiveVote(message, feedbackVoteByTargetId);
@@ -3244,6 +3267,8 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
   issueWorkMode,
   onWorkModeChange,
 }, forwardedRef) {
+const { t } = useTranslation();
+
   const api = useAui();
   const toastActions = useOptionalToastActions();
   const [body, setBody] = useState("");
@@ -3547,10 +3572,9 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
               <Paperclip className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <div className="text-sm font-medium text-foreground">Drop to upload</div>
+              <div className="text-sm font-medium text-foreground">{t("components.issuechatthread.drop_to_upload.jsx-text", { defaultValue: "Drop to upload" })}</div>
               <div className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                Images insert into the reply. Other files are added to this task.
-              </div>
+                {t("components.issuechatthread.images_insert_into_the_reply_oth.jsx-text", { defaultValue: "\n                Images insert into the reply. Other files are added to this task.\n              " })}</div>
             </div>
           </div>
         </div>
@@ -3560,7 +3584,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
         ref={editorRef}
         value={body}
         onChange={setBody}
-        placeholder="Reply"
+        placeholder={t("components.issuechatthread.reply.attr_placeholder", { defaultValue: "Reply" })}
         mentions={mentions}
         onSubmit={handleSubmit}
         imageUploadHandler={onImageUpload}
@@ -3635,7 +3659,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
                 size="icon-sm"
                 onClick={() => attachInputRef.current?.click()}
                 disabled={attaching}
-                title="Attach file"
+                title={t("components.issuechatthread.attach_file.attr_title", { defaultValue: "Attach file" })}
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -3648,7 +3672,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
                   variant="ghost"
                   size="icon-sm"
                   data-testid="issue-chat-composer-work-mode-menu"
-                  title="More composer options"
+                  title={t("components.issuechatthread.more_composer_options.attr_title", { defaultValue: "More composer options" })}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -3683,12 +3707,12 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
               data-testid="issue-chat-composer-work-mode-toggle"
               data-pending-work-mode={pendingWorkMode}
               aria-pressed
-              title="Planning mode is on for this submission. Click to switch to Standard."
+              title={t("components.issuechatthread.planning_mode_is_on_for_this_sub.attr_title", { defaultValue: "Planning mode is on for this submission. Click to switch to Standard." })}
               onClick={() => setPendingWorkMode("standard")}
               className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-1 text-xs text-amber-800 transition-colors hover:bg-amber-500/25 dark:border-amber-500/50 dark:bg-amber-500/15 dark:text-amber-200 dark:hover:bg-amber-500/25"
             >
               <ClipboardList className="h-3.5 w-3.5" aria-hidden />
-              <span>Planning</span>
+              <span>{t("components.issuechatthread.planning.jsx-text", { defaultValue: "Planning" })}</span>
             </button>
           ) : null}
         </div>
@@ -3697,14 +3721,14 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
           <InlineEntitySelector
             value={reassignTarget}
             options={reassignOptions}
-            placeholder="Assignee"
+            placeholder={t("components.issuechatthread.assignee.attr_placeholder", { defaultValue: "Assignee" })}
             noneLabel="No assignee"
             searchPlaceholder="Search assignees..."
             emptyMessage="No assignees found."
             onChange={setReassignTarget}
             className="h-8 text-xs"
             renderTriggerValue={(option) => {
-              if (!option) return <span className="text-muted-foreground">Assignee</span>;
+              if (!option) return <span className="text-muted-foreground">{t("components.issuechatthread.assignee.jsx-text", { defaultValue: "Assignee" })}</span>;
               const agentId = option.id.startsWith("agent:") ? option.id.slice("agent:".length) : null;
               const agent = agentId ? agentMap?.get(agentId) : null;
               return (
@@ -3810,6 +3834,8 @@ export function IssueChatThread({
   onResumeFromBacklog,
   resumeFromBacklogPending = false,
 }: IssueChatThreadProps) {
+const { t } = useTranslation();
+
   const location = useLocation();
   const lastScrolledHashRef = useRef<string | null>(null);
   const virtualizedThreadRef = useRef<VirtualizedIssueChatThreadListHandle | null>(null);
@@ -4350,8 +4376,7 @@ export function IssueChatThread({
               onClick={handleJumpToLatest}
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              Jump to latest
-            </button>
+              {t("components.issuechatthread.jump_to_latest.jsx-text", { defaultValue: "\n              Jump to latest\n            " })}</button>
           </div>
         ) : null}
 
@@ -4420,13 +4445,12 @@ export function IssueChatThread({
                   {legacyRecoverySourceIssue ? (
                     <SystemNotice
                       tone="info"
-                      label="Legacy recovery task"
+                      label={t("components.issuechatthread.legacy_recovery_task.attr_label", { defaultValue: "Legacy recovery task" })}
                       body={
                         <span>
-                          Legacy recovery task. Newer recovery actions live on the source task
-                          {legacyRecoverySourceIssue.identifier ? (
+                          {t("components.issuechatthread.legacy_recovery_task_newer_recov.jsx-text", { defaultValue: "\n                          Legacy recovery task. Newer recovery actions live on the source task\n                          " })}{legacyRecoverySourceIssue.identifier ? (
                             <>
-                              {" — "}
+                              {t("components.issuechatthread..jsx-expr", { defaultValue: " — " })}
                               <Link
                                 to={legacyRecoverySourceIssue.href}
                                 className="underline-offset-2 hover:underline"

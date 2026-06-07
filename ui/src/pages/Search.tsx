@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, AlertTriangle, FileQuestion, Plus, X } from "lucide-react";
 import {
@@ -112,6 +113,8 @@ function shapeError(error: unknown): { message: string; status?: number } {
 }
 
 export function Search() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { openNewIssue } = useDialogActions();
@@ -328,7 +331,7 @@ export function Search() {
   return (
     <div className="flex h-full min-h-0 flex-col" data-page="search">
       <div className="border-b border-border px-4 py-3 sm:px-6">
-        <h1 className="sr-only">Search</h1>
+        <h1 className="sr-only">{t("pages.search.search.jsx-text", { defaultValue: "Search" })}</h1>
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -346,15 +349,15 @@ export function Search() {
                 }
               }
             }}
-            placeholder="Search tasks, comments, documents, artifacts, agents, projects…"
-            aria-label="Search query"
+            placeholder={t("pages.search.search_tasks_comments_documents_.attr_placeholder", { defaultValue: "Search tasks, comments, documents, artifacts, agents, projects…" })}
+            aria-label={t("pages.search.search_query.attr_aria-label", { defaultValue: "Search query" })}
             className="h-10 pl-9 pr-20 text-sm"
           />
           {draftQuery.length > 0 ? (
             <button
               type="button"
               onClick={handleClear}
-              aria-label="Clear search"
+              aria-label={t("pages.search.clear_search.attr_aria-label", { defaultValue: "Clear search" })}
               className="absolute right-12 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-accent/50"
             >
               <X className="h-3.5 w-3.5" />
@@ -364,8 +367,7 @@ export function Search() {
             aria-hidden
             className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
           >
-            ⌘K
-          </kbd>
+            {t("pages.search.k.jsx-text", { defaultValue: "\n            ⌘K\n          " })}</kbd>
         </div>
       </div>
 
@@ -450,20 +452,20 @@ function SearchTabContent({
   isFetching,
   agentsById,
 }: SearchTabContentProps) {
+const { t } = useTranslation();
+
   if (showInitialState) {
     return (
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-10 sm:px-6">
         <div>
-          <h2 className="text-lg font-semibold">Type to search company memory.</h2>
+          <h2 className="text-lg font-semibold">{t("pages.search.type_to_search_company_memory.jsx-text", { defaultValue: "Type to search company memory." })}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Tasks, comments, plan documents, artifacts, agents, projects — same surface, ranked by relevance.
-          </p>
+            {t("pages.search.tasks_comments_plan_documents_ar.jsx-text", { defaultValue: "\n            Tasks, comments, plan documents, artifacts, agents, projects — same surface, ranked by relevance.\n          " })}</p>
         </div>
         {recentSearches.length > 0 ? (
           <div>
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Recent searches
-            </div>
+              {t("pages.search.recent_searches.jsx-text", { defaultValue: "\n              Recent searches\n            " })}</div>
             <ul className="flex flex-col divide-y divide-border rounded-md border border-border">
               {recentSearches.map((entry) => (
                 <li key={entry}>
@@ -482,17 +484,12 @@ function SearchTabContent({
         ) : null}
         <ul className="space-y-1 text-xs text-muted-foreground">
           <li>
-            <span className="font-medium text-foreground">Identifier lookup:</span> type{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-[11px]">PAP-123</code> to jump straight to a task.
-          </li>
+            <span className="font-medium text-foreground">{t("pages.search.identifier_lookup.jsx-text", { defaultValue: "Identifier lookup:" })}</span> type{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-[11px]">PAP-123</code> {t("pages.search.to_jump_straight_to_a_task.jsx-text", { defaultValue: " to jump straight to a task.\n          " })}</li>
           <li>
-            <span className="font-medium text-foreground">Quoted phrases:</span> wrap a phrase in quotes to match the
-            exact sequence.
-          </li>
+            <span className="font-medium text-foreground">{t("pages.search.quoted_phrases.jsx-text", { defaultValue: "Quoted phrases:" })}</span> {t("pages.search.wrap_a_phrase_in_quotes_to_match.jsx-text", { defaultValue: " wrap a phrase in quotes to match the exact sequence.\n          " })}</li>
           <li>
-            <span className="font-medium text-foreground">⌘K:</span> reopens the command palette pre-seeded with your
-            current query.
-          </li>
+            <span className="font-medium text-foreground">{t("pages.search.k.jsx-text", { defaultValue: "⌘K:" })}</span> {t("pages.search.reopens_the_command_palette_pre_.jsx-text", { defaultValue: " reopens the command palette pre-seeded with your current query.\n          " })}</li>
         </ul>
       </div>
     );
@@ -503,18 +500,14 @@ function SearchTabContent({
     return (
       <div className="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-3 px-4 py-12 text-center">
         <AlertTriangle className="h-10 w-10 text-destructive" aria-hidden />
-        <div className="text-base font-semibold">Couldn’t run that search</div>
+        <div className="text-base font-semibold">{t("pages.search.couldn_t_run_that_search.jsx-text", { defaultValue: "Couldn’t run that search" })}</div>
         <p className="text-sm text-muted-foreground">
-          {status ? `The server returned ${status}.` : "The request failed."} Your input and filters are still here, so
-          you can retry or fall back to the Tasks filter.
-        </p>
+          {status ? `The server returned ${status}.` : "The request failed."} {t("pages.search.your_input_and_filters_are_still.jsx-text", { defaultValue: " Your input and filters are still here, so you can retry or fall back to the Tasks filter.\n        " })}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button onClick={refetch} variant="default" size="sm">
-            Retry
-          </Button>
+            {t("pages.search.retry.jsx-text", { defaultValue: "\n            Retry\n          " })}</Button>
           <Button onClick={navigateIssuesFallback} variant="outline" size="sm">
-            Open Tasks filter view
-          </Button>
+            {t("pages.search.open_tasks_filter_view.jsx-text", { defaultValue: "\n            Open Tasks filter view\n          " })}</Button>
         </div>
       </div>
     );
@@ -524,8 +517,7 @@ function SearchTabContent({
     return (
       <div className="flex flex-col gap-2 px-2 py-3 sm:px-4">
         <div className="px-3 text-xs text-muted-foreground" data-testid="search-loading">
-          Searching for &ldquo;{trimmedQuery}&rdquo;…
-        </div>
+          {t("pages.search.searching_for_ldquo.jsx-text", { defaultValue: "\n          Searching for &ldquo;" })}{trimmedQuery}{t("pages.search.rdquo.jsx-text", { defaultValue: "&rdquo;…\n        " })}</div>
         <div className="flex flex-col">
           <div className="px-3 py-2">
             <Skeleton className="h-3 w-24" />
@@ -548,31 +540,26 @@ function SearchTabContent({
     return (
       <div className="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-3 px-4 py-12 text-center">
         <FileQuestion className="h-10 w-10 text-muted-foreground" aria-hidden />
-        <div className="text-base font-semibold">No results for &ldquo;{trimmedQuery}&rdquo;</div>
+        <div className="text-base font-semibold">{t("pages.search.no_results_for_ldquo.jsx-text", { defaultValue: "No results for &ldquo;" })}{trimmedQuery}{t("pages.search.rdquo.jsx-text", { defaultValue: "&rdquo;" })}</div>
         <p className="text-sm text-muted-foreground">
-          We couldn’t find a match in {describeScope(scope).toLowerCase()}. Try widening the scope or rephrasing your
-          query.
-        </p>
+          {t("pages.search.we_couldn_t_find_a_match_in.jsx-text", { defaultValue: "\n          We couldn’t find a match in " })}{describeScope(scope).toLowerCase()}{t("pages.search.try_widening_the_scope_or_rephra.jsx-text", { defaultValue: ". Try widening the scope or rephrasing your query.\n        " })}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {scope !== "all" ? (
             <Button onClick={showAllScope} size="sm" variant="outline">
-              Search all scopes
-            </Button>
+              {t("pages.search.search_all_scopes.jsx-text", { defaultValue: "\n              Search all scopes\n            " })}</Button>
           ) : null}
           <Button onClick={openNewIssue} size="sm" variant="default">
             <Plus className="mr-1.5 h-4 w-4" />
-            Create task from this query
-          </Button>
+            {t("pages.search.create_task_from_this_query.jsx-text", { defaultValue: "\n            Create task from this query\n          " })}</Button>
           <Button onClick={navigateIssuesFallback} size="sm" variant="ghost">
-            Open Tasks filter view
-          </Button>
+            {t("pages.search.open_tasks_filter_view.jsx-text", { defaultValue: "\n            Open Tasks filter view\n          " })}</Button>
         </div>
         <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
-          <li>Try fewer tokens or a single distinctive term.</li>
+          <li>{t("pages.search.try_fewer_tokens_or_a_single_dis.jsx-text", { defaultValue: "Try fewer tokens or a single distinctive term." })}</li>
           <li>
-            Use an identifier shortcut like <code className="rounded bg-muted px-1 py-0.5">PAP-123</code>.
+            {t("pages.search.use_an_identifier_shortcut_like.jsx-text", { defaultValue: "\n            Use an identifier shortcut like " })}<code className="rounded bg-muted px-1 py-0.5">PAP-123</code>.
           </li>
-          <li>Wrap multi-word phrases in quotes.</li>
+          <li>{t("pages.search.wrap_multi_word_phrases_in_quote.jsx-text", { defaultValue: "Wrap multi-word phrases in quotes." })}</li>
         </ul>
       </div>
     );
@@ -584,9 +571,8 @@ function SearchTabContent({
     <div className="flex w-full max-w-[960px] flex-col px-2 sm:px-4" data-testid="search-results">
       <div className="flex items-center justify-between py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
         <span>
-          {totalResults === 1 ? "1 result" : `${totalResults} results`} · sorted by relevance
-        </span>
-        {isFetching ? <span aria-live="polite" className="normal-case tracking-normal">Updating…</span> : null}
+          {totalResults === 1 ? "1 result" : `${totalResults} results`} {t("pages.search.sorted_by_relevance.jsx-text", { defaultValue: " · sorted by relevance\n        " })}</span>
+        {isFetching ? <span aria-live="polite" className="normal-case tracking-normal">{t("pages.search.updating.jsx-text", { defaultValue: "Updating…" })}</span> : null}
       </div>
       <div className="flex flex-col pb-10">
         {scope === "all" ? (

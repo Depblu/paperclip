@@ -1,4 +1,5 @@
 import { Link } from "@/lib/router";
+import { useTranslation } from "@/i18n";
 import { Menu } from "lucide-react";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useSidebar } from "../context/SidebarContext";
@@ -19,6 +20,8 @@ import { PluginLauncherOutlet, usePluginLaunchers } from "@/plugins/launchers";
 type GlobalToolbarContext = { companyId: string | null; companyPrefix: string | null };
 
 function GlobalToolbarPlugins({ context }: { context: GlobalToolbarContext }) {
+const { t } = useTranslation();
+
   const { slots } = usePluginSlots({ slotTypes: ["globalToolbarButton"], companyId: context.companyId });
   const { launchers } = usePluginLaunchers({ placementZones: ["globalToolbarButton"], companyId: context.companyId, enabled: !!context.companyId });
   if (slots.length === 0 && launchers.length === 0) return null;
@@ -31,6 +34,8 @@ function GlobalToolbarPlugins({ context }: { context: GlobalToolbarContext }) {
 }
 
 export function BreadcrumbBar() {
+const { t } = useTranslation();
+
   const { breadcrumbs, mobileToolbar } = useBreadcrumbs();
   const { toggleSidebar, isMobile } = useSidebar();
   const { selectedCompanyId, selectedCompany } = useCompany();
@@ -67,7 +72,7 @@ export function BreadcrumbBar() {
       size="icon-sm"
       className="mr-2 shrink-0"
       onClick={toggleSidebar}
-      aria-label="Open sidebar"
+      aria-label={t("components.breadcrumbbar.open_sidebar.attr_aria-label", { defaultValue: "Open sidebar" })}
     >
       <Menu className="h-5 w-5" />
     </Button>

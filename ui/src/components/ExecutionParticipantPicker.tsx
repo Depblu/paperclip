@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import type { Agent, Issue } from "@paperclipai/shared";
 import { useQuery } from "@tanstack/react-query";
 import { accessApi } from "../api/access";
@@ -32,6 +33,8 @@ export function ExecutionParticipantPicker({
   currentUserId,
   onUpdate,
 }: ExecutionParticipantPickerProps) {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -129,7 +132,7 @@ export function ExecutionParticipantPicker({
             )}
             onClick={() => updatePolicy([])}
           >
-            No {label.toLowerCase()}
+            {t("components.executionparticipantpicker.no.jsx-text", { defaultValue: "\n            No " })}{label.toLowerCase()}
           </button>
           {currentUserId && (
             <button
@@ -140,8 +143,7 @@ export function ExecutionParticipantPicker({
               onClick={() => toggle(`user:${currentUserId}`)}
             >
               <User className="h-3 w-3 shrink-0 text-muted-foreground" />
-              Assign to me
-            </button>
+              {t("components.executionparticipantpicker.assign_to_me.jsx-text", { defaultValue: "\n              Assign to me\n            " })}</button>
           )}
           {issue.createdByUserId && issue.createdByUserId !== currentUserId && (
             <button

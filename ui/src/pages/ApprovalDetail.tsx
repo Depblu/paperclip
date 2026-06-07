@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useNavigate, useParams, useSearchParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { approvalsApi } from "../api/approvals";
@@ -17,6 +18,8 @@ import type { ApprovalComment } from "@paperclipai/shared";
 import { MarkdownBody } from "../components/MarkdownBody";
 
 export function ApprovalDetail() {
+const { t } = useTranslation();
+
   const { approvalId } = useParams<{ approvalId: string }>();
   const { selectedCompanyId, setSelectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -142,7 +145,7 @@ export function ApprovalDetail() {
   });
 
   if (isLoading) return <PageSkeleton variant="detail" />;
-  if (!approval) return <p className="text-sm text-muted-foreground">Approval not found.</p>;
+  if (!approval) return <p className="text-sm text-muted-foreground">{t("pages.approvaldetail.approval_not_found.jsx-text", { defaultValue: "Approval not found." })}</p>;
 
   const payload = approval.payload as Record<string, unknown>;
   const linkedAgentId = typeof payload.agentId === "string" ? payload.agentId : null;
@@ -181,10 +184,9 @@ export function ApprovalDetail() {
                 <Sparkles className="h-3 w-3 text-green-500 dark:text-green-200 absolute -right-2 -top-1 animate-pulse" />
               </div>
               <div>
-                <p className="text-sm text-green-800 dark:text-green-100 font-medium">Approval confirmed</p>
+                <p className="text-sm text-green-800 dark:text-green-100 font-medium">{t("pages.approvaldetail.approval_confirmed.jsx-text", { defaultValue: "Approval confirmed" })}</p>
                 <p className="text-xs text-green-700 dark:text-green-200/90">
-                  Requesting agent was notified to review this approval and linked tasks.
-                </p>
+                  {t("pages.approvaldetail.requesting_agent_was_notified_to.jsx-text", { defaultValue: "\n                  Requesting agent was notified to review this approval and linked tasks.\n                " })}</p>
               </div>
             </div>
             <Button
@@ -212,7 +214,7 @@ export function ApprovalDetail() {
         <div className="text-sm space-y-1">
           {approval.requestedByAgentId && (
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-xs">Requested by</span>
+              <span className="text-muted-foreground text-xs">{t("pages.approvaldetail.requested_by.jsx-text", { defaultValue: "Requested by" })}</span>
               <Identity
                 name={agentNameById.get(approval.requestedByAgentId) ?? approval.requestedByAgentId.slice(0, 8)}
                 size="sm"
@@ -226,21 +228,20 @@ export function ApprovalDetail() {
             onClick={() => setShowRawPayload((v) => !v)}
           >
             <ChevronRight className={`h-3 w-3 transition-transform ${showRawPayload ? "rotate-90" : ""}`} />
-            See full request
-          </button>
+            {t("pages.approvaldetail.see_full_request.jsx-text", { defaultValue: "\n            See full request\n          " })}</button>
           {showRawPayload && (
             <pre className="text-xs bg-muted/40 rounded-md p-3 overflow-x-auto">
               {JSON.stringify(payload, null, 2)}
             </pre>
           )}
           {approval.decisionNote && (
-            <p className="text-xs text-muted-foreground">Decision note: {approval.decisionNote}</p>
+            <p className="text-xs text-muted-foreground">{t("pages.approvaldetail.decision_note.jsx-text", { defaultValue: "Decision note: " })}{approval.decisionNote}</p>
           )}
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         {linkedIssues && linkedIssues.length > 0 && (
           <div className="pt-2 border-t border-border/60">
-            <p className="text-xs text-muted-foreground mb-1.5">Linked Tasks</p>
+            <p className="text-xs text-muted-foreground mb-1.5">{t("pages.approvaldetail.linked_tasks.jsx-text", { defaultValue: "Linked Tasks" })}</p>
             <div className="space-y-1.5">
               {linkedIssues.map((issue) => (
                 <Link
@@ -256,8 +257,7 @@ export function ApprovalDetail() {
               ))}
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Linked tasks remain open until the requesting agent follows up and closes them.
-            </p>
+              {t("pages.approvaldetail.linked_tasks_remain_open_until_t.jsx-text", { defaultValue: "\n              Linked tasks remain open until the requesting agent follows up and closes them.\n            " })}</p>
           </div>
         )}
         <div className="flex flex-wrap items-center gap-2">
@@ -269,21 +269,19 @@ export function ApprovalDetail() {
                 onClick={() => approveMutation.mutate()}
                 disabled={approveMutation.isPending}
               >
-                Approve
-              </Button>
+                {t("pages.approvaldetail.approve.jsx-text", { defaultValue: "\n                Approve\n              " })}</Button>
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => rejectMutation.mutate()}
                 disabled={rejectMutation.isPending}
               >
-                Reject
-              </Button>
+                {t("pages.approvaldetail.reject.jsx-text", { defaultValue: "\n                Reject\n              " })}</Button>
             </>
           )}
           {isBudgetApproval && approval.status === "pending" && (
             <p className="text-sm text-muted-foreground">
-              Resolve this budget stop from the budget controls on <Link to="/costs" className="underline underline-offset-2">/costs</Link>.
+              {t("pages.approvaldetail.resolve_this_budget_stop_from_th.jsx-text", { defaultValue: "\n              Resolve this budget stop from the budget controls on " })}<Link to="/costs" className="underline underline-offset-2">/costs</Link>.
             </p>
           )}
           {approval.status === "pending" && (
@@ -293,8 +291,7 @@ export function ApprovalDetail() {
               onClick={() => revisionMutation.mutate()}
               disabled={revisionMutation.isPending}
             >
-              Request revision
-            </Button>
+              {t("pages.approvaldetail.request_revision.jsx-text", { defaultValue: "\n              Request revision\n            " })}</Button>
           )}
           {approval.status === "revision_requested" && (
             <Button
@@ -303,8 +300,7 @@ export function ApprovalDetail() {
               onClick={() => resubmitMutation.mutate()}
               disabled={resubmitMutation.isPending}
             >
-              Mark resubmitted
-            </Button>
+              {t("pages.approvaldetail.mark_resubmitted.jsx-text", { defaultValue: "\n              Mark resubmitted\n            " })}</Button>
           )}
           {approval.status === "rejected" && approval.type === "hire_agent" && linkedAgentId && (
             <Button
@@ -317,14 +313,13 @@ export function ApprovalDetail() {
               }}
               disabled={deleteAgentMutation.isPending}
             >
-              Delete disapproved agent
-            </Button>
+              {t("pages.approvaldetail.delete_disapproved_agent.jsx-text", { defaultValue: "\n              Delete disapproved agent\n            " })}</Button>
           )}
         </div>
       </div>
 
       <div className="border border-border rounded-lg p-4 space-y-3">
-        <h3 className="text-sm font-medium">Comments ({comments?.length ?? 0})</h3>
+        <h3 className="text-sm font-medium">{t("pages.approvaldetail.comments.jsx-text", { defaultValue: "Comments (" })}{comments?.length ?? 0})</h3>
         <div className="space-y-2">
           {(comments ?? []).map((comment: ApprovalComment) => (
             <div key={comment.id} className="border border-border/60 rounded-md p-3">
@@ -350,7 +345,7 @@ export function ApprovalDetail() {
         <Textarea
           value={commentBody}
           onChange={(e) => setCommentBody(e.target.value)}
-          placeholder="Add a comment..."
+          placeholder={t("pages.approvaldetail.add_a_comment.attr_placeholder", { defaultValue: "Add a comment..." })}
           rows={3}
         />
         <div className="flex justify-end">

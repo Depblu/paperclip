@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import type { Issue, ExecutionWorkspace } from "@paperclipai/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -56,6 +57,8 @@ function defaultExecutionWorkspaceModeForProject(project: { executionWorkspacePo
 /* -------------------------------------------------------------------------- */
 
 function BreakablePath({ text }: { text: string }) {
+const { t } = useTranslation();
+
   const parts: React.ReactNode[] = [];
   const segments = text.split(/(?<=[\/-])/);
   for (let i = 0; i < segments.length; i++) {
@@ -66,6 +69,8 @@ function BreakablePath({ text }: { text: string }) {
 }
 
 function CopyableInline({ value, label, mono }: { value: string; label?: string; mono?: boolean }) {
+const { t } = useTranslation();
+
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const handleCopy = useCallback(async () => {
@@ -202,6 +207,8 @@ export function IssueWorkspaceCard({
   livePreview = false,
   onDraftChange,
 }: IssueWorkspaceCardProps) {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const companyId = issue.companyId ?? selectedCompanyId;
   const [editing, setEditing] = useState(initialEditing);
@@ -380,16 +387,14 @@ export function IssueWorkspaceCard({
                 className="h-6 px-2 text-xs text-muted-foreground"
                 onClick={handleCancel}
               >
-                <X className="h-3 w-3 mr-1" />Cancel
-              </Button>
+                <X className="h-3 w-3 mr-1" />{t("components.issueworkspacecard.cancel.jsx-text", { defaultValue: "Cancel\n              " })}</Button>
               <Button
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={handleSave}
                 disabled={!canSaveWorkspaceConfig}
               >
-                Save
-              </Button>
+                {t("components.issueworkspacecard.save.jsx-text", { defaultValue: "\n                Save\n              " })}</Button>
             </>
           ) : (
             <Button
@@ -398,8 +403,7 @@ export function IssueWorkspaceCard({
               className="h-6 px-2 text-xs text-muted-foreground"
               onClick={() => setEditing(true)}
             >
-              <Pencil className="h-3 w-3 mr-1" />Edit
-            </Button>
+              <Pencil className="h-3 w-3 mr-1" />{t("components.issueworkspacecard.edit.jsx-text", { defaultValue: "Edit\n            " })}</Button>
           )}
         </div>
       </div>
@@ -421,13 +425,13 @@ export function IssueWorkspaceCard({
           )}
           {workspace?.repoUrl && (
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="text-[11px]">Repo:</span>
+              <span className="text-[11px]">{t("components.issueworkspacecard.repo.jsx-text", { defaultValue: "Repo:" })}</span>
               <CopyableInline value={workspace.repoUrl} mono />
             </div>
           )}
           {environmentsEnabled && currentEnvironmentId && (
             <div className="text-muted-foreground" style={{ overflowWrap: "anywhere" }}>
-              Environment: <span className="text-foreground">{currentEnvironment?.name ?? currentEnvironmentId}</span>
+              {t("components.issueworkspacecard.environment.jsx-text", { defaultValue: "\n              Environment: " })}<span className="text-foreground">{currentEnvironment?.name ?? currentEnvironmentId}</span>
               {currentSelection === "reuse_existing" && currentReusableEnvironmentId === currentEnvironmentId
                 ? " · reused workspace"
                 : !issue.executionWorkspaceSettings?.environmentId && projectEnvironmentId === currentEnvironmentId
@@ -446,7 +450,7 @@ export function IssueWorkspaceCard({
           )}
           {currentSelection === "reuse_existing" && selectedReusableExecutionWorkspace && (
             <div className="text-muted-foreground" style={{ overflowWrap: "anywhere" }}>
-              Reusing:{" "}
+              {t("components.issueworkspacecard.reusing.jsx-text", { defaultValue: "\n              Reusing:" })}{" "}
               {selectedReusableWorkspaceLink ? (
                 <Link
                   to={selectedReusableWorkspaceLink}
@@ -465,8 +469,7 @@ export function IssueWorkspaceCard({
                 to={currentWorkspaceLink}
                 className="text-[11px] text-muted-foreground hover:text-foreground hover:underline"
               >
-                View workspace details →
-              </Link>
+                {t("components.issueworkspacecard.view_workspace_details.jsx-text", { defaultValue: "\n                View workspace details →\n              " })}</Link>
             </div>
           )}
         </div>
@@ -505,7 +508,7 @@ export function IssueWorkspaceCard({
                 setDraftExecutionWorkspaceId(e.target.value);
               }}
             >
-              <option value="">Choose an existing workspace</option>
+              <option value="">{t("components.issueworkspacecard.choose_an_existing_workspace.jsx-text", { defaultValue: "Choose an existing workspace" })}</option>
               {deduplicatedReusableWorkspaces.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name} · {w.status} · {w.branchName ?? w.cwd ?? w.id.slice(0, 8)}
@@ -554,7 +557,7 @@ export function IssueWorkspaceCard({
           {workspace && (
             <div className="text-[11px] text-muted-foreground space-y-0.5 pt-1 border-t border-border/50">
               <div style={{ overflowWrap: "anywhere" }}>
-                Current:{" "}
+                {t("components.issueworkspacecard.current.jsx-text", { defaultValue: "\n                Current:" })}{" "}
                 {currentWorkspaceLink ? (
                   <Link
                     to={currentWorkspaceLink}
@@ -565,7 +568,7 @@ export function IssueWorkspaceCard({
                 ) : (
                   <BreakablePath text={workspace.name} />
                 )}
-                {" · "}
+                {t("components.issueworkspacecard..jsx-expr", { defaultValue: " · " })}
                 {workspace.status}
               </div>
             </div>

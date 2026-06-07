@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { Link, useNavigate, useLocation } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { agentsApi, type OrgNode } from "../api/agents";
@@ -77,6 +78,8 @@ function filterOrgTree(nodes: OrgNode[], tab: FilterTab): OrgNode[] {
 }
 
 export function Agents() {
+const { t } = useTranslation();
+
   const { selectedCompanyId } = useCompany();
   const { openNewAgent } = useDialogActions();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -187,13 +190,12 @@ export function Agents() {
           )}
           <Button size="sm" variant="outline" onClick={openNewAgent}>
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Agent
-          </Button>
+            {t("pages.agents.new_agent.jsx-text", { defaultValue: "\n            New Agent\n          " })}</Button>
         </div>
       </div>
 
       {filtered.length > 0 && (
-        <p className="text-xs text-muted-foreground">{filtered.length} agent{filtered.length !== 1 ? "s" : ""}</p>
+        <p className="text-xs text-muted-foreground">{filtered.length} {t("pages.agents.agent.jsx-text", { defaultValue: " agent" })}{filtered.length !== 1 ? "s" : ""}</p>
       )}
 
       {error && <p className="text-sm text-destructive">{error.message}</p>}
@@ -229,7 +231,7 @@ export function Agents() {
                   resourceMembershipState(membershipsQuery.data, "agent", agent.id) === "left" ? "text-foreground/55" : "",
                 )}
                 leading={hasInvalidOrgChain ? (
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label="Invalid reporting chain" />
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label={t("pages.agents.invalid_reporting_chain.attr_aria-label", { defaultValue: "Invalid reporting chain" })} />
                 ) : (
                   <AgentStatusCapsule status={agent.status} />
                 )}
@@ -316,8 +318,7 @@ export function Agents() {
 
       {effectiveView === "list" && agents && agents.length > 0 && filtered.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No agents match the selected filter.
-        </p>
+          {t("pages.agents.no_agents_match_the_selected_fil.jsx-text", { defaultValue: "\n          No agents match the selected filter.\n        " })}</p>
       )}
 
       {/* Org chart view */}
@@ -340,14 +341,12 @@ export function Agents() {
 
       {effectiveView === "org" && orgTree && orgTree.length > 0 && filteredOrg.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No agents match the selected filter.
-        </p>
+          {t("pages.agents.no_agents_match_the_selected_fil.jsx-text", { defaultValue: "\n          No agents match the selected filter.\n        " })}</p>
       )}
 
       {effectiveView === "org" && orgTree && orgTree.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No organizational hierarchy defined.
-        </p>
+          {t("pages.agents.no_organizational_hierarchy_defi.jsx-text", { defaultValue: "\n          No organizational hierarchy defined.\n        " })}</p>
       )}
     </div>
   );
@@ -370,6 +369,8 @@ function OrgTreeNode({
   memberships: ReturnType<typeof useResourceMemberships>["data"];
   membershipMutation: ReturnType<typeof useResourceMembershipMutation>;
 }) {
+const { t } = useTranslation();
+
   const agent = agentMap.get(node.id);
   const hasInvalidOrgChain = Boolean(agent && agent.orgChainHealth?.status === "invalid_org_chain");
   const membershipState = resourceMembershipState(memberships, "agent", node.id);
@@ -388,7 +389,7 @@ function OrgTreeNode({
         )}
       >
         {hasInvalidOrgChain ? (
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label="Invalid reporting chain" />
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label={t("pages.agents.invalid_reporting_chain.attr_aria-label", { defaultValue: "Invalid reporting chain" })} />
         ) : (
           <AgentStatusCapsule status={node.status} />
         )}
@@ -476,6 +477,8 @@ function OrgTreeNode({
  * date like "Apr 30, 2026".
  */
 function AgentMetaColumns({ agent }: { agent: Agent }) {
+const { t } = useTranslation();
+
   const model = getConfiguredModel(agent);
   const adapterLabel = getAdapterLabel(agent.adapterType);
   return (
@@ -507,6 +510,8 @@ function LiveRunIndicator({
   runId: string;
   liveCount: number;
 }) {
+const { t } = useTranslation();
+
   return (
     <Link
       to={`/agents/${agentRef}/runs/${runId}`}
@@ -518,7 +523,7 @@ function LiveRunIndicator({
         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
       </span>
       <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">
-        Live{liveCount > 1 ? ` (${liveCount})` : ""}
+        {t("pages.agents.live.jsx-text", { defaultValue: "\n        Live" })}{liveCount > 1 ? ` (${liveCount})` : ""}
       </span>
     </Link>
   );

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "@/i18n";
 import { useMemo, useState } from "react";
 import * as RouterDom from "react-router-dom";
 import type { Issue } from "@paperclipai/shared";
@@ -39,6 +40,8 @@ export function IssueQuicklookCard({
   linkState?: unknown;
   compact?: boolean;
 }) {
+const { t } = useTranslation();
+
   const description = useMemo(() => summarizeIssueDescription(issue.description), [issue.description]);
 
   return (
@@ -55,9 +58,9 @@ export function IssueQuicklookCard({
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <span className="font-mono">{issue.identifier ?? issue.id.slice(0, 8)}</span>
-        <span>&middot;</span>
+        <span>{t("components.issuelinkquicklook.middot.jsx-text", { defaultValue: "&middot;" })}</span>
         <span>{issue.status.replace(/_/g, " ")}</span>
-        <span>&middot;</span>
+        <span>{t("components.issuelinkquicklook.middot.jsx-text", { defaultValue: "&middot;" })}</span>
         <span>{timeAgo(new Date(issue.updatedAt))}</span>
       </div>
       {description ? (
@@ -99,6 +102,8 @@ export const IssueLinkQuicklook = React.forwardRef<
   },
   ref,
 ) {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const prefetchedState = issuePrefetch ? withIssueDetailHeaderSeed(state, issuePrefetch) : state;
@@ -182,7 +187,7 @@ export const IssueLinkQuicklook = React.forwardRef<
             <div className="h-4 w-full rounded bg-accent/40" />
             <div className="h-4 w-3/4 rounded bg-accent/30" />
             {!isLoading ? (
-              <p className="text-xs text-muted-foreground">Unable to load task preview.</p>
+              <p className="text-xs text-muted-foreground">{t("components.issuelinkquicklook.unable_to_load_task_preview.jsx-text", { defaultValue: "Unable to load task preview." })}</p>
             ) : null}
           </div>
         )}

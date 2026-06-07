@@ -16,6 +16,7 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation, i18n } from "@/i18n";
 import { PLUGIN_LAUNCHER_BOUNDS } from "@paperclipai/shared";
 import type {
   PluginLauncherBounds,
@@ -379,6 +380,8 @@ function PluginLauncherBridgeScope({
   hostContext: PluginHostContext;
   children: ReactNode;
 }) {
+const { t } = useTranslation();
+
   const value = useMemo(() => ({ pluginId, hostContext }), [pluginId, hostContext]);
 
   return (
@@ -414,11 +417,12 @@ class LauncherErrorBoundary extends Component<LauncherErrorBoundaryProps, Launch
   }
 
   override render() {
+    // Class components can't use hooks; call t() via the i18n instance.
+    const t = (key: string, opts: { defaultValue: string }) => i18n.t(key, opts);
     if (this.state.hasError) {
       return (
         <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-          {this.props.launcher.pluginDisplayName}: failed to render
-        </div>
+          {this.props.launcher.pluginDisplayName}{t("misc.launchers.failed_to_render.jsx-text", { defaultValue: ": failed to render\n        " })}</div>
       );
     }
     return this.props.children;
@@ -432,6 +436,8 @@ function LauncherRenderContent({
   instance: LauncherInstance;
   renderEnvironment: PluginRenderEnvironmentContext;
 }) {
+const { t } = useTranslation();
+
   const component = instance.component;
   const { data: session } = useQuery({
     queryKey: queryKeys.auth.session,
@@ -456,7 +462,7 @@ function LauncherRenderContent({
 
     return (
       <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-        {instance.launcher.pluginDisplayName}: could not resolve launcher target "{instance.launcher.action.target}".
+        {instance.launcher.pluginDisplayName}{t("misc.launchers.could_not_resolve_launcher_targe.jsx-text", { defaultValue: ": could not resolve launcher target \"" })}{instance.launcher.action.target}".
       </div>
     );
   }
@@ -496,6 +502,8 @@ function LauncherModalShell({
   requestBounds: (key: string, request: PluginModalBoundsRequest) => Promise<void>;
   closeLauncher: (key: string, event: PluginRenderCloseEvent) => Promise<void>;
 }) {
+const { t } = useTranslation();
+
   const contentRef = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
 
@@ -596,8 +604,7 @@ function LauncherModalShell({
             className="ml-auto"
             onClick={() => void closeLauncher(instance.key, { reason: "programmatic" })}
           >
-            Close
-          </Button>
+            {t("misc.launchers.close.jsx-text", { defaultValue: "\n            Close\n          " })}</Button>
         </div>
         <div
           className={cn(
@@ -613,6 +620,8 @@ function LauncherModalShell({
 }
 
 export function PluginLauncherProvider({ children }: { children: ReactNode }) {
+const { t } = useTranslation();
+
   const [stack, setStack] = useState<LauncherInstance[]>([]);
   const stackRef = useRef(stack);
   stackRef.current = stack;
@@ -761,6 +770,8 @@ function DefaultLauncherTrigger({
   placementZone: PluginLauncherPlacementZone;
   onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void;
 }) {
+const { t } = useTranslation();
+
   return (
     <Button
       type="button"
@@ -791,6 +802,8 @@ export function PluginLauncherOutlet({
   itemClassName,
   errorClassName,
 }: PluginLauncherOutletProps) {
+const { t } = useTranslation();
+
   const { activateLauncher } = usePluginLauncherRuntime();
   const { launchers, contributionsByPluginId, errorMessage } = usePluginLaunchers({
     placementZones,
@@ -802,7 +815,7 @@ export function PluginLauncherOutlet({
   if (errorMessage) {
     return (
       <div className={cn("rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1 text-xs text-destructive", errorClassName)}>
-        Plugin launchers unavailable: {errorMessage}
+        {t("misc.launchers.plugin_launchers_unavailable.jsx-text", { defaultValue: "\n        Plugin launchers unavailable: " })}{errorMessage}
       </div>
     );
   }
@@ -844,6 +857,8 @@ export function PluginLauncherButton({
   className,
   onActivated,
 }: PluginLauncherButtonProps) {
+const { t } = useTranslation();
+
   const { activateLauncher } = usePluginLauncherRuntime();
 
   return (

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   CompanyPortabilityCollisionStrategy,
@@ -113,6 +114,8 @@ const ACTION_COLORS: Record<string, string> = {
 };
 
 function FrontmatterCard({ data }: { data: FrontmatterData }) {
+const { t } = useTranslation();
+
   return (
     <div className="rounded-md border border-border bg-accent/20 px-4 py-3 mb-4">
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
@@ -147,6 +150,7 @@ function FrontmatterCard({ data }: { data: FrontmatterData }) {
 // ── Import file tree customization ───────────────────────────────────
 
 function renderImportFileExtra(node: FileTreeNode, checked: boolean, renameMap: Map<string, string>) {
+  const { t } = useTranslation();
   // Show rename indicator only on directories (folders), not individual files
   const renamedTo = node.kind === "dir" ? renameMap.get(node.path) : undefined;
   const actionBadge = node.action ? (
@@ -164,7 +168,7 @@ function renderImportFileExtra(node: FileTreeNode, checked: boolean, renameMap: 
     <span className="inline-flex items-center gap-1.5 shrink-0">
       {renamedTo && checked && (
         <span className="text-[10px] text-cyan-500 font-mono truncate max-w-[7rem]" title={renamedTo}>
-          &rarr; {renamedTo}
+          {t("pages.companyimport.rarr.jsx-text", { defaultValue: "\n          &rarr; " })}{renamedTo}
         </span>
       )}
       {actionBadge}
@@ -191,6 +195,8 @@ function ImportPreviewPane({
   action: string | null;
   renamedTo: string | null;
 }) {
+const { t } = useTranslation();
+
   if (!selectedFile || content === null) {
     return (
       <EmptyState icon={Package} message="Select a file to preview its contents." />
@@ -223,7 +229,7 @@ function ImportPreviewPane({
             <span className="truncate font-mono text-sm">{selectedFile}</span>
             {renamedTo && (
               <span className="shrink-0 font-mono text-sm text-cyan-500">
-                &rarr; {renamedTo}
+                {t("pages.companyimport.rarr.jsx-text", { defaultValue: "\n                &rarr; " })}{renamedTo}
               </span>
             )}
           </div>
@@ -255,8 +261,7 @@ function ImportPreviewPane({
           </pre>
         ) : (
           <div className="rounded-lg border border-border bg-accent/10 px-4 py-3 text-sm text-muted-foreground">
-            Binary asset preview is not available for this file type.
-          </div>
+            {t("pages.companyimport.binary_asset_preview_is_not_avai.jsx-text", { defaultValue: "\n            Binary asset preview is not available for this file type.\n          " })}</div>
         )}
       </div>
     </div>
@@ -404,6 +409,8 @@ function ConflictResolutionList({
   onToggleSkip: (slug: string, filePath: string | null) => void;
   onToggleConfirm: (slug: string) => void;
 }) {
+const { t } = useTranslation();
+
   if (conflicts.length === 0) return null;
 
   return (
@@ -411,10 +418,9 @@ function ConflictResolutionList({
       <div className="rounded-md border border-border">
         <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
           <h3 className="text-sm font-medium">
-            Renames
-          </h3>
+            {t("pages.companyimport.renames.jsx-text", { defaultValue: "\n            Renames\n          " })}</h3>
           <span className="text-xs text-muted-foreground">
-            {conflicts.length} item{conflicts.length === 1 ? "" : "s"}
+            {conflicts.length} {t("pages.companyimport.item.jsx-text", { defaultValue: " item" })}{conflicts.length === 1 ? "" : "s"}
           </span>
         </div>
         <div className="divide-y divide-border">
@@ -495,8 +501,7 @@ function ConflictResolutionList({
                     {isConfirmed ? (
                       <>
                         <Check className="h-3 w-3" />
-                        confirmed
-                      </>
+                        {t("pages.companyimport.confirmed.jsx-text", { defaultValue: "\n                        confirmed\n                      " })}</>
                     ) : (
                       "confirm rename"
                     )}
@@ -543,15 +548,17 @@ function AdapterPickerList({
   onToggleExpand: (slug: string) => void;
   onChangeConfig: (slug: string, patch: Partial<CreateConfigValues>) => void;
 }) {
+const { t } = useTranslation();
+
   if (agents.length === 0) return null;
 
   return (
     <div className="mx-5 mt-3">
       <div className="rounded-md border border-border">
         <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-          <h3 className="text-sm font-medium">Adapters</h3>
+          <h3 className="text-sm font-medium">{t("pages.companyimport.adapters.jsx-text", { defaultValue: "Adapters" })}</h3>
           <span className="text-xs text-muted-foreground">
-            {agents.length} agent{agents.length === 1 ? "" : "s"}
+            {agents.length} {t("pages.companyimport.agent.jsx-text", { defaultValue: " agent" })}{agents.length === 1 ? "" : "s"}
           </span>
         </div>
         <div className="divide-y divide-border">
@@ -567,8 +574,7 @@ function AdapterPickerList({
                     "shrink-0 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide",
                     "text-blue-500 border-blue-500/30",
                   )}>
-                    agent
-                  </span>
+                    {t("pages.companyimport.agent.jsx-text", { defaultValue: "\n                    agent\n                  " })}</span>
                   <span className="shrink-0 font-mono text-xs text-muted-foreground">
                     {agent.name}
                   </span>
@@ -595,8 +601,7 @@ function AdapterPickerList({
                     onClick={() => onToggleExpand(agent.slug)}
                   >
                     <ChevronRight className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")} />
-                    configure adapter
-                  </button>
+                    {t("pages.companyimport.configure_adapter.jsx-text", { defaultValue: "\n                    configure adapter\n                  " })}</button>
                 </div>
                 {isExpanded && (
                   <div className="border-t border-border bg-accent/10 px-4 py-3 space-y-3">
@@ -645,6 +650,8 @@ async function readLocalPackageZip(file: File): Promise<{
 // ── Main page ─────────────────────────────────────────────────────────
 
 export function CompanyImport() {
+const { t } = useTranslation();
+
   const {
     selectedCompanyId,
     selectedCompany,
@@ -1094,10 +1101,9 @@ export function CompanyImport() {
       {/* Source form section */}
       <div className="border-b border-border px-5 py-5 space-y-4">
         <div>
-          <h2 className="text-base font-semibold">Import source</h2>
+          <h2 className="text-base font-semibold">{t("pages.companyimport.import_source.jsx-text", { defaultValue: "Import source" })}</h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Choose a GitHub repo or upload a local Paperclip zip package.
-          </p>
+            {t("pages.companyimport.choose_a_github_repo_or_upload_a.jsx-text", { defaultValue: "\n            Choose a GitHub repo or upload a local Paperclip zip package.\n          " })}</p>
         </div>
 
         <div className="grid gap-2 md:grid-cols-2">
@@ -1144,13 +1150,11 @@ export function CompanyImport() {
                 variant="outline"
                 onClick={() => packageInputRef.current?.click()}
               >
-                Choose zip
-              </Button>
+                {t("pages.companyimport.choose_zip.jsx-text", { defaultValue: "\n                Choose zip\n              " })}</Button>
               {localPackage && (
                 <span className="text-xs text-muted-foreground">
-                  {localPackage.name} with{" "}
-                  {Object.keys(localPackage.files).length} file
-                  {Object.keys(localPackage.files).length === 1 ? "" : "s"}
+                  {localPackage.name} {t("pages.companyimport.with.jsx-text", { defaultValue: " with" })}{" "}
+                  {Object.keys(localPackage.files).length} {t("pages.companyimport.file.jsx-text", { defaultValue: " file\n                  " })}{Object.keys(localPackage.files).length === 1 ? "" : "s"}
                 </span>
               )}
             </div>
@@ -1162,7 +1166,7 @@ export function CompanyImport() {
           </div>
         ) : (
           <Field
-            label="GitHub URL"
+            label={t("pages.companyimport.github_url.attr_label", { defaultValue: "GitHub URL" })}
             hint="Repo tree path or blob URL to COMPANY.md (e.g. github.com/owner/repo/tree/main/company)."
           >
             <input
@@ -1187,16 +1191,16 @@ export function CompanyImport() {
               setImportPreview(null);
             }}
           >
-            <option value="new">Create new company</option>
+            <option value="new">{t("pages.companyimport.create_new_company.jsx-text", { defaultValue: "Create new company" })}</option>
             <option value="existing">
-              Existing company: {selectedCompany?.name}
+              {t("pages.companyimport.existing_company.jsx-text", { defaultValue: "\n              Existing company: " })}{selectedCompany?.name}
             </option>
           </select>
         </Field>
 
         {targetMode === "new" && (
           <Field
-            label="New company name"
+            label={t("pages.companyimport.new_company_name.attr_label", { defaultValue: "New company name" })}
             hint="Optional override. Leave blank to use the package name."
           >
             <input
@@ -1204,13 +1208,13 @@ export function CompanyImport() {
               type="text"
               value={newCompanyName}
               onChange={(e) => setNewCompanyName(e.target.value)}
-              placeholder="Imported Company"
+              placeholder={t("pages.companyimport.imported_company.attr_placeholder", { defaultValue: "Imported Company" })}
             />
           </Field>
         )}
 
         <Field
-          label="Collision strategy"
+          label={t("pages.companyimport.collision_strategy.attr_label", { defaultValue: "Collision strategy" })}
           hint="Board imports can rename, skip, or replace matching company content."
         >
           <select
@@ -1221,9 +1225,9 @@ export function CompanyImport() {
               setImportPreview(null);
             }}
           >
-            <option value="rename">Rename on conflict</option>
-            <option value="skip">Skip on conflict</option>
-            <option value="replace">Replace existing</option>
+            <option value="rename">{t("pages.companyimport.rename_on_conflict.jsx-text", { defaultValue: "Rename on conflict" })}</option>
+            <option value="skip">{t("pages.companyimport.skip_on_conflict.jsx-text", { defaultValue: "Skip on conflict" })}</option>
+            <option value="replace">{t("pages.companyimport.replace_existing.jsx-text", { defaultValue: "Replace existing" })}</option>
           </select>
         </Field>
 
@@ -1246,19 +1250,17 @@ export function CompanyImport() {
           <div className="sticky top-0 z-10 border-b border-border bg-background px-5 py-3">
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <span className="font-medium">
-                Import preview
-              </span>
+                {t("pages.companyimport.import_preview.jsx-text", { defaultValue: "\n                Import preview\n              " })}</span>
               <span className="text-muted-foreground">
-                {selectedCount} / {totalFiles} file{totalFiles === 1 ? "" : "s"} selected
-              </span>
+                {selectedCount} / {totalFiles} {t("pages.companyimport.file.jsx-text", { defaultValue: " file" })}{totalFiles === 1 ? "" : "s"} {t("pages.companyimport.selected.jsx-text", { defaultValue: " selected\n              " })}</span>
               {conflicts.length > 0 && (
                 <span className="text-amber-500">
-                  {conflicts.length} conflict{conflicts.length === 1 ? "" : "s"}
+                  {conflicts.length} {t("pages.companyimport.conflict.jsx-text", { defaultValue: " conflict" })}{conflicts.length === 1 ? "" : "s"}
                 </span>
               )}
               {importPreview.errors.length > 0 && (
                 <span className="text-destructive">
-                  {importPreview.errors.length} error{importPreview.errors.length === 1 ? "" : "s"}
+                  {importPreview.errors.length} {t("pages.companyimport.error.jsx-text", { defaultValue: " error" })}{importPreview.errors.length === 1 ? "" : "s"}
                 </span>
               )}
             </div>
@@ -1322,7 +1324,7 @@ export function CompanyImport() {
           <div className="grid gap-4 xl:h-[calc(100vh-16rem)] xl:grid-cols-[19rem_minmax(0,1fr)] xl:gap-0">
             <aside className="flex max-h-[24rem] flex-col overflow-hidden border-b border-border xl:max-h-none xl:border-b-0 xl:border-r">
               <div className="border-b border-border px-4 py-3 shrink-0">
-                <h2 className="text-base font-semibold">Package files</h2>
+                <h2 className="text-base font-semibold">{t("pages.companyimport.package_files.jsx-text", { defaultValue: "Package files" })}</h2>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <FileTree

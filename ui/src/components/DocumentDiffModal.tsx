@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import type { DocumentRevision } from "@paperclipai/shared";
 import { issuesApi } from "../api/issues";
@@ -41,6 +42,8 @@ export function DocumentDiffModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+const { t } = useTranslation();
+
   const { data: revisions } = useQuery({
     queryKey: queryKeys.issues.documentRevisions(issueId, documentKey),
     queryFn: () => issuesApi.listDocumentRevisions(issueId, documentKey),
@@ -89,19 +92,19 @@ export function DocumentDiffModal({
         <div className="flex items-center justify-between gap-4">
           <DialogHeader className="shrink-0">
             <DialogTitle>
-              Diff — <span className="font-mono text-sm">{documentKey}</span>
+              {t("components.documentdiffmodal.diff.jsx-text", { defaultValue: "\n              Diff — " })}<span className="font-mono text-sm">{documentKey}</span>
             </DialogTitle>
           </DialogHeader>
 
           <div className="flex items-center gap-4 shrink-0">
             <div className="flex items-center gap-2">
-              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-red-400">Old</span>
+              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-red-400">{t("components.documentdiffmodal.old.jsx-text", { defaultValue: "Old" })}</span>
               <Select
                 value={effectiveLeftId ?? ""}
                 onValueChange={(value) => setLeftRevisionId(value)}
               >
                 <SelectTrigger className="h-7 w-60 text-xs border-border/60">
-                  <SelectValue placeholder="Select revision" />
+                  <SelectValue placeholder={t("components.documentdiffmodal.select_revision.attr_placeholder", { defaultValue: "Select revision" })} />
                 </SelectTrigger>
                 <SelectContent>
                   {sortedRevisions.map((revision) => (
@@ -113,13 +116,13 @@ export function DocumentDiffModal({
               </Select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-green-400">New</span>
+              <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-green-400">{t("components.documentdiffmodal.new.jsx-text", { defaultValue: "New" })}</span>
               <Select
                 value={effectiveRightId ?? ""}
                 onValueChange={(value) => setRightRevisionId(value)}
               >
                 <SelectTrigger className="h-7 w-60 text-xs border-border/60">
-                  <SelectValue placeholder="Select revision" />
+                  <SelectValue placeholder={t("components.documentdiffmodal.select_revision.attr_placeholder", { defaultValue: "Select revision" })} />
                 </SelectTrigger>
                 <SelectContent>
                   {sortedRevisions.map((revision) => (
@@ -135,18 +138,18 @@ export function DocumentDiffModal({
 
         <div className="overflow-auto flex-1 rounded-md border border-border text-xs">
           {!revisions ? (
-            <div className="p-6 text-center text-muted-foreground text-sm">Loading revisions...</div>
+            <div className="p-6 text-center text-muted-foreground text-sm">{t("components.documentdiffmodal.loading_revisions.jsx-text", { defaultValue: "Loading revisions..." })}</div>
           ) : !leftRevision || !rightRevision ? (
-            <div className="p-6 text-center text-muted-foreground text-sm">Select two revisions to compare.</div>
+            <div className="p-6 text-center text-muted-foreground text-sm">{t("components.documentdiffmodal.select_two_revisions_to_compare.jsx-text", { defaultValue: "Select two revisions to compare." })}</div>
           ) : leftRevision.id === rightRevision.id ? (
-            <div className="p-6 text-center text-muted-foreground text-sm">Both sides are the same revision.</div>
+            <div className="p-6 text-center text-muted-foreground text-sm">{t("components.documentdiffmodal.both_sides_are_the_same_revision.jsx-text", { defaultValue: "Both sides are the same revision." })}</div>
           ) : (
             <div className="font-mono text-[12px] leading-6">
               <div className="grid grid-cols-[56px_56px_24px_minmax(0,1fr)] border-b border-border/60 bg-muted/30 px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                <span>Old</span>
-                <span>New</span>
+                <span>{t("components.documentdiffmodal.old.jsx-text", { defaultValue: "Old" })}</span>
+                <span>{t("components.documentdiffmodal.new.jsx-text", { defaultValue: "New" })}</span>
                 <span />
-                <span>Content</span>
+                <span>{t("components.documentdiffmodal.content.jsx-text", { defaultValue: "Content" })}</span>
               </div>
               {diffRows.map((row, index) => (
                 <div

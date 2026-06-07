@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
@@ -41,6 +42,8 @@ function isAgentAdapterType(type: string): boolean {
 }
 
 export function NewAgentDialog() {
+const { t } = useTranslation();
+
   const { newAgentOpen, closeNewAgent, openNewIssue } = useDialog();
   const { selectedCompanyId } = useCompany();
   const { pushToast } = useToast();
@@ -232,7 +235,7 @@ export function NewAgentDialog() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-          <span className="text-sm text-muted-foreground">Add a new agent</span>
+          <span className="text-sm text-muted-foreground">{t("components.newagentdialog.add_a_new_agent.jsx-text", { defaultValue: "Add a new agent" })}</span>
           <Button
             variant="ghost"
             size="icon-xs"
@@ -242,7 +245,7 @@ export function NewAgentDialog() {
               closeNewAgent();
             }}
           >
-            <span className="text-lg leading-none">&times;</span>
+            <span className="text-lg leading-none">{t("components.newagentdialog.times.jsx-text", { defaultValue: "&times;" })}</span>
           </Button>
         </div>
 
@@ -255,29 +258,23 @@ export function NewAgentDialog() {
                   <Bot className="h-6 w-6 text-foreground" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Ask a leader to propose the hire, configure a runtime yourself,
-                  or send an onboarding prompt to an external agent.
-                </p>
+                  {t("components.newagentdialog.ask_a_leader_to_propose_the_hire.jsx-text", { defaultValue: "\n                  Ask a leader to propose the hire, configure a runtime yourself, or send an onboarding prompt to an external agent.\n                " })}</p>
               </div>
 
               <Button className="w-full" size="lg" onClick={handleAskCeo}>
                 <Bot className="h-4 w-4 mr-2" />
-                Ask the CEO to create a new agent
-              </Button>
+                {t("components.newagentdialog.ask_the_ceo_to_create_a_new_agen.jsx-text", { defaultValue: "\n                Ask the CEO to create a new agent\n              " })}</Button>
 
               <div className="grid gap-2">
                 <Button variant="outline" className="w-full" onClick={handleAdvancedConfig}>
                   <Settings2 className="h-4 w-4 mr-2" />
-                  Configure a runtime manually
-                </Button>
+                  {t("components.newagentdialog.configure_a_runtime_manually.jsx-text", { defaultValue: "\n                  Configure a runtime manually\n                " })}</Button>
                 <div className="space-y-1">
                   <Button variant="outline" className="w-full" onClick={handleInviteExternalAgent}>
                     <MailPlus className="h-4 w-4 mr-2" />
-                    Invite an external agent
-                  </Button>
+                    {t("components.newagentdialog.invite_an_external_agent.jsx-text", { defaultValue: "\n                    Invite an external agent\n                  " })}</Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    (OpenClaw, Hermes, or any agent that can call the invite API.)
-                  </p>
+                    {t("components.newagentdialog.openclaw_hermes_or_any_agent_tha.jsx-text", { defaultValue: "\n                    (OpenClaw, Hermes, or any agent that can call the invite API.)\n                  " })}</p>
                 </div>
               </div>
             </>
@@ -289,11 +286,9 @@ export function NewAgentDialog() {
                   onClick={() => setMode("choices")}
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Back
-                </button>
+                  {t("components.newagentdialog.back.jsx-text", { defaultValue: "\n                  Back\n                " })}</button>
                 <p className="text-sm text-muted-foreground">
-                  Choose the runtime Paperclip should start or resume directly.
-                </p>
+                  {t("components.newagentdialog.choose_the_runtime_paperclip_sho.jsx-text", { defaultValue: "\n                  Choose the runtime Paperclip should start or resume directly.\n                " })}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -312,8 +307,7 @@ export function NewAgentDialog() {
                   >
                     {opt.recommended && (
                       <span className="absolute -top-1.5 right-1.5 bg-green-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
-                        Recommended
-                      </span>
+                        {t("components.newagentdialog.recommended.jsx-text", { defaultValue: "\n                        Recommended\n                      " })}</span>
                     )}
                     <opt.icon className="h-4 w-4" />
                     <span className="font-medium">{opt.label}</span>
@@ -332,30 +326,27 @@ export function NewAgentDialog() {
                   onClick={() => setMode("choices")}
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Back
-                </button>
+                  {t("components.newagentdialog.back.jsx-text", { defaultValue: "\n                  Back\n                " })}</button>
                 <div className="space-y-1">
-                  <h2 className="text-sm font-semibold">Invite an external agent</h2>
+                  <h2 className="text-sm font-semibold">{t("components.newagentdialog.invite_an_external_agent.jsx-text", { defaultValue: "Invite an external agent" })}</h2>
                   <p className="text-sm text-muted-foreground">
-                    Generate a one-time onboarding prompt that any compatible agent can use to request access, wait for approval, and claim its Paperclip API key.
-                  </p>
+                    {t("components.newagentdialog.generate_a_one_time_onboarding_p.jsx-text", { defaultValue: "\n                    Generate a one-time onboarding prompt that any compatible agent can use to request access, wait for approval, and claim its Paperclip API key.\n                  " })}</p>
                 </div>
               </div>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium">Optional message for the agent</span>
+                <span className="text-sm font-medium">{t("components.newagentdialog.optional_message_for_the_agent.jsx-text", { defaultValue: "Optional message for the agent" })}</span>
                 <Textarea
                   value={agentMessage}
                   onChange={(event) => setAgentMessage(event.target.value)}
                   className="min-h-24 resize-y"
-                  placeholder="Add onboarding context, expected role, or first instructions."
+                  placeholder={t("components.newagentdialog.add_onboarding_context_expected_.attr_placeholder", { defaultValue: "Add onboarding context, expected role, or first instructions." })}
                   maxLength={4000}
                 />
               </label>
 
               <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
-                Agent invites create a join request first. A company admin still approves the request before the agent can claim its API key.
-              </div>
+                {t("components.newagentdialog.agent_invites_create_a_join_requ.jsx-text", { defaultValue: "\n                Agent invites create a join request first. A company admin still approves the request before the agent can claim its API key.\n              " })}</div>
 
               <div>
                 <Button
@@ -374,21 +365,18 @@ export function NewAgentDialog() {
                   onClick={() => setMode("invite")}
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Back
-                </button>
+                  {t("components.newagentdialog.back.jsx-text", { defaultValue: "\n                  Back\n                " })}</button>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-sm font-semibold">Agent onboarding prompt</h2>
+                    <h2 className="text-sm font-semibold">{t("components.newagentdialog.agent_onboarding_prompt.jsx-text", { defaultValue: "Agent onboarding prompt" })}</h2>
                     {latestAgentPromptCopied ? (
                       <div className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                         <Check className="h-3.5 w-3.5" />
-                        Copied
-                      </div>
+                        {t("components.newagentdialog.copied.jsx-text", { defaultValue: "\n                        Copied\n                      " })}</div>
                     ) : null}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Send this prompt to the external agent that should join this company.
-                  </p>
+                    {t("components.newagentdialog.send_this_prompt_to_the_external.jsx-text", { defaultValue: "\n                    Send this prompt to the external agent that should join this company.\n                  " })}</p>
                 </div>
               </div>
 

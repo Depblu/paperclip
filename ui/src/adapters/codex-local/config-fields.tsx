@@ -1,4 +1,5 @@
 import type { AdapterConfigFieldsProps } from "../types";
+import { useTranslation } from "@/i18n";
 import {
   Field,
   ToggleField,
@@ -30,6 +31,8 @@ export function CodexLocalConfigFields({
   models,
   hideInstructionsFile,
 }: AdapterConfigFieldsProps) {
+const { t } = useTranslation();
+
   const bypassEnabled =
     config.dangerouslyBypassApprovalsAndSandbox === true || config.dangerouslyBypassSandbox === true;
   const fastModeEnabled = isCreate
@@ -50,7 +53,7 @@ export function CodexLocalConfigFields({
   return (
     <>
       {!hideInstructionsFile && (
-        <Field label="Agent instructions file" hint={instructionsFileHint}>
+        <Field label={t("misc.config_fields.agent_instructions_file.attr_label", { defaultValue: "Agent instructions file" })} hint={instructionsFileHint}>
           <div className="flex items-center gap-2">
             <DraftInput
               value={
@@ -76,7 +79,7 @@ export function CodexLocalConfigFields({
         </Field>
       )}
       <ToggleField
-        label="Bypass sandbox"
+        label={t("misc.config_fields.bypass_sandbox.attr_label", { defaultValue: "Bypass sandbox" })}
         hint={help.dangerouslyBypassSandbox}
         checked={
           isCreate
@@ -94,7 +97,7 @@ export function CodexLocalConfigFields({
         }
       />
       <ToggleField
-        label="Enable search"
+        label={t("misc.config_fields.enable_search.attr_label", { defaultValue: "Enable search" })}
         hint={help.search}
         checked={
           isCreate
@@ -108,7 +111,7 @@ export function CodexLocalConfigFields({
         }
       />
       <ToggleField
-        label="Fast mode"
+        label={t("misc.config_fields.fast_mode.attr_label", { defaultValue: "Fast mode" })}
         hint={help.fastMode}
         checked={fastModeEnabled}
         onChange={(v) =>

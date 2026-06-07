@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useTranslation } from "@/i18n";
 import {
   Tooltip,
   TooltipTrigger,
@@ -71,6 +72,8 @@ export const roleLabels = AGENT_ROLE_LABELS as Record<string, string>;
 /* ---- Primitive components ---- */
 
 export function HintIcon({ text }: { text: string }) {
+const { t } = useTranslation();
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -86,6 +89,8 @@ export function HintIcon({ text }: { text: string }) {
 }
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+const { t } = useTranslation();
+
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-1">
@@ -110,6 +115,8 @@ export function ToggleField({
   onChange: (v: boolean) => void;
   toggleTestId?: string;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-1.5">
@@ -160,6 +167,8 @@ export function ToggleWithNumber({
   numberPrefix?: string;
   showNumber: boolean;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
@@ -204,6 +213,8 @@ export function CollapsibleSection({
   bordered?: boolean;
   children: React.ReactNode;
 }) {
+const { t } = useTranslation();
+
   return (
     <div className={cn(bordered && "border-t border-border")}>
       <button
@@ -232,6 +243,8 @@ export function AutoExpandTextarea({
   placeholder?: string;
   minRows?: number;
 }) {
+const { t } = useTranslation();
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const rows = minRows ?? 3;
   const lineHeight = 20;
@@ -275,6 +288,8 @@ export function DraftInput({
   immediate?: boolean;
   className?: string;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "className">) {
+const { t } = useTranslation();
+
   const [draft, setDraft] = useState(value);
   useEffect(() => setDraft(value), [value]);
 
@@ -310,6 +325,8 @@ export function DraftTextarea({
   placeholder?: string;
   minRows?: number;
 }) {
+const { t } = useTranslation();
+
   const [draft, setDraft] = useState(value);
   useEffect(() => setDraft(value), [value]);
 
@@ -360,6 +377,8 @@ export function DraftNumberInput({
   immediate?: boolean;
   className?: string;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "className" | "type">) {
+const { t } = useTranslation();
+
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
 
@@ -386,6 +405,8 @@ export function DraftNumberInput({
  * type the path due to browser security limitations.
  */
 export function ChoosePathButton() {
+const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -394,48 +415,44 @@ export function ChoosePathButton() {
         className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent/50 transition-colors shrink-0"
         onClick={() => setOpen(true)}
       >
-        Choose
-      </button>
+        {t("components.agent_config_primitives.choose.jsx-text", { defaultValue: "\n        Choose\n      " })}</button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Specify path manually</DialogTitle>
+            <DialogTitle>{t("components.agent_config_primitives.specify_path_manually.jsx-text", { defaultValue: "Specify path manually" })}</DialogTitle>
             <DialogDescription>
-              Browser security blocks apps from reading full local paths via a file picker.
-              Copy the absolute path and paste it into the input.
-            </DialogDescription>
+              {t("components.agent_config_primitives.browser_security_blocks_apps_fro.jsx-text", { defaultValue: "\n              Browser security blocks apps from reading full local paths via a file picker. Copy the absolute path and paste it into the input.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm">
             <section className="space-y-1.5">
-              <p className="font-medium">macOS (Finder)</p>
+              <p className="font-medium">{t("components.agent_config_primitives.macos_finder.jsx-text", { defaultValue: "macOS (Finder)" })}</p>
               <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
-                <li>Find the folder in Finder.</li>
-                <li>Hold <kbd>Option</kbd> and right-click the folder.</li>
-                <li>Click "Copy &lt;folder name&gt; as Pathname".</li>
-                <li>Paste the result into the path input.</li>
+                <li>{t("components.agent_config_primitives.find_the_folder_in_finder.jsx-text", { defaultValue: "Find the folder in Finder." })}</li>
+                <li>{t("components.agent_config_primitives.hold.jsx-text", { defaultValue: "Hold " })}<kbd>{t("components.agent_config_primitives.option.jsx-text", { defaultValue: "Option" })}</kbd> {t("components.agent_config_primitives.and_right_click_the_folder.jsx-text", { defaultValue: " and right-click the folder." })}</li>
+                <li>{t("components.agent_config_primitives.click_copy_lt_folder_name_gt_as_.jsx-text", { defaultValue: "Click \"Copy &lt;folder name&gt; as Pathname\"." })}</li>
+                <li>{t("components.agent_config_primitives.paste_the_result_into_the_path_i.jsx-text", { defaultValue: "Paste the result into the path input." })}</li>
               </ol>
               <p className="rounded-md bg-muted px-2 py-1 font-mono text-xs">
                 /Users/yourname/Documents/project
               </p>
             </section>
             <section className="space-y-1.5">
-              <p className="font-medium">Windows (File Explorer)</p>
+              <p className="font-medium">{t("components.agent_config_primitives.windows_file_explorer.jsx-text", { defaultValue: "Windows (File Explorer)" })}</p>
               <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
-                <li>Find the folder in File Explorer.</li>
-                <li>Hold <kbd>Shift</kbd> and right-click the folder.</li>
-                <li>Click "Copy as path".</li>
-                <li>Paste the result into the path input.</li>
+                <li>{t("components.agent_config_primitives.find_the_folder_in_file_explorer.jsx-text", { defaultValue: "Find the folder in File Explorer." })}</li>
+                <li>{t("components.agent_config_primitives.hold.jsx-text", { defaultValue: "Hold " })}<kbd>{t("components.agent_config_primitives.shift.jsx-text", { defaultValue: "Shift" })}</kbd> {t("components.agent_config_primitives.and_right_click_the_folder.jsx-text", { defaultValue: " and right-click the folder." })}</li>
+                <li>{t("components.agent_config_primitives.click_copy_as_path.jsx-text", { defaultValue: "Click \"Copy as path\"." })}</li>
+                <li>{t("components.agent_config_primitives.paste_the_result_into_the_path_i.jsx-text", { defaultValue: "Paste the result into the path input." })}</li>
               </ol>
               <p className="rounded-md bg-muted px-2 py-1 font-mono text-xs">
-                C:\Users\yourname\Documents\project
-              </p>
+                {t("components.agent_config_primitives.c_users_yourname_documents_proje.jsx-text", { defaultValue: "\n                C:\\Users\\yourname\\Documents\\project\n              " })}</p>
             </section>
             <section className="space-y-1.5">
-              <p className="font-medium">Terminal fallback (macOS/Linux)</p>
+              <p className="font-medium">{t("components.agent_config_primitives.terminal_fallback_macos_linux.jsx-text", { defaultValue: "Terminal fallback (macOS/Linux)" })}</p>
               <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
-                <li>Run <code>cd /path/to/folder</code>.</li>
-                <li>Run <code>pwd</code>.</li>
-                <li>Copy the output and paste it into the path input.</li>
+                <li>{t("components.agent_config_primitives.run.jsx-text", { defaultValue: "Run " })}<code>{t("components.agent_config_primitives.cd_path_to_folder.jsx-text", { defaultValue: "cd /path/to/folder" })}</code>.</li>
+                <li>{t("components.agent_config_primitives.run.jsx-text", { defaultValue: "Run " })}<code>{t("components.agent_config_primitives.pwd.jsx-text", { defaultValue: "pwd" })}</code>.</li>
+                <li>{t("components.agent_config_primitives.copy_the_output_and_paste_it_int.jsx-text", { defaultValue: "Copy the output and paste it into the path input." })}</li>
               </ol>
             </section>
           </div>
@@ -454,6 +471,8 @@ export function ChoosePathButton() {
  * Label + input rendered on the same line (inline layout for compact fields).
  */
 export function InlineField({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5 shrink-0">

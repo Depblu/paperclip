@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AGENT_ADAPTER_TYPES } from "@paperclipai/shared";
 import type { AgentAdapterType, JoinRequest } from "@paperclipai/shared";
@@ -140,6 +141,8 @@ function InviteCompanyLogo({
   companyBrandColor: string | null;
   className?: string;
 }) {
+const { t } = useTranslation();
+
   return (
     <CompanyPatternIcon
       companyName={companyDisplayName}
@@ -160,6 +163,8 @@ function AwaitingJoinApprovalPanel({
   claimApiKeyPath = null,
   onboardingTextUrl = null,
 }: AwaitingJoinApprovalPanelProps) {
+const { t } = useTranslation();
+
   const approvalUrl = `${window.location.origin}/company/settings/members`;
   const approverLabel = invitedByUserName ?? "A company admin";
 
@@ -173,38 +178,34 @@ function AwaitingJoinApprovalPanel({
             companyBrandColor={companyBrandColor}
             className="h-12 w-12 border border-zinc-800 rounded-none"
           />
-          <h1 className="text-lg font-semibold">Request to join {companyDisplayName}</h1>
+          <h1 className="text-lg font-semibold">{t("pages.invitelanding.request_to_join.jsx-text", { defaultValue: "Request to join " })}{companyDisplayName}</h1>
         </div>
         <div className="mt-4 space-y-3">
           <p className="text-sm text-zinc-400">
-            Your request is still awaiting approval. {approverLabel} must approve your request to join.
-          </p>
+            {t("pages.invitelanding.your_request_is_still_awaiting_a.jsx-text", { defaultValue: "\n            Your request is still awaiting approval. " })}{approverLabel} {t("pages.invitelanding.must_approve_your_request_to_joi.jsx-text", { defaultValue: " must approve your request to join.\n          " })}</p>
           <div className="border border-zinc-800 p-3">
-            <p className="text-xs text-zinc-500 mb-1">Approval page</p>
+            <p className="text-xs text-zinc-500 mb-1">{t("pages.invitelanding.approval_page.jsx-text", { defaultValue: "Approval page" })}</p>
             <a
               href={approvalUrl}
               className="text-sm text-zinc-200 underline underline-offset-2 hover:text-zinc-100"
             >
-              Company Settings → Members
-            </a>
+              {t("pages.invitelanding.company_settings_members.jsx-text", { defaultValue: "\n              Company Settings → Members\n            " })}</a>
           </div>
           <p className="text-sm text-zinc-400">
-            Ask them to visit <a href={approvalUrl} className="text-zinc-200 underline underline-offset-2 hover:text-zinc-100">Company Settings → Members</a> to approve your request.
-          </p>
+            {t("pages.invitelanding.ask_them_to_visit.jsx-text", { defaultValue: "\n            Ask them to visit " })}<a href={approvalUrl} className="text-zinc-200 underline underline-offset-2 hover:text-zinc-100">{t("pages.invitelanding.company_settings_members.jsx-text", { defaultValue: "Company Settings → Members" })}</a> {t("pages.invitelanding.to_approve_your_request.jsx-text", { defaultValue: " to approve your request.\n          " })}</p>
           <p className="text-xs text-zinc-500">
-            Refresh this page after you've been approved — you'll be redirected automatically.
-          </p>
+            {t("pages.invitelanding.refresh_this_page_after_you_ve_b.jsx-text", { defaultValue: "\n            Refresh this page after you've been approved — you'll be redirected automatically.\n          " })}</p>
         </div>
         {claimSecret && claimApiKeyPath ? (
           <div className="mt-4 space-y-1 border border-zinc-800 p-3 text-xs text-zinc-400">
-            <div className="text-zinc-200">Claim secret</div>
+            <div className="text-zinc-200">{t("pages.invitelanding.claim_secret.jsx-text", { defaultValue: "Claim secret" })}</div>
             <div className="font-mono break-all">{claimSecret}</div>
             <div className="font-mono break-all">POST {claimApiKeyPath}</div>
           </div>
         ) : null}
         {onboardingTextUrl ? (
           <div className="mt-4 text-xs text-zinc-400">
-            Onboarding: <span className="font-mono break-all">{onboardingTextUrl}</span>
+            {t("pages.invitelanding.onboarding.jsx-text", { defaultValue: "\n            Onboarding: " })}<span className="font-mono break-all">{onboardingTextUrl}</span>
           </div>
         ) : null}
       </div>
@@ -213,6 +214,8 @@ function AwaitingJoinApprovalPanel({
 }
 
 export function InviteLandingPage() {
+const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { setSelectedCompanyId } = useCompany();
@@ -416,25 +419,24 @@ export function InviteLandingPage() {
   }, [invite, isCurrentMember, sessionQuery.data, showsAgentForm]);
 
   if (!token) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-destructive">Invalid invite token.</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-destructive">{t("pages.invitelanding.invalid_invite_token.jsx-text", { defaultValue: "Invalid invite token." })}</div>;
   }
 
   if (inviteQuery.isLoading || healthQuery.isLoading || sessionQuery.isLoading) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading invite...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("pages.invitelanding.loading_invite.jsx-text", { defaultValue: "Loading invite..." })}</div>;
   }
 
   if (isCheckingExistingMembership) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Checking your access...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("pages.invitelanding.checking_your_access.jsx-text", { defaultValue: "Checking your access..." })}</div>;
   }
 
   if (inviteQuery.error || !invite) {
     return (
       <div className="mx-auto max-w-xl py-10">
         <div className="border border-border bg-card p-6" data-testid="invite-error">
-          <h1 className="text-lg font-semibold">Invite not available</h1>
+          <h1 className="text-lg font-semibold">{t("pages.invitelanding.invite_not_available.jsx-text", { defaultValue: "Invite not available" })}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            This invite may be expired, revoked, or already used.
-          </p>
+            {t("pages.invitelanding.this_invite_may_be_expired_revok.jsx-text", { defaultValue: "\n            This invite may be expired, revoked, or already used.\n          " })}</p>
         </div>
       </div>
     );
@@ -445,7 +447,7 @@ export function InviteLandingPage() {
     inviteJoinRequestType === "human" &&
     isCurrentMember
   ) {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Opening company...</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("pages.invitelanding.opening_company.jsx-text", { defaultValue: "Opening company..." })}</div>;
   }
 
   if (inviteJoinRequestStatus === "pending_approval" && !canCompleteAcceptedHumanInvite) {
@@ -463,7 +465,7 @@ export function InviteLandingPage() {
     return (
       <div className="mx-auto max-w-xl py-10">
         <div className="border border-border bg-card p-6" data-testid="invite-error">
-          <h1 className="text-lg font-semibold">Invite not available</h1>
+          <h1 className="text-lg font-semibold">{t("pages.invitelanding.invite_not_available.jsx-text", { defaultValue: "Invite not available" })}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {inviteJoinRequestStatus === "rejected"
               ? "This join request was not approved."
@@ -478,10 +480,10 @@ export function InviteLandingPage() {
     return (
       <div className="min-h-screen bg-zinc-950 px-6 py-12 text-zinc-100">
         <div className="mx-auto max-w-md border border-zinc-800 bg-zinc-950 p-6">
-          <h1 className="text-lg font-semibold">Bootstrap complete</h1>
+          <h1 className="text-lg font-semibold">{t("pages.invitelanding.bootstrap_complete.jsx-text", { defaultValue: "Bootstrap complete" })}</h1>
           <div className="mt-4">
             <Button asChild className="rounded-none">
-              <Link to="/">Open board</Link>
+              <Link to="/">{t("pages.invitelanding.open_board.jsx-text", { defaultValue: "Open board" })}</Link>
             </Button>
           </div>
         </div>
@@ -511,11 +513,11 @@ export function InviteLandingPage() {
                 companyBrandColor={companyBrandColor}
                 className="h-12 w-12 border border-zinc-800 rounded-none"
               />
-              <h1 className="text-lg font-semibold">You joined the company</h1>
+              <h1 className="text-lg font-semibold">{t("pages.invitelanding.you_joined_the_company.jsx-text", { defaultValue: "You joined the company" })}</h1>
             </div>
             <div className="mt-4">
               <Button asChild className="w-full rounded-none">
-                <Link to="/">Open board</Link>
+                <Link to="/">{t("pages.invitelanding.open_board.jsx-text", { defaultValue: "Open board" })}</Link>
               </Button>
             </div>
           </div>
@@ -548,8 +550,7 @@ export function InviteLandingPage() {
               />
               <div className="min-w-0">
                 <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-                  You&apos;ve been invited to join Paperclip
-                </p>
+                  {t("pages.invitelanding.you_apos_ve_been_invited_to_join.jsx-text", { defaultValue: "\n                  You&apos;ve been invited to join Paperclip\n                " })}</p>
                 <h1 className="mt-2 text-2xl font-semibold">
                   {invite.inviteType === "bootstrap_ceo" ? "Set up Paperclip" : `Join ${companyDisplayName}`}
                 </h1>
@@ -565,35 +566,35 @@ export function InviteLandingPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="border border-zinc-800 p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Company</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">{t("pages.invitelanding.company.jsx-text", { defaultValue: "Company" })}</div>
                 <div className="mt-1 text-sm text-zinc-100">{companyDisplayName}</div>
               </div>
               <div className="border border-zinc-800 p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Invited by</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">{t("pages.invitelanding.invited_by.jsx-text", { defaultValue: "Invited by" })}</div>
                 <div className="mt-1 text-sm text-zinc-100">{invitedByUserName ?? "Paperclip board"}</div>
               </div>
               <div className="border border-zinc-800 p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Requested access</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">{t("pages.invitelanding.requested_access.jsx-text", { defaultValue: "Requested access" })}</div>
                 <div className="mt-1 text-sm text-zinc-100">
                   {showsAgentForm ? "Agent join request" : requestedHumanRole ?? "Company access"}
                 </div>
               </div>
               <div className="border border-zinc-800 p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Invite expires</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">{t("pages.invitelanding.invite_expires.jsx-text", { defaultValue: "Invite expires" })}</div>
                 <div className="mt-1 text-sm text-zinc-100">{formatDate(invite.expiresAt)}</div>
               </div>
             </div>
 
             {inviteMessage ? (
               <div className="border border-amber-500/40 bg-amber-500/10 p-4">
-                <div className="text-xs uppercase tracking-[0.2em] text-amber-200/80">Message from inviter</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-amber-200/80">{t("pages.invitelanding.message_from_inviter.jsx-text", { defaultValue: "Message from inviter" })}</div>
                 <p className="mt-2 text-sm leading-6 text-amber-50">{inviteMessage}</p>
               </div>
             ) : null}
 
             {sessionQuery.data ? (
               <div className="border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-50">
-                Signed in as <span className="font-medium">{sessionLabel}</span>.
+                {t("pages.invitelanding.signed_in_as.jsx-text", { defaultValue: "\n                Signed in as " })}<span className="font-medium">{sessionLabel}</span>.
               </div>
             ) : null}
           </section>
@@ -602,13 +603,13 @@ export function InviteLandingPage() {
             {showsAgentForm ? (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-lg font-semibold">Submit agent details</h2>
+                  <h2 className="text-lg font-semibold">{t("pages.invitelanding.submit_agent_details.jsx-text", { defaultValue: "Submit agent details" })}</h2>
                   <p className="mt-1 text-sm text-zinc-400">
-                    This invite will create an approval request for a new agent in {companyDisplayName}.
+                    {t("pages.invitelanding.this_invite_will_create_an_appro.jsx-text", { defaultValue: "\n                    This invite will create an approval request for a new agent in " })}{companyDisplayName}.
                   </p>
                 </div>
                 <label className="block text-sm">
-                  <span className="mb-1 block text-zinc-400">Agent name</span>
+                  <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.agent_name.jsx-text", { defaultValue: "Agent name" })}</span>
                   <input
                     className={fieldClassName}
                     value={agentName}
@@ -616,7 +617,7 @@ export function InviteLandingPage() {
                   />
                 </label>
                 <label className="block text-sm">
-                  <span className="mb-1 block text-zinc-400">Adapter type</span>
+                  <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.adapter_type.jsx-text", { defaultValue: "Adapter type" })}</span>
                   <select
                     className={fieldClassName}
                     value={adapterType}
@@ -630,7 +631,7 @@ export function InviteLandingPage() {
                   </select>
                 </label>
                 <label className="block text-sm">
-                  <span className="mb-1 block text-zinc-400">Capabilities</span>
+                  <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.capabilities.jsx-text", { defaultValue: "Capabilities" })}</span>
                   <textarea
                     className={fieldClassName}
                     rows={4}
@@ -673,8 +674,7 @@ export function InviteLandingPage() {
                       setAuthMode("sign_up");
                     }}
                   >
-                    Create account
-                  </button>
+                    {t("pages.invitelanding.create_account.jsx-text", { defaultValue: "\n                    Create account\n                  " })}</button>
                   <button
                     type="button"
                     className={`${modeButtonBaseClassName} ${
@@ -687,8 +687,7 @@ export function InviteLandingPage() {
                       setAuthMode("sign_in");
                     }}
                   >
-                    I already have an account
-                  </button>
+                    {t("pages.invitelanding.i_already_have_an_account.jsx-text", { defaultValue: "\n                    I already have an account\n                  " })}</button>
                 </div>
 
                 <form
@@ -728,7 +727,7 @@ export function InviteLandingPage() {
                     </label>
                   ) : null}
                   <label className="block text-sm" htmlFor="invite-email">
-                    <span className="mb-1 block text-zinc-400">Email</span>
+                    <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.email.jsx-text", { defaultValue: "Email" })}</span>
                     <input
                       id="invite-email"
                       name="email"
@@ -748,7 +747,7 @@ export function InviteLandingPage() {
                     />
                   </label>
                   <label className="block text-sm" htmlFor="invite-password">
-                    <span className="mb-1 block text-zinc-400">Password</span>
+                    <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.password.jsx-text", { defaultValue: "Password" })}</span>
                     <input
                       id="invite-password"
                       name="password"
