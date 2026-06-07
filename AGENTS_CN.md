@@ -157,6 +157,10 @@ pnpm build
 - 路由与导航与可用 API 接口保持一致
 - 公司范围页面使用公司选择上下文
 - 明确暴露失败;不得静默忽略 API 错误
+- **用户可见字符串必须通过 i18n**。
+  不得在 `.tsx` 中硬编码面向用户的英文或中文文案,统一走 `useTranslation()` / `t()`。
+  新增键值步骤与硬约束(不可流入 prompt / 指令 / adapter config / issue 内容 / 审批)见 `ui/src/i18n/README.md`。
+  任何新键必须同时更新 `en.json` 与 `zh-CN.json`,并通过 `pnpm --filter @paperclipai/ui exec vitest run src/i18n/`。
 
 ## 10. Pull Request 要求
 

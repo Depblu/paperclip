@@ -99,4 +99,10 @@ describe("locale validation", () => {
       "message is too long: 200 characters exceeds 133",
     ]);
   });
+
+  it("resolves Simplified Chinese for registered keys", () => {
+    expect(t("app.noCompanies.title", { lng: "zh-CN" })).toBe("创建您的第一家公司");
+    expect(t("common.cancel", { lng: "zh-CN" })).toBe("取消");
+    expect(t("nav.issues", { lng: "zh-CN" })).toBe("任务");
+  });
 });

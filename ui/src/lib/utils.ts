@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { deriveAgentUrlKey, deriveProjectUrlKey, normalizeProjectUrlKey, hasNonAsciiContent } from "@paperclipai/shared";
 import type { BillingType, FinanceDirection, FinanceEventKind } from "@paperclipai/shared";
+import i18n from "i18next";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,12 +22,21 @@ export function asFiniteNumber(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-export function formatCents(cents: number): string {
-  return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/**
+ * Format a USD amount in cents. The "US$" prefix is intentional and
+ * locale-independent so finance readers always see a clear currency
+ * label; the digit grouping itself follows the active locale.
+ */
+export function formatCents(cents: number, locale: string = i18n.language ?? "en"): string {
+  const formatted = (cents / 100).toLocaleString(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `US$${formatted}`;
 }
 
-export function formatNumber(n: number): string {
-  return n.toLocaleString("en-US");
+export function formatNumber(n: number, locale: string = i18n.language ?? "en"): string {
+  return n.toLocaleString(locale);
 }
 
 /**
@@ -38,16 +48,16 @@ export function formatProjectBudget(budget: { amountCents: number; windowKind: s
   return budget.windowKind === "calendar_month_utc" ? `${amount}/mo` : amount;
 }
 
-export function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString("en-US", {
+export function formatDate(date: Date | string, locale: string = i18n.language ?? "en"): string {
+  return new Date(date).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-export function formatDateTime(date: Date | string): string {
-  return new Date(date).toLocaleString("en-US", {
+export function formatDateTime(date: Date | string, locale: string = i18n.language ?? "en"): string {
+  return new Date(date).toLocaleString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -56,8 +66,8 @@ export function formatDateTime(date: Date | string): string {
   });
 }
 
-export function formatShortDate(date: Date | string): string {
-  return new Date(date).toLocaleString("en-US", {
+export function formatShortDate(date: Date | string, locale: string = i18n.language ?? "en"): string {
+  return new Date(date).toLocaleString(locale, {
     month: "short",
     day: "numeric",
   });
@@ -67,13 +77,21 @@ export function relativeTime(date: Date | string): string {
   const now = Date.now();
   const then = new Date(date).getTime();
   const diffSec = Math.round((now - then) / 1000);
-  if (diffSec < 60) return "just now";
+  if (diffSec < 60) {
+    return i18n.t("commonRelative.justNow", { defaultValue: "just now" });
+  }
   const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) {
+    return i18n.t("commonRelative.minutesAgo", { count: diffMin, defaultValue: `${diffMin}m ago` });
+  }
   const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) {
+    return i18n.t("commonRelative.hoursAgo", { count: diffHr, defaultValue: `${diffHr}h ago` });
+  }
   const diffDay = Math.round(diffHr / 24);
-  if (diffDay < 30) return `${diffDay}d ago`;
+  if (diffDay < 30) {
+    return i18n.t("commonRelative.daysAgo", { count: diffDay, defaultValue: `${diffDay}d ago` });
+  }
   return formatDate(date);
 }
 

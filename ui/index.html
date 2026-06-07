@@ -37,6 +37,36 @@
         }
       })();
     </script>
+    <script>
+      (() => {
+        // Set <html lang> as early as possible to prevent screen readers
+        // from announcing the wrong language before React mounts. Mirrors
+        // the detection order in ui/src/i18n/index.ts so the values stay
+        // in sync. Keep the supported-locale allowlist aligned with
+        // ui/src/i18n/locales.ts.
+        const key = "paperclip.locale";
+        const supported = [
+          "ar","bn","cs","da","de","el","en","es","fa","fi","fil","fr","he","hi","hu","id","it","ja","ko","mr","ms","nb","nl","pa","pl","pt-BR","pt-PT","ro","ru","sv","sw","ta","te","th","tr","uk","ur","vi","zh-CN","zh-TW"
+        ];
+        const isSupported = (v) => v && supported.indexOf(v) !== -1;
+        const base = (raw) => {
+          if (!raw) return null;
+          if (isSupported(raw)) return raw;
+          const m = String(raw).split("-")[0];
+          return isSupported(m) ? m : null;
+        };
+        let chosen = "en";
+        try {
+          const stored = window.localStorage.getItem(key);
+          if (isSupported(stored)) chosen = stored;
+          else {
+            const nav = base(window.navigator && window.navigator.language);
+            if (nav) chosen = nav;
+          }
+        } catch {}
+        document.documentElement.lang = chosen;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
