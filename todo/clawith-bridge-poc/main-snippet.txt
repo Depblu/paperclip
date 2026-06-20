@@ -1,0 +1,11 @@
+Add this import to the startup model import block before `Base.metadata.create_all`:
+
+            import app.models.bridge_mapping  # noqa
+
+Add this router import near the other `app.api.*` imports:
+
+from app.api.bridge import router as bridge_router
+
+Add this include near the other `app.include_router(..., prefix=settings.API_PREFIX)` calls:
+
+app.include_router(bridge_router, prefix=settings.API_PREFIX)

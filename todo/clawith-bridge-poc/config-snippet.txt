@@ -1,0 +1,13 @@
+Add these fields inside `class Settings(BaseSettings)` in `backend/app/config.py`:
+
+    # Paperclip Bridge
+    BRIDGE_ENABLED: bool = False
+    BRIDGE_JWT_ISSUER: str = "paperclip"
+    BRIDGE_JWT_AUDIENCE: str = "clawith-bridge"
+    BRIDGE_SHARED_SECRET: str = ""
+    BRIDGE_IDEMPOTENCY_TTL_SEC: int = 86400
+    BRIDGE_RUNTIME_TIMEOUT_SEC: int = 120
+    BRIDGE_LLM_PROVIDER: str = "openai"
+    BRIDGE_LLM_MODEL_NAME: str = ""
+    BRIDGE_LLM_API_KEY: str = ""
+    BRIDGE_LLM_BASE_URL: str = ""
