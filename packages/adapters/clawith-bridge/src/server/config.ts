@@ -11,7 +11,7 @@ function readEnvBoolean(value: string | undefined, fallback: boolean): boolean {
 }
 
 function normalizeMode(value: unknown): ClawithBridgeMode {
-  return asString(value, "sync").trim().toLowerCase() === "async" ? "async" : "sync";
+  return "sync";
 }
 
 function normalizeWriteBack(value: unknown): ClawithBridgeWriteBack {
@@ -87,7 +87,6 @@ export function getConfigSchema(): AdapterConfigSchema {
         default: "sync",
         options: [
           { label: "Sync", value: "sync" },
-          { label: "Async", value: "async" },
         ],
       },
       {

@@ -21,7 +21,7 @@ Core fields:
 - baseUrl (string, required): Clawith Bridge base URL, for example http://localhost:8008
 - bridgeSecret (string, required): shared HS256 signing secret for Bridge JWTs
 - timeoutSec (number, optional): wake request timeout in seconds, default 120
-- mode (string, optional): sync or async, default sync
+- mode (string, optional): sync, default sync
 - writeBack (string, optional): issue_comment or run_log, default issue_comment
 - enabled (boolean, optional): per-agent feature switch, default true
 

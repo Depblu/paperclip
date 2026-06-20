@@ -1,4 +1,4 @@
-export type ClawithBridgeMode = "sync" | "async";
+export type ClawithBridgeMode = "sync";
 export type ClawithBridgeWriteBack = "run_log" | "issue_comment";
 
 export interface ClawithBridgeConfig {

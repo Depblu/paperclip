@@ -22,14 +22,35 @@ describe("clawith bridge adapter module", () => {
   });
 
   it("builds adapter config from schema values", () => {
-    expect(buildClawithBridgeConfig({
+    const values: CreateConfigValues = {
       adapterType: "clawith_bridge",
+      cwd: "",
+      promptTemplate: "",
+      model: "",
+      thinkingEffort: "",
+      chrome: false,
+      dangerouslySkipPermissions: false,
+      search: false,
+      fastMode: false,
+      dangerouslyBypassSandbox: false,
+      command: "",
+      args: "",
+      extraArgs: "",
+      envVars: "",
+      envBindings: {},
+      url: "",
+      bootstrapPrompt: "",
+      maxTurnsPerRun: 0,
+      heartbeatEnabled: false,
+      intervalSec: 0,
       adapterSchemaValues: {
         baseUrl: "http://localhost:8008",
         bridgeSecret: "dev-secret",
         timeoutSec: 120,
       },
-    } as CreateConfigValues)).toEqual({
+    };
+
+    expect(buildClawithBridgeConfig(values)).toEqual({
       baseUrl: "http://localhost:8008",
       bridgeSecret: "dev-secret",
       timeoutSec: 120,
