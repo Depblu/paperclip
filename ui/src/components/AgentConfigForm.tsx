@@ -56,6 +56,7 @@ import { buildAgentUpdatePatch, type AgentConfigOverlay } from "../lib/agent-con
 import { useAdapterCapabilities } from "../adapters/use-adapter-capabilities";
 import { filterAcpxModelsByAgent } from "../lib/acpx-model-filter";
 import { resolveForcedKubernetesEnvironment } from "../lib/forced-kubernetes-environment";
+import { getDefaultValue, readCachedConfigSchema } from "../adapters/schema-config-fields";
 
 /* ---- Create mode values ---- */
 
@@ -481,7 +482,12 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
     if (isCreate) {
       return uiAdapter.buildAdapterConfig(val!);
     }
-    const base = config as Record<string, unknown>;
+    const schemaDefaults = Object.fromEntries(
+      (readCachedConfigSchema(adapterType)?.fields ?? [])
+        .map((field) => [field.key, getDefaultValue(field)] as const)
+        .filter(([, value]) => value !== undefined && value !== ""),
+    );
+    const base = { ...schemaDefaults, ...(config as Record<string, unknown>) };
     const next = { ...base, ...overlay.adapterConfig };
     if (adapterType === "hermes_local") {
       const hermesCommand =
@@ -965,6 +971,10 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
 
           {showInlineAdapterTestEnvironmentFeedback && testEnvironment.data && (
             <AdapterEnvironmentResult result={testEnvironment.data} />
+          )}
+
+          {!isLocal && (
+            <uiAdapter.ConfigFields {...adapterFieldProps} />
           )}
 
           {/* Working directory */}

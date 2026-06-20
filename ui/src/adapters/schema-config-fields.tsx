@@ -242,6 +242,10 @@ export function invalidateConfigSchemaCache(adapterType: string): void {
   failedSchemaTypes.delete(adapterType);
 }
 
+export function readCachedConfigSchema(adapterType: string): AdapterConfigSchema | null {
+  return schemaCache.get(adapterType) ?? null;
+}
+
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
@@ -268,13 +272,13 @@ function useConfigSchema(adapterType: string): AdapterConfigSchema | null {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getDefaultValue(field: ConfigFieldSchema): unknown {
+export function getDefaultValue(field: ConfigFieldSchema): unknown {
   if (field.default !== undefined) return field.default;
   switch (field.type) {
     case "toggle":
       return false;
     case "number":
-      return 0;
+      return undefined;
     case "text":
     case "textarea":
       return "";

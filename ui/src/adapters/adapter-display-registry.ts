@@ -61,6 +61,12 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     experimental: true,
     hideFromVisualSelection: true,
   },
+  clawith_bridge: {
+    label: "Clawith Bridge",
+    description: "Bridge to Clawith digital employees",
+    icon: Bot,
+    experimental: true,
+  },
   claude_local: {
     label: "Claude Code",
     description: "Local Claude agent",

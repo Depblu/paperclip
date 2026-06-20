@@ -37,6 +37,16 @@ import {
   modelProfiles as claudeModelProfiles,
 } from "@paperclipai/adapter-claude-local";
 import {
+  execute as clawithBridgeExecute,
+  testEnvironment as clawithBridgeTestEnvironment,
+  sessionCodec as clawithBridgeSessionCodec,
+  getConfigSchema as getClawithBridgeConfigSchema,
+} from "@paperclipai/adapter-clawith-bridge/server";
+import {
+  agentConfigurationDoc as clawithBridgeAgentConfigurationDoc,
+  models as clawithBridgeModels,
+} from "@paperclipai/adapter-clawith-bridge";
+import {
   execute as codexExecute,
   listCodexSkills,
   syncCodexSkills,
@@ -307,6 +317,19 @@ const acpxLocalAdapter: ServerAdapterModule = {
   getConfigSchema: getAcpxConfigSchema,
 };
 
+const clawithBridgeAdapter: ServerAdapterModule = {
+  type: "clawith_bridge",
+  execute: clawithBridgeExecute,
+  testEnvironment: clawithBridgeTestEnvironment,
+  sessionCodec: clawithBridgeSessionCodec,
+  models: clawithBridgeModels,
+  supportsLocalAgentJwt: false,
+  supportsInstructionsBundle: false,
+  requiresMaterializedRuntimeSkills: false,
+  agentConfigurationDoc: clawithBridgeAgentConfigurationDoc,
+  getConfigSchema: getClawithBridgeConfigSchema,
+};
+
 const codexLocalAdapter: ServerAdapterModule = {
   type: "codex_local",
   execute: codexExecute,
@@ -533,6 +556,7 @@ const pausedOverrides = new Set<string>();
 function registerBuiltInAdapters() {
   for (const adapter of [
     acpxLocalAdapter,
+    clawithBridgeAdapter,
     claudeLocalAdapter,
     codexLocalAdapter,
     openCodeLocalAdapter,
