@@ -332,6 +332,22 @@ export interface AdapterConfigSchema {
   fields: ConfigFieldSchema[];
 }
 
+export interface AdapterConfigRemoteOptionsContext {
+  companyId: string;
+  adapterType: string;
+  fieldKey: string;
+  config: Record<string, unknown>;
+}
+
+export interface AdapterConfigRemoteOption extends ConfigFieldOption {
+  setConfig?: Record<string, unknown>;
+  description?: string | null;
+}
+
+export interface AdapterConfigRemoteOptionsResult {
+  options: AdapterConfigRemoteOption[];
+}
+
 export interface AdapterRuntimeCommandSpec {
   /**
    * The command Paperclip should execute for this adapter in the current config.
@@ -378,6 +394,9 @@ export interface ServerAdapterModule {
     payload: HireApprovedPayload,
     adapterConfig: Record<string, unknown>,
   ) => Promise<HireApprovedHookResult>;
+  getConfigFieldOptions?: (
+    ctx: AdapterConfigRemoteOptionsContext,
+  ) => Promise<AdapterConfigRemoteOptionsResult>;
   /**
    * Optional: fetch live provider quota/rate-limit windows for this adapter.
    * Returns a ProviderQuotaResult so the server can aggregate across adapters

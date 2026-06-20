@@ -35,6 +35,8 @@ class Status:
     HTTP_401_UNAUTHORIZED = 401
     HTTP_403_FORBIDDEN = 403
     HTTP_404_NOT_FOUND = 404
+    HTTP_409_CONFLICT = 409
+    HTTP_422_UNPROCESSABLE_ENTITY = 422
     HTTP_503_SERVICE_UNAVAILABLE = 503
 
 
@@ -72,18 +74,30 @@ def depends(value):
 
 
 class Column:
+    def __init__(self, name: str | None = None):
+        self.name = name
+
     def __eq__(self, other):
-        return ("eq", other)
+        return ("eq", self.name, other)
 
     def desc(self):
         return ("desc", self)
 
+    def asc(self):
+        return ("asc", self)
+
 
 class Query:
-    def __init__(self, target):
-        self.target = target
+    def __init__(self, *targets):
+        self.target = targets[0]
+        self.targets = targets
+        self.conditions = []
 
     def where(self, *args):
+        self.conditions.extend(args)
+        return self
+
+    def join(self, *args):
         return self
 
     def order_by(self, *args):
@@ -93,8 +107,8 @@ class Query:
         return self
 
 
-def select(target):
-    return Query(target)
+def select(*targets):
+    return Query(*targets)
 
 
 @dataclass
@@ -104,6 +118,7 @@ class Settings:
     BRIDGE_JWT_ISSUER: str = "paperclip"
     BRIDGE_JWT_AUDIENCE: str = "clawith-bridge"
     BRIDGE_RUNTIME_TIMEOUT_SEC: float = 0.01
+    BRIDGE_TARGET_TENANT_ID: str = ""
 
 
 settings = Settings()
@@ -130,6 +145,22 @@ class BridgeSyncRequest(ModelBase):
 
 
 class BridgeSyncResponse(ModelBase):
+    pass
+
+
+class BridgeLinkCheckRequest(ModelBase):
+    pass
+
+
+class BridgeLinkCheckResponse(ModelBase):
+    pass
+
+
+class BridgeAgentLinkOption(ModelBase):
+    pass
+
+
+class BridgeAgentLinkOptionsResponse(ModelBase):
     pass
 
 
@@ -180,7 +211,16 @@ def install_base_stubs() -> None:
     sys.modules["app.database"] = database
 
     schemas_bridge = types.ModuleType("app.schemas.bridge")
-    for cls in (BridgeSyncRequest, BridgeSyncResponse, BridgeWakeRequest, BridgeWakeResponse):
+    for cls in (
+        BridgeLinkCheckRequest,
+        BridgeLinkCheckResponse,
+        BridgeAgentLinkOption,
+        BridgeAgentLinkOptionsResponse,
+        BridgeSyncRequest,
+        BridgeSyncResponse,
+        BridgeWakeRequest,
+        BridgeWakeResponse,
+    ):
         setattr(schemas_bridge, cls.__name__, cls)
     sys.modules["app.schemas.bridge"] = schemas_bridge
 
@@ -255,6 +295,23 @@ class Mapping:
 
 
 def install_bridge_service_stubs(mapping: Mapping) -> None:
+    class BridgeRouteAgent:
+        id = Column()
+        tenant_id = Column()
+        name = Column()
+
+    class BridgeRouteTenant:
+        id = Column()
+        name = Column()
+
+    for mod_name, cls_name, cls in (
+        ("app.models.agent", "Agent", BridgeRouteAgent),
+        ("app.models.tenant", "Tenant", BridgeRouteTenant),
+    ):
+        mod = types.ModuleType(mod_name)
+        setattr(mod, cls_name, cls)
+        sys.modules[mod_name] = mod
+
     mapping_svc = types.ModuleType("app.services.bridge_mapping_service")
 
     async def get_mapping_by_idempotency_key(db, key):
@@ -266,9 +323,13 @@ def install_bridge_service_stubs(mapping: Mapping) -> None:
     async def get_or_create_bridge_mapping(db, payload):
         return mapping
 
+    async def validate_existing_clawith_agent(db, tenant_id, agent_id):
+        return types.SimpleNamespace(id=tenant_id), types.SimpleNamespace(id=agent_id)
+
     mapping_svc.get_mapping_by_idempotency_key = get_mapping_by_idempotency_key
     mapping_svc.get_mapping_for_run = get_mapping_for_run
     mapping_svc.get_or_create_bridge_mapping = get_or_create_bridge_mapping
+    mapping_svc.validate_existing_clawith_agent = validate_existing_clawith_agent
     sys.modules["app.services.bridge_mapping_service"] = mapping_svc
 
     runtime_svc = types.ModuleType("app.services.bridge_runtime_service")
@@ -327,10 +388,55 @@ def verify_auth_and_bridge_routes() -> None:
     mapping = Mapping()
     install_bridge_service_stubs(mapping)
     bridge = load_module("app.api.bridge", ROOT / "api" / "bridge.py")
-    assert len(bridge.router.routes) == 7
+    assert len(bridge.router.routes) == 9
+    health = asyncio.run(bridge.bridge_health())
+    assert health["bridge_enabled"] is True
+    assert health["secret_configured"] is True
 
     run_result = asyncio.run(bridge.get_run("run-1", Request(headers, method="GET"), db=None))
     assert run_result.paperclip_run_id == "run-1"
+    link_headers = make_headers_with_payload({
+        "iss": settings.BRIDGE_JWT_ISSUER,
+        "aud": settings.BRIDGE_JWT_AUDIENCE,
+        "sub": "environment-test",
+        "company_id": "company-1",
+        "agent_id": "environment-test",
+        "issue_id": None,
+        "run_id": "environment-test",
+        "iat": int(time.time()),
+        "exp": int(time.time()) + 300,
+    }, "environment-test", "company-1:environment-test:link-check")
+    link_result = asyncio.run(bridge.check_agent_link(
+        BridgeLinkCheckRequest(
+            company_id="company-1",
+            agent_id="environment-test",
+            link_mode="link_existing",
+            clawith_tenant_id="tenant-1",
+            clawith_agent_id="cw-agent-1",
+        ),
+        Request(link_headers),
+        db=None,
+    ))
+    assert link_result.status == "valid"
+
+    class LinkOptionsResult:
+        def all(self):
+            return [
+                (
+                    types.SimpleNamespace(id="cw-agent-1", name="Clawith Agent", status="idle"),
+                    types.SimpleNamespace(id="tenant-1", name="Tenant One"),
+                ),
+            ]
+
+    class LinkOptionsDB:
+        async def execute(self, query):
+            return LinkOptionsResult()
+
+    options_result = asyncio.run(bridge.list_agent_link_options(
+        Request(make_headers("run-1", "company-1:agent-1:link-options"), method="GET"),
+        db=LinkOptionsDB(),
+    ))
+    assert options_result.agents[0].agent_id == "cw-agent-1"
     try:
         asyncio.run(bridge.get_run("other-run", Request(headers, method="GET"), db=None))
         raise AssertionError("run token/path mismatch did not fail")
@@ -464,6 +570,269 @@ class Result:
     def all(self):
         return self._all
 
+    def first(self):
+        return self._all[0] if self._all else None
+
+
+class MappingServiceBridgeMapping:
+    paperclip_company_id = Column("paperclip_company_id")
+    paperclip_agent_id = Column("paperclip_agent_id")
+    paperclip_run_id = Column("paperclip_run_id")
+    idempotency_key = Column("idempotency_key")
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
+class MappingServiceTenant:
+    id = Column("id")
+    slug = Column("slug")
+    default_model_id = Column("default_model_id")
+    created_at = Column("created_at")
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.pop("id", uuid.uuid4())
+        self.__dict__.update(kwargs)
+
+
+class MappingServiceAgent:
+    id = Column("id")
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.pop("id", uuid.uuid4())
+        self.tenant_id = kwargs.pop("tenant_id", uuid.uuid4())
+        self.__dict__.update(kwargs)
+
+
+class MappingServiceIdentity:
+    id = Column("id")
+    username = Column("username")
+
+    def __init__(self, **kwargs):
+        self.id = uuid.uuid4()
+        self.__dict__.update(kwargs)
+
+
+class MappingServiceUser:
+    id = Column("id")
+    identity_id = Column("identity_id")
+    tenant_id = Column("tenant_id")
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.pop("id", uuid.uuid4())
+        self.__dict__.update(kwargs)
+
+
+class MappingServiceLLMModel:
+    id = Column("id")
+    tenant_id = Column("tenant_id")
+    provider = Column("provider")
+    model = Column("model")
+    enabled = Column("enabled")
+    created_at = Column("created_at")
+
+    def __init__(self, **kwargs):
+        self.id = uuid.uuid4()
+        self.__dict__.update(kwargs)
+
+
+class MappingFakeDB:
+    def __init__(self, tenant, agent, mapping=None, model=None, paperclip_tenant=None, model_rows=None):
+        self.tenant = tenant
+        self.agent = agent
+        self.mapping = mapping
+        self.model = model
+        self.paperclip_tenant = paperclip_tenant
+        self.model_rows = model_rows
+        self.added = []
+
+    async def execute(self, query):
+        if query.target is MappingServiceBridgeMapping:
+            return Result(one_or_none=self.mapping)
+        if query.targets == (MappingServiceTenant, MappingServiceLLMModel):
+            if self.model_rows is not None:
+                return Result(all_items=self.model_rows)
+            return Result(all_items=[(self.tenant, self.model)] if self.tenant and self.model else [])
+        if query.target is MappingServiceTenant:
+            if _query_has_condition(query, "slug"):
+                return Result(one_or_none=self.paperclip_tenant)
+            if _query_has_condition(query, "id"):
+                condition_id = _query_condition_value(query, "id")
+                for tenant in (self.tenant, self.paperclip_tenant):
+                    if tenant and str(tenant.id) == str(condition_id):
+                        return Result(one_or_none=tenant)
+                return Result(one_or_none=None)
+            return Result(one_or_none=self.tenant)
+        if query.target is MappingServiceAgent:
+            return Result(one_or_none=self.agent)
+        if query.target is MappingServiceUser:
+            return Result(one_or_none=None)
+        if query.target is MappingServiceLLMModel:
+            if not self.model:
+                return Result(one_or_none=None, all_items=[])
+            if _query_has_condition(query, "id") and str(self.model.id) != str(_query_condition_value(query, "id")):
+                return Result(one_or_none=None, all_items=[])
+            if _query_has_condition(query, "tenant_id") and str(self.model.tenant_id) != str(_query_condition_value(query, "tenant_id")):
+                return Result(one_or_none=None, all_items=[])
+            return Result(one_or_none=self.model, all_items=[self.model])
+        raise AssertionError(query.target)
+
+    def add(self, value):
+        self.added.append(value)
+        if isinstance(value, MappingServiceBridgeMapping):
+            self.mapping = value
+
+    async def flush(self):
+        pass
+
+
+def _query_has_condition(query, name: str) -> bool:
+    return any(isinstance(item, tuple) and len(item) >= 3 and item[0] == "eq" and item[1] == name for item in query.conditions)
+
+
+def _query_condition_value(query, name: str):
+    for item in query.conditions:
+        if isinstance(item, tuple) and len(item) >= 3 and item[0] == "eq" and item[1] == name:
+            return item[2]
+    return None
+
+
+def install_mapping_service_model_stubs() -> None:
+    for mod_name, items in (
+        ("app.models.agent", {"Agent": MappingServiceAgent}),
+        ("app.models.bridge_mapping", {"BridgeMapping": MappingServiceBridgeMapping}),
+        ("app.models.llm", {"LLMModel": MappingServiceLLMModel}),
+        ("app.models.tenant", {"Tenant": MappingServiceTenant}),
+        ("app.models.user", {"Identity": MappingServiceIdentity, "User": MappingServiceUser}),
+    ):
+        mod = types.ModuleType(mod_name)
+        for name, value in items.items():
+            setattr(mod, name, value)
+        sys.modules[mod_name] = mod
+
+
+def verify_mapping_service_link_existing() -> None:
+    install_mapping_service_model_stubs()
+    service = load_module(
+        "app.services.bridge_mapping_service_real",
+        ROOT / "services" / "bridge_mapping_service.py",
+    )
+    tenant_id = uuid.uuid4()
+    agent_id = uuid.uuid4()
+    tenant = MappingServiceTenant(id=tenant_id, slug="tenant")
+    agent = MappingServiceAgent(id=agent_id, tenant_id=tenant_id)
+    payload = BridgeSyncRequest(
+        company_id="company-1",
+        agent_id="agent-1",
+        link_mode="link_existing",
+        clawith_tenant_id=str(tenant_id),
+        clawith_agent_id=str(agent_id),
+    )
+    db = MappingFakeDB(tenant, agent)
+    mapping = asyncio.run(service.get_or_create_bridge_mapping(db, payload))
+    assert mapping.clawith_tenant_id == tenant_id
+    assert mapping.clawith_agent_id == agent_id
+    assert mapping.metadata_json["link_mode"] == "link_existing"
+    assert db.added == [mapping]
+
+    same = asyncio.run(service.get_or_create_bridge_mapping(db, payload))
+    assert same is mapping
+
+    other_payload = BridgeSyncRequest(
+        company_id="company-1",
+        agent_id="agent-1",
+        link_mode="link_existing",
+        clawith_tenant_id=str(tenant_id),
+        clawith_agent_id=str(uuid.uuid4()),
+    )
+    other_agent = MappingServiceAgent(id=uuid.uuid4(), tenant_id=tenant_id)
+    db.agent = other_agent
+    try:
+        asyncio.run(service.get_or_create_bridge_mapping(db, other_payload))
+        raise AssertionError("different link did not conflict")
+    except HTTPException as exc:
+        assert exc.status_code == 409
+
+    bad_tenant_agent = MappingServiceAgent(id=agent_id, tenant_id=uuid.uuid4())
+    try:
+        asyncio.run(service.validate_existing_clawith_agent(
+            MappingFakeDB(tenant, bad_tenant_agent),
+            str(tenant_id),
+            str(agent_id),
+        ))
+        raise AssertionError("agent tenant mismatch did not fail")
+    except HTTPException as exc:
+        assert exc.status_code == 403
+
+
+def verify_mapping_service_auto_create_model_resolution() -> None:
+    install_mapping_service_model_stubs()
+    service = load_module(
+        "app.services.bridge_mapping_service_auto",
+        ROOT / "services" / "bridge_mapping_service.py",
+    )
+    tenant_id = uuid.uuid4()
+    model_id = uuid.uuid4()
+    tenant = MappingServiceTenant(id=tenant_id, slug="tenant", default_model_id=model_id)
+    model = MappingServiceLLMModel(id=model_id, tenant_id=tenant_id, enabled=True)
+    payload = BridgeSyncRequest(
+        company_id="company-2",
+        agent_id="agent-2",
+        link_mode="auto_create",
+        agent_name="QA Agent",
+    )
+    db = MappingFakeDB(tenant, None, model=model)
+    mapping = asyncio.run(service.get_or_create_bridge_mapping(db, payload))
+    created_agents = [item for item in db.added if isinstance(item, MappingServiceAgent)]
+    assert created_agents[0].primary_model_id == model_id
+    assert mapping.clawith_agent_id == created_agents[0].id
+
+    existing_agent = MappingServiceAgent(id=uuid.uuid4(), tenant_id=tenant_id, primary_model_id=None, fallback_model_id=None)
+    existing_mapping = MappingServiceBridgeMapping(
+        paperclip_company_id="company-2",
+        paperclip_agent_id="agent-2",
+        clawith_tenant_id=tenant_id,
+        clawith_agent_id=existing_agent.id,
+    )
+    db = MappingFakeDB(tenant, existing_agent, mapping=existing_mapping, model=model)
+    same = asyncio.run(service.get_or_create_bridge_mapping(db, payload))
+    assert same is existing_mapping
+    assert existing_agent.primary_model_id == model_id
+
+    paperclip_tenant = MappingServiceTenant(id=uuid.uuid4(), slug="paperclip-company-2")
+    migrated_agent = MappingServiceAgent(
+        id=uuid.uuid4(),
+        tenant_id=paperclip_tenant.id,
+        primary_model_id=None,
+        fallback_model_id=None,
+    )
+    migrated_mapping = MappingServiceBridgeMapping(
+        paperclip_company_id="company-2",
+        paperclip_agent_id="agent-2",
+        clawith_tenant_id=paperclip_tenant.id,
+        clawith_agent_id=migrated_agent.id,
+    )
+    db = MappingFakeDB(
+        tenant,
+        migrated_agent,
+        mapping=migrated_mapping,
+        model=model,
+        paperclip_tenant=paperclip_tenant,
+        model_rows=[(tenant, model)],
+    )
+    same = asyncio.run(service.get_or_create_bridge_mapping(db, payload))
+    assert same is migrated_mapping
+    assert migrated_agent.tenant_id == tenant_id
+    assert migrated_agent.primary_model_id == model_id
+    assert migrated_mapping.clawith_tenant_id == tenant_id
+
+    empty_db = MappingFakeDB(MappingServiceTenant(id=uuid.uuid4(), slug="empty"), None)
+    try:
+        asyncio.run(service.get_or_create_bridge_mapping(empty_db, payload))
+        raise AssertionError("auto-create without a model did not fail")
+    except HTTPException as exc:
+        assert exc.status_code == 422
+
 
 class FakeDB:
     def __init__(self):
@@ -573,6 +942,8 @@ def verify_runtime_source_flow() -> None:
 def main() -> None:
     install_base_stubs()
     verify_auth_and_bridge_routes()
+    verify_mapping_service_link_existing()
+    verify_mapping_service_auto_create_model_resolution()
     verify_runtime_source_flow()
     print("bridge source contract ok")
 

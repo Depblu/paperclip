@@ -4,11 +4,41 @@ import type {
   AdapterEnvironmentTestResult,
 } from "@paperclipai/adapter-utils";
 import { readClawithBridgeConfig } from "./config.js";
+import { signBridgeJwt } from "./jwt.js";
+import { getConfigFieldOptions } from "./options.js";
 
 function summarizeStatus(checks: AdapterEnvironmentCheck[]): AdapterEnvironmentTestResult["status"] {
   if (checks.some((check) => check.level === "error")) return "fail";
   if (checks.some((check) => check.level === "warn")) return "warn";
   return "pass";
+}
+
+function bridgeLinkCheckUrl(baseUrl: string): string {
+  return `${baseUrl}/api/bridge/agents/link-check`;
+}
+
+async function readLinkCheckResponse(res: Response): Promise<{ tenantId: string | null; agentId: string | null }> {
+  try {
+    const body = await res.json() as { clawith_tenant_id?: unknown; clawith_agent_id?: unknown };
+    return {
+      tenantId: typeof body.clawith_tenant_id === "string" ? body.clawith_tenant_id : null,
+      agentId: typeof body.clawith_agent_id === "string" ? body.clawith_agent_id : null,
+    };
+  } catch {
+    return { tenantId: null, agentId: null };
+  }
+}
+
+async function readHealthResponse(res: Response): Promise<{ bridgeEnabled: boolean | null; secretConfigured: boolean | null }> {
+  try {
+    const body = await res.json() as { bridge_enabled?: unknown; secret_configured?: unknown };
+    return {
+      bridgeEnabled: typeof body.bridge_enabled === "boolean" ? body.bridge_enabled : null,
+      secretConfigured: typeof body.secret_configured === "boolean" ? body.secret_configured : null,
+    };
+  } catch {
+    return { bridgeEnabled: null, secretConfigured: null };
+  }
 }
 
 export async function testEnvironment(
@@ -72,6 +102,16 @@ export async function testEnvironment(
     });
   }
 
+  if (config.linkMode === "link_existing") {
+    if (!config.clawithTenantId || !config.clawithAgentId) {
+      checks.push({
+        code: "clawith_bridge_agent_link_missing",
+        level: "error",
+        message: "Select a Clawith agent.",
+      });
+    }
+  }
+
   if (baseUrl && (baseUrl.protocol === "http:" || baseUrl.protocol === "https:")) {
     const healthUrl = new URL("/api/bridge/health", baseUrl).toString();
     const controller = new AbortController();
@@ -83,12 +123,126 @@ export async function testEnvironment(
         level: res.ok ? "info" : "warn",
         message: `Bridge health returned HTTP ${res.status}.`,
       });
+      if (res.ok) {
+        const health = await readHealthResponse(res);
+        if (health.bridgeEnabled === false) {
+          checks.push({
+            code: "clawith_bridge_api_disabled",
+            level: "error",
+            message: "Clawith Bridge API is disabled.",
+            hint: "Set BRIDGE_ENABLED=true in the Clawith backend environment and restart Clawith.",
+          });
+        }
+        if (health.secretConfigured === false) {
+          checks.push({
+            code: "clawith_bridge_api_secret_missing",
+            level: "error",
+            message: "Clawith Bridge shared secret is not configured.",
+            hint: "Set BRIDGE_SHARED_SECRET to match this adapter config and restart Clawith.",
+          });
+        }
+      }
     } catch (err) {
       checks.push({
         code: "clawith_bridge_health_failed",
         level: "warn",
         message: err instanceof Error ? err.message : "Bridge health probe failed",
         hint: "This does not block saving the agent, but wake runs need network access to the Bridge.",
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  if (
+    baseUrl &&
+    (baseUrl.protocol === "http:" || baseUrl.protocol === "https:") &&
+    config.bridgeSecret &&
+    config.linkMode === "link_existing"
+  ) {
+    try {
+      const result = await getConfigFieldOptions({
+        companyId: ctx.companyId,
+        adapterType: ctx.adapterType,
+        fieldKey: "clawithAgentLink",
+        config: { ...config },
+      });
+      checks.push({
+        code: result.options.length > 0
+          ? "clawith_bridge_link_options_ok"
+          : "clawith_bridge_link_options_empty",
+        level: result.options.length > 0 ? "info" : "warn",
+        message: result.options.length > 0
+          ? `Loaded ${result.options.length} Clawith agent option(s).`
+          : "No existing Clawith agents were returned by Bridge.",
+      });
+    } catch (err) {
+      checks.push({
+        code: "clawith_bridge_link_options_failed",
+        level: "error",
+        message: err instanceof Error ? err.message : "Failed to load existing Clawith agents.",
+      });
+    }
+  }
+
+  if (
+    baseUrl &&
+    config.bridgeSecret &&
+    config.linkMode === "link_existing" &&
+    config.clawithTenantId &&
+    config.clawithAgentId
+  ) {
+    const agentId = "environment-test";
+    const runId = "environment-test";
+    const token = signBridgeJwt({
+      secret: config.bridgeSecret,
+      issuer: config.issuer,
+      audience: config.audience,
+      subject: agentId,
+      companyId: ctx.companyId,
+      agentId,
+      issueId: null,
+      runId,
+    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    try {
+      const res = await fetch(bridgeLinkCheckUrl(config.baseUrl), {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          "x-paperclip-run-id": runId,
+          "x-idempotency-key": `${ctx.companyId}:${agentId}:link-check`,
+          "x-request-id": "environment-test",
+        },
+        body: JSON.stringify({
+          company_id: ctx.companyId,
+          agent_id: agentId,
+          link_mode: config.linkMode,
+          clawith_tenant_id: config.clawithTenantId,
+          clawith_agent_id: config.clawithAgentId,
+        }),
+        signal: controller.signal,
+      });
+      const linkTarget = res.ok
+        ? await readLinkCheckResponse(res)
+        : { tenantId: null, agentId: null };
+      checks.push({
+        code: res.ok ? "clawith_bridge_link_target_ok" : "clawith_bridge_link_target_failed",
+        level: res.ok ? "info" : "error",
+        message: res.ok
+          ? `Clawith link target is valid: ${linkTarget.agentId ?? config.clawithAgentId}.`
+          : `Clawith link target check returned HTTP ${res.status}.`,
+        detail: res.ok
+          ? `clawith_tenant_id=${linkTarget.tenantId ?? config.clawithTenantId} clawith_agent_id=${linkTarget.agentId ?? config.clawithAgentId}`
+          : null,
+      });
+    } catch (err) {
+      checks.push({
+        code: "clawith_bridge_link_target_failed",
+        level: "warn",
+        message: err instanceof Error ? err.message : "Clawith link target check failed",
       });
     } finally {
       clearTimeout(timeout);

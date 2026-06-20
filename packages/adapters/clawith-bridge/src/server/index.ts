@@ -3,6 +3,7 @@ import type { AdapterSessionCodec } from "@paperclipai/adapter-utils";
 export { execute, buildIdempotencyKey, buildWakeRequest, mapBridgeResponseToResult } from "./execute.js";
 export { testEnvironment } from "./test.js";
 export { readClawithBridgeConfig, getConfigSchema } from "./config.js";
+export { getConfigFieldOptions } from "./options.js";
 export { signBridgeJwt } from "./jwt.js";
 
 function readNonEmptyString(value: unknown): string | null {

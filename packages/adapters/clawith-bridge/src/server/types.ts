@@ -1,5 +1,6 @@
 export type ClawithBridgeMode = "sync";
 export type ClawithBridgeWriteBack = "run_log" | "issue_comment";
+export type ClawithBridgeLinkMode = "auto_create" | "link_existing";
 
 export interface ClawithBridgeConfig {
   enabled: boolean;
@@ -7,6 +8,9 @@ export interface ClawithBridgeConfig {
   bridgeSecret: string;
   timeoutSec: number;
   mode: ClawithBridgeMode;
+  linkMode: ClawithBridgeLinkMode;
+  clawithTenantId: string | null;
+  clawithAgentId: string | null;
   writeBack: ClawithBridgeWriteBack;
   issuer: string;
   audience: string;

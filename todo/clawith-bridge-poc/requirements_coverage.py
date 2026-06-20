@@ -38,6 +38,9 @@ def main() -> None:
         "baseUrl",
         "bridgeSecret",
         "timeoutSec",
+        "linkMode",
+        "clawithTenantId",
+        "clawithAgentId",
         "writeBack",
         "CLAWITH_BRIDGE_ENABLED",
     )
@@ -48,6 +51,9 @@ def main() -> None:
         "issue_id",
         "run_id",
         "idempotency_key",
+        "link_mode",
+        "clawith_tenant_id",
+        "clawith_agent_id",
         "signBridgeJwt",
         "x-request-id",
         "x-paperclip-run-id",
@@ -61,17 +67,33 @@ def main() -> None:
         CLAWITH / "backend/app/api/bridge.py",
         '@router.get("/health")',
         '@router.post("/agents/sync"',
+        '@router.get("/agents/link-options"',
+        '@router.post("/agents/link-check"',
         '@router.post("/agents/{paperclip_agent_id}/wake"',
         '@router.get("/runs/{paperclip_run_id}"',
         '@router.get("/agents/{paperclip_agent_id}/state"',
         '@router.get("/agents/{paperclip_agent_id}/focus"',
         '@router.get("/agents/{paperclip_agent_id}/reflections"',
+        "bridge_enabled",
+        "secret_configured",
         "get_mapping_by_idempotency_key",
         "BridgeWakeResponse.model_validate(existing.result)",
         "asyncio.wait_for",
         "CLAWITH_RUNTIME_TIMEOUT",
         "Agent route/body mismatch",
         "Mapping does not match request",
+    )
+    require(
+        CLAWITH / "backend/app/services/bridge_mapping_service.py",
+        "link_existing",
+        "validate_existing_clawith_agent",
+        "default_model_id",
+        "LLMModel.enabled",
+        "BRIDGE_TARGET_TENANT_ID",
+        "auto-create requires a tenant default model",
+        "mapped agent has no model configured",
+        "Clawith agent does not belong to tenant",
+        "Paperclip agent already linked to a different Clawith agent",
     )
     require(
         CLAWITH / "backend/app/services/bridge_auth_service.py",
@@ -106,7 +128,7 @@ def main() -> None:
         "idempotency_key",
         "UniqueConstraint",
     )
-    require(CLAWITH / "backend/app/config.py", "BRIDGE_LLM_MODEL_NAME", "BRIDGE_LLM_BASE_URL")
+    require(CLAWITH / "backend/app/config.py", "BRIDGE_TARGET_TENANT_ID", "BRIDGE_LLM_MODEL_NAME", "BRIDGE_LLM_BASE_URL")
     require(CLAWITH / "backend/app/main.py", "bridge_router", "app.include_router")
 
     print("requirements coverage ok")

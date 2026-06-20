@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { AdapterConfigSchema, ConfigFieldSchema, CreateConfigValues } from "@paperclipai/adapter-utils";
 
 import type { AdapterConfigFieldsProps } from "./types";
+import { agentsApi, type AdapterConfigRemoteOption } from "../api/agents";
 import {
   Field,
   DraftInput,
@@ -18,19 +19,26 @@ function SelectField({
   value,
   options,
   onChange,
+  loading,
+  disabled,
 }: {
   value: string;
-  options: Array<{ value: string; label: string }>;
-  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string; description?: string | null }>;
+  onChange: (value: string, option?: { value: string; label: string; setConfig?: Record<string, unknown> }) => void;
+  loading?: boolean;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const selectedOpt = options.find((o) => o.value === value);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-accent/50 transition-colors w-full justify-between">
+        <button
+          className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-accent/50 transition-colors w-full justify-between disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={disabled}
+        >
           <span className={!value ? "text-muted-foreground" : ""}>
-            {selectedOpt?.label ?? value ?? "Select..."}
+            {loading ? "Loading..." : selectedOpt?.label ?? value ?? "Select..."}
           </span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </button>
@@ -42,11 +50,11 @@ function SelectField({
             className={`flex items-center w-full px-2 py-1.5 text-sm rounded hover:bg-accent/50 ${opt.value === value ? "bg-accent" : ""}`}
             onMouseDown={(e) => {
               e.preventDefault();
-              onChange(opt.value);
+              onChange(opt.value, opt);
               setOpen(false);
             }}
           >
-            <span>{opt.label}</span>
+            <span className="truncate">{opt.label}</span>
           </button>
         ))}
       </PopoverContent>
@@ -268,6 +276,120 @@ function useConfigSchema(adapterType: string): AdapterConfigSchema | null {
   return schema;
 }
 
+function isRemoteOptionsField(field: ConfigFieldSchema): boolean {
+  const remoteOptions = field.meta?.remoteOptions;
+  return Boolean(remoteOptions && typeof remoteOptions === "object" && !Array.isArray(remoteOptions));
+}
+
+function useRemoteOptions(input: {
+  enabled: boolean;
+  companyId?: string | null;
+  adapterType: string;
+  fieldKey: string;
+  config: Record<string, unknown>;
+}): { options: AdapterConfigRemoteOption[]; loading: boolean; error: string | null } {
+  const [options, setOptions] = useState<AdapterConfigRemoteOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const configKey = JSON.stringify(input.config);
+
+  useEffect(() => {
+    if (!input.enabled || !input.companyId) {
+      setOptions([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    agentsApi.adapterConfigOptions(input.companyId, input.adapterType, input.fieldKey, {
+      adapterConfig: input.config,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setOptions(result.options ?? []);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setOptions([]);
+        setError(err instanceof Error ? err.message : String(err));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [input.enabled, input.companyId, input.adapterType, input.fieldKey, configKey]);
+
+  return { options, loading, error };
+}
+
+function RemoteSelectField({
+  field,
+  value,
+  options,
+  loading,
+  error,
+  onChange,
+}: {
+  field: ConfigFieldSchema;
+  value: string;
+  options: AdapterConfigRemoteOption[];
+  loading: boolean;
+  error: string | null;
+  onChange: (value: string, option?: AdapterConfigRemoteOption) => void;
+}) {
+  const disabled = loading || options.length === 0;
+  const hint = error ?? (options.length === 0 && !loading ? "No options available." : field.hint);
+  return (
+    <Field label={field.label} hint={hint}>
+      <SelectField
+        value={value}
+        options={options}
+        loading={loading}
+        disabled={disabled}
+        onChange={onChange}
+      />
+    </Field>
+  );
+}
+
+function RemoteSelectWrapper({
+  companyId,
+  adapterType,
+  field,
+  value,
+  config,
+  onChange,
+}: {
+  companyId?: string | null;
+  adapterType: string;
+  field: ConfigFieldSchema;
+  value: string;
+  config: Record<string, unknown>;
+  onChange: (value: string, option?: AdapterConfigRemoteOption) => void;
+}) {
+  const { options, loading, error } = useRemoteOptions({
+    enabled: true,
+    companyId,
+    adapterType,
+    fieldKey: field.key,
+    config,
+  });
+  return (
+    <RemoteSelectField
+      field={field}
+      value={value}
+      options={options}
+      loading={loading}
+      error={error}
+      onChange={onChange}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -319,11 +441,26 @@ export function fieldMatchesVisibleWhen(
   return true;
 }
 
+export function getRemoteOptionConfigWrites(
+  field: ConfigFieldSchema,
+  value: string,
+  option?: AdapterConfigRemoteOption,
+): Record<string, unknown> {
+  const writes: Record<string, unknown> = { [field.key]: value || undefined };
+  if (option?.setConfig) {
+    for (const [key, nextValue] of Object.entries(option.setConfig)) {
+      writes[key] = nextValue;
+    }
+  }
+  return writes;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function SchemaConfigFields({
+  companyId,
   adapterType,
   isCreate,
   values,
@@ -353,8 +490,20 @@ export function SchemaConfigFields({
   }, [schema, isCreate, defaultsApplied, set, values?.adapterSchemaValues]);
 
   if (!schema || schema.fields.length === 0) return null;
+  const activeSchema = schema;
 
   function readValue(field: ConfigFieldSchema): unknown {
+    if (field.key === "clawithAgentLink") {
+      const tenantId = isCreate
+        ? values?.adapterSchemaValues?.clawithTenantId
+        : eff("adapterConfig", "clawithTenantId", config.clawithTenantId as string | undefined);
+      const agentId = isCreate
+        ? values?.adapterSchemaValues?.clawithAgentId
+        : eff("adapterConfig", "clawithAgentId", config.clawithAgentId as string | undefined);
+      if (typeof tenantId === "string" && typeof agentId === "string" && tenantId && agentId) {
+        return `${tenantId}:${agentId}`;
+      }
+    }
     if (isCreate) {
       return values?.adapterSchemaValues?.[field.key] ?? getDefaultValue(field);
     }
@@ -403,6 +552,27 @@ export function SchemaConfigFields({
     }
   }
 
+  function buildCurrentConfig(): Record<string, unknown> {
+    if (isCreate) return { ...(values?.adapterSchemaValues ?? {}) };
+    const next: Record<string, unknown> = { ...(config as Record<string, unknown>) };
+    for (const field of activeSchema.fields) {
+      next[field.key] = readValue(field);
+    }
+    return next;
+  }
+
+  function writeSelectValue(field: ConfigFieldSchema, value: string, option?: AdapterConfigRemoteOption): void {
+    const writes = getRemoteOptionConfigWrites(field, value, option);
+    for (const [key, nextValue] of Object.entries(writes)) {
+      const target = activeSchema.fields.find((candidate) => candidate.key === key) ?? ({
+        key,
+        label: key,
+        type: "text",
+      } as ConfigFieldSchema);
+      writeValue(target, nextValue);
+    }
+  }
+
   return (
     <>
       {schema.fields
@@ -411,6 +581,20 @@ export function SchemaConfigFields({
           switch (field.type) {
             case "select": {
               const currentVal = String(readValue(field) ?? "");
+              if (isRemoteOptionsField(field)) {
+                const currentConfig = buildCurrentConfig();
+                return (
+                  <RemoteSelectWrapper
+                    key={field.key}
+                    companyId={companyId}
+                    adapterType={adapterType}
+                    field={field}
+                    value={currentVal}
+                    config={currentConfig}
+                    onChange={(v, option) => writeSelectValue(field, v, option)}
+                  />
+                );
+              }
               return (
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <SelectField

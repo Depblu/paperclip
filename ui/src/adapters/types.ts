@@ -20,6 +20,7 @@ export interface AdapterConfigFieldsProps {
   mode: "create" | "edit";
   isCreate: boolean;
   adapterType: string;
+  companyId?: string | null;
   /** Create mode: raw form values */
   values: CreateConfigValues | null;
   /** Create mode: setter for form values */

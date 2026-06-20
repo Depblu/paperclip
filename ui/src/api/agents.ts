@@ -38,6 +38,18 @@ export interface AdapterModel {
 export type { AdapterModelProfileKey };
 export type AdapterModelProfile = AdapterModelProfileDefinition;
 
+export interface AdapterConfigRemoteOption {
+  label: string;
+  value: string;
+  group?: string;
+  setConfig?: Record<string, unknown>;
+  description?: string | null;
+}
+
+export interface AdapterConfigRemoteOptionsResult {
+  options: AdapterConfigRemoteOption[];
+}
+
 export interface DetectedAdapterModel {
   model: string;
   provider: string;
@@ -207,6 +219,16 @@ export const agentsApi = {
   adapterModelProfiles: (companyId: string, type: string) =>
     api.get<AdapterModelProfile[]>(
       `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/model-profiles`,
+    ),
+  adapterConfigOptions: (
+    companyId: string,
+    type: string,
+    fieldKey: string,
+    data: { adapterConfig: Record<string, unknown> },
+  ) =>
+    api.post<AdapterConfigRemoteOptionsResult>(
+      `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/config-options/${encodeURIComponent(fieldKey)}`,
+      data,
     ),
   testEnvironment: (
     companyId: string,

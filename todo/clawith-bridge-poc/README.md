@@ -28,12 +28,17 @@ BRIDGE_ENABLED=true
 BRIDGE_JWT_ISSUER=paperclip
 BRIDGE_JWT_AUDIENCE=clawith-bridge
 BRIDGE_SHARED_SECRET=dev-secret
+BRIDGE_TARGET_TENANT_ID=
 BRIDGE_LLM_PROVIDER=openai
 BRIDGE_LLM_MODEL_NAME=gpt-5.4-mini
 BRIDGE_LLM_API_KEY=<set in shell>
 BRIDGE_LLM_BASE_URL=http://127.0.0.1:8080/v1
 BRIDGE_RUNTIME_TIMEOUT_SEC=120
 ```
+
+`BRIDGE_TARGET_TENANT_ID` is optional for single-tenant local development. Set it
+when multiple Clawith tenants have enabled models and auto-create should bind new
+Paperclip agents into one specific Clawith tenant.
 
 The runtime service reuses Clawith's existing `ChatSession`/`ChatMessage`,
 session history conversion, and `call_llm_with_failover` path so persona,

@@ -441,6 +441,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
     mode,
     isCreate,
     adapterType,
+    companyId: selectedCompanyId,
     values: isCreate ? props.values : null,
     set: isCreate ? (patch: Partial<CreateConfigValues>) => props.onChange(patch) : null,
     config,

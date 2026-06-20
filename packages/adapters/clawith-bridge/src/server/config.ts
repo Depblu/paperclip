@@ -1,6 +1,11 @@
 import type { AdapterConfigSchema } from "@paperclipai/adapter-utils";
 import { asBoolean, asNumber, asString, parseObject } from "@paperclipai/adapter-utils/server-utils";
-import type { ClawithBridgeConfig, ClawithBridgeMode, ClawithBridgeWriteBack } from "./types.js";
+import type {
+  ClawithBridgeConfig,
+  ClawithBridgeLinkMode,
+  ClawithBridgeMode,
+  ClawithBridgeWriteBack,
+} from "./types.js";
 
 function readEnvBoolean(value: string | undefined, fallback: boolean): boolean {
   if (value == null || value.trim() === "") return fallback;
@@ -14,6 +19,12 @@ function normalizeMode(value: unknown): ClawithBridgeMode {
   return "sync";
 }
 
+function normalizeLinkMode(value: unknown): ClawithBridgeLinkMode {
+  return asString(value, "auto_create").trim().toLowerCase() === "link_existing"
+    ? "link_existing"
+    : "auto_create";
+}
+
 function normalizeWriteBack(value: unknown): ClawithBridgeWriteBack {
   return asString(value, "issue_comment").trim().toLowerCase() === "run_log"
     ? "run_log"
@@ -23,6 +34,11 @@ function normalizeWriteBack(value: unknown): ClawithBridgeWriteBack {
 function readPositiveInteger(value: unknown, fallback: number): number {
   const parsed = Math.floor(asNumber(value, fallback));
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function readOptionalString(value: unknown): string | null {
+  const text = asString(value, "").trim();
+  return text.length > 0 ? text : null;
 }
 
 export function readClawithBridgeConfig(
@@ -42,6 +58,9 @@ export function readClawithBridgeConfig(
     bridgeSecret: asString(config.bridgeSecret, env.CLAWITH_BRIDGE_SECRET ?? "").trim(),
     timeoutSec: readPositiveInteger(config.timeoutSec, Number.isFinite(envTimeout) ? envTimeout : 120),
     mode: normalizeMode(config.mode),
+    linkMode: normalizeLinkMode(config.linkMode),
+    clawithTenantId: readOptionalString(config.clawithTenantId),
+    clawithAgentId: readOptionalString(config.clawithAgentId),
     writeBack: normalizeWriteBack(config.writeBack),
     issuer: asString(config.issuer, "paperclip").trim() || "paperclip",
     audience: asString(config.audience, "clawith-bridge").trim() || "clawith-bridge",
@@ -57,6 +76,30 @@ export function getConfigSchema(): AdapterConfigSchema {
         type: "toggle",
         default: true,
         hint: "Turns this adapter on for the agent. CLAWITH_BRIDGE_ENABLED=false disables all Clawith Bridge runs.",
+      },
+      {
+        key: "linkMode",
+        label: "Agent link",
+        type: "select",
+        default: "auto_create",
+        options: [
+          { label: "Auto-create in Clawith", value: "auto_create" },
+          { label: "Link existing Clawith agent", value: "link_existing" },
+        ],
+        hint: "Auto-create keeps the previous behavior. Link existing lets you select an existing Clawith agent.",
+      },
+      {
+        key: "clawithAgentLink",
+        label: "Clawith agent",
+        type: "select",
+        hint: "Select an existing Clawith agent from the configured Bridge.",
+        options: [],
+        required: true,
+        group: "link",
+        meta: {
+          visibleWhen: { key: "linkMode", value: "link_existing" },
+          remoteOptions: { provider: "adapter", targetFields: ["clawithTenantId", "clawithAgentId"] },
+        },
       },
       {
         key: "baseUrl",

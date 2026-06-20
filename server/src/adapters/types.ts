@@ -30,6 +30,9 @@ export type {
   ConfigFieldOption,
   ConfigFieldSchema,
   AdapterConfigSchema,
+  AdapterConfigRemoteOption,
+  AdapterConfigRemoteOptionsContext,
+  AdapterConfigRemoteOptionsResult,
   AdapterRuntimeCommandSpec,
   ServerAdapterModule,
 } from "@paperclipai/adapter-utils";

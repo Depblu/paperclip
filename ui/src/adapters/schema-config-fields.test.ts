@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AdapterConfigSchema, ConfigFieldSchema } from "@paperclipai/adapter-utils";
-import { fieldMatchesVisibleWhen } from "./schema-config-fields";
+import { fieldMatchesVisibleWhen, getRemoteOptionConfigWrites } from "./schema-config-fields";
 
 const sourceField: ConfigFieldSchema = {
   key: "provider",
@@ -43,5 +43,28 @@ describe("fieldMatchesVisibleWhen", () => {
 
     expect(fieldMatchesVisibleWhen(field, () => "claude", schema)).toBe(true);
     expect(fieldMatchesVisibleWhen(field, () => "codex", schema)).toBe(false);
+  });
+});
+
+describe("getRemoteOptionConfigWrites", () => {
+  it("writes the selected remote option and hidden Clawith link ids", () => {
+    const field: ConfigFieldSchema = {
+      key: "clawithAgentLink",
+      label: "Clawith agent",
+      type: "select",
+    };
+
+    expect(getRemoteOptionConfigWrites(field, "tenant-1:agent-1", {
+      label: "Support Agent (Tenant One)",
+      value: "tenant-1:agent-1",
+      setConfig: {
+        clawithTenantId: "tenant-1",
+        clawithAgentId: "agent-1",
+      },
+    })).toEqual({
+      clawithAgentLink: "tenant-1:agent-1",
+      clawithTenantId: "tenant-1",
+      clawithAgentId: "agent-1",
+    });
   });
 });

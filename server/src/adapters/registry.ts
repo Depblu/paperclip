@@ -41,6 +41,7 @@ import {
   testEnvironment as clawithBridgeTestEnvironment,
   sessionCodec as clawithBridgeSessionCodec,
   getConfigSchema as getClawithBridgeConfigSchema,
+  getConfigFieldOptions as getClawithBridgeConfigFieldOptions,
 } from "@paperclipai/adapter-clawith-bridge/server";
 import {
   agentConfigurationDoc as clawithBridgeAgentConfigurationDoc,
@@ -328,6 +329,7 @@ const clawithBridgeAdapter: ServerAdapterModule = {
   requiresMaterializedRuntimeSkills: false,
   agentConfigurationDoc: clawithBridgeAgentConfigurationDoc,
   getConfigSchema: getClawithBridgeConfigSchema,
+  getConfigFieldOptions: getClawithBridgeConfigFieldOptions,
 };
 
 const codexLocalAdapter: ServerAdapterModule = {

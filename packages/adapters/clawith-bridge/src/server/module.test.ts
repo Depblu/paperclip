@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { CreateConfigValues } from "@paperclipai/adapter-utils";
-import { sessionCodec, testEnvironment } from "./index.js";
+import { getConfigFieldOptions, sessionCodec, testEnvironment } from "./index.js";
 import { buildClawithBridgeConfig } from "../ui/build-config.js";
 import { parseClawithBridgeStdoutLine } from "../ui/parse-stdout.js";
 
@@ -84,7 +84,13 @@ describe("clawith bridge adapter module", () => {
   });
 
   it("reports Bridge health probe success when reachable", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("ok", { status: 200 }));
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      bridge_enabled: true,
+      secret_configured: true,
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }));
 
     const result = await testEnvironment({
       adapterType: "clawith_bridge",
@@ -103,5 +109,184 @@ describe("clawith bridge adapter module", () => {
       ]),
     );
     expect(globalThis.fetch).toHaveBeenCalledWith("http://localhost:8008/api/bridge/health", expect.any(Object));
+  });
+
+  it("reports missing selected Clawith agent without probing the target", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        bridge_enabled: true,
+        secret_configured: true,
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        agents: [
+          {
+            tenant_id: "tenant-1",
+            tenant_name: "Tenant One",
+            agent_id: "agent-1",
+            agent_name: "Support Agent",
+          },
+        ],
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }));
+
+    const result = await testEnvironment({
+      adapterType: "clawith_bridge",
+      companyId: "company-1",
+      config: {
+        baseUrl: "http://localhost:8008",
+        bridgeSecret: "dev-secret",
+        linkMode: "link_existing",
+      },
+    });
+
+    expect(result.status).toBe("fail");
+    expect(result.checks.map((check) => check.code)).toEqual(
+      expect.arrayContaining([
+        "clawith_bridge_agent_link_missing",
+        "clawith_bridge_link_options_ok",
+      ]),
+    );
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports disabled Bridge API for link_existing options", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        bridge_enabled: false,
+        secret_configured: false,
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "Bridge API disabled" }), {
+        status: 404,
+        headers: { "content-type": "application/json" },
+      }));
+
+    const result = await testEnvironment({
+      adapterType: "clawith_bridge",
+      companyId: "company-1",
+      config: {
+        baseUrl: "http://localhost:8008",
+        bridgeSecret: "dev-secret",
+        linkMode: "link_existing",
+      },
+    });
+
+    expect(result.status).toBe("fail");
+    expect(result.checks.map((check) => check.code)).toEqual(
+      expect.arrayContaining([
+        "clawith_bridge_api_disabled",
+        "clawith_bridge_api_secret_missing",
+        "clawith_bridge_link_options_failed",
+      ]),
+    );
+    expect(result.checks.find((check) => check.code === "clawith_bridge_link_options_failed")?.message)
+      .toBe("Bridge API disabled");
+  });
+
+  it("probes configured link_existing targets without creating a mapping", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        bridge_enabled: true,
+        secret_configured: true,
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        agents: [
+          {
+            tenant_id: "cw-tenant-1",
+            tenant_name: "Tenant One",
+            agent_id: "cw-agent-1",
+            agent_name: "Support Agent",
+          },
+        ],
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "valid" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }));
+
+    const result = await testEnvironment({
+      adapterType: "clawith_bridge",
+      companyId: "company-1",
+      config: {
+        baseUrl: "http://localhost:8008",
+        bridgeSecret: "dev-secret",
+        linkMode: "link_existing",
+        clawithTenantId: "cw-tenant-1",
+        clawithAgentId: "cw-agent-1",
+      },
+    });
+
+    expect(result.status).toBe("pass");
+    expect(result.checks.map((check) => check.code)).toContain("clawith_bridge_link_target_ok");
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "http://localhost:8008/api/bridge/agents/link-check",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          company_id: "company-1",
+          agent_id: "environment-test",
+          link_mode: "link_existing",
+          clawith_tenant_id: "cw-tenant-1",
+          clawith_agent_id: "cw-agent-1",
+        }),
+      }),
+    );
+  });
+
+  it("loads existing Clawith agents for the link dropdown", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      agents: [
+        {
+          tenant_id: "tenant-1",
+          tenant_name: "Tenant One",
+          agent_id: "agent-1",
+          agent_name: "Support Agent",
+          status: "idle",
+        },
+      ],
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }));
+
+    const result = await getConfigFieldOptions({
+      companyId: "company-1",
+      adapterType: "clawith_bridge",
+      fieldKey: "clawithAgentLink",
+      config: {
+        baseUrl: "http://localhost:8008",
+        bridgeSecret: "dev-secret",
+      },
+    });
+
+    expect(result.options).toEqual([
+      {
+        label: "Support Agent (Tenant One)",
+        value: "tenant-1:agent-1",
+        group: "Tenant One",
+        description: "idle",
+        setConfig: {
+          clawithTenantId: "tenant-1",
+          clawithAgentId: "agent-1",
+        },
+      },
+    ]);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "http://localhost:8008/api/bridge/agents/link-options",
+      expect.objectContaining({ method: "GET" }),
+    );
   });
 });

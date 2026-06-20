@@ -248,6 +248,24 @@ function validateConfig(config: ClawithBridgeConfig): AdapterExecutionResult | n
       errorCode: "clawith_bridge_secret_missing",
     };
   }
+  if (config.linkMode === "link_existing" && !config.clawithTenantId) {
+    return {
+      exitCode: 1,
+      signal: null,
+      timedOut: false,
+      errorMessage: "Clawith Bridge link_existing requires clawithTenantId.",
+      errorCode: "clawith_bridge_tenant_id_missing",
+    };
+  }
+  if (config.linkMode === "link_existing" && !config.clawithAgentId) {
+    return {
+      exitCode: 1,
+      signal: null,
+      timedOut: false,
+      errorMessage: "Clawith Bridge link_existing requires clawithAgentId.",
+      errorCode: "clawith_bridge_agent_id_missing",
+    };
+  }
   return null;
 }
 
@@ -360,6 +378,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     commandArgs: ["POST", url],
     commandNotes: [
       `mode=${config.mode}`,
+      `linkMode=${config.linkMode}`,
       `writeBack=${config.writeBack}`,
       `timeoutSec=${config.timeoutSec}`,
     ],
@@ -388,6 +407,13 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         company_id: ctx.agent.companyId,
         agent_id: ctx.agent.id,
         agent_name: ctx.agent.name,
+        link_mode: config.linkMode,
+        ...(config.linkMode === "link_existing"
+          ? {
+              clawith_tenant_id: config.clawithTenantId,
+              clawith_agent_id: config.clawithAgentId,
+            }
+          : {}),
       }),
       signal: controller.signal,
     });

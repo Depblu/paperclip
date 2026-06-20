@@ -1615,6 +1615,36 @@ export function agentRoutes(
     res.json(profiles);
   });
 
+  router.post("/companies/:companyId/adapters/:type/config-options/:fieldKey", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    const type = assertKnownAdapterType(req.params.type as string);
+    await assertCanCreateAgentsForCompany(req, companyId);
+
+    const adapter = requireServerAdapter(type);
+    if (!adapter.getConfigFieldOptions) {
+      res.status(404).json({ error: `Adapter "${type}" does not provide remote config options.` });
+      return;
+    }
+
+    const inputAdapterConfig = (req.body?.adapterConfig ?? {}) as Record<string, unknown>;
+    const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(
+      companyId,
+      inputAdapterConfig,
+      { strictMode: strictSecretsMode },
+    );
+    const { config: runtimeAdapterConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
+      companyId,
+      normalizedAdapterConfig,
+    );
+    const result = await adapter.getConfigFieldOptions({
+      companyId,
+      adapterType: type,
+      fieldKey: req.params.fieldKey as string,
+      config: runtimeAdapterConfig,
+    });
+    res.json(result);
+  });
+
   router.get("/companies/:companyId/adapters/:type/detect-model", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);

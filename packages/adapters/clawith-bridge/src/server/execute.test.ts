@@ -336,6 +336,9 @@ describe("clawith bridge adapter", () => {
       bridgeSecret: "dev-secret",
       timeoutSec: 5,
       mode: "sync",
+      linkMode: "auto_create",
+      clawithTenantId: null,
+      clawithAgentId: null,
       writeBack: "issue_comment",
     });
   });
@@ -421,6 +424,7 @@ describe("clawith bridge adapter", () => {
         company_id: "company-1",
         agent_id: "agent-1",
         agent_name: "Clawith Agent",
+        link_mode: "auto_create",
       },
     });
     expect(requests[1]).toMatchObject({
@@ -495,6 +499,77 @@ describe("clawith bridge adapter", () => {
     expect(meta).toHaveLength(1);
   });
 
+  it("sends explicit Clawith IDs for existing-agent links", async () => {
+    const requests: Array<{ url: string; init: RequestInit; body: Record<string, unknown> }> = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
+      const requestInit = init ?? {};
+      requests.push({
+        url: String(url),
+        init: requestInit,
+        body: JSON.parse(String(requestInit.body ?? "{}")),
+      });
+      if (String(url).endsWith("/api/bridge/agents/sync")) {
+        return responseJson({
+          paperclip_company_id: "company-1",
+          paperclip_agent_id: "agent-1",
+          clawith_tenant_id: "cw-tenant-1",
+          clawith_agent_id: "cw-agent-1",
+          status: "active",
+        });
+      }
+      return responseJson({
+        status: "completed",
+        paperclip_run_id: "run-1",
+        clawith_tenant_id: "cw-tenant-1",
+        clawith_agent_id: "cw-agent-1",
+        clawith_session_id: "cw-session-1",
+        message: "Bridge completed work",
+      });
+    });
+
+    const result = await execute(baseContext({
+      config: {
+        baseUrl: "http://clawith.local",
+        bridgeSecret: "dev-secret",
+        linkMode: "link_existing",
+        clawithTenantId: "cw-tenant-1",
+        clawithAgentId: "cw-agent-1",
+      },
+    }));
+
+    expect(requests[0]).toMatchObject({
+      url: "http://clawith.local/api/bridge/agents/sync",
+      body: {
+        company_id: "company-1",
+        agent_id: "agent-1",
+        agent_name: "Clawith Agent",
+        link_mode: "link_existing",
+        clawith_tenant_id: "cw-tenant-1",
+        clawith_agent_id: "cw-agent-1",
+      },
+    });
+    expect(result.exitCode).toBe(0);
+  });
+
+  it("fails link_existing config before network calls when target IDs are missing", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    const result = await execute(baseContext({
+      config: {
+        baseUrl: "http://clawith.local",
+        bridgeSecret: "dev-secret",
+        linkMode: "link_existing",
+        clawithTenantId: "cw-tenant-1",
+      },
+    }));
+
+    expect(result).toMatchObject({
+      exitCode: 1,
+      errorCode: "clawith_bridge_agent_id_missing",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("executes against a local HTTP Bridge contract server", async () => {
     const seenRoutes: string[] = [];
     let serverError: unknown = null;
@@ -520,6 +595,7 @@ describe("clawith bridge adapter", () => {
             company_id: "company-1",
             agent_id: "agent-1",
             agent_name: "Clawith Agent",
+            link_mode: "auto_create",
           });
           sendHttpJson(res, 200, {
             paperclip_company_id: "company-1",

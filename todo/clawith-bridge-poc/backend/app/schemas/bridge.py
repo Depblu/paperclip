@@ -57,6 +57,9 @@ class BridgeSyncRequest(BaseModel):
     company_id: str
     agent_id: str
     agent_name: str | None = None
+    link_mode: Literal["auto_create", "link_existing"] = "auto_create"
+    clawith_tenant_id: str | None = None
+    clawith_agent_id: str | None = None
     role: str | None = None
     capabilities: str | None = None
 
@@ -67,3 +70,29 @@ class BridgeSyncResponse(BaseModel):
     clawith_tenant_id: str
     clawith_agent_id: str
     status: str
+
+
+class BridgeLinkCheckRequest(BaseModel):
+    company_id: str
+    agent_id: str
+    link_mode: Literal["auto_create", "link_existing"] = "auto_create"
+    clawith_tenant_id: str | None = None
+    clawith_agent_id: str | None = None
+
+
+class BridgeLinkCheckResponse(BaseModel):
+    status: Literal["valid"]
+    clawith_tenant_id: str
+    clawith_agent_id: str
+
+
+class BridgeAgentLinkOption(BaseModel):
+    tenant_id: str
+    tenant_name: str
+    agent_id: str
+    agent_name: str
+    status: str | None = None
+
+
+class BridgeAgentLinkOptionsResponse(BaseModel):
+    agents: list[BridgeAgentLinkOption] = Field(default_factory=list)
