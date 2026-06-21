@@ -13,6 +13,13 @@ interface ClawithAgentOption {
   status?: unknown;
 }
 
+interface NativeAgentOption {
+  id?: unknown;
+  name?: unknown;
+  status?: unknown;
+  creator_username?: unknown;
+}
+
 function asString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
@@ -21,8 +28,22 @@ function linkOptionsUrl(baseUrl: string): string {
   return `${baseUrl}/api/bridge/agents/link-options`;
 }
 
+function nativeAgentsUrl(baseUrl: string): string {
+  return `${baseUrl}/api/agents/`;
+}
+
+function readNativeAgents(body: unknown): NativeAgentOption[] {
+  if (Array.isArray(body)) return body as NativeAgentOption[];
+  if (!body || typeof body !== "object") return [];
+  const record = body as { agents?: unknown; items?: unknown; data?: unknown };
+  if (Array.isArray(record.agents)) return record.agents as NativeAgentOption[];
+  if (Array.isArray(record.items)) return record.items as NativeAgentOption[];
+  if (Array.isArray(record.data)) return record.data as NativeAgentOption[];
+  return [];
+}
+
 async function readErrorMessage(res: Response): Promise<string> {
-  const fallback = `Clawith link options returned HTTP ${res.status}`;
+  const fallback = `Clawith options returned HTTP ${res.status}`;
   const text = await res.text().catch(() => "");
   if (!text.trim()) return fallback;
   try {
@@ -36,9 +57,46 @@ async function readErrorMessage(res: Response): Promise<string> {
 export async function getConfigFieldOptions(
   ctx: AdapterConfigRemoteOptionsContext,
 ): Promise<AdapterConfigRemoteOptionsResult> {
-  if (ctx.fieldKey !== "clawithAgentLink") return { options: [] };
+  if (ctx.fieldKey !== "clawithAgentLink" && ctx.fieldKey !== "nativeClawithAgentLink") return { options: [] };
 
   const config = readClawithBridgeConfig(ctx.config);
+  if (ctx.fieldKey === "nativeClawithAgentLink") {
+    if (config.connectionMode !== "native_chat") return { options: [] };
+    if (!config.baseUrl || !config.clawithAuthToken) return { options: [] };
+
+    const res = await fetch(nativeAgentsUrl(config.baseUrl), {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${config.clawithAuthToken}`,
+      },
+    });
+    if (!res.ok) {
+      throw new Error(await readErrorMessage(res));
+    }
+    const agents = readNativeAgents(await res.json());
+    return {
+      options: agents
+        .map((agent) => {
+          const agentId = asString(agent.id);
+          if (!agentId) return null;
+          const agentName = asString(agent.name) ?? agentId;
+          const creatorName = asString(agent.creator_username);
+          const status = asString(agent.status);
+          return {
+            label: agentName,
+            value: agentId,
+            ...(creatorName ? { group: creatorName } : {}),
+            ...(status ? { description: status } : {}),
+            setConfig: {
+              clawithAgentId: agentId,
+            },
+          };
+        })
+        .filter((option): option is NonNullable<typeof option> => option !== null),
+    };
+  }
+
+  if (config.connectionMode === "native_chat") return { options: [] };
   if (!config.baseUrl || !config.bridgeSecret) return { options: [] };
 
   const agentId = "config-options";

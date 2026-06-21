@@ -72,6 +72,7 @@ import { getTelemetryClient } from "../telemetry.js";
 import { companySkillService } from "./company-skills.js";
 import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService } from "./secrets.js";
+import { clawithConnectionService } from "./clawith-connections.js";
 import { resolveDefaultAgentWorkspaceDir, resolveManagedProjectWorkspaceDir } from "../home-paths.js";
 import {
   buildHeartbeatRunIssueComment,
@@ -382,7 +383,9 @@ const INLINE_BASE64_IMAGE_DATA_RE = /("type":"image","source":\{"type":"base64",
 type RuntimeConfigSecretResolver = Pick<
   ReturnType<typeof secretService>,
   "resolveAdapterConfigForRuntime" | "resolveEnvBindings"
->;
+> & {
+  resolveClawithConnectionToken?: ReturnType<typeof clawithConnectionService>["resolveToken"];
+};
 
 const LOW_TRUST_SENSITIVE_ENV_KEY_RE =
   /(api[-_]?key|access[-_]?token|auth(?:_?token)?|authorization|bearer|secret|passwd|password|credential|jwt|private[-_]?key|cookie|connectionstring)/i;
@@ -427,6 +430,7 @@ function assertLowTrustEnvConfigAllowed(envValue: unknown, source: string) {
 
 export async function resolveExecutionRunAdapterConfig(input: {
   companyId: string;
+  adapterType?: string | null;
   agentId?: string | null;
   issueId?: string | null;
   heartbeatRunId?: string | null;
@@ -464,6 +468,31 @@ export async function resolveExecutionRunAdapterConfig(input: {
         }
       : undefined,
   );
+  if (
+    input.adapterType === "clawith_bridge" &&
+    resolvedConfig.connectionMode === "native_chat" &&
+    typeof resolvedConfig.clawithConnectionId === "string" &&
+    resolvedConfig.clawithConnectionId.trim().length > 0
+  ) {
+    if (!input.secretsSvc.resolveClawithConnectionToken) {
+      throw new HttpError(422, "Clawith connection resolver is not available", {
+        code: "clawith_connection_resolver_missing",
+      });
+    }
+    const { connection, token } = await input.secretsSvc.resolveClawithConnectionToken(
+      input.companyId,
+      resolvedConfig.clawithConnectionId,
+      {
+        actorType: input.agentId ? "agent" : "system",
+        actorId: input.agentId ?? null,
+        issueId: input.issueId ?? null,
+        heartbeatRunId: input.heartbeatRunId ?? null,
+      },
+    );
+    resolvedConfig.baseUrl = connection.baseUrl;
+    resolvedConfig.clawithAuthToken = token;
+    secretKeys.add("clawithAuthToken");
+  }
   const projectEnvResolution = projectEnv
     ? await input.secretsSvc.resolveEnvBindings(
         input.companyId,
@@ -3105,6 +3134,7 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
 
   const runLogStore = getRunLogStore();
   const secretsSvc = secretService(db);
+  const clawithConnections = clawithConnectionService(db);
   const companySkills = companySkillService(db);
   const issuesSvc = issueService(db);
   const treeControlSvc = issueTreeControlService(db);
@@ -8315,6 +8345,7 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
     const executionRunConfig = stripWorkspaceRuntimeFromExecutionRunConfig(mergedConfig);
     const { resolvedConfig, secretKeys, secretManifest } = await resolveExecutionRunAdapterConfig({
       companyId: agent.companyId,
+      adapterType: agent.adapterType,
       agentId: agent.id,
       issueId,
       heartbeatRunId: run.id,
@@ -8323,7 +8354,10 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       executionRunConfig,
       projectEnv: projectContext?.env ?? null,
       routineEnv: routineEnvContext.env,
-      secretsSvc,
+      secretsSvc: {
+        ...secretsSvc,
+        resolveClawithConnectionToken: clawithConnections.resolveToken,
+      },
       trustPreset,
     });
     if (secretManifest.length > 0) {

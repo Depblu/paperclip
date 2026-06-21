@@ -69,6 +69,7 @@ import type {
 } from "@paperclipai/adapter-utils";
 import { skillVersionSelectionMap } from "../services/runtime-skill-selections.js";
 import { secretService } from "../services/secrets.js";
+import { clawithConnectionService } from "../services/clawith-connections.js";
 import {
   detectAdapterModel,
   findActiveServerAdapter,
@@ -187,6 +188,7 @@ export function agentRoutes(
   const recovery = recoveryService(db, { enqueueWakeup: heartbeat.wakeup });
   const issueApprovalsSvc = issueApprovalService(db);
   const secretsSvc = secretService(db);
+  const clawithConnections = clawithConnectionService(db);
   const instructions = agentInstructionsService();
   const companySkills = companySkillService(db);
   const workspaceOperations = workspaceOperationService(db);
@@ -856,6 +858,31 @@ export function agentRoutes(
       throw unprocessable(`Unknown adapter type: ${adapterType}`);
     }
     return adapterType;
+  }
+
+  async function materializeClawithRuntimeConfig(
+    companyId: string,
+    adapterType: string,
+    config: Record<string, unknown>,
+    actor: { type: "agent" | "user"; id: string | null },
+  ) {
+    if (
+      adapterType !== "clawith_bridge" ||
+      config.connectionMode !== "native_chat" ||
+      typeof config.clawithConnectionId !== "string" ||
+      config.clawithConnectionId.trim().length === 0
+    ) {
+      return config;
+    }
+    const { connection, token } = await clawithConnections.resolveToken(companyId, config.clawithConnectionId, {
+      actorType: actor.type,
+      actorId: actor.id,
+    });
+    return {
+      ...config,
+      baseUrl: connection.baseUrl,
+      clawithAuthToken: token,
+    };
   }
 
   async function assertAgentDefaultEnvironmentSelection(
@@ -1615,6 +1642,36 @@ export function agentRoutes(
     res.json(profiles);
   });
 
+  router.get("/companies/:companyId/adapters/clawith_bridge/connections", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const connections = await clawithConnections.list(companyId);
+    res.json({ connections });
+  });
+
+  router.post("/companies/:companyId/adapters/clawith_bridge/connections", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    await assertBoardCanManageAgentsForCompany(req, companyId);
+    const result = await clawithConnections.connect(
+      companyId,
+      {
+        baseUrl: req.body?.baseUrl,
+        loginIdentifier: req.body?.loginIdentifier,
+        password: req.body?.password,
+        tenantId: req.body?.tenantId,
+      },
+      { userId: req.actor.userId ?? "board", agentId: null },
+    );
+    res.status(result.requiresTenantSelection ? 200 : 201).json(result);
+  });
+
+  router.delete("/companies/:companyId/adapters/clawith_bridge/connections/:connectionId", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    await assertBoardCanManageAgentsForCompany(req, companyId);
+    const result = await clawithConnections.disconnect(companyId, req.params.connectionId as string);
+    res.json(result);
+  });
+
   router.post("/companies/:companyId/adapters/:type/config-options/:fieldKey", async (req, res) => {
     const companyId = req.params.companyId as string;
     const type = assertKnownAdapterType(req.params.type as string);
@@ -1632,9 +1689,36 @@ export function agentRoutes(
       inputAdapterConfig,
       { strictMode: strictSecretsMode },
     );
-    const { config: runtimeAdapterConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
+    if (type === "clawith_bridge" && req.params.fieldKey === "clawithConnectionId") {
+      const connections = await clawithConnections.list(companyId);
+      res.json({
+        options: connections.map((connection) => ({
+          label: connection.label,
+          value: connection.id,
+          group: connection.tenantName ?? new URL(connection.baseUrl).host,
+          description: connection.status === "connected"
+            ? connection.username
+            : `${connection.status}${connection.username ? `: ${connection.username}` : ""}`,
+          setConfig: {
+            clawithConnectionId: connection.id,
+            baseUrl: connection.baseUrl,
+          },
+        })),
+      });
+      return;
+    }
+    const { config: resolvedAdapterConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
       companyId,
       normalizedAdapterConfig,
+    );
+    const runtimeAdapterConfig = await materializeClawithRuntimeConfig(
+      companyId,
+      type,
+      resolvedAdapterConfig,
+      {
+        type: req.actor.type === "agent" ? "agent" : "user",
+        id: req.actor.type === "agent" ? req.actor.agentId ?? null : req.actor.userId ?? "board",
+      },
     );
     const result = await adapter.getConfigFieldOptions({
       companyId,
@@ -1675,9 +1759,18 @@ export function agentRoutes(
         inputAdapterConfig,
         { strictMode: strictSecretsMode },
       );
-      const { config: runtimeAdapterConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
+      const { config: resolvedAdapterConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
         companyId,
         normalizedAdapterConfig,
+      );
+      const runtimeAdapterConfig = await materializeClawithRuntimeConfig(
+        companyId,
+        type,
+        resolvedAdapterConfig,
+        {
+          type: req.actor.type === "agent" ? "agent" : "user",
+          id: req.actor.type === "agent" ? req.actor.agentId ?? null : req.actor.userId ?? "board",
+        },
       );
 
       const { executionTarget, environmentName, fallbackChecks, release } =

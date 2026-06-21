@@ -191,6 +191,61 @@ describe("resolveExecutionRunAdapterConfig", () => {
     expect(resolveEnvBindings).not.toHaveBeenCalled();
   });
 
+  it("materializes Clawith native chat connection tokens only in runtime config", async () => {
+    const resolveAdapterConfigForRuntime = vi.fn().mockResolvedValue({
+      config: {
+        connectionMode: "native_chat",
+        clawithConnectionId: "connection-1",
+        clawithAgentId: "clawith-agent-1",
+      },
+      secretKeys: new Set<string>(),
+      manifest: [],
+    });
+    const resolveEnvBindings = vi.fn();
+    const resolveClawithConnectionToken = vi.fn().mockResolvedValue({
+      connection: {
+        id: "connection-1",
+        baseUrl: "http://clawith.local",
+      },
+      token: "runtime-clawith-token",
+    });
+
+    const result = await resolveExecutionRunAdapterConfig({
+      companyId: "company-1",
+      adapterType: "clawith_bridge",
+      agentId: "agent-1",
+      issueId: "issue-1",
+      heartbeatRunId: "run-1",
+      executionRunConfig: {
+        connectionMode: "native_chat",
+        clawithConnectionId: "connection-1",
+        clawithAgentId: "clawith-agent-1",
+      },
+      projectEnv: null,
+      secretsSvc: {
+        resolveAdapterConfigForRuntime,
+        resolveEnvBindings,
+        resolveClawithConnectionToken,
+      } as any,
+    });
+
+    expect(result.resolvedConfig).toMatchObject({
+      connectionMode: "native_chat",
+      clawithConnectionId: "connection-1",
+      clawithAgentId: "clawith-agent-1",
+      baseUrl: "http://clawith.local",
+      clawithAuthToken: "runtime-clawith-token",
+    });
+    expect(result.secretKeys.has("clawithAuthToken")).toBe(true);
+    expect(resolveClawithConnectionToken).toHaveBeenCalledWith("company-1", "connection-1", {
+      actorType: "agent",
+      actorId: "agent-1",
+      issueId: "issue-1",
+      heartbeatRunId: "run-1",
+    });
+    expect(resolveAdapterConfigForRuntime.mock.calls[0]?.[1]).not.toHaveProperty("clawithAuthToken");
+  });
+
   it("passes low-trust allowed secret binding ids into all runtime secret contexts", async () => {
     const resolveAdapterConfigForRuntime = vi.fn().mockResolvedValue({
       config: { env: {} },

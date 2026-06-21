@@ -17,13 +17,28 @@ export const sessionCodec: AdapterSessionCodec = {
     const clawithSessionId =
       readNonEmptyString(record.clawithSessionId) ?? readNonEmptyString(record.clawith_session_id);
     if (!clawithSessionId) return null;
-    return { clawithSessionId };
+    const connectionMode = readNonEmptyString(record.connectionMode) ?? readNonEmptyString(record.connection_mode);
+    const clawithAgentId =
+      readNonEmptyString(record.clawithAgentId) ?? readNonEmptyString(record.clawith_agent_id);
+    return {
+      ...(connectionMode ? { connectionMode } : {}),
+      ...(clawithAgentId ? { clawithAgentId } : {}),
+      clawithSessionId,
+    };
   },
   serialize(params) {
     if (!params) return null;
     const clawithSessionId =
       readNonEmptyString(params.clawithSessionId) ?? readNonEmptyString(params.clawith_session_id);
-    return clawithSessionId ? { clawithSessionId } : null;
+    if (!clawithSessionId) return null;
+    const connectionMode = readNonEmptyString(params.connectionMode) ?? readNonEmptyString(params.connection_mode);
+    const clawithAgentId =
+      readNonEmptyString(params.clawithAgentId) ?? readNonEmptyString(params.clawith_agent_id);
+    return {
+      ...(connectionMode ? { connectionMode } : {}),
+      ...(clawithAgentId ? { clawithAgentId } : {}),
+      clawithSessionId,
+    };
   },
   getDisplayId(params) {
     if (!params) return null;

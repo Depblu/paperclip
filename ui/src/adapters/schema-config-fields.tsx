@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { Fragment, useState, useEffect, useRef, useCallback } from "react";
 
 import type { AdapterConfigSchema, ConfigFieldSchema, CreateConfigValues } from "@paperclipai/adapter-utils";
 
@@ -468,6 +468,8 @@ export function SchemaConfigFields({
   config,
   eff,
   mark,
+  beforeField,
+  hideField,
 }: AdapterConfigFieldsProps) {
   const schema = useConfigSchema(adapterType);
 
@@ -503,6 +505,12 @@ export function SchemaConfigFields({
       if (typeof tenantId === "string" && typeof agentId === "string" && tenantId && agentId) {
         return `${tenantId}:${agentId}`;
       }
+    }
+    if (field.key === "nativeClawithAgentLink") {
+      const agentId = isCreate
+        ? values?.adapterSchemaValues?.clawithAgentId
+        : eff("adapterConfig", "clawithAgentId", config.clawithAgentId as string | undefined);
+      if (typeof agentId === "string" && agentId) return agentId;
     }
     if (isCreate) {
       return values?.adapterSchemaValues?.[field.key] ?? getDefaultValue(field);
@@ -577,13 +585,21 @@ export function SchemaConfigFields({
     <>
       {schema.fields
         .filter((field) => fieldMatchesVisibleWhen(field, readValue, schema))
+        .filter((field) => !hideField?.(field))
         .map((field) => {
+          const before = beforeField?.({ field, readValue, writeValue, buildCurrentConfig });
+          const wrap = (node: React.ReactNode) => (
+            <Fragment key={field.key}>
+              {before}
+              {node}
+            </Fragment>
+          );
           switch (field.type) {
             case "select": {
               const currentVal = String(readValue(field) ?? "");
               if (isRemoteOptionsField(field)) {
                 const currentConfig = buildCurrentConfig();
-                return (
+                return wrap(
                   <RemoteSelectWrapper
                     key={field.key}
                     companyId={companyId}
@@ -592,33 +608,33 @@ export function SchemaConfigFields({
                     value={currentVal}
                     config={currentConfig}
                     onChange={(v, option) => writeSelectValue(field, v, option)}
-                  />
+                  />,
                 );
               }
-              return (
+              return wrap(
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <SelectField
                     value={currentVal}
                     options={field.options ?? []}
                     onChange={(v) => writeValue(field, v)}
                   />
-                </Field>
+                </Field>,
               );
             }
 
             case "toggle":
-              return (
+              return wrap(
                 <ToggleField
                   key={field.key}
                   label={field.label}
                   hint={field.hint}
                   checked={readValue(field) === true}
                   onChange={(v) => writeValue(field, v)}
-                />
+                />,
               );
 
             case "number":
-              return (
+              return wrap(
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <DraftNumberInput
                     value={Number(readValue(field) ?? 0)}
@@ -626,18 +642,18 @@ export function SchemaConfigFields({
                     immediate
                     className={inputClass}
                   />
-                </Field>
+                </Field>,
               );
 
             case "textarea":
-              return (
+              return wrap(
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <DraftTextarea
                     value={String(readValue(field) ?? "")}
                     onCommit={(v) => writeValue(field, v || undefined)}
                     immediate
                   />
-                </Field>
+                </Field>,
               );
 
             case "combobox": {
@@ -670,7 +686,7 @@ export function SchemaConfigFields({
                   }));
                 }
               }
-              return (
+              return wrap(
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <ComboboxField
                     value={currentVal}
@@ -678,13 +694,13 @@ export function SchemaConfigFields({
                     onChange={(v) => writeValue(field, v || undefined)}
                     placeholder={field.hint}
                   />
-                </Field>
+                </Field>,
               );
             }
 
             case "text":
             default:
-              return (
+              return wrap(
                 <Field key={field.key} label={field.label} hint={field.hint}>
                   <DraftInput
                     value={String(readValue(field) ?? "")}
@@ -692,7 +708,7 @@ export function SchemaConfigFields({
                     immediate
                     className={inputClass}
                   />
-                </Field>
+                </Field>,
               );
           }
         })}

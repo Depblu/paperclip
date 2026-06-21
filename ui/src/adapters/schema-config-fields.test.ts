@@ -67,4 +67,23 @@ describe("getRemoteOptionConfigWrites", () => {
       clawithAgentId: "agent-1",
     });
   });
+
+  it("writes native Clawith agent dropdown selection to the hidden agent id", () => {
+    const field: ConfigFieldSchema = {
+      key: "nativeClawithAgentLink",
+      label: "Clawith agent",
+      type: "select",
+    };
+
+    expect(getRemoteOptionConfigWrites(field, "agent-1", {
+      label: "QA Agent",
+      value: "agent-1",
+      setConfig: {
+        clawithAgentId: "agent-1",
+      },
+    })).toEqual({
+      nativeClawithAgentLink: "agent-1",
+      clawithAgentId: "agent-1",
+    });
+  });
 });

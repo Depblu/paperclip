@@ -133,6 +133,67 @@ function sendHttpJson(res: ServerResponse, status: number, body: unknown): void 
   res.end(JSON.stringify(body));
 }
 
+class MockWebSocket {
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSING = 2;
+  static CLOSED = 3;
+  static instances: MockWebSocket[] = [];
+  static failOpenCount = 0;
+
+  readyState = MockWebSocket.CONNECTING;
+  sent: string[] = [];
+  closeCalls: Array<{ code?: number; reason?: string }> = [];
+  private listeners = new Map<string, Set<(event: any) => void>>();
+
+  constructor(public url: string) {
+    MockWebSocket.instances.push(this);
+    if (MockWebSocket.failOpenCount > 0) {
+      MockWebSocket.failOpenCount -= 1;
+      setTimeout(() => {
+        this.readyState = MockWebSocket.CLOSED;
+        this.dispatch("error", { message: "connect ECONNREFUSED ::1" });
+      }, 0);
+      return;
+    }
+    setTimeout(() => {
+      this.readyState = MockWebSocket.OPEN;
+      this.dispatch("open", {});
+    }, 0);
+  }
+
+  addEventListener(type: string, listener: (event: any) => void): void {
+    const set = this.listeners.get(type) ?? new Set();
+    set.add(listener);
+    this.listeners.set(type, set);
+  }
+
+  removeEventListener(type: string, listener: (event: any) => void): void {
+    this.listeners.get(type)?.delete(listener);
+  }
+
+  send(data: string): void {
+    this.sent.push(data);
+    setTimeout(() => {
+      this.dispatch("message", { data: JSON.stringify({ type: "thinking", content: "working" }) });
+      this.dispatch("message", {
+        data: JSON.stringify({ type: "done", role: "assistant", content: "Native chat completed work" }),
+      });
+    }, 0);
+  }
+
+  close(code?: number, reason?: string): void {
+    this.readyState = MockWebSocket.CLOSED;
+    this.closeCalls.push({ code, reason });
+  }
+
+  private dispatch(type: string, event: any): void {
+    for (const listener of this.listeners.get(type) ?? []) {
+      listener(event);
+    }
+  }
+}
+
 function assertHttpBridgeHeaders(
   req: IncomingMessage,
   expected: {
@@ -332,14 +393,37 @@ describe("clawith bridge adapter", () => {
 
     expect(config).toMatchObject({
       enabled: true,
+      connectionMode: "bridge_wake",
       baseUrl: "http://localhost:8008",
       bridgeSecret: "dev-secret",
+      clawithAuthToken: null,
       timeoutSec: 5,
       mode: "sync",
       linkMode: "auto_create",
       clawithTenantId: null,
       clawithAgentId: null,
       writeBack: "issue_comment",
+    });
+  });
+
+  it("reads native chat config without requiring a bridge secret", () => {
+    const config = readClawithBridgeConfig(
+      {
+        connectionMode: "native_chat",
+        baseUrl: "http://localhost:8008",
+        clawithAgentId: "cw-agent-1",
+      },
+      {
+        CLAWITH_AUTH_TOKEN: "user-token",
+      } as NodeJS.ProcessEnv,
+    );
+
+    expect(config).toMatchObject({
+      connectionMode: "native_chat",
+      baseUrl: "http://localhost:8008",
+      bridgeSecret: "",
+      clawithAuthToken: "user-token",
+      clawithAgentId: "cw-agent-1",
     });
   });
 
@@ -741,6 +825,236 @@ describe("clawith bridge adapter", () => {
       });
     } finally {
       await closeLocalHttpServer(server);
+    }
+  });
+
+  it("executes native_chat through Clawith session API and websocket chat", async () => {
+    const seenRoutes: string[] = [];
+    let serverError: unknown = null;
+    MockWebSocket.instances = [];
+    vi.stubGlobal("WebSocket", MockWebSocket);
+    const server = createServer((req, res) => {
+      void (async () => {
+        const url = new URL(req.url ?? "/", "http://127.0.0.1");
+        const route = `${req.method ?? "GET"} ${url.pathname}`;
+        seenRoutes.push(route);
+        const body = req.method === "POST" ? await readHttpJson(req) : {};
+
+        if (route === "POST /api/agents/cw-agent-1/sessions") {
+          expect(httpHeader(req, "authorization")).toBe("Bearer user-token");
+          expect(body).toMatchObject({ title: "PoC issue" });
+          sendHttpJson(res, 200, {
+            id: "cw-session-1",
+            agent_id: "cw-agent-1",
+            user_id: "cw-user-1",
+            source_channel: "web",
+            title: "PoC issue",
+          });
+          return;
+        }
+
+        sendHttpJson(res, 404, { message: `Unhandled route ${route}` });
+      })().catch((err) => {
+        serverError = err;
+        sendHttpJson(res, 500, { message: err instanceof Error ? err.message : String(err) });
+      });
+    });
+
+    const listenResult = await listenLocalHttpServer(server);
+    if (!listenResult.ok) {
+      console.warn(`[clawith-bridge] skipped native chat contract server: ${listenResult.reason}`);
+      await closeLocalHttpServer(server);
+      return;
+    }
+    try {
+      const logs: Array<{ stream: "stdout" | "stderr"; chunk: string }> = [];
+      const meta: unknown[] = [];
+      const result = await execute(baseContext({
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: `http://127.0.0.1:${listenResult.port}`,
+          clawithAuthToken: "user-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+          writeBack: "issue_comment",
+        },
+        onLog: async (stream, chunk) => {
+          logs.push({ stream, chunk });
+        },
+        onMeta: async (entry) => {
+          meta.push(entry);
+        },
+      }));
+
+      if (serverError) throw serverError;
+      expect(seenRoutes).toEqual(["POST /api/agents/cw-agent-1/sessions"]);
+      expect(MockWebSocket.instances).toHaveLength(1);
+      const wsUrl = new URL(MockWebSocket.instances[0]!.url);
+      expect(wsUrl.pathname).toBe("/ws/chat/cw-agent-1");
+      expect(wsUrl.searchParams.get("token")).toBe("user-token");
+      expect(wsUrl.searchParams.get("session_id")).toBe("cw-session-1");
+      expect(JSON.parse(MockWebSocket.instances[0]!.sent[0]!)).toMatchObject({
+        display_content: expect.stringContaining("PoC issue"),
+        content: expect.stringContaining("PoC issue"),
+      });
+      expect(JSON.stringify(meta)).not.toContain("user-token");
+      expect(JSON.stringify(meta)).toContain("[redacted]");
+      expect(logs.some((entry) => entry.chunk.includes("Native chat completed work"))).toBe(true);
+      expect(result).toMatchObject({
+        exitCode: 0,
+        provider: "clawith",
+        summary: "Native chat completed work",
+        sessionParams: {
+          connectionMode: "native_chat",
+          clawithAgentId: "cw-agent-1",
+          clawithSessionId: "cw-session-1",
+        },
+        sessionDisplayId: "cw-session-1",
+      });
+      expect(result.resultJson).toMatchObject({
+        status: "completed",
+        message: "Native chat completed work",
+        clawithAgentId: "cw-agent-1",
+        clawithSessionId: "cw-session-1",
+      });
+    } finally {
+      await closeLocalHttpServer(server);
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("reports expired native_chat tokens as a reconnect action", async () => {
+    vi.stubGlobal("WebSocket", MockWebSocket);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(responseJson({
+      message: "invalid token",
+    }, { status: 401 }));
+    try {
+      const result = await execute(baseContext({
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: "http://clawith.local",
+          clawithAuthToken: "expired-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+        },
+      }));
+
+      expect(result).toMatchObject({
+        exitCode: 1,
+        errorCode: "clawith_native_chat_request_failed",
+        errorMessage: "Clawith connection expired. Reconnect Clawith.",
+      });
+      expect(MockWebSocket.instances).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("retries native_chat localhost websocket with loopback IP fallback", async () => {
+    MockWebSocket.instances = [];
+    MockWebSocket.failOpenCount = 1;
+    vi.stubGlobal("WebSocket", MockWebSocket);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(responseJson({
+      id: "cw-session-1",
+    }, { status: 201 }));
+    const logs: Array<{ stream: "stdout" | "stderr"; chunk: string }> = [];
+    try {
+      const result = await execute(baseContext({
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: "http://localhost:8008",
+          clawithAuthToken: "user-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+        },
+        onLog: async (stream, chunk) => {
+          logs.push({ stream, chunk });
+        },
+      }));
+
+      expect(MockWebSocket.instances).toHaveLength(2);
+      expect(new URL(MockWebSocket.instances[0]!.url).hostname).toBe("localhost");
+      expect(new URL(MockWebSocket.instances[1]!.url).hostname).toBe("127.0.0.1");
+      expect(logs.some((entry) => entry.stream === "stderr" && entry.chunk.includes("websocket retrying"))).toBe(true);
+      expect(JSON.stringify(logs)).not.toContain("user-token");
+      expect(result).toMatchObject({
+        exitCode: 0,
+        provider: "clawith",
+        sessionDisplayId: "cw-session-1",
+      });
+    } finally {
+      MockWebSocket.failOpenCount = 0;
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("reuses native_chat session params without creating another Clawith session", async () => {
+    MockWebSocket.instances = [];
+    vi.stubGlobal("WebSocket", MockWebSocket);
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const logs: Array<{ stream: "stdout" | "stderr"; chunk: string }> = [];
+    try {
+      const result = await execute(baseContext({
+        runtime: {
+          sessionId: null,
+          sessionParams: {
+            connectionMode: "native_chat",
+            clawithAgentId: "cw-agent-1",
+            clawithSessionId: "cw-session-existing",
+          },
+          sessionDisplayId: "cw-session-existing",
+          taskKey: null,
+        },
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: "http://clawith.local",
+          clawithAuthToken: "user-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+        },
+        onLog: async (stream, chunk) => {
+          logs.push({ stream, chunk });
+        },
+      }));
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(MockWebSocket.instances).toHaveLength(1);
+      const wsUrl = new URL(MockWebSocket.instances[0]!.url);
+      expect(wsUrl.searchParams.get("session_id")).toBe("cw-session-existing");
+      expect(result).toMatchObject({
+        exitCode: 0,
+        sessionParams: {
+          connectionMode: "native_chat",
+          clawithAgentId: "cw-agent-1",
+          clawithSessionId: "cw-session-existing",
+        },
+      });
+      expect(logs.some((entry) => entry.chunk.includes("Native chat completed work"))).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("fails native_chat clearly when the runtime has no WebSocket support", async () => {
+    vi.stubGlobal("WebSocket", undefined);
+    try {
+      const result = await execute(baseContext({
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: "http://clawith.local",
+          clawithAuthToken: "user-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+        },
+      }));
+
+      expect(result).toMatchObject({
+        exitCode: 1,
+        errorCode: "clawith_native_chat_request_failed",
+        errorMessage: "Clawith native chat requires a runtime with global WebSocket support.",
+      });
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
 

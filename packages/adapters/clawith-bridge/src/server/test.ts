@@ -17,6 +17,10 @@ function bridgeLinkCheckUrl(baseUrl: string): string {
   return `${baseUrl}/api/bridge/agents/link-check`;
 }
 
+function nativeSessionsUrl(baseUrl: string, agentId: string): string {
+  return `${baseUrl}/api/agents/${encodeURIComponent(agentId)}/sessions?scope=mine`;
+}
+
 async function readLinkCheckResponse(res: Response): Promise<{ tenantId: string | null; agentId: string | null }> {
   try {
     const body = await res.json() as { clawith_tenant_id?: unknown; clawith_agent_id?: unknown };
@@ -85,6 +89,70 @@ export async function testEnvironment(
       message: `Unsupported Clawith Bridge URL protocol: ${baseUrl.protocol}`,
       hint: "Use http:// or https://.",
     });
+  }
+
+  if (config.connectionMode === "native_chat") {
+    if (!config.clawithAuthToken) {
+      checks.push({
+        code: "clawith_native_chat_token_missing",
+        level: "error",
+        message: "Clawith native chat requires a connected Clawith account.",
+        hint: "Connect or reconnect Clawith in this adapter configuration.",
+      });
+    } else {
+      checks.push({
+        code: "clawith_native_chat_token_configured",
+        level: "info",
+        message: "Clawith connection token is available.",
+      });
+    }
+
+    if (!config.clawithAgentId) {
+      checks.push({
+        code: "clawith_native_chat_agent_id_missing",
+        level: "error",
+        message: "Clawith native chat requires an existing Clawith agent ID.",
+      });
+    }
+
+    if (
+      baseUrl &&
+      (baseUrl.protocol === "http:" || baseUrl.protocol === "https:") &&
+      config.clawithAuthToken &&
+      config.clawithAgentId
+    ) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      try {
+        const res = await fetch(nativeSessionsUrl(config.baseUrl, config.clawithAgentId), {
+          method: "GET",
+          headers: { authorization: `Bearer ${config.clawithAuthToken}` },
+          signal: controller.signal,
+        });
+        checks.push({
+          code: res.ok ? "clawith_native_chat_sessions_ok" : "clawith_native_chat_sessions_failed",
+          level: res.ok ? "info" : "error",
+          message: res.ok
+            ? "Clawith native session API is reachable for the selected agent."
+            : `Clawith native session API returned HTTP ${res.status}.`,
+        });
+      } catch (err) {
+        checks.push({
+          code: "clawith_native_chat_sessions_failed",
+          level: "warn",
+          message: err instanceof Error ? err.message : "Clawith native session probe failed",
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    return {
+      adapterType: ctx.adapterType,
+      status: summarizeStatus(checks),
+      checks,
+      testedAt: new Date().toISOString(),
+    };
   }
 
   if (!config.bridgeSecret) {

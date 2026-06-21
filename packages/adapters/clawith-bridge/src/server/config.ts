@@ -2,6 +2,7 @@ import type { AdapterConfigSchema } from "@paperclipai/adapter-utils";
 import { asBoolean, asNumber, asString, parseObject } from "@paperclipai/adapter-utils/server-utils";
 import type {
   ClawithBridgeConfig,
+  ClawithBridgeConnectionMode,
   ClawithBridgeLinkMode,
   ClawithBridgeMode,
   ClawithBridgeWriteBack,
@@ -17,6 +18,12 @@ function readEnvBoolean(value: string | undefined, fallback: boolean): boolean {
 
 function normalizeMode(value: unknown): ClawithBridgeMode {
   return "sync";
+}
+
+function normalizeConnectionMode(value: unknown): ClawithBridgeConnectionMode {
+  return asString(value, "bridge_wake").trim().toLowerCase() === "native_chat"
+    ? "native_chat"
+    : "bridge_wake";
 }
 
 function normalizeLinkMode(value: unknown): ClawithBridgeLinkMode {
@@ -54,8 +61,11 @@ export function readClawithBridgeConfig(
     enabled:
       readEnvBoolean(env.CLAWITH_BRIDGE_ENABLED, true) &&
       asBoolean(config.enabled, true),
+    connectionMode: normalizeConnectionMode(config.connectionMode),
     baseUrl: asString(config.baseUrl, env.CLAWITH_BRIDGE_BASE_URL ?? "").trim().replace(/\/+$/, ""),
     bridgeSecret: asString(config.bridgeSecret, env.CLAWITH_BRIDGE_SECRET ?? "").trim(),
+    clawithConnectionId: readOptionalString(config.clawithConnectionId),
+    clawithAuthToken: readOptionalString(config.clawithAuthToken) ?? readOptionalString(env.CLAWITH_AUTH_TOKEN),
     timeoutSec: readPositiveInteger(config.timeoutSec, Number.isFinite(envTimeout) ? envTimeout : 120),
     mode: normalizeMode(config.mode),
     linkMode: normalizeLinkMode(config.linkMode),
@@ -78,6 +88,17 @@ export function getConfigSchema(): AdapterConfigSchema {
         hint: "Turns this adapter on for the agent. CLAWITH_BRIDGE_ENABLED=false disables all Clawith Bridge runs.",
       },
       {
+        key: "connectionMode",
+        label: "Connection mode",
+        type: "select",
+        default: "bridge_wake",
+        options: [
+          { label: "Bridge wake (legacy)", value: "bridge_wake" },
+          { label: "Native Clawith chat", value: "native_chat" },
+        ],
+        hint: "Native chat uses Clawith's existing web session and websocket chat APIs. Bridge wake keeps the legacy Bridge API path.",
+      },
+      {
         key: "linkMode",
         label: "Agent link",
         type: "select",
@@ -87,6 +108,9 @@ export function getConfigSchema(): AdapterConfigSchema {
           { label: "Link existing Clawith agent", value: "link_existing" },
         ],
         hint: "Auto-create keeps the previous behavior. Link existing lets you select an existing Clawith agent.",
+        meta: {
+          visibleWhen: { key: "connectionMode", value: "bridge_wake" },
+        },
       },
       {
         key: "clawithAgentLink",
@@ -94,20 +118,19 @@ export function getConfigSchema(): AdapterConfigSchema {
         type: "select",
         hint: "Select an existing Clawith agent from the configured Bridge.",
         options: [],
-        required: true,
         group: "link",
         meta: {
-          visibleWhen: { key: "linkMode", value: "link_existing" },
+          visibleWhen: { key: "connectionMode", value: "bridge_wake" },
           remoteOptions: { provider: "adapter", targetFields: ["clawithTenantId", "clawithAgentId"] },
         },
       },
       {
         key: "baseUrl",
-        label: "Bridge URL",
+        label: "Clawith URL",
         type: "text",
         default: process.env.CLAWITH_BRIDGE_BASE_URL ?? "http://localhost:8008",
         required: true,
-        hint: "Clawith Bridge base URL.",
+        hint: "Clawith base URL. Native chat uses this host's existing /api and /ws endpoints.",
       },
       {
         key: "bridgeSecret",
@@ -115,6 +138,35 @@ export function getConfigSchema(): AdapterConfigSchema {
         type: "text",
         required: true,
         hint: "Shared HS256 secret. Prefer CLAWITH_BRIDGE_SECRET for local development.",
+        meta: {
+          visibleWhen: { key: "connectionMode", value: "bridge_wake" },
+        },
+      },
+      {
+        key: "clawithConnectionId",
+        label: "Clawith connection",
+        type: "select",
+        required: true,
+        hint: "Connect Clawith, then select the connection Paperclip should use.",
+        options: [],
+        group: "native_chat",
+        meta: {
+          visibleWhen: { key: "connectionMode", value: "native_chat" },
+          remoteOptions: { provider: "adapter", targetFields: ["baseUrl"] },
+        },
+      },
+      {
+        key: "nativeClawithAgentLink",
+        label: "Clawith agent",
+        type: "select",
+        required: true,
+        hint: "Select an existing Clawith agent from the connected Clawith account.",
+        options: [],
+        group: "native_chat",
+        meta: {
+          visibleWhen: { key: "connectionMode", value: "native_chat" },
+          remoteOptions: { provider: "adapter", targetFields: ["clawithAgentId"] },
+        },
       },
       {
         key: "timeoutSec",

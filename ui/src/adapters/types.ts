@@ -1,5 +1,5 @@
-import type { ComponentType } from "react";
-import type { CreateConfigValues } from "@paperclipai/adapter-utils";
+import type { ComponentType, ReactNode } from "react";
+import type { CreateConfigValues, ConfigFieldSchema } from "@paperclipai/adapter-utils";
 
 // Re-export shared types so local consumers don't need to change imports
 export type { TranscriptEntry, StdoutLineParser, CreateConfigValues } from "@paperclipai/adapter-utils";
@@ -35,6 +35,13 @@ export interface AdapterConfigFieldsProps {
   models: { id: string; label: string }[];
   /** When true, hides the instructions file path field (e.g. during import where it's set automatically) */
   hideInstructionsFile?: boolean;
+  beforeField?: (input: {
+    field: ConfigFieldSchema;
+    readValue: (field: ConfigFieldSchema) => unknown;
+    writeValue: (field: ConfigFieldSchema, value: unknown) => void;
+    buildCurrentConfig: () => Record<string, unknown>;
+  }) => ReactNode;
+  hideField?: (field: ConfigFieldSchema) => boolean;
 }
 
 export interface UIAdapterModule extends TranscriptParserSource {

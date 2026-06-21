@@ -120,6 +120,35 @@ function bridgeAgentUrl(baseUrl: string, agentId: string, suffix: "state" | "foc
   return `${baseUrl}/api/bridge/agents/${encodeURIComponent(agentId)}/${suffix}`;
 }
 
+function nativeSessionUrl(baseUrl: string, agentId: string): string {
+  return `${baseUrl}/api/agents/${encodeURIComponent(agentId)}/sessions`;
+}
+
+function nativeChatWebSocketUrl(baseUrl: string, agentId: string, token: string, sessionId: string): string {
+  const parsed = new URL(baseUrl);
+  parsed.protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+  parsed.pathname = `/ws/chat/${encodeURIComponent(agentId)}`;
+  parsed.search = "";
+  parsed.searchParams.set("token", token);
+  parsed.searchParams.set("session_id", sessionId);
+  parsed.searchParams.set("lang", "zh");
+  return parsed.toString();
+}
+
+function nativeChatWebSocketUrls(baseUrl: string, agentId: string, token: string, sessionId: string): string[] {
+  const primary = nativeChatWebSocketUrl(baseUrl, agentId, token, sessionId);
+  const parsed = new URL(primary);
+  if (parsed.hostname !== "localhost") return [primary];
+
+  const urls = [primary];
+  for (const host of ["127.0.0.1", "[::1]"]) {
+    const fallback = new URL(primary);
+    fallback.host = parsed.port ? `${host}:${parsed.port}` : host;
+    urls.push(fallback.toString());
+  }
+  return urls;
+}
+
 function buildReadonlyIdempotencyKey(input: {
   companyId: string;
   agentId: string;
@@ -239,7 +268,7 @@ function validateConfig(config: ClawithBridgeConfig): AdapterExecutionResult | n
       errorCode: "clawith_bridge_base_url_missing",
     };
   }
-  if (!config.bridgeSecret) {
+  if (config.connectionMode === "bridge_wake" && !config.bridgeSecret) {
     return {
       exitCode: 1,
       signal: null,
@@ -248,7 +277,25 @@ function validateConfig(config: ClawithBridgeConfig): AdapterExecutionResult | n
       errorCode: "clawith_bridge_secret_missing",
     };
   }
-  if (config.linkMode === "link_existing" && !config.clawithTenantId) {
+  if (config.connectionMode === "native_chat" && !config.clawithAuthToken) {
+    return {
+      exitCode: 1,
+      signal: null,
+      timedOut: false,
+      errorMessage: "Clawith connection expired. Reconnect Clawith.",
+      errorCode: "clawith_native_chat_token_missing",
+    };
+  }
+  if (config.connectionMode === "native_chat" && !config.clawithAgentId) {
+    return {
+      exitCode: 1,
+      signal: null,
+      timedOut: false,
+      errorMessage: "Clawith native chat requires clawithAgentId.",
+      errorCode: "clawith_native_chat_agent_id_missing",
+    };
+  }
+  if (config.connectionMode === "bridge_wake" && config.linkMode === "link_existing" && !config.clawithTenantId) {
     return {
       exitCode: 1,
       signal: null,
@@ -257,7 +304,7 @@ function validateConfig(config: ClawithBridgeConfig): AdapterExecutionResult | n
       errorCode: "clawith_bridge_tenant_id_missing",
     };
   }
-  if (config.linkMode === "link_existing" && !config.clawithAgentId) {
+  if (config.connectionMode === "bridge_wake" && config.linkMode === "link_existing" && !config.clawithAgentId) {
     return {
       exitCode: 1,
       signal: null,
@@ -267,6 +314,326 @@ function validateConfig(config: ClawithBridgeConfig): AdapterExecutionResult | n
     };
   }
   return null;
+}
+
+function readRuntimeClawithSessionId(ctx: AdapterExecutionContext, clawithAgentId: string): string | null {
+  const params = ctx.runtime.sessionParams;
+  const connectionMode = nonEmpty(params?.connectionMode) ?? nonEmpty(params?.connection_mode);
+  const sessionAgentId = nonEmpty(params?.clawithAgentId) ?? nonEmpty(params?.clawith_agent_id);
+  if (connectionMode !== "native_chat" || sessionAgentId !== clawithAgentId) return null;
+  return nonEmpty(params?.clawithSessionId)
+    ?? nonEmpty(params?.clawith_session_id)
+    ?? nonEmpty(ctx.runtime.sessionId);
+}
+
+async function createNativeChatSession(input: {
+  baseUrl: string;
+  agentId: string;
+  authToken: string;
+  title: string | null;
+  signal: AbortSignal;
+}): Promise<string> {
+  const res = await fetch(nativeSessionUrl(input.baseUrl, input.agentId), {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${input.authToken}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ title: input.title ?? undefined }),
+    signal: input.signal,
+  });
+  const body = await readJsonResponse(res);
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("Clawith connection expired. Reconnect Clawith.");
+    }
+    const message = nonEmpty(body.message) ?? nonEmpty(body.detail) ?? `Clawith session create returned HTTP ${res.status}`;
+    throw new Error(message);
+  }
+  const sessionId = nonEmpty(body.id);
+  if (!sessionId) throw new Error("Clawith session create response did not include id.");
+  return sessionId;
+}
+
+function waitForWsOpen(ws: WebSocket, timeoutMs: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let lastError: string | null = null;
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("Clawith native chat websocket open timed out."));
+    }, timeoutMs);
+    const cleanup = (): void => {
+      clearTimeout(timer);
+      ws.removeEventListener("open", onOpen);
+      ws.removeEventListener("error", onError);
+      ws.removeEventListener("close", onClose);
+    };
+    const onOpen = (): void => {
+      cleanup();
+      resolve();
+    };
+    const onError = (event: Event): void => {
+      const maybeError = event as Event & { message?: unknown; error?: unknown };
+      const eventMessage = nonEmpty(maybeError.message);
+      const nestedError = maybeError.error instanceof Error
+        ? maybeError.error
+        : null;
+      lastError = eventMessage ?? nestedError?.message ?? "websocket error";
+      cleanup();
+      reject(new Error(`Clawith native chat websocket error before open: ${lastError}`));
+    };
+    const onClose = (event: CloseEvent): void => {
+      cleanup();
+      reject(new Error(`Clawith native chat websocket closed before open (${event.code}): ${event.reason || lastError || "no close reason"}`));
+    };
+    ws.addEventListener("open", onOpen, { once: true });
+    ws.addEventListener("error", onError, { once: true });
+    ws.addEventListener("close", onClose, { once: true });
+  });
+}
+
+function wsDataToString(data: unknown): string {
+  if (typeof data === "string") return data;
+  if (data instanceof ArrayBuffer) return Buffer.from(data).toString("utf8");
+  if (ArrayBuffer.isView(data)) return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString("utf8");
+  return String(data ?? "");
+}
+
+async function runNativeChat(input: {
+  wsUrls: string[];
+  message: string;
+  timeoutMs: number;
+  onLog: AdapterExecutionContext["onLog"];
+}): Promise<{ message: string; status: "completed" | "failed"; errorCode?: string }> {
+  let lastError: Error | null = null;
+  for (let index = 0; index < input.wsUrls.length; index += 1) {
+    try {
+      return await runNativeChatOnce({
+        wsUrl: input.wsUrls[index]!,
+        message: input.message,
+        timeoutMs: input.timeoutMs,
+        onLog: input.onLog,
+      });
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (index < input.wsUrls.length - 1) {
+        await input.onLog("stderr", `[clawith-bridge] native chat websocket retrying after failed candidate ${index + 1}: ${lastError.message}\n`);
+      }
+    }
+  }
+  throw lastError ?? new Error("Clawith native chat websocket failed.");
+}
+
+async function runNativeChatOnce(input: {
+  wsUrl: string;
+  message: string;
+  timeoutMs: number;
+  onLog: AdapterExecutionContext["onLog"];
+}): Promise<{ message: string; status: "completed" | "failed"; errorCode?: string }> {
+  const ws = new WebSocket(input.wsUrl);
+  let opened = false;
+  try {
+    ws.addEventListener("message", (event) => {
+      const text = wsDataToString(event.data);
+      void input.onLog("stdout", `[clawith-bridge:event] ${text}\n`);
+    });
+    await waitForWsOpen(ws, Math.min(input.timeoutMs, 10_000));
+    opened = true;
+
+    const done = new Promise<{ message: string; status: "completed" | "failed"; errorCode?: string }>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`Clawith native chat timed out after ${input.timeoutMs}ms`));
+      }, input.timeoutMs);
+      const cleanup = (): void => {
+        clearTimeout(timer);
+        ws.removeEventListener("message", onMessage);
+        ws.removeEventListener("error", onError);
+        ws.removeEventListener("close", onClose);
+      };
+      const onError = (): void => {
+        cleanup();
+        reject(new Error("Clawith native chat websocket error."));
+      };
+      const onClose = (event: CloseEvent): void => {
+        cleanup();
+        reject(new Error(`Clawith native chat websocket closed (${event.code}): ${event.reason}`));
+      };
+      const onMessage = (event: MessageEvent): void => {
+        const text = wsDataToString(event.data);
+        let data: Record<string, unknown>;
+        try {
+          const parsed = JSON.parse(text);
+          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return;
+          data = parsed as Record<string, unknown>;
+        } catch {
+          return;
+        }
+        const type = nonEmpty(data.type);
+        if (type === "done") {
+          cleanup();
+          resolve({ status: "completed", message: nonEmpty(data.content) ?? "" });
+        } else if (type === "error" || type === "quota_exceeded") {
+          cleanup();
+          resolve({
+            status: "failed",
+            message: nonEmpty(data.content) ?? nonEmpty(data.detail) ?? nonEmpty(data.message) ?? "Clawith native chat failed.",
+            errorCode: type === "quota_exceeded" ? "clawith_native_chat_quota_exceeded" : "clawith_native_chat_error",
+          });
+        }
+      };
+      ws.addEventListener("message", onMessage);
+      ws.addEventListener("error", onError, { once: true });
+      ws.addEventListener("close", onClose, { once: true });
+    });
+
+    ws.send(JSON.stringify({
+      content: input.message,
+      display_content: input.message,
+    }));
+    return await done;
+  } finally {
+    if (opened && ws.readyState === WebSocket.OPEN) {
+      ws.close(1000, "paperclip-complete");
+    } else if (ws.readyState === WebSocket.CONNECTING) {
+      ws.close();
+    }
+  }
+}
+
+async function executeNativeChat(
+  ctx: AdapterExecutionContext,
+  config: ClawithBridgeConfig,
+): Promise<AdapterExecutionResult> {
+  const agentId = config.clawithAgentId!;
+  const authToken = config.clawithAuthToken!;
+  const timeoutMs = config.timeoutSec * 1000;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const wakeRequest = buildWakeRequest(ctx);
+  const existingSessionId = readRuntimeClawithSessionId(ctx, agentId);
+  let sessionId = existingSessionId;
+
+  try {
+    if (typeof WebSocket !== "function") {
+      throw new Error("Clawith native chat requires a runtime with global WebSocket support.");
+    }
+    sessionId = sessionId ?? await createNativeChatSession({
+      baseUrl: config.baseUrl,
+      agentId,
+      authToken,
+      title: wakeRequest.issue.title ?? wakeRequest.issue.identifier ?? `Paperclip ${ctx.runId.slice(0, 8)}`,
+      signal: controller.signal,
+    });
+    const redactedWsUrl = nativeChatWebSocketUrl(config.baseUrl, agentId, "[redacted]", sessionId);
+    const wsUrls = nativeChatWebSocketUrls(config.baseUrl, agentId, authToken, sessionId);
+
+    await ctx.onMeta?.({
+      adapterType: "clawith_bridge",
+      command: "native-chat",
+      commandArgs: ["WS", redactedWsUrl],
+      commandNotes: [
+        `connectionMode=${config.connectionMode}`,
+        `writeBack=${config.writeBack}`,
+        `timeoutSec=${config.timeoutSec}`,
+      ],
+      context: {
+        issueId: wakeRequest.issue_id,
+        clawithAgentId: agentId,
+        clawithSessionId: sessionId,
+        reusedSession: Boolean(existingSessionId),
+      },
+    });
+    await ctx.onLog(
+      "stdout",
+      `[clawith-bridge] native chat run=${ctx.runId} clawithAgent=${agentId} session=${sessionId} issue=${wakeRequest.issue_id ?? ""}\n`,
+    );
+
+    const result = await runNativeChat({
+      wsUrls,
+      message: wakeRequest.message,
+      timeoutMs,
+      onLog: ctx.onLog,
+    });
+    const sessionParams = {
+      connectionMode: "native_chat",
+      clawithAgentId: agentId,
+      clawithSessionId: sessionId,
+    };
+    if (result.status === "failed") {
+      return {
+        exitCode: 1,
+        signal: null,
+        timedOut: false,
+        errorMessage: result.message,
+        errorCode: result.errorCode ?? "clawith_native_chat_failed",
+        provider: "clawith",
+        resultJson: {
+          status: "failed",
+          message: result.message,
+          paperclipRunId: ctx.runId,
+          clawithAgentId: agentId,
+          clawithSessionId: sessionId,
+        },
+        sessionParams,
+        sessionDisplayId: sessionId,
+      };
+    }
+    if (result.message) await ctx.onLog("stdout", `${result.message}\n`);
+    return {
+      exitCode: 0,
+      signal: null,
+      timedOut: false,
+      provider: "clawith",
+      resultJson: {
+        status: "completed",
+        message: result.message,
+        paperclipRunId: ctx.runId,
+        clawithAgentId: agentId,
+        clawithSessionId: sessionId,
+        summary: result.message,
+      },
+      summary: config.writeBack === "issue_comment" ? result.message : null,
+      sessionParams,
+      sessionDisplayId: sessionId,
+    };
+  } catch (err) {
+    if (err instanceof Error && (err.name === "AbortError" || err.message.includes("timed out"))) {
+      return {
+        exitCode: null,
+        signal: null,
+        timedOut: true,
+        errorMessage: err.message,
+        errorCode: "timeout",
+        ...(sessionId ? {
+          sessionParams: {
+            connectionMode: "native_chat",
+            clawithAgentId: agentId,
+            clawithSessionId: sessionId,
+          },
+          sessionDisplayId: sessionId,
+        } : {}),
+      };
+    }
+    return {
+      exitCode: 1,
+      signal: null,
+      timedOut: false,
+      errorMessage: err instanceof Error ? err.message : String(err),
+      errorCode: "clawith_native_chat_request_failed",
+      errorFamily: "transient_upstream",
+      ...(sessionId ? {
+        sessionParams: {
+          connectionMode: "native_chat",
+          clawithAgentId: agentId,
+          clawithSessionId: sessionId,
+        },
+        sessionDisplayId: sessionId,
+      } : {}),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function fetchReadonlySummary(input: {
@@ -350,6 +717,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       errorMessage: `Unsupported Clawith Bridge URL protocol: ${parsedBaseUrl.protocol}`,
       errorCode: "clawith_bridge_base_url_protocol",
     };
+  }
+  if (config.connectionMode === "native_chat") {
+    return executeNativeChat(ctx, config);
   }
 
   const wakeRequest = buildWakeRequest(ctx);

@@ -50,6 +50,32 @@ export interface AdapterConfigRemoteOptionsResult {
   options: AdapterConfigRemoteOption[];
 }
 
+export interface ClawithConnection {
+  id: string;
+  companyId: string;
+  baseUrl: string;
+  label: string;
+  username: string | null;
+  tenantId: string | null;
+  tenantName: string | null;
+  status: "connected" | "expired" | "disabled";
+  connectedAt: string | null;
+  lastValidatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClawithTenantChoice {
+  tenantId: string | null;
+  tenantName: string;
+  tenantSlug: string | null;
+  logoUrl: string | null;
+}
+
+export type ClawithConnectResult =
+  | { requiresTenantSelection: true; loginIdentifier: string; tenants: ClawithTenantChoice[] }
+  | { requiresTenantSelection: false; connection: ClawithConnection };
+
 export interface DetectedAdapterModel {
   model: string;
   provider: string;
@@ -229,6 +255,27 @@ export const agentsApi = {
     api.post<AdapterConfigRemoteOptionsResult>(
       `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/config-options/${encodeURIComponent(fieldKey)}`,
       data,
+    ),
+  listClawithConnections: (companyId: string) =>
+    api.get<{ connections: ClawithConnection[] }>(
+      `/companies/${encodeURIComponent(companyId)}/adapters/clawith_bridge/connections`,
+    ),
+  connectClawith: (
+    companyId: string,
+    data: {
+      baseUrl: string;
+      loginIdentifier: string;
+      password: string;
+      tenantId?: string;
+    },
+  ) =>
+    api.post<ClawithConnectResult>(
+      `/companies/${encodeURIComponent(companyId)}/adapters/clawith_bridge/connections`,
+      data,
+    ),
+  disconnectClawith: (companyId: string, connectionId: string) =>
+    api.delete<{ ok: true }>(
+      `/companies/${encodeURIComponent(companyId)}/adapters/clawith_bridge/connections/${encodeURIComponent(connectionId)}`,
     ),
   testEnvironment: (
     companyId: string,

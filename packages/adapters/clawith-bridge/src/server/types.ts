@@ -1,11 +1,15 @@
 export type ClawithBridgeMode = "sync";
 export type ClawithBridgeWriteBack = "run_log" | "issue_comment";
 export type ClawithBridgeLinkMode = "auto_create" | "link_existing";
+export type ClawithBridgeConnectionMode = "bridge_wake" | "native_chat";
 
 export interface ClawithBridgeConfig {
   enabled: boolean;
+  connectionMode: ClawithBridgeConnectionMode;
   baseUrl: string;
   bridgeSecret: string;
+  clawithConnectionId: string | null;
+  clawithAuthToken: string | null;
   timeoutSec: number;
   mode: ClawithBridgeMode;
   linkMode: ClawithBridgeLinkMode;
