@@ -140,6 +140,7 @@ class MockWebSocket {
   static CLOSED = 3;
   static instances: MockWebSocket[] = [];
   static failOpenCount = 0;
+  static closeBeforeReadyCount = 0;
 
   readyState = MockWebSocket.CONNECTING;
   sent: string[] = [];
@@ -159,6 +160,13 @@ class MockWebSocket {
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
       this.dispatch("open", {});
+      if (MockWebSocket.closeBeforeReadyCount > 0) {
+        MockWebSocket.closeBeforeReadyCount -= 1;
+        this.readyState = MockWebSocket.CLOSED;
+        this.dispatch("close", { code: 1006, reason: "" });
+        return;
+      }
+      this.dispatch("message", { data: JSON.stringify({ type: "connected", session_id: "cw-session-1" }) });
     }, 0);
   }
 
@@ -1031,6 +1039,36 @@ describe("clawith bridge adapter", () => {
       });
       expect(logs.some((entry) => entry.chunk.includes("Native chat completed work"))).toBe(true);
     } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("reports native_chat websocket closes after open but before Clawith ready", async () => {
+    MockWebSocket.instances = [];
+    MockWebSocket.closeBeforeReadyCount = 1;
+    vi.stubGlobal("WebSocket", MockWebSocket);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(responseJson({
+      id: "cw-session-1",
+    }, { status: 201 }));
+    try {
+      const result = await execute(baseContext({
+        config: {
+          connectionMode: "native_chat",
+          baseUrl: "http://clawith.local",
+          clawithAuthToken: "user-token",
+          clawithAgentId: "cw-agent-1",
+          timeoutSec: 5,
+        },
+      }));
+
+      expect(result).toMatchObject({
+        exitCode: 1,
+        errorCode: "clawith_native_chat_request_failed",
+        errorMessage: "Clawith native chat websocket closed before ready (1006): no close reason. Clawith accepted the websocket but closed during chat setup; check Clawith backend logs and runtime dependencies such as Redis.",
+      });
+      expect(MockWebSocket.instances[0]!.sent).toHaveLength(0);
+    } finally {
+      MockWebSocket.closeBeforeReadyCount = 0;
       vi.unstubAllGlobals();
     }
   });

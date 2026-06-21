@@ -149,6 +149,29 @@ function nativeChatWebSocketUrls(baseUrl: string, agentId: string, token: string
   return urls;
 }
 
+type NativeChatSocketListener = (...args: unknown[]) => void;
+
+function createNativeChatWebSocket(url: string): WebSocket {
+  return new WebSocket(url);
+}
+
+function addSocketListener(
+  ws: WebSocket,
+  type: "open" | "message" | "error" | "close",
+  listener: NativeChatSocketListener,
+  options?: { once?: boolean },
+): void {
+  ws.addEventListener(type, listener as EventListener, options?.once ? { once: true } : undefined);
+}
+
+function removeSocketListener(
+  ws: WebSocket,
+  type: "open" | "message" | "error" | "close",
+  listener: NativeChatSocketListener,
+): void {
+  ws.removeEventListener(type, listener as EventListener);
+}
+
 function buildReadonlyIdempotencyKey(input: {
   companyId: string;
   agentId: string;
@@ -355,40 +378,111 @@ async function createNativeChatSession(input: {
   return sessionId;
 }
 
-function waitForWsOpen(ws: WebSocket, timeoutMs: number): Promise<void> {
+function socketErrorMessage(value: unknown): string | null {
+  if (value instanceof Error) return nonEmpty(value.message);
+  if (typeof value !== "object" || value === null) return nonEmpty(value);
+  const record = value as Record<string, unknown>;
+  if (record.error instanceof Error) return nonEmpty(record.error.message);
+  return nonEmpty(record.message);
+}
+
+function socketCloseDetails(args: unknown[]): { code: number | null; reason: string | null } {
+  const first = args[0];
+  if (typeof first === "number") {
+    const reason = args[1];
+    return {
+      code: first,
+      reason: Buffer.isBuffer(reason) ? nonEmpty(reason.toString("utf8")) : nonEmpty(reason),
+    };
+  }
+  if (typeof first === "object" && first !== null) {
+    const record = first as Record<string, unknown>;
+    const code = typeof record.code === "number" ? record.code : null;
+    return { code, reason: nonEmpty(record.reason) };
+  }
+  return { code: null, reason: null };
+}
+
+function socketMessageData(args: unknown[]): unknown {
+  const first = args[0];
+  if (typeof first === "object" && first !== null && "data" in first) {
+    return (first as { data?: unknown }).data;
+  }
+  return first;
+}
+
+function parseNativeChatMessage(text: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(text);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return null;
+    return parsed as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function nativeChatFailureMessage(data: Record<string, unknown>): string {
+  return nonEmpty(data.content)
+    ?? nonEmpty(data.detail)
+    ?? nonEmpty(data.message)
+    ?? "Clawith native chat failed.";
+}
+
+function nativeChatCloseMessage(phase: "open" | "ready", code: number | "unknown", reason: string): string {
+  const message = `Clawith native chat websocket closed before ${phase} (${code}): ${reason}`;
+  if (phase !== "ready") return message;
+  return `${message}. Clawith accepted the websocket but closed during chat setup; check Clawith backend logs and runtime dependencies such as Redis.`;
+}
+
+function waitForNativeChatReady(ws: WebSocket, timeoutMs: number): Promise<void> {
   return new Promise((resolve, reject) => {
     let lastError: string | null = null;
+    let opened = false;
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("Clawith native chat websocket open timed out."));
+      reject(new Error("Clawith native chat websocket ready timed out."));
     }, timeoutMs);
     const cleanup = (): void => {
       clearTimeout(timer);
-      ws.removeEventListener("open", onOpen);
-      ws.removeEventListener("error", onError);
-      ws.removeEventListener("close", onClose);
+      removeSocketListener(ws, "open", onOpen);
+      removeSocketListener(ws, "message", onMessage);
+      removeSocketListener(ws, "error", onError);
+      removeSocketListener(ws, "close", onClose);
     };
     const onOpen = (): void => {
-      cleanup();
-      resolve();
+      opened = true;
     };
-    const onError = (event: Event): void => {
-      const maybeError = event as Event & { message?: unknown; error?: unknown };
-      const eventMessage = nonEmpty(maybeError.message);
-      const nestedError = maybeError.error instanceof Error
-        ? maybeError.error
-        : null;
-      lastError = eventMessage ?? nestedError?.message ?? "websocket error";
-      cleanup();
-      reject(new Error(`Clawith native chat websocket error before open: ${lastError}`));
+    const onMessage = (...args: unknown[]): void => {
+      const text = wsDataToString(socketMessageData(args));
+      const data = parseNativeChatMessage(text);
+      if (!data) return;
+      const type = nonEmpty(data.type);
+      if (type === "connected") {
+        cleanup();
+        resolve();
+      } else if (type === "error" || type === "quota_exceeded") {
+        cleanup();
+        reject(new Error(`Clawith native chat websocket setup failed: ${nativeChatFailureMessage(data)}`));
+      }
     };
-    const onClose = (event: CloseEvent): void => {
+    const onError = (...args: unknown[]): void => {
+      lastError = socketErrorMessage(args[0]) ?? "websocket error";
       cleanup();
-      reject(new Error(`Clawith native chat websocket closed before open (${event.code}): ${event.reason || lastError || "no close reason"}`));
+      const phase = opened ? "ready" : "open";
+      reject(new Error(`Clawith native chat websocket error before ${phase}: ${lastError}`));
     };
-    ws.addEventListener("open", onOpen, { once: true });
-    ws.addEventListener("error", onError, { once: true });
-    ws.addEventListener("close", onClose, { once: true });
+    const onClose = (...args: unknown[]): void => {
+      const details = socketCloseDetails(args);
+      const code = details.code ?? "unknown";
+      const reason = details.reason ?? lastError ?? "no close reason";
+      cleanup();
+      const phase = opened ? "ready" : "open";
+      reject(new Error(nativeChatCloseMessage(phase, code, reason)));
+    };
+    addSocketListener(ws, "open", onOpen, { once: true });
+    addSocketListener(ws, "message", onMessage);
+    addSocketListener(ws, "error", onError, { once: true });
+    addSocketListener(ws, "close", onClose, { once: true });
   });
 }
 
@@ -417,7 +511,9 @@ async function runNativeChat(input: {
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (index < input.wsUrls.length - 1) {
-        await input.onLog("stderr", `[clawith-bridge] native chat websocket retrying after failed candidate ${index + 1}: ${lastError.message}\n`);
+        const redactedCandidate = new URL(input.wsUrls[index]!);
+        redactedCandidate.searchParams.set("token", "[redacted]");
+        await input.onLog("stderr", `[clawith-bridge] native chat websocket retrying after failed candidate ${index + 1} (${redactedCandidate.host}): ${lastError.message}\n`);
       }
     }
   }
@@ -430,15 +526,14 @@ async function runNativeChatOnce(input: {
   timeoutMs: number;
   onLog: AdapterExecutionContext["onLog"];
 }): Promise<{ message: string; status: "completed" | "failed"; errorCode?: string }> {
-  const ws = new WebSocket(input.wsUrl);
-  let opened = false;
+  const ws = createNativeChatWebSocket(input.wsUrl);
+  const logMessage = (...args: unknown[]): void => {
+    const text = wsDataToString(socketMessageData(args));
+    void input.onLog("stdout", `[clawith-bridge:event] ${text}\n`);
+  };
+  addSocketListener(ws, "message", logMessage);
   try {
-    ws.addEventListener("message", (event) => {
-      const text = wsDataToString(event.data);
-      void input.onLog("stdout", `[clawith-bridge:event] ${text}\n`);
-    });
-    await waitForWsOpen(ws, Math.min(input.timeoutMs, 10_000));
-    opened = true;
+    await waitForNativeChatReady(ws, Math.min(input.timeoutMs, 10_000));
 
     const done = new Promise<{ message: string; status: "completed" | "failed"; errorCode?: string }>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -447,28 +542,25 @@ async function runNativeChatOnce(input: {
       }, input.timeoutMs);
       const cleanup = (): void => {
         clearTimeout(timer);
-        ws.removeEventListener("message", onMessage);
-        ws.removeEventListener("error", onError);
-        ws.removeEventListener("close", onClose);
+        removeSocketListener(ws, "message", onMessage);
+        removeSocketListener(ws, "error", onError);
+        removeSocketListener(ws, "close", onClose);
       };
-      const onError = (): void => {
+      const onError = (...args: unknown[]): void => {
         cleanup();
-        reject(new Error("Clawith native chat websocket error."));
+        reject(new Error(`Clawith native chat websocket error: ${socketErrorMessage(args[0]) ?? "websocket error"}`));
       };
-      const onClose = (event: CloseEvent): void => {
+      const onClose = (...args: unknown[]): void => {
+        const details = socketCloseDetails(args);
+        const code = details.code ?? "unknown";
+        const reason = details.reason ?? "no close reason";
         cleanup();
-        reject(new Error(`Clawith native chat websocket closed (${event.code}): ${event.reason}`));
+        reject(new Error(`Clawith native chat websocket closed (${code}): ${reason}`));
       };
-      const onMessage = (event: MessageEvent): void => {
-        const text = wsDataToString(event.data);
-        let data: Record<string, unknown>;
-        try {
-          const parsed = JSON.parse(text);
-          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return;
-          data = parsed as Record<string, unknown>;
-        } catch {
-          return;
-        }
+      const onMessage = (...args: unknown[]): void => {
+        const text = wsDataToString(socketMessageData(args));
+        const data = parseNativeChatMessage(text);
+        if (!data) return;
         const type = nonEmpty(data.type);
         if (type === "done") {
           cleanup();
@@ -477,14 +569,14 @@ async function runNativeChatOnce(input: {
           cleanup();
           resolve({
             status: "failed",
-            message: nonEmpty(data.content) ?? nonEmpty(data.detail) ?? nonEmpty(data.message) ?? "Clawith native chat failed.",
+            message: nativeChatFailureMessage(data),
             errorCode: type === "quota_exceeded" ? "clawith_native_chat_quota_exceeded" : "clawith_native_chat_error",
           });
         }
       };
-      ws.addEventListener("message", onMessage);
-      ws.addEventListener("error", onError, { once: true });
-      ws.addEventListener("close", onClose, { once: true });
+      addSocketListener(ws, "message", onMessage);
+      addSocketListener(ws, "error", onError, { once: true });
+      addSocketListener(ws, "close", onClose, { once: true });
     });
 
     ws.send(JSON.stringify({
@@ -493,7 +585,8 @@ async function runNativeChatOnce(input: {
     }));
     return await done;
   } finally {
-    if (opened && ws.readyState === WebSocket.OPEN) {
+    removeSocketListener(ws, "message", logMessage);
+    if (ws.readyState === WebSocket.OPEN) {
       ws.close(1000, "paperclip-complete");
     } else if (ws.readyState === WebSocket.CONNECTING) {
       ws.close();

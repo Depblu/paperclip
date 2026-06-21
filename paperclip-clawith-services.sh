@@ -20,6 +20,10 @@ CLAWITH_MANAGE_POSTGRES="${CLAWITH_MANAGE_POSTGRES:-true}"
 CLAWITH_PG_CONTAINER="${CLAWITH_PG_CONTAINER:-paperclip-clawith-postgres}"
 CLAWITH_PG_VOLUME="${CLAWITH_PG_VOLUME:-paperclip-clawith-pgdata}"
 CLAWITH_MANAGED_DATABASE_URL="${CLAWITH_MANAGED_DATABASE_URL:-postgresql+asyncpg://clawith:clawith@localhost:5432/clawith?ssl=disable}"
+CLAWITH_MANAGE_REDIS="${CLAWITH_MANAGE_REDIS:-true}"
+CLAWITH_REDIS_CONTAINER="${CLAWITH_REDIS_CONTAINER:-paperclip-clawith-redis}"
+CLAWITH_REDIS_VOLUME="${CLAWITH_REDIS_VOLUME:-paperclip-clawith-redisdata}"
+CLAWITH_MANAGED_REDIS_URL="${CLAWITH_MANAGED_REDIS_URL:-redis://localhost:6379/0}"
 SPLIT_ARGS=()
 
 usage() {
@@ -51,6 +55,9 @@ Environment:
   CLAWITH_MANAGE_POSTGRES=$CLAWITH_MANAGE_POSTGRES
   CLAWITH_PG_CONTAINER=$CLAWITH_PG_CONTAINER
   CLAWITH_MANAGED_DATABASE_URL=$CLAWITH_MANAGED_DATABASE_URL
+  CLAWITH_MANAGE_REDIS=$CLAWITH_MANAGE_REDIS
+  CLAWITH_REDIS_CONTAINER=$CLAWITH_REDIS_CONTAINER
+  CLAWITH_MANAGED_REDIS_URL=$CLAWITH_MANAGED_REDIS_URL
 EOF
 }
 
@@ -113,12 +120,32 @@ clawith_database_url() {
   fi
 }
 
+clawith_redis_url() {
+  if [ -n "${REDIS_URL:-}" ]; then
+    printf "%s\n" "$REDIS_URL"
+    return
+  fi
+  if [ -f "$CLAWITH_ROOT/.env" ]; then
+    grep -E "^REDIS_URL=" "$CLAWITH_ROOT/.env" | tail -1 | cut -d= -f2- || true
+  fi
+}
+
 clawith_uses_external_db() {
   local db_url
   db_url="$(clawith_database_url)"
   [ -n "$db_url" ] || return 1
   case "$db_url" in
     *"@localhost:"*|*"@127.0.0.1:"*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+clawith_uses_external_redis() {
+  local redis_url
+  redis_url="$(clawith_redis_url)"
+  [ -n "$redis_url" ] || return 1
+  case "$redis_url" in
+    *"@localhost:"*|*"@127.0.0.1:"*|*"//localhost:"*|*"//127.0.0.1:"*) return 1 ;;
     *) return 0 ;;
   esac
 }
@@ -177,6 +204,48 @@ ensure_clawith_postgres() {
   die "Clawith PostgreSQL did not become ready"
 }
 
+redis_ping_local() {
+  command -v redis-cli >/dev/null 2>&1 || return 1
+  redis-cli -h localhost -p 6379 ping 2>/dev/null | grep -Fxq PONG
+}
+
+ensure_clawith_redis() {
+  [ "$CLAWITH_MANAGE_REDIS" = "true" ] || return 0
+  clawith_uses_external_redis && return 0
+  if redis_ping_local; then
+    export REDIS_URL="$CLAWITH_MANAGED_REDIS_URL"
+    return 0
+  fi
+  require_cmd docker
+  if docker ps --format "{{.Names}}" | grep -Fxq "$CLAWITH_REDIS_CONTAINER"; then
+    echo "Clawith Redis already running: $CLAWITH_REDIS_CONTAINER"
+  elif docker ps -a --format "{{.Names}}" | grep -Fxq "$CLAWITH_REDIS_CONTAINER"; then
+    echo "Starting Clawith Redis container: $CLAWITH_REDIS_CONTAINER"
+    docker start "$CLAWITH_REDIS_CONTAINER" >/dev/null
+  else
+    echo "Creating Clawith Redis container on localhost:6379..."
+    docker run -d \
+      --name "$CLAWITH_REDIS_CONTAINER" \
+      -p 6379:6379 \
+      -v "$CLAWITH_REDIS_VOLUME:/data" \
+      redis:7-alpine redis-server --appendonly yes >/dev/null
+  fi
+  for _ in $(seq 1 30); do
+    if redis_ping_local; then
+      echo "Clawith Redis: ready (localhost:6379)"
+      export REDIS_URL="$CLAWITH_MANAGED_REDIS_URL"
+      return 0
+    fi
+    if docker exec "$CLAWITH_REDIS_CONTAINER" redis-cli ping 2>/dev/null | grep -Fxq PONG; then
+      echo "Clawith Redis: ready (container)"
+      export REDIS_URL="$CLAWITH_MANAGED_REDIS_URL"
+      return 0
+    fi
+    sleep 1
+  done
+  die "Clawith Redis did not become ready"
+}
+
 run_clawith_setup() {
   local sudo_dir rc
   sudo_dir="$(mktemp -d)"
@@ -209,6 +278,7 @@ install_clawith() {
   [ -f "$CLAWITH_ROOT/setup.sh" ] || die "missing $CLAWITH_ROOT/setup.sh"
   split_args "$CLAWITH_SETUP_ARGS"
   ensure_clawith_postgres
+  ensure_clawith_redis
   echo "Installing Clawith dependencies..."
   run_clawith_setup
 }
@@ -267,6 +337,7 @@ start_clawith() {
     stop_clawith_docker
   fi
   ensure_clawith_postgres
+  ensure_clawith_redis
   echo "Starting Clawith..."
   if ! (cd "$CLAWITH_ROOT" && bash restart.sh "${SPLIT_ARGS[@]}"); then
     if wait_health "Clawith API" "$CLAWITH_HEALTH_URL" 60; then
@@ -350,6 +421,15 @@ stop_clawith_postgres() {
   fi
 }
 
+stop_clawith_redis() {
+  [ "$CLAWITH_MANAGE_REDIS" = "true" ] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  if docker ps --format "{{.Names}}" | grep -Fxq "$CLAWITH_REDIS_CONTAINER"; then
+    echo "Stopping managed Clawith Redis container: $CLAWITH_REDIS_CONTAINER"
+    docker stop "$CLAWITH_REDIS_CONTAINER" >/dev/null || true
+  fi
+}
+
 stop_clawith() {
   local pid_dir="$CLAWITH_ROOT/.data/pid"
   echo "Stopping Clawith source services..."
@@ -363,6 +443,7 @@ stop_clawith() {
   stop_port_process "$CLAWITH_BACKEND_PORT" "Clawith backend"
   stop_clawith_docker
   stop_clawith_postgres
+  stop_clawith_redis
 }
 
 restart_clawith() {
@@ -406,6 +487,15 @@ status_clawith() {
     echo "Clawith PostgreSQL: stopped ($CLAWITH_PG_CONTAINER)"
   else
     echo "Clawith PostgreSQL: not managed by this script"
+  fi
+  if redis_ping_local; then
+    echo "Clawith Redis: running (localhost:6379)"
+  elif command -v docker >/dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -Fxq "$CLAWITH_REDIS_CONTAINER"; then
+    echo "Clawith Redis: running ($CLAWITH_REDIS_CONTAINER)"
+  elif command -v docker >/dev/null 2>&1 && docker ps -a --format "{{.Names}}" | grep -Fxq "$CLAWITH_REDIS_CONTAINER"; then
+    echo "Clawith Redis: stopped ($CLAWITH_REDIS_CONTAINER)"
+  else
+    echo "Clawith Redis: not managed by this script"
   fi
   local docker_names
   docker_names="$(clawith_docker_container_names | tr '\n' ' ')"
