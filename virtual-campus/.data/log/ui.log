@@ -1,0 +1,9 @@
+
+> @paperclipai/virtual-campus@0.1.0 dev:ui /home/lius/sda1/tmp/github/paperclip/virtual-campus
+> ../ui/node_modules/.bin/vite --host ${VIRTUAL_CAMPUS_UI_HOST:-127.0.0.1} --port ${VIRTUAL_CAMPUS_UI_PORT:-5177} "--" "--strictPort"
+
+
+  VITE v6.4.1  ready in 109 ms
+
+  ➜  Local:   http://127.0.0.1:5177/
+  ➜  press h + enter to show help

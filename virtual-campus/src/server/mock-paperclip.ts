@@ -1,0 +1,182 @@
+import type { PaperclipLiveEvent, PaperclipSnapshot } from "./paperclip-types";
+
+const now = new Date("2026-06-21T08:00:00.000Z").toISOString();
+
+export function createMockPaperclipSnapshot(): PaperclipSnapshot {
+  return {
+    companies: [
+      {
+        id: "company-nova",
+        name: "Nova Apps",
+        issuePrefix: "NVA",
+        budgetMonthlyCents: 500000,
+        spentMonthlyCents: 187400,
+      },
+      {
+        id: "company-orbit",
+        name: "Orbit Systems",
+        issuePrefix: "ORB",
+        budgetMonthlyCents: 350000,
+        spentMonthlyCents: 331000,
+      },
+    ],
+    agents: [
+      {
+        id: "agent-ava",
+        companyId: "company-nova",
+        name: "Ava",
+        role: "ceo",
+        title: "CEO",
+        status: "running",
+        reportsTo: null,
+        spentMonthlyCents: 54000,
+        budgetMonthlyCents: 120000,
+      },
+      {
+        id: "agent-mika",
+        companyId: "company-nova",
+        name: "Mika",
+        role: "engineer",
+        title: "Frontend Engineer",
+        status: "idle",
+        reportsTo: "agent-ava",
+        spentMonthlyCents: 42600,
+        budgetMonthlyCents: 90000,
+      },
+      {
+        id: "agent-ren",
+        companyId: "company-nova",
+        name: "Ren",
+        role: "engineer",
+        title: "Backend Engineer",
+        status: "error",
+        reportsTo: "agent-ava",
+        spentMonthlyCents: 76300,
+        budgetMonthlyCents: 90000,
+      },
+      {
+        id: "agent-sol",
+        companyId: "company-orbit",
+        name: "Sol",
+        role: "cto",
+        title: "CTO",
+        status: "paused",
+        reportsTo: null,
+        spentMonthlyCents: 145000,
+        budgetMonthlyCents: 150000,
+      },
+    ],
+    issues: [
+      {
+        id: "issue-nva-42",
+        companyId: "company-nova",
+        identifier: "NVA-42",
+        title: "Ship workspace activity replay panel",
+        status: "in_progress",
+        priority: "high",
+        assigneeAgentId: "agent-ava",
+        blockedBy: [],
+        updatedAt: now,
+      },
+      {
+        id: "issue-nva-43",
+        companyId: "company-nova",
+        identifier: "NVA-43",
+        title: "Unblock cost threshold audit",
+        status: "blocked",
+        priority: "critical",
+        assigneeAgentId: "agent-ren",
+        blockedBy: ["NVA-39"],
+        updatedAt: now,
+      },
+      {
+        id: "issue-orb-17",
+        companyId: "company-orbit",
+        identifier: "ORB-17",
+        title: "Prepare board approval summary",
+        status: "in_review",
+        priority: "medium",
+        assigneeAgentId: "agent-sol",
+        blockedBy: [],
+        updatedAt: now,
+      },
+    ],
+    activity: [
+      {
+        id: "activity-1",
+        companyId: "company-nova",
+        entityType: "issue",
+        entityId: "issue-nva-42",
+        action: "heartbeat.run.started",
+        details: { runId: "run-771", summary: "Ava started implementation review" },
+        createdAt: "2026-06-21T07:53:00.000Z",
+      },
+      {
+        id: "activity-2",
+        companyId: "company-nova",
+        entityType: "issue",
+        entityId: "issue-nva-43",
+        action: "issue.blocked",
+        details: { reason: "Waiting on NVA-39 completion", secretRef: "pc_secret_live_key" },
+        createdAt: "2026-06-21T07:51:00.000Z",
+      },
+      {
+        id: "activity-3",
+        companyId: "company-orbit",
+        entityType: "approval",
+        entityId: "approval-17",
+        action: "approval.pending",
+        details: { approvalType: "hire", externalAccount: "sol@example.com" },
+        createdAt: "2026-06-21T07:45:00.000Z",
+      },
+    ],
+    dashboards: [
+      { companyId: "company-nova", pendingApprovals: 1 },
+      { companyId: "company-orbit", pendingApprovals: 3 },
+    ],
+  };
+}
+
+export function createMockEventSequence(): PaperclipLiveEvent[] {
+  return [
+    {
+      id: "event-agent-ren-running",
+      companyId: "company-nova",
+      type: "agent.status",
+      agentId: "agent-ren",
+      status: "running",
+      createdAt: "2026-06-21T08:00:10.000Z",
+    },
+    {
+      id: "event-issue-nva-43-review",
+      companyId: "company-nova",
+      type: "issue.updated",
+      issueId: "issue-nva-43",
+      status: "in_review",
+      createdAt: "2026-06-21T08:00:16.000Z",
+    },
+    {
+      id: "event-agent-ren-running",
+      companyId: "company-nova",
+      type: "agent.status",
+      agentId: "agent-ren",
+      status: "running",
+      createdAt: "2026-06-21T08:00:10.000Z",
+    },
+    {
+      id: "event-activity-cost",
+      companyId: "company-orbit",
+      type: "activity.logged",
+      createdAt: "2026-06-21T08:00:24.000Z",
+      activity: {
+        id: "activity-4",
+        companyId: "company-orbit",
+        entityType: "cost",
+        entityId: "company-orbit",
+        action: "cost.threshold.warning",
+        details: { spentMonthlyCents: 334500, budgetMonthlyCents: 350000 },
+        createdAt: "2026-06-21T08:00:24.000Z",
+      },
+    },
+  ];
+}

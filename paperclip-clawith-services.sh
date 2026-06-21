@@ -4,15 +4,24 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAPERCLIP_ROOT="${PAPERCLIP_ROOT:-$ROOT}"
 CLAWITH_ROOT="${CLAWITH_ROOT:-$ROOT/todo/Clawith}"
+VIRTUAL_CAMPUS_ROOT="${VIRTUAL_CAMPUS_ROOT:-$ROOT/virtual-campus}"
 PAPERCLIP_SESSION="${PAPERCLIP_SESSION:-paperclip-clawith-paperclip}"
 CLAWITH_FRONTEND_SESSION="${CLAWITH_FRONTEND_SESSION:-paperclip-clawith-frontend}"
+VIRTUAL_CAMPUS_BFF_SESSION="${VIRTUAL_CAMPUS_BFF_SESSION:-paperclip-virtual-campus-bff}"
+VIRTUAL_CAMPUS_UI_SESSION="${VIRTUAL_CAMPUS_UI_SESSION:-paperclip-virtual-campus-ui}"
 CLAWITH_BACKEND_PORT="${CLAWITH_BACKEND_PORT:-8008}"
 CLAWITH_FRONTEND_PORT="${CLAWITH_FRONTEND_PORT:-3008}"
+VIRTUAL_CAMPUS_BFF_PORT="${VIRTUAL_CAMPUS_BFF_PORT:-4177}"
+VIRTUAL_CAMPUS_UI_PORT="${VIRTUAL_CAMPUS_UI_PORT:-5177}"
 PAPERCLIP_HEALTH_URL="${PAPERCLIP_HEALTH_URL:-http://localhost:3100/api/health}"
 CLAWITH_FRONTEND_URL="${CLAWITH_FRONTEND_URL:-http://localhost:$CLAWITH_FRONTEND_PORT}"
 CLAWITH_BASE_URL="${CLAWITH_BASE_URL:-http://localhost:$CLAWITH_BACKEND_PORT}"
 CLAWITH_HEALTH_URL="${CLAWITH_HEALTH_URL:-$CLAWITH_BASE_URL/api/health}"
 CLAWITH_BRIDGE_HEALTH_URL="${CLAWITH_BRIDGE_HEALTH_URL:-$CLAWITH_BASE_URL/api/bridge/health}"
+VIRTUAL_CAMPUS_BFF_URL="${VIRTUAL_CAMPUS_BFF_URL:-http://127.0.0.1:$VIRTUAL_CAMPUS_BFF_PORT}"
+VIRTUAL_CAMPUS_UI_URL="${VIRTUAL_CAMPUS_UI_URL:-http://127.0.0.1:$VIRTUAL_CAMPUS_UI_PORT}"
+VIRTUAL_CAMPUS_HEALTH_URL="${VIRTUAL_CAMPUS_HEALTH_URL:-$VIRTUAL_CAMPUS_BFF_URL/api/health}"
+VIRTUAL_CAMPUS_PAPERCLIP_API_BASE_URL="${VIRTUAL_CAMPUS_PAPERCLIP_API_BASE_URL:-http://127.0.0.1:3100}"
 LLM_MODELS_URL="${LLM_MODELS_URL:-http://127.0.0.1:8080/v1/models}"
 CLAWITH_SETUP_ARGS="${CLAWITH_SETUP_ARGS---dev}"
 CLAWITH_RESTART_ARGS="${CLAWITH_RESTART_ARGS---source}"
@@ -38,18 +47,27 @@ Commands:
   status    Print service status
 
 Targets:
-  all        Paperclip + Clawith (default)
-  paperclip  Paperclip only
-  clawith    Clawith only
+  all             Paperclip + Clawith + Virtual Campus (default)
+  paperclip       Paperclip only
+  clawith         Clawith only
+  virtual-campus  Virtual Campus only
 
 Environment:
   PAPERCLIP_ROOT=$PAPERCLIP_ROOT
   CLAWITH_ROOT=$CLAWITH_ROOT
+  VIRTUAL_CAMPUS_ROOT=$VIRTUAL_CAMPUS_ROOT
   PAPERCLIP_SESSION=$PAPERCLIP_SESSION
   CLAWITH_FRONTEND_SESSION=$CLAWITH_FRONTEND_SESSION
+  VIRTUAL_CAMPUS_BFF_SESSION=$VIRTUAL_CAMPUS_BFF_SESSION
+  VIRTUAL_CAMPUS_UI_SESSION=$VIRTUAL_CAMPUS_UI_SESSION
   CLAWITH_BACKEND_PORT=$CLAWITH_BACKEND_PORT
   CLAWITH_FRONTEND_PORT=$CLAWITH_FRONTEND_PORT
+  VIRTUAL_CAMPUS_BFF_PORT=$VIRTUAL_CAMPUS_BFF_PORT
+  VIRTUAL_CAMPUS_UI_PORT=$VIRTUAL_CAMPUS_UI_PORT
   CLAWITH_BASE_URL=$CLAWITH_BASE_URL
+  VIRTUAL_CAMPUS_BFF_URL=$VIRTUAL_CAMPUS_BFF_URL
+  VIRTUAL_CAMPUS_UI_URL=$VIRTUAL_CAMPUS_UI_URL
+  VIRTUAL_CAMPUS_PAPERCLIP_API_BASE_URL=$VIRTUAL_CAMPUS_PAPERCLIP_API_BASE_URL
   CLAWITH_SETUP_ARGS="$CLAWITH_SETUP_ARGS"
   CLAWITH_RESTART_ARGS="$CLAWITH_RESTART_ARGS"
   CLAWITH_MANAGE_POSTGRES=$CLAWITH_MANAGE_POSTGRES
@@ -283,6 +301,15 @@ install_clawith() {
   run_clawith_setup
 }
 
+install_virtual_campus() {
+  require_cmd pnpm
+  [ -d "$VIRTUAL_CAMPUS_ROOT" ] || die "Virtual Campus root not found: $VIRTUAL_CAMPUS_ROOT"
+  echo "Installing Virtual Campus workspace dependencies..."
+  (cd "$PAPERCLIP_ROOT" && pnpm install)
+  echo "Building Virtual Campus..."
+  (cd "$PAPERCLIP_ROOT" && pnpm --filter @paperclipai/virtual-campus build)
+}
+
 start_paperclip() {
   require_cmd pnpm
   require_cmd tmux
@@ -310,6 +337,30 @@ stop_paperclip() {
 restart_paperclip() {
   stop_paperclip
   start_paperclip
+}
+
+start_virtual_campus() {
+  require_cmd pnpm
+  require_cmd tmux
+  [ -d "$VIRTUAL_CAMPUS_ROOT" ] || die "Virtual Campus root not found: $VIRTUAL_CAMPUS_ROOT"
+  local log_dir="$VIRTUAL_CAMPUS_ROOT/.data/log"
+  mkdir -p "$log_dir"
+  if tmux has-session -t "$VIRTUAL_CAMPUS_BFF_SESSION" 2>/dev/null; then
+    echo "Virtual Campus BFF tmux session already running: $VIRTUAL_CAMPUS_BFF_SESSION"
+  else
+    echo "Starting Virtual Campus BFF in tmux session: $VIRTUAL_CAMPUS_BFF_SESSION"
+    tmux new-session -d -s "$VIRTUAL_CAMPUS_BFF_SESSION" -c "$PAPERCLIP_ROOT" \
+      "PORT='$VIRTUAL_CAMPUS_BFF_PORT' PAPERCLIP_API_BASE_URL='$VIRTUAL_CAMPUS_PAPERCLIP_API_BASE_URL' pnpm --filter @paperclipai/virtual-campus dev:bff > '$log_dir/bff.log' 2>&1"
+  fi
+  if tmux has-session -t "$VIRTUAL_CAMPUS_UI_SESSION" 2>/dev/null; then
+    echo "Virtual Campus UI tmux session already running: $VIRTUAL_CAMPUS_UI_SESSION"
+  else
+    echo "Starting Virtual Campus UI in tmux session: $VIRTUAL_CAMPUS_UI_SESSION"
+    tmux new-session -d -s "$VIRTUAL_CAMPUS_UI_SESSION" -c "$PAPERCLIP_ROOT" \
+      "VIRTUAL_CAMPUS_UI_PORT='$VIRTUAL_CAMPUS_UI_PORT' pnpm --filter @paperclipai/virtual-campus dev:ui -- --strictPort > '$log_dir/ui.log' 2>&1"
+  fi
+  wait_health "Virtual Campus BFF" "$VIRTUAL_CAMPUS_HEALTH_URL" 30 || true
+  wait_health "Virtual Campus UI" "$VIRTUAL_CAMPUS_UI_URL" 30 || true
 }
 
 start_clawith_frontend() {
@@ -388,6 +439,25 @@ stop_port_process() {
   done
 }
 
+stop_virtual_campus() {
+  echo "Stopping Virtual Campus services..."
+  if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$VIRTUAL_CAMPUS_BFF_SESSION" 2>/dev/null; then
+    tmux kill-session -t "$VIRTUAL_CAMPUS_BFF_SESSION"
+    echo "Killed Virtual Campus BFF tmux session: $VIRTUAL_CAMPUS_BFF_SESSION"
+  fi
+  if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$VIRTUAL_CAMPUS_UI_SESSION" 2>/dev/null; then
+    tmux kill-session -t "$VIRTUAL_CAMPUS_UI_SESSION"
+    echo "Killed Virtual Campus UI tmux session: $VIRTUAL_CAMPUS_UI_SESSION"
+  fi
+  stop_port_process "$VIRTUAL_CAMPUS_BFF_PORT" "Virtual Campus BFF"
+  stop_port_process "$VIRTUAL_CAMPUS_UI_PORT" "Virtual Campus UI"
+}
+
+restart_virtual_campus() {
+  stop_virtual_campus
+  start_virtual_campus
+}
+
 clawith_docker_container_names() {
   command -v docker >/dev/null 2>&1 || return 0
   {
@@ -460,6 +530,21 @@ status_paperclip() {
   status_health "Paperclip" "$PAPERCLIP_HEALTH_URL"
 }
 
+status_virtual_campus() {
+  if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$VIRTUAL_CAMPUS_BFF_SESSION" 2>/dev/null; then
+    echo "Virtual Campus BFF tmux: running ($VIRTUAL_CAMPUS_BFF_SESSION)"
+  else
+    echo "Virtual Campus BFF tmux: not running"
+  fi
+  if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$VIRTUAL_CAMPUS_UI_SESSION" 2>/dev/null; then
+    echo "Virtual Campus UI tmux: running ($VIRTUAL_CAMPUS_UI_SESSION)"
+  else
+    echo "Virtual Campus UI tmux: not running"
+  fi
+  status_health "Virtual Campus BFF" "$VIRTUAL_CAMPUS_HEALTH_URL"
+  status_health "Virtual Campus UI" "$VIRTUAL_CAMPUS_UI_URL"
+}
+
 status_clawith() {
   local pid_dir="$CLAWITH_ROOT/.data/pid"
   for name in backend frontend; do
@@ -515,15 +600,16 @@ run_for_target() {
   case "$target" in
     all)
       case "$command" in
-        install) install_paperclip; install_clawith ;;
-        start) start_clawith; start_paperclip ;;
-        stop) stop_paperclip; stop_clawith ;;
-        restart) stop_paperclip; stop_clawith; start_clawith; start_paperclip ;;
-        status) status_clawith; status_paperclip ;;
+        install) install_paperclip; install_clawith; install_virtual_campus ;;
+        start) start_paperclip; start_clawith; start_virtual_campus ;;
+        stop) stop_virtual_campus; stop_paperclip; stop_clawith ;;
+        restart) stop_virtual_campus; stop_paperclip; stop_clawith; start_paperclip; start_clawith; start_virtual_campus ;;
+        status) status_clawith; status_paperclip; status_virtual_campus ;;
       esac
       ;;
     paperclip) "${command}_paperclip" ;;
     clawith) "${command}_clawith" ;;
+    virtual-campus) "${command}_virtual_campus" ;;
     *) die "unknown target: $target" ;;
   esac
 }

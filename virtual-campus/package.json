@@ -1,0 +1,14 @@
+{
+  "name": "@paperclipai/virtual-campus",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:bff": "../node_modules/.bin/esbuild src/server/index.ts --bundle --platform=node --format=esm --outfile=dist/server/index.mjs && node dist/server/index.mjs",
+    "dev:ui": "../ui/node_modules/.bin/vite --host ${VIRTUAL_CAMPUS_UI_HOST:-127.0.0.1} --port ${VIRTUAL_CAMPUS_UI_PORT:-5177}",
+    "build": "../ui/node_modules/.bin/tsc -p tsconfig.json && ../ui/node_modules/.bin/vite build",
+    "typecheck": "../ui/node_modules/.bin/tsc --noEmit -p tsconfig.json",
+    "test": "../node_modules/.bin/esbuild tests/run-tests.ts --bundle --platform=node --format=esm --outfile=dist-tests/run-tests.mjs && node dist-tests/run-tests.mjs",
+    "start": "NODE_ENV=production ../node_modules/.bin/esbuild src/server/index.ts --bundle --platform=node --format=esm --outfile=dist/server/index.mjs && NODE_ENV=production node dist/server/index.mjs"
+  }
+}
