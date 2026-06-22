@@ -28,7 +28,7 @@ export interface PaperclipIssue {
   status: IssueStatus;
   priority: IssuePriority;
   assigneeAgentId: string | null;
-  blockedBy: string[];
+  blockedBy?: string[];
   updatedAt: string;
 }
 

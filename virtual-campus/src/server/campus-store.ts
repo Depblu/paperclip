@@ -319,7 +319,7 @@ function syncPaperclipSnapshot(state: CampusState, snapshot: PaperclipSnapshot) 
     status: issue.status,
     priority: issue.priority,
     assigneeEmployeeId: issue.assigneeAgentId ? `employee-${issue.assigneeAgentId}` : null,
-    blockedBy: issue.blockedBy,
+    blockedBy: Array.isArray(issue.blockedBy) ? issue.blockedBy : [],
     paperclipUrl: `/issues/${issue.id}`,
     updatedAt: issue.updatedAt,
   }));
