@@ -319,12 +319,12 @@ const { t } = useTranslation();
 
   const acceptMutation = useMutation({
     mutationFn: async () => {
-      if (!invite) throw new Error("Invite not found");
+      if (!invite) throw new Error(t("pages.invitelanding.invite_not_found.error", { defaultValue: "Invite not found" }));
       if (isCheckingExistingMembership) {
-        throw new Error("Checking your company access. Try again in a moment.");
+        throw new Error(t("pages.invitelanding.checking_company_access_try_again.error", { defaultValue: "Checking your company access. Try again in a moment." }));
       }
       if (isCurrentMember) {
-        throw new Error("This account already belongs to the company.");
+        throw new Error(t("pages.invitelanding.account_already_belongs_to_company.error", { defaultValue: "This account already belongs to the company." }));
       }
       if (invite.inviteType === "bootstrap_ceo" || invite.allowedJoinTypes !== "agent") {
         return accessApi.acceptInvite(token, { requestType: "human" });
@@ -350,7 +350,7 @@ const { t } = useTranslation();
       }
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Failed to accept invite");
+      setError(err instanceof Error ? err.message : t("pages.invitelanding.failed_to_accept_invite.error", { defaultValue: "Failed to accept invite" }));
     },
   });
 
@@ -411,12 +411,14 @@ const { t } = useTranslation();
   });
 
   const joinButtonLabel = useMemo(() => {
-    if (!invite) return "Continue";
-    if (isCurrentMember) return "Open company";
-    if (invite.inviteType === "bootstrap_ceo") return "Accept invite";
-    if (showsAgentForm) return "Submit request";
-    return sessionQuery.data ? "Accept invite" : "Continue";
-  }, [invite, isCurrentMember, sessionQuery.data, showsAgentForm]);
+    if (!invite) return t("pages.invitelanding.continue.action", { defaultValue: "Continue" });
+    if (isCurrentMember) return t("pages.invitelanding.open_company.action", { defaultValue: "Open company" });
+    if (invite.inviteType === "bootstrap_ceo") return t("pages.invitelanding.accept_invite.action", { defaultValue: "Accept invite" });
+    if (showsAgentForm) return t("pages.invitelanding.submit_request.action", { defaultValue: "Submit request" });
+    return sessionQuery.data
+      ? t("pages.invitelanding.accept_invite.action", { defaultValue: "Accept invite" })
+      : t("pages.invitelanding.continue.action", { defaultValue: "Continue" });
+  }, [invite, isCurrentMember, sessionQuery.data, showsAgentForm, t]);
 
   if (!token) {
     return <div className="mx-auto max-w-xl py-10 text-sm text-destructive">{t("pages.invitelanding.invalid_invite_token.jsx-text", { defaultValue: "Invalid invite token." })}</div>;
@@ -698,7 +700,10 @@ const { t } = useTranslation();
                     event.preventDefault();
                     if (authMutation.isPending) return;
                     if (!authCanSubmit) {
-                      setAuthFeedback({ tone: "error", message: "Please fill in all required fields." });
+                      setAuthFeedback({
+                        tone: "error",
+                        message: t("pages.invitelanding.please_fill_in_all_required.feedback", { defaultValue: "Please fill in all required fields." }),
+                      });
                       return;
                     }
                     authMutation.mutate();
@@ -707,7 +712,7 @@ const { t } = useTranslation();
                 >
                   {authMode === "sign_up" ? (
                     <label className="block text-sm" htmlFor="invite-name">
-                      <span className="mb-1 block text-zinc-400">Name</span>
+                      <span className="mb-1 block text-zinc-400">{t("pages.invitelanding.name.jsx-text", { defaultValue: "Name" })}</span>
                       <input
                         id="invite-name"
                         name="name"

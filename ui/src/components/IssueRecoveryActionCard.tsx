@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import type {
   Agent,
   IssueRecoveryAction,
@@ -44,7 +45,7 @@ export interface IssueRecoveryActionCardProps {
   className?: string;
 }
 
-const KIND_LABEL: Record<IssueRecoveryActionKind, string> = {
+const KIND_LABEL_DEFAULTS: Record<IssueRecoveryActionKind, string> = {
   missing_disposition: "Missing Disposition",
   stranded_assigned_issue: "Stranded Task",
   workspace_validation: "Workspace Validation",
@@ -64,8 +65,12 @@ const KIND_HEADLINE: Record<IssueRecoveryActionKind, string> = {
     "Paperclip detected this task lost a live action path. A recovery owner needs to act.",
 };
 
+function kindLabel(kind: IssueRecoveryActionKind, t: TFunction): string {
+  const defaults = KIND_LABEL_DEFAULTS[kind] ?? kind.replaceAll("_", " ");
+  return t(`components.issuerecoveryactioncard.kind_label_${kind}`, { defaultValue: defaults });
+}
+
 const STATE_TONE: Record<RecoveryCardCardState, {
-  label: string;
   containerClass: string;
   iconWrapClass: string;
   iconClass: string;
@@ -74,7 +79,6 @@ const STATE_TONE: Record<RecoveryCardCardState, {
   divider: string;
 }> = {
   needed: {
-    label: "RECOVERY NEEDED",
     containerClass:
       "border-amber-300/70 bg-amber-50/85 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100",
     iconWrapClass: "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200",
@@ -84,7 +88,6 @@ const STATE_TONE: Record<RecoveryCardCardState, {
     divider: "border-amber-300/60 dark:border-amber-500/30",
   },
   in_progress: {
-    label: "RECOVERY IN PROGRESS",
     containerClass:
       "border-sky-300/70 bg-sky-50/80 text-sky-950 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-100",
     iconWrapClass: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200",
@@ -94,7 +97,6 @@ const STATE_TONE: Record<RecoveryCardCardState, {
     divider: "border-sky-300/60 dark:border-sky-500/30",
   },
   observe_only: {
-    label: "OBSERVING ACTIVE RUN",
     containerClass:
       "border-border bg-muted/40 text-foreground dark:bg-muted/20",
     iconWrapClass: "bg-muted text-foreground/70",
@@ -104,7 +106,6 @@ const STATE_TONE: Record<RecoveryCardCardState, {
     divider: "border-border/70",
   },
   escalated: {
-    label: "RECOVERY ESCALATED",
     containerClass:
       "border-red-400/60 bg-red-50/85 text-red-950 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-100",
     iconWrapClass: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-200",
@@ -114,7 +115,6 @@ const STATE_TONE: Record<RecoveryCardCardState, {
     divider: "border-red-400/50 dark:border-red-500/30",
   },
   resolved: {
-    label: "RECOVERY RESOLVED",
     containerClass:
       "border-emerald-300/70 bg-emerald-50/80 text-emerald-950 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-100",
     iconWrapClass: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200",
@@ -125,6 +125,26 @@ const STATE_TONE: Record<RecoveryCardCardState, {
   },
 };
 
+function cardStateLabel(state: RecoveryCardCardState, t: TFunction): string {
+  switch (state) {
+    case "needed": return t("components.issuerecoveryactioncard.recovery_needed.state_label", { defaultValue: "RECOVERY NEEDED" });
+    case "in_progress": return t("components.issuerecoveryactioncard.recovery_in_progress.state_label", { defaultValue: "RECOVERY IN PROGRESS" });
+    case "observe_only": return t("components.issuerecoveryactioncard.observing_active_run.state_label", { defaultValue: "OBSERVING ACTIVE RUN" });
+    case "escalated": return t("components.issuerecoveryactioncard.recovery_escalated.state_label", { defaultValue: "RECOVERY ESCALATED" });
+    case "resolved": return t("components.issuerecoveryactioncard.recovery_resolved.state_label", { defaultValue: "RECOVERY RESOLVED" });
+  }
+}
+
+function cardStateAriaLabel(state: RecoveryCardCardState, t: TFunction): string {
+  switch (state) {
+    case "needed": return t("components.issuerecoveryactioncard.recovery_needed.aria_label", { defaultValue: "recovery needed" });
+    case "in_progress": return t("components.issuerecoveryactioncard.recovery_in_progress.aria_label", { defaultValue: "recovery in progress" });
+    case "observe_only": return t("components.issuerecoveryactioncard.observing_active_run.aria_label", { defaultValue: "observing active run" });
+    case "escalated": return t("components.issuerecoveryactioncard.recovery_escalated.aria_label", { defaultValue: "recovery escalated" });
+    case "resolved": return t("components.issuerecoveryactioncard.recovery_resolved.aria_label", { defaultValue: "recovery resolved" });
+  }
+}
+
 const OUTCOME_LABEL: Record<IssueRecoveryActionOutcome, string> = {
   restored: "restored",
   delegated: "delegated to follow-up",
@@ -133,6 +153,16 @@ const OUTCOME_LABEL: Record<IssueRecoveryActionOutcome, string> = {
   escalated: "escalated",
   cancelled: "cancelled",
 };
+
+function outcomeLabel(outcome: IssueRecoveryActionOutcome, t: TFunction): string {
+  const defaults = OUTCOME_LABEL[outcome] ?? outcome;
+  return t(`components.issuerecoveryactioncard.outcome_${outcome}`, { defaultValue: defaults });
+}
+
+function kindHeadline(kind: IssueRecoveryActionKind, t: TFunction): string {
+  const defaults = KIND_HEADLINE[kind] ?? KIND_HEADLINE.missing_disposition;
+  return t(`components.issuerecoveryactioncard.kind_headline_${kind}`, { defaultValue: defaults });
+}
 
 function readEvidenceString(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -165,18 +195,23 @@ function readEvidenceRunId(action: IssueRecoveryAction, key: "sourceRunId" | "co
   return next;
 }
 
-function readWakePolicySummary(action: IssueRecoveryAction): string | null {
+function readWakePolicySummary(action: IssueRecoveryAction, t: TFunction): string | null {
   const policy = action.wakePolicy;
   if (!policy) return null;
   const type = readEvidenceString(policy.type);
   if (!type) return null;
-  if (type === "wake_owner") return "Corrective wake queued";
-  if (type === "board_escalation") return "Escalated to board";
-  if (type === "manual") return "Manual";
-  if (type === "manual_repair_required") return "Manual repair required";
+  if (type === "wake_owner") return t("components.issuerecoveryactioncard.corrective_wake_queued.policy_summary", { defaultValue: "Corrective wake queued" });
+  if (type === "board_escalation") return t("components.issuerecoveryactioncard.escalated_to_board.policy_summary", { defaultValue: "Escalated to board" });
+  if (type === "manual") return t("components.issuerecoveryactioncard.manual.policy_summary", { defaultValue: "Manual" });
+  if (type === "manual_repair_required") return t("components.issuerecoveryactioncard.manual_repair_required.policy_summary", { defaultValue: "Manual repair required" });
   if (type === "monitor") {
     const interval = readEvidenceString(policy.intervalLabel);
-    return interval ? `Monitor scheduled · ${interval}` : "Monitor scheduled";
+    return interval
+      ? t("components.issuerecoveryactioncard.monitor_scheduled_with_interval.policy_summary", {
+        defaultValue: "Monitor scheduled · {{interval}}",
+        interval,
+      })
+      : t("components.issuerecoveryactioncard.monitor_scheduled.policy_summary", { defaultValue: "Monitor scheduled" });
   }
   return type.replaceAll("_", " ");
 }
@@ -301,41 +336,49 @@ const { t } = useTranslation();
 
 const RESOLVE_OPTIONS: Array<{
   outcome: RecoveryResolveOutcome;
-  label: string;
-  description: string;
   destructive?: boolean;
   boardOnly?: boolean;
 }> = [
   {
     outcome: "todo",
-    label: "Try again",
-    description: "Dismiss recovery and return the source task to todo.",
   },
   {
     outcome: "done",
-    label: "Mark task done",
-    description: "Restore by recording the requested work as complete.",
   },
   {
     outcome: "in_review",
-    label: "Send for review",
-    description: "Hand off to a reviewer with a real review path.",
   },
   {
     outcome: "false_positive_done",
-    label: "False positive, done",
-    description: "Dismiss recovery and mark the source task complete.",
     destructive: true,
     boardOnly: true,
   },
   {
     outcome: "false_positive_in_review",
-    label: "False positive, review",
-    description: "Dismiss recovery and send the source task for review.",
     destructive: true,
     boardOnly: true,
   },
 ];
+
+function resolveOptionLabel(outcome: RecoveryResolveOutcome, t: TFunction): string {
+  switch (outcome) {
+    case "todo": return t("components.issuerecoveryactioncard.try_again.resolve_label", { defaultValue: "Try again" });
+    case "done": return t("components.issuerecoveryactioncard.mark_task_done.resolve_label", { defaultValue: "Mark task done" });
+    case "in_review": return t("components.issuerecoveryactioncard.send_for_review.resolve_label", { defaultValue: "Send for review" });
+    case "false_positive_done": return t("components.issuerecoveryactioncard.false_positive_done.resolve_label", { defaultValue: "False positive, done" });
+    case "false_positive_in_review": return t("components.issuerecoveryactioncard.false_positive_review.resolve_label", { defaultValue: "False positive, review" });
+  }
+}
+
+function resolveOptionDescription(outcome: RecoveryResolveOutcome, t: TFunction): string {
+  switch (outcome) {
+    case "todo": return t("components.issuerecoveryactioncard.try_again.resolve_description", { defaultValue: "Dismiss recovery and return the source task to todo." });
+    case "done": return t("components.issuerecoveryactioncard.mark_task_done.resolve_description", { defaultValue: "Restore by recording the requested work as complete." });
+    case "in_review": return t("components.issuerecoveryactioncard.send_for_review.resolve_description", { defaultValue: "Hand off to a reviewer with a real review path." });
+    case "false_positive_done": return t("components.issuerecoveryactioncard.false_positive_done.resolve_description", { defaultValue: "Dismiss recovery and mark the source task complete." });
+    case "false_positive_in_review": return t("components.issuerecoveryactioncard.false_positive_review.resolve_description", { defaultValue: "Dismiss recovery and send the source task for review." });
+  }
+}
 
 export function IssueRecoveryActionCard({
   action,
@@ -353,12 +396,15 @@ const { t } = useTranslation();
 
   const headline = useMemo(() => {
     if (cardState === "resolved" && action.outcome) {
-      return `Recovery resolved as ${OUTCOME_LABEL[action.outcome] ?? action.outcome}.`;
+      return t("components.issuerecoveryactioncard.recovery_resolved_as", {
+        outcome: outcomeLabel(action.outcome, t),
+        defaultValue: "Recovery resolved as {{outcome}}.",
+      });
     }
-    return KIND_HEADLINE[action.kind] ?? KIND_HEADLINE.missing_disposition;
-  }, [action.kind, action.outcome, cardState]);
+    return kindHeadline(action.kind, t);
+  }, [action.kind, action.outcome, cardState, t]);
 
-  const wakeSummary = readWakePolicySummary(action);
+  const wakeSummary = readWakePolicySummary(action, t);
   const evidenceSummary = pickEvidenceSummary(action);
   const sourceRunId = readEvidenceRunId(action, "sourceRunId") ?? readEvidenceRunId(action, "latestRunId");
   const correctiveRunId = readEvidenceRunId(action, "correctiveRunId");
@@ -375,13 +421,7 @@ const { t } = useTranslation();
   })();
   const updatedAtLabel = formatTimeShort(action.updatedAt);
 
-  const ariaState = ({
-    needed: "needed",
-    in_progress: "in progress",
-    observe_only: "observing active run",
-    escalated: "escalated",
-    resolved: "resolved",
-  } satisfies Record<RecoveryCardCardState, string>)[cardState];
+  const ariaState = cardStateAriaLabel(cardState, t);
 
   const showResolveActions = onResolve !== undefined && cardState !== "resolved";
   const visibleResolveOptions = RESOLVE_OPTIONS.filter((option) => {
@@ -392,7 +432,10 @@ const { t } = useTranslation();
   return (
     <section
       role="status"
-      aria-label={`Recovery action: ${ariaState}`}
+      aria-label={t("components.issuerecoveryactioncard.recovery_action_state.attr_aria-label", {
+        defaultValue: "Recovery action: {{state}}",
+        state: ariaState,
+      })}
       data-recovery-state={cardState}
       data-recovery-kind={action.kind}
       className={cn(
@@ -413,10 +456,10 @@ const { t } = useTranslation();
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.14em]">
-            <span className={tone.labelClass}>{tone.label}</span>
+            <span className={tone.labelClass}>{cardStateLabel(cardState, t)}</span>
             <span className="text-muted-foreground/60" aria-hidden>·</span>
             <code className="rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] tracking-normal text-muted-foreground">
-              {KIND_LABEL[action.kind] ?? action.kind}
+              {kindLabel(action.kind, t)}
             </code>
             {updatedAtLabel ? (
               <>
@@ -491,7 +534,7 @@ const { t } = useTranslation();
         {cardState === "resolved" && action.outcome ? (
           <MetadataRow label={t("components.issuerecoveryactioncard.resolution.attr_label", { defaultValue: "Resolution" })}>
             <span className={cn("font-medium", tone.labelClass)}>
-              {t("components.issuerecoveryactioncard.resolved_as.jsx-text", { defaultValue: "\n              Resolved as " })}{OUTCOME_LABEL[action.outcome]}
+              {t("components.issuerecoveryactioncard.resolved_as.jsx-text", { defaultValue: "\n              Resolved as " })}{outcomeLabel(action.outcome, t)}
               {action.resolvedAt ? ` · ${formatTimeShort(action.resolvedAt) ?? ""}` : ""}
             </span>
           </MetadataRow>
@@ -529,8 +572,8 @@ const { t } = useTranslation();
                       option.destructive ? "text-destructive" : null,
                     )}
                   >
-                    <span className="font-medium leading-5">{option.label}</span>
-                    <span className="text-[11px] leading-4 text-muted-foreground">{option.description}</span>
+                    <span className="font-medium leading-5">{resolveOptionLabel(option.outcome, t)}</span>
+                    <span className="text-[11px] leading-4 text-muted-foreground">{resolveOptionDescription(option.outcome, t)}</span>
                   </button>
                 ))}
               </div>

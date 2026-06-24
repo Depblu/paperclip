@@ -1,5 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { Link, useLocation, useNavigate } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { INBOX_MINE_ISSUE_STATUS_FILTER } from "@paperclipai/shared";
@@ -215,9 +215,15 @@ export function formatJoinRequestInboxLabel(
       email: string | null;
     } | null;
   },
+  t: typeof translate = translate,
 ) {
   if (joinRequest.requestType !== "human") {
-    return `Agent join request${joinRequest.agentName ? `: ${joinRequest.agentName}` : ""}`;
+    return joinRequest.agentName
+      ? t("pages.inbox.agent_join_request_named", {
+        name: joinRequest.agentName,
+        defaultValue: "Agent join request: {{name}}",
+      })
+      : t("pages.inbox.agent_join_request", { defaultValue: "Agent join request" });
   }
 
   const requesterName = nonEmptyLabel(joinRequest.requesterUser?.name);
@@ -230,7 +236,7 @@ export function formatJoinRequestInboxLabel(
   if (requesterEmail) return requesterEmail;
   if (requesterName) return requesterName;
   if (requesterId) return requesterId;
-  return "Human join request";
+  return t("pages.inbox.human_join_request", { defaultValue: "Human join request" });
 }
 
 
@@ -561,7 +567,7 @@ function JoinRequestInboxRow({
 }) {
 const { t } = useTranslation();
 
-  const label = formatJoinRequestInboxLabel(joinRequest);
+  const label = formatJoinRequestInboxLabel(joinRequest, t);
   const showUnreadSlot = unreadState !== null;
   const showUnreadDot = unreadState === "visible" || unreadState === "fading";
 
@@ -742,8 +748,8 @@ const { t } = useTranslation();
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Inbox" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.inbox.inbox.breadcrumb", { defaultValue: "Inbox" }) }]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     saveLastInboxTab(tab);
@@ -1010,6 +1016,7 @@ const { t } = useTranslation();
       projectWorkspaceById,
       defaultProjectWorkspaceIdByProjectId,
       projectById,
+      t,
       userLabelById: companyUserLabelMap,
       currentUserId,
     }),
@@ -1021,6 +1028,7 @@ const { t } = useTranslation();
       executionWorkspaceById,
       projectById,
       projectWorkspaceById,
+      t,
     ],
   );
   const visibleIssueColumnSet = useMemo(() => new Set(visibleIssueColumns), [visibleIssueColumns]);
@@ -1867,7 +1875,7 @@ const { t } = useTranslation();
   }, [selectedIndex]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={InboxIcon} message="Select a company to view inbox." />;
+    return <EmptyState icon={InboxIcon} message={t("pages.inbox.select_a_company_to_view_inbox.jsx-text", { defaultValue: "Select a company to view inbox." })} />;
   }
 
   const hasRunFailures = failedRuns.length > 0;
@@ -1955,15 +1963,15 @@ const { t } = useTranslation();
             items={[
               {
                 value: "mine",
-                label: "Mine",
+                label: t("pages.inbox.mine.tab_label", { defaultValue: "Mine" }),
               },
               {
                 value: "recent",
-                label: "Recent",
+                label: t("pages.inbox.recent.tab_label", { defaultValue: "Recent" }),
               },
-              { value: "unread", label: "Unread" },
-              { value: "blocked", label: "Blocked" },
-              { value: "all", label: "All" },
+              { value: "unread", label: t("pages.inbox.unread.tab_label", { defaultValue: "Unread" }) },
+              { value: "blocked", label: t("pages.inbox.blocked.tab_label", { defaultValue: "Blocked" }) },
+              { value: "all", label: t("pages.inbox.all.tab_label", { defaultValue: "All" }) },
             ]}
           />
         </Tabs>
@@ -2352,7 +2360,7 @@ const { t } = useTranslation();
                           ({childCount} {t("pages.inbox.sub_task.jsx-text", { defaultValue: " sub-task" })}{childCount !== 1 ? "s" : ""})
                         </span>
                       ) : undefined}
-                      mobileMeta={issueActivityText(issue).toLowerCase()}
+                      mobileMeta={issueActivityText(issue, t).toLowerCase()}
                       mobileLeading={
                         depth === 0 && hasChildren && collapseParentId ? (
                           <button

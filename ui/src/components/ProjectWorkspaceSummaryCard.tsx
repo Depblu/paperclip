@@ -157,15 +157,15 @@ const { t } = useTranslation();
                       text={summary.branchName}
                       containerClassName="min-w-0"
                       className="min-w-0 break-all text-left font-mono text-xs text-foreground"
-                      copiedLabel="Branch copied"
+                      copiedLabel={t("components.projectworkspacesummarycard.branch_copied.copy_label", { defaultValue: "Branch copied" })}
                     >
                       {summary.branchName}
                     </CopyText>
                     <CopyText
                       text={summary.branchName}
-                      ariaLabel="Copy branch"
+                      ariaLabel={t("components.projectworkspacesummarycard.copy_branch.attr_aria-label", { defaultValue: "Copy branch" })}
                       className="mt-0.5 shrink-0 text-muted-foreground hover:text-foreground"
-                      copiedLabel="Branch copied"
+                      copiedLabel={t("components.projectworkspacesummarycard.branch_copied.copy_label", { defaultValue: "Branch copied" })}
                     >
                       <Copy className="h-3.5 w-3.5" />
                     </CopyText>
@@ -185,15 +185,15 @@ const { t } = useTranslation();
                       title={summary.cwd}
                       containerClassName="min-w-0"
                       className="min-w-0 break-all text-left font-mono text-xs text-foreground"
-                      copiedLabel="Path copied"
+                      copiedLabel={t("components.projectworkspacesummarycard.path_copied.copy_label", { defaultValue: "Path copied" })}
                     >
                       {truncatePath(summary.cwd)}
                     </CopyText>
                     <CopyText
                       text={summary.cwd}
-                      ariaLabel="Copy path"
+                      ariaLabel={t("components.projectworkspacesummarycard.copy_path.attr_aria-label", { defaultValue: "Copy path" })}
                       className="mt-0.5 shrink-0 text-muted-foreground hover:text-foreground"
-                      copiedLabel="Path copied"
+                      copiedLabel={t("components.projectworkspacesummarycard.path_copied.copy_label", { defaultValue: "Path copied" })}
                     >
                       <Copy className="h-3.5 w-3.5" />
                     </CopyText>
@@ -239,7 +239,11 @@ const { t } = useTranslation();
                   to={workspaceHref}
                   className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  +{hiddenIssueCount} {t("components.projectworkspacesummarycard.more.jsx-text", { defaultValue: " more\n                " })}</Link>
+                  {t("components.projectworkspacesummarycard.more_count.label", {
+                    count: hiddenIssueCount,
+                    defaultValue: "+{{count}} more",
+                  })}
+                </Link>
               ) : null}
             </div>
           </div>

@@ -173,11 +173,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/company/settings" },
-      { label: "Environments" },
+      { label: selectedCompany?.name ?? t("pages.companyenvironments.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.companyenvironments.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("pages.companyenvironments.environments.breadcrumb", { defaultValue: "Environments" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const { data: experimentalSettings } = useQuery({
     queryKey: queryKeys.instance.experimentalSettings,
@@ -220,15 +220,20 @@ const { t } = useTranslation();
       setEditingEnvironmentId(null);
       setEnvironmentForm(createEmptyEnvironmentForm());
       pushToast({
-        title: editingEnvironmentId ? "Environment updated" : "Environment created",
-        body: `${environment.name} is ready.`,
+        title: editingEnvironmentId
+          ? t("pages.companyenvironments.environment_updated.title", { defaultValue: "Environment updated" })
+          : t("pages.companyenvironments.environment_created.title", { defaultValue: "Environment created" }),
+        body: t("pages.companyenvironments.environment_ready.body", {
+          name: environment.name,
+          defaultValue: "{{name}} is ready.",
+        }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to save environment",
-        body: error instanceof Error ? error.message : "Environment save failed.",
+        title: t("pages.companyenvironments.failed_to_save_environment.title", { defaultValue: "Failed to save environment" }),
+        body: error instanceof Error ? error.message : t("pages.companyenvironments.environment_save_failed.error", { defaultValue: "Environment save failed." }),
         tone: "error",
       });
     },
@@ -242,7 +247,9 @@ const { t } = useTranslation();
         [environmentId]: probe,
       }));
       pushToast({
-        title: probe.ok ? "Environment probe passed" : "Environment probe failed",
+        title: probe.ok
+          ? t("pages.companyenvironments.environment_probe_passed.title", { defaultValue: "Environment probe passed" })
+          : t("pages.companyenvironments.environment_probe_failed.title", { defaultValue: "Environment probe failed" }),
         body: probe.summary,
         tone: probe.ok ? "success" : "error",
       });
@@ -254,13 +261,13 @@ const { t } = useTranslation();
         [environmentId]: {
           ok: false,
           driver: failedEnvironment?.driver ?? "local",
-          summary: error instanceof Error ? error.message : "Environment probe failed.",
+          summary: error instanceof Error ? error.message : t("pages.companyenvironments.environment_probe_failed.error", { defaultValue: "Environment probe failed." }),
           details: null,
         },
       }));
       pushToast({
-        title: "Environment probe failed",
-        body: error instanceof Error ? error.message : "Environment probe failed.",
+        title: t("pages.companyenvironments.environment_probe_failed.title", { defaultValue: "Environment probe failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyenvironments.environment_probe_failed.error", { defaultValue: "Environment probe failed." }),
         tone: "error",
       });
     },
@@ -273,15 +280,17 @@ const { t } = useTranslation();
     },
     onSuccess: (probe) => {
       pushToast({
-        title: probe.ok ? "Draft probe passed" : "Draft probe failed",
+        title: probe.ok
+          ? t("pages.companyenvironments.draft_probe_passed.title", { defaultValue: "Draft probe passed" })
+          : t("pages.companyenvironments.draft_probe_failed.title", { defaultValue: "Draft probe failed" }),
         body: probe.summary,
         tone: probe.ok ? "success" : "error",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Draft probe failed",
-        body: error instanceof Error ? error.message : "Environment probe failed.",
+        title: t("pages.companyenvironments.draft_probe_failed.title", { defaultValue: "Draft probe failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyenvironments.environment_probe_failed.error", { defaultValue: "Environment probe failed." }),
         tone: "error",
       });
     },
@@ -515,7 +524,16 @@ const { t } = useTranslation();
                             const displayName =
                               environmentCapabilities?.sandboxProviders?.[provider]?.displayName ?? provider;
                             const summary = summarizeSandboxConfig(environment.config as Record<string, unknown>);
-                            return `${displayName} sandbox provider${summary ? ` · ${summary}` : ""}`;
+                            return summary
+                              ? t("pages.companyenvironments.sandbox_provider_with_summary", {
+                                displayName,
+                                summary,
+                                defaultValue: "{{displayName}} sandbox provider · {{summary}}",
+                              })
+                              : t("pages.companyenvironments.sandbox_provider", {
+                                displayName,
+                                defaultValue: "{{displayName}} sandbox provider",
+                              });
                           })()}
                         </div>
                       ) : (
@@ -568,10 +586,15 @@ const { t } = useTranslation();
 
         <div className="border-t border-border/60 pt-4">
           <div className="mb-3 text-sm font-medium">
-            {editingEnvironmentId ? "Edit environment" : "Add environment"}
+            {editingEnvironmentId
+              ? t("pages.companyenvironments.edit_environment.jsx-text", { defaultValue: "Edit environment" })
+              : t("pages.companyenvironments.add_environment.jsx-text", { defaultValue: "Add environment" })}
           </div>
           <div className="space-y-3">
-            <Field label="Name" hint="Operator-facing name for this execution target.">
+            <Field
+              label={t("pages.companyenvironments.name.attr_label", { defaultValue: "Name" })}
+              hint={t("pages.companyenvironments.operator_facing_name_for_thi.attr_hint", { defaultValue: "Operator-facing name for this execution target." })}
+            >
               <input
                 className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                 type="text"
@@ -579,7 +602,7 @@ const { t } = useTranslation();
                 onChange={(e) => setEnvironmentForm((current) => ({ ...current, name: e.target.value }))}
               />
             </Field>
-            <Field label={t("pages.companyenvironments.description.attr_label", { defaultValue: "Description" })} hint="Optional note about what this machine is for.">
+            <Field label={t("pages.companyenvironments.description.attr_label", { defaultValue: "Description" })} hint={t("pages.companyenvironments.optional_note_about_what_thi.attr_hint", { defaultValue: "Optional note about what this machine is for." })}>
               <input
                 className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                 type="text"
@@ -587,7 +610,7 @@ const { t } = useTranslation();
                 onChange={(e) => setEnvironmentForm((current) => ({ ...current, description: e.target.value }))}
               />
             </Field>
-            <Field label={t("pages.companyenvironments.driver.attr_label", { defaultValue: "Driver" })} hint="Local runs on this host. SSH stores a remote machine target. Sandbox stores plugin-backed provider config on the shared environment seam.">
+            <Field label={t("pages.companyenvironments.driver.attr_label", { defaultValue: "Driver" })} hint={t("pages.companyenvironments.local_runs_on_this_host_ssh.attr_hint", { defaultValue: "Local runs on this host. SSH stores a remote machine target. Sandbox stores plugin-backed provider config on the shared environment seam." })}>
               <select
                 className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                 value={environmentForm.driver}
@@ -618,7 +641,7 @@ const { t } = useTranslation();
               >
                 <option value="ssh">SSH</option>
                 {sandboxCreationEnabled || environmentForm.driver === "sandbox" ? (
-                  <option value="sandbox">Sandbox</option>
+                  <option value="sandbox">{t("pages.companyenvironments.sandbox.jsx-text", { defaultValue: "Sandbox" })}</option>
                 ) : null}
                 <option value="local">{t("pages.companyenvironments.local.jsx-text", { defaultValue: "Local" })}</option>
               </select>
@@ -626,7 +649,7 @@ const { t } = useTranslation();
 
             {environmentForm.driver === "ssh" ? (
               <div className="grid gap-3 md:grid-cols-2">
-                <Field label={t("pages.companyenvironments.host.attr_label", { defaultValue: "Host" })} hint="DNS name or IP address for the remote machine.">
+                <Field label={t("pages.companyenvironments.host.attr_label", { defaultValue: "Host" })} hint={t("pages.companyenvironments.dns_name_or_ip_address_for_t.attr_hint", { defaultValue: "DNS name or IP address for the remote machine." })}>
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -634,7 +657,7 @@ const { t } = useTranslation();
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshHost: e.target.value }))}
                   />
                 </Field>
-                <Field label={t("pages.companyenvironments.port.attr_label", { defaultValue: "Port" })} hint="Defaults to 22.">
+                <Field label={t("pages.companyenvironments.port.attr_label", { defaultValue: "Port" })} hint={t("pages.companyenvironments.defaults_to_22.attr_hint", { defaultValue: "Defaults to 22." })}>
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="number"
@@ -644,7 +667,7 @@ const { t } = useTranslation();
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshPort: e.target.value }))}
                   />
                 </Field>
-                <Field label={t("pages.companyenvironments.username.attr_label", { defaultValue: "Username" })} hint="SSH login user.">
+                <Field label={t("pages.companyenvironments.username.attr_label", { defaultValue: "Username" })} hint={t("pages.companyenvironments.ssh_login_user.attr_hint", { defaultValue: "SSH login user." })}>
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -652,7 +675,7 @@ const { t } = useTranslation();
                     onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshUsername: e.target.value }))}
                   />
                 </Field>
-                <Field label={t("pages.companyenvironments.remote_workspace_path.attr_label", { defaultValue: "Remote workspace path" })} hint="Absolute path that Paperclip will verify during SSH connection tests.">
+                <Field label={t("pages.companyenvironments.remote_workspace_path.attr_label", { defaultValue: "Remote workspace path" })} hint={t("pages.companyenvironments.absolute_path_that_paperclip.attr_hint", { defaultValue: "Absolute path that Paperclip will verify during SSH connection tests." })}>
                   <input
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     type="text"
@@ -662,7 +685,7 @@ const { t } = useTranslation();
                       setEnvironmentForm((current) => ({ ...current, sshRemoteWorkspacePath: e.target.value }))}
                   />
                 </Field>
-                <Field label={t("pages.companyenvironments.private_key.attr_label", { defaultValue: "Private key" })} hint="Optional PEM private key. Leave blank to rely on the server's SSH agent or default keychain.">
+                <Field label={t("pages.companyenvironments.private_key.attr_label", { defaultValue: "Private key" })} hint={t("pages.companyenvironments.optional_pem_private_key_lea.attr_hint", { defaultValue: "Optional PEM private key. Leave blank to rely on the server's SSH agent or default keychain." })}>
                   <div className="space-y-2">
                     <select
                       className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
@@ -687,7 +710,7 @@ const { t } = useTranslation();
                     />
                   </div>
                 </Field>
-                <Field label={t("pages.companyenvironments.known_hosts.attr_label", { defaultValue: "Known hosts" })} hint="Optional known_hosts block used when strict host key checking is enabled.">
+                <Field label={t("pages.companyenvironments.known_hosts.attr_label", { defaultValue: "Known hosts" })} hint={t("pages.companyenvironments.optional_known_hosts_block_u.attr_hint", { defaultValue: "Optional known_hosts block used when strict host key checking is enabled." })}>
                   <textarea
                     className="h-32 w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-xs font-mono outline-none"
                     value={environmentForm.sshKnownHosts}
@@ -697,7 +720,7 @@ const { t } = useTranslation();
                 <div className="md:col-span-2">
                   <ToggleField
                     label={t("pages.companyenvironments.strict_host_key_checking.attr_label", { defaultValue: "Strict host key checking" })}
-                    hint="Keep this on unless you deliberately want probe-time host key acceptance disabled."
+                    hint={t("pages.companyenvironments.keep_this_on_unless_you_del.attr_hint", { defaultValue: "Keep this on unless you deliberately want probe-time host key acceptance disabled." })}
                     checked={environmentForm.sshStrictHostKeyChecking}
                     onChange={(checked) =>
                       setEnvironmentForm((current) => ({ ...current, sshStrictHostKeyChecking: checked }))}
@@ -708,7 +731,7 @@ const { t } = useTranslation();
 
             {environmentForm.driver === "sandbox" ? (
               <div className="space-y-3">
-                <Field label={t("pages.companyenvironments.provider.attr_label", { defaultValue: "Provider" })} hint="Installed run-capable sandbox provider plugins appear here.">
+                <Field label={t("pages.companyenvironments.provider.attr_label", { defaultValue: "Provider" })} hint={t("pages.companyenvironments.installed_run_capable_sandbo.attr_hint", { defaultValue: "Installed run-capable sandbox provider plugins appear here." })}>
                   <select
                     className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                     value={environmentForm.sandboxProvider}

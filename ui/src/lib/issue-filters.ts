@@ -1,4 +1,5 @@
 import type { Issue } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 
 export type IssueFilterWorkspaceLookup = {
   mode?: string | null;
@@ -37,15 +38,40 @@ export const defaultIssueFilterState: IssueFilterState = {
 export const issueStatusOrder = ["in_progress", "todo", "backlog", "in_review", "blocked", "done", "cancelled"];
 export const issuePriorityOrder = ["critical", "high", "medium", "low"];
 
-export const issueQuickFilterPresets = [
-  { label: "All", statuses: [] as string[] },
-  { label: "Active", statuses: ["todo", "in_progress", "in_review", "blocked"] },
-  { label: "Backlog", statuses: ["backlog"] },
-  { label: "Done", statuses: ["done", "cancelled"] },
+export type IssueQuickFilterPresetId = "all" | "active" | "backlog" | "done";
+type TranslateFn = typeof translate;
+
+export const issueQuickFilterPresets: Array<{ id: IssueQuickFilterPresetId; statuses: string[] }> = [
+  { id: "all", statuses: [] },
+  { id: "active", statuses: ["todo", "in_progress", "in_review", "blocked"] },
+  { id: "backlog", statuses: ["backlog"] },
+  { id: "done", statuses: ["done", "cancelled"] },
 ];
 
-export function issueFilterLabel(value: string): string {
-  return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+export function issueQuickFilterPresetLabel(id: IssueQuickFilterPresetId, t: TranslateFn = translate): string {
+  switch (id) {
+    case "all": return t("lib.issuefilters.all.quick_filter_label", { defaultValue: "All" });
+    case "active": return t("lib.issuefilters.active.quick_filter_label", { defaultValue: "Active" });
+    case "backlog": return t("lib.issuefilters.backlog.quick_filter_label", { defaultValue: "Backlog" });
+    case "done": return t("lib.issuefilters.done.quick_filter_label", { defaultValue: "Done" });
+  }
+}
+
+export function issueFilterLabel(value: string, t: TranslateFn = translate): string {
+  switch (value) {
+    case "in_progress": return t("lib.issuefilters.in_progress.filter_label", { defaultValue: "In Progress" });
+    case "todo": return t("lib.issuefilters.todo.filter_label", { defaultValue: "Todo" });
+    case "backlog": return t("lib.issuefilters.backlog.filter_label", { defaultValue: "Backlog" });
+    case "in_review": return t("lib.issuefilters.in_review.filter_label", { defaultValue: "In Review" });
+    case "blocked": return t("lib.issuefilters.blocked.filter_label", { defaultValue: "Blocked" });
+    case "done": return t("lib.issuefilters.done.filter_label", { defaultValue: "Done" });
+    case "cancelled": return t("lib.issuefilters.cancelled.filter_label", { defaultValue: "Cancelled" });
+    case "critical": return t("lib.issuefilters.critical.filter_label", { defaultValue: "Critical" });
+    case "high": return t("lib.issuefilters.high.filter_label", { defaultValue: "High" });
+    case "medium": return t("lib.issuefilters.medium.filter_label", { defaultValue: "Medium" });
+    case "low": return t("lib.issuefilters.low.filter_label", { defaultValue: "Low" });
+    default: return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  }
 }
 
 export function issueFilterArraysEqual(a: string[], b: string[]): boolean {

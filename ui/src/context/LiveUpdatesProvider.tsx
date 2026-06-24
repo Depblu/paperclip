@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useQuery, useQueryClient, type InfiniteData, type QueryClient } from "@tanstack/react-query";
 import type { Agent, Issue, IssueComment, LiveEvent } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 import type { RunForIssue } from "../api/activity";
 import type { ActiveRunForIssue, LiveRunForIssue } from "../api/heartbeats";
 import type { CompanyUserDirectoryResponse } from "../api/access";
@@ -22,6 +23,7 @@ const RECONNECT_SUPPRESS_MS = 2000;
 const SOCKET_CONNECTING = 0;
 const SOCKET_OPEN = 1;
 const TERMINAL_RUN_STATUSES = new Set(["succeeded", "failed", "cancelled", "timed_out"]);
+type TranslateFn = typeof translate;
 
 type LiveUpdatesSocketLike = {
   readyState: number;
@@ -79,15 +81,19 @@ function resolveActorLabel(
   companyId: string,
   actorType: string | null,
   actorId: string | null,
+  t: TranslateFn = translate,
 ): string {
   if (actorType === "agent" && actorId) {
-    return resolveAgentName(queryClient, companyId, actorId) ?? `Agent ${shortId(actorId)}`;
+    return resolveAgentName(queryClient, companyId, actorId) ?? t("context.liveupdatesprovider.agent_with_id", {
+      id: shortId(actorId),
+      defaultValue: "Agent {{id}}",
+    });
   }
-  if (actorType === "system") return "System";
+  if (actorType === "system") return t("context.liveupdatesprovider.actor_system", { defaultValue: "System" });
   if (actorType === "user" && actorId) {
-    return resolveUserName(queryClient, companyId, actorId) ?? "Board";
+    return resolveUserName(queryClient, companyId, actorId) ?? t("context.liveupdatesprovider.actor_board", { defaultValue: "Board" });
   }
-  return "Someone";
+  return t("context.liveupdatesprovider.actor_someone", { defaultValue: "Someone" });
 }
 
 interface IssueToastContext {
@@ -421,19 +427,38 @@ const RUN_TOAST_STATUSES = new Set(["failed", "timed_out", "cancelled"]);
 function describeIssueUpdate(details: Record<string, unknown> | null): string | null {
   if (!details) return null;
   const changes: string[] = [];
-  if (typeof details.status === "string") changes.push(`status -> ${details.status.replace(/_/g, " ")}`);
-  if (typeof details.priority === "string") changes.push(`priority -> ${details.priority}`);
+  if (typeof details.status === "string") {
+    changes.push(translate("context.liveupdatesprovider.status_changed", {
+      status: details.status.replace(/_/g, " "),
+      defaultValue: "status -> {{status}}",
+    }));
+  }
+  if (typeof details.priority === "string") {
+    changes.push(translate("context.liveupdatesprovider.priority_changed", {
+      priority: details.priority,
+      defaultValue: "priority -> {{priority}}",
+    }));
+  }
   if (typeof details.assigneeAgentId === "string" || typeof details.assigneeUserId === "string") {
-    changes.push("reassigned");
+    changes.push(translate("context.liveupdatesprovider.reassigned", { defaultValue: "reassigned" }));
   } else if (details.assigneeAgentId === null || details.assigneeUserId === null) {
-    changes.push("unassigned");
+    changes.push(translate("context.liveupdatesprovider.unassigned", { defaultValue: "unassigned" }));
   }
   if (details.reopened === true) {
     const from = readString(details.reopenedFrom);
-    changes.push(from ? `reopened from ${from.replace(/_/g, " ")}` : "reopened");
+    changes.push(from
+      ? translate("context.liveupdatesprovider.reopened_from", {
+        source: from.replace(/_/g, " "),
+        defaultValue: "reopened from {{source}}",
+      })
+      : translate("context.liveupdatesprovider.reopened", { defaultValue: "reopened" }));
   }
-  if (typeof details.title === "string") changes.push("title changed");
-  if (typeof details.description === "string") changes.push("description changed");
+  if (typeof details.title === "string") {
+    changes.push(translate("context.liveupdatesprovider.title_changed", { defaultValue: "title changed" }));
+  }
+  if (typeof details.description === "string") {
+    changes.push(translate("context.liveupdatesprovider.description_changed", { defaultValue: "description changed" }));
+  }
   if (changes.length > 0) return changes.join(", ");
   return null;
 }
@@ -464,10 +489,14 @@ function buildActivityToast(
 
   if (action === "issue.created") {
     return {
-      title: `${actor} created ${issue.ref}`,
+      title: translate("context.liveupdatesprovider.issue_created.toast_title", {
+        actor,
+        ref: issue.ref,
+        defaultValue: "{{actor}} created {{ref}}",
+      }),
       body: issue.title ? truncate(issue.title, 96) : undefined,
       tone: "success",
-      action: { label: `View ${issue.ref}`, href: issue.href },
+      action: { label: translate("context.liveupdatesprovider.view_ref.action", { ref: issue.ref, defaultValue: "View {{ref}}" }), href: issue.href },
       dedupeKey: `activity:${action}:${entityId}`,
     };
   }
@@ -486,10 +515,14 @@ function buildActivityToast(
         ? truncate(issue.title, 96)
         : issue.label;
     return {
-      title: `${actor} updated ${issue.ref}`,
+      title: translate("context.liveupdatesprovider.issue_updated.toast_title", {
+        actor,
+        ref: issue.ref,
+        defaultValue: "{{actor}} updated {{ref}}",
+      }),
       body: truncate(body, 100),
       tone: "info",
-      action: { label: `View ${issue.ref}`, href: issue.href },
+      action: { label: translate("context.liveupdatesprovider.view_ref.action", { ref: issue.ref, defaultValue: "View {{ref}}" }), href: issue.href },
       dedupeKey: `activity:${action}:${entityId}`,
     };
   }
@@ -501,14 +534,29 @@ function buildActivityToast(
   const reopenedFrom = readString(details?.reopenedFrom);
   const reopenedLabel = reopened
     ? reopenedFrom
-      ? `reopened from ${reopenedFrom.replace(/_/g, " ")}`
-      : "reopened"
+      ? translate("context.liveupdatesprovider.reopened_from", {
+        source: reopenedFrom.replace(/_/g, " "),
+        defaultValue: "reopened from {{source}}",
+      })
+      : translate("context.liveupdatesprovider.reopened", { defaultValue: "reopened" })
     : null;
   const title = reopened
-    ? `${actor} reopened and commented on ${issue.ref}`
+    ? translate("context.liveupdatesprovider.issue_reopened_and_commented.toast_title", {
+      actor,
+      ref: issue.ref,
+      defaultValue: "{{actor}} reopened and commented on {{ref}}",
+    })
     : updated
-      ? `${actor} commented and updated ${issue.ref}`
-      : `${actor} commented on ${issue.ref}`;
+      ? translate("context.liveupdatesprovider.issue_commented_and_updated.toast_title", {
+        actor,
+        ref: issue.ref,
+        defaultValue: "{{actor}} commented and updated {{ref}}",
+      })
+      : translate("context.liveupdatesprovider.issue_commented.toast_title", {
+        actor,
+        ref: issue.ref,
+        defaultValue: "{{actor}} commented on {{ref}}",
+      });
   const body = bodySnippet
     ? reopenedLabel
       ? `${reopenedLabel} - ${bodySnippet.replace(/^#+\s*/m, "").replace(/\n/g, " ")}`
@@ -522,7 +570,7 @@ function buildActivityToast(
     title,
     body: body ? truncate(body, 96) : undefined,
     tone: "info",
-    action: { label: `View ${issue.ref}`, href: issue.href },
+    action: { label: translate("context.liveupdatesprovider.view_ref.action", { ref: issue.ref, defaultValue: "View {{ref}}" }), href: issue.href },
     dedupeKey: `activity:${action}:${entityId}:${commentId ?? "na"}`,
   };
 }
@@ -539,13 +587,20 @@ function buildJoinRequestToast(
   if (action !== "join.requested" && action !== "join.request_replayed") return null;
 
   const requestType = readString(details?.requestType);
-  const label = requestType === "agent" ? "Agent" : "Someone";
+  const label = requestType === "agent"
+    ? translate("context.liveupdatesprovider.actor_agent", { defaultValue: "Agent" })
+    : translate("context.liveupdatesprovider.actor_someone", { defaultValue: "Someone" });
 
   return {
-    title: `${label} wants to join`,
-    body: "A new join request is waiting for approval.",
+    title: translate("context.liveupdatesprovider.wants_to_join.toast_title", {
+      label,
+      defaultValue: "{{label}} wants to join",
+    }),
+    body: translate("context.liveupdatesprovider.new_join_request_waiting.toast_body", {
+      defaultValue: "A new join request is waiting for approval.",
+    }),
     tone: "info",
-    action: { label: "View inbox", href: "/inbox/mine" },
+    action: { label: translate("context.liveupdatesprovider.view_inbox.action", { defaultValue: "View inbox" }), href: "/inbox/mine" },
     dedupeKey: `join-request:${entityId}`,
   };
 }
@@ -561,11 +616,14 @@ function buildAgentStatusToast(
   if (!agentId || !status || !AGENT_TOAST_STATUSES.has(status)) return null;
 
   const tone = status === "error" ? "error" : "info";
-  const name = nameOf(agentId) ?? `Agent ${shortId(agentId)}`;
+  const name = nameOf(agentId) ?? translate("context.liveupdatesprovider.agent_with_id", {
+    id: shortId(agentId),
+    defaultValue: "Agent {{id}}",
+  });
   const title =
     status === "running"
-      ? `${name} started`
-      : `${name} errored`;
+      ? translate("context.liveupdatesprovider.agent_started.toast_title", { name, defaultValue: "{{name}} started" })
+      : translate("context.liveupdatesprovider.agent_errored.toast_title", { name, defaultValue: "{{name}} errored" });
 
   const agents = queryClient.getQueryData<Agent[]>(queryKeys.agents.list(companyId));
   const agent = agents?.find((a) => a.id === agentId);
@@ -575,7 +633,7 @@ function buildAgentStatusToast(
     title,
     body,
     tone,
-    action: { label: "View agent", href: `/agents/${agentId}` },
+    action: { label: translate("context.liveupdatesprovider.view_agent.action", { defaultValue: "View agent" }), href: `/agents/${agentId}` },
     dedupeKey: `agent-status:${agentId}:${status}`,
   };
 }
@@ -591,20 +649,30 @@ function buildRunStatusToast(
 
   const error = readString(payload.error);
   const triggerDetail = readString(payload.triggerDetail);
-  const name = nameOf(agentId) ?? `Agent ${shortId(agentId)}`;
+  const name = nameOf(agentId) ?? translate("context.liveupdatesprovider.agent_with_id", {
+    id: shortId(agentId),
+    defaultValue: "Agent {{id}}",
+  });
   const tone = status === "succeeded" ? "success" : status === "cancelled" ? "warn" : "error";
   const statusLabel =
-    status === "succeeded" ? "succeeded"
-      : status === "failed" ? "failed"
-        : status === "timed_out" ? "timed out"
-          : "cancelled";
-  const title = `${name} run ${statusLabel}`;
+    status === "succeeded" ? translate("context.liveupdatesprovider.run_status_succeeded", { defaultValue: "succeeded" })
+      : status === "failed" ? translate("context.liveupdatesprovider.run_status_failed", { defaultValue: "failed" })
+        : status === "timed_out" ? translate("context.liveupdatesprovider.run_status_timed_out", { defaultValue: "timed out" })
+          : translate("context.liveupdatesprovider.run_status_cancelled", { defaultValue: "cancelled" });
+  const title = translate("context.liveupdatesprovider.agent_run_status.toast_title", {
+    name,
+    status: statusLabel,
+    defaultValue: "{{name}} run {{status}}",
+  });
 
   let body: string | undefined;
   if (error) {
     body = truncate(error, 100);
   } else if (triggerDetail) {
-    body = `Trigger: ${triggerDetail}`;
+    body = translate("context.liveupdatesprovider.trigger_detail.toast_body", {
+      detail: triggerDetail,
+      defaultValue: "Trigger: {{detail}}",
+    });
   }
 
   return {
@@ -612,7 +680,7 @@ function buildRunStatusToast(
     body,
     tone,
     ttlMs: status === "succeeded" ? 5000 : 7000,
-    action: { label: "View run", href: `/agents/${agentId}/runs/${runId}` },
+    action: { label: translate("context.liveupdatesprovider.view_run.action", { defaultValue: "View run" }), href: `/agents/${agentId}/runs/${runId}` },
     dedupeKey: `run-status:${runId}:${status}`,
   };
 }

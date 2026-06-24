@@ -80,7 +80,10 @@ const { t } = useTranslation();
         "inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300",
         selected ? "border-muted-foreground text-muted-foreground" : null,
       )}
-      title={`Productivity review: ${productivityReviewTriggerLabel(productivityReview.trigger)}`}
+      title={t("components.issuerow.productivity_review_trigger.attr_title", {
+        trigger: productivityReviewTriggerLabel(productivityReview.trigger, t),
+        defaultValue: "Productivity review: {{trigger}}",
+      })}
       aria-label={t("components.issuerow.productivity_review_open.attr_aria-label", { defaultValue: "Productivity review open" })}
     >
       <Eye className="h-2.5 w-2.5" aria-hidden />
@@ -93,7 +96,7 @@ const { t } = useTranslation();
     </span>
   ) : null;
   const recoveryAction = issue.activeRecoveryAction ?? null;
-  const recoveryIndicator = recoveryAction ? renderRecoveryChip(recoveryAction, selected) : null;
+  const recoveryIndicator = recoveryAction ? renderRecoveryChip(recoveryAction, selected, t) : null;
   const parkedBlockerIndicator = hasAssignedBacklogBlocker(issue.blockedBy) ? (
     <span
       data-testid="issue-row-parked-blocker"
@@ -233,12 +236,12 @@ const { t } = useTranslation();
   );
 }
 
-function renderRecoveryChip(action: IssueRecoveryAction, selected: boolean): ReactNode {
+function renderRecoveryChip(action: IssueRecoveryAction, selected: boolean, t: ReturnType<typeof useTranslation>["t"]): ReactNode {
   const state = deriveActiveRecoveryDisplayState(action);
   if (!state) return null;
   const tone = RECOVERY_CHIP_DEFAULT_TONE[state];
   const Icon = tone.icon;
-  const label = recoveryChipLabel(state, action.kind);
+  const label = recoveryChipLabel(state, action.kind, t);
   return (
     <span
       data-testid="issue-row-recovery-indicator"

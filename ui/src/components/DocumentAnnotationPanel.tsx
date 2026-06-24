@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   DocumentAnnotationComment,
@@ -32,12 +33,21 @@ import type { CompanyUserProfile } from "@/lib/company-members";
 
 type AnnotationFilter = "open" | "resolved" | "stale" | "orphan";
 
-const FILTERS: { id: AnnotationFilter; label: string }[] = [
-  { id: "open", label: "Open" },
-  { id: "resolved", label: "Resolved" },
-  { id: "stale", label: "Stale" },
-  { id: "orphan", label: "Orphaned" },
+const FILTERS: { id: AnnotationFilter }[] = [
+  { id: "open" },
+  { id: "resolved" },
+  { id: "stale" },
+  { id: "orphan" },
 ];
+
+function annotationStatusLabel(status: AnnotationFilter, t: TFunction) {
+  switch (status) {
+    case "open": return t("components.documentannotationpanel.open.status_label", { defaultValue: "Open" });
+    case "resolved": return t("components.documentannotationpanel.resolved.status_label", { defaultValue: "Resolved" });
+    case "stale": return t("components.documentannotationpanel.stale.status_label", { defaultValue: "Stale" });
+    case "orphan": return t("components.documentannotationpanel.orphaned.status_label", { defaultValue: "Orphaned" });
+  }
+}
 
 export interface AnnotationPanelProps {
   open: boolean;
@@ -152,8 +162,8 @@ const { t } = useTranslation();
 
   const createThread = useMutation({
     mutationFn: async (body: string) => {
-      if (!props.pendingAnchor) throw new Error("No selection to anchor to.");
-      if (!props.baseRevisionId) throw new Error("Document has no revision yet.");
+      if (!props.pendingAnchor) throw new Error(t("components.documentannotationpanel.no_selection_to_anchor.error", { defaultValue: "No selection to anchor to." }));
+      if (!props.baseRevisionId) throw new Error(t("components.documentannotationpanel.document_has_no_revision.error", { defaultValue: "Document has no revision yet." }));
       return documentAnnotationsApi.create(props.issueId, props.documentKey, {
         baseRevisionId: props.baseRevisionId,
         baseRevisionNumber: props.baseRevisionNumber,
@@ -249,7 +259,7 @@ const { t } = useTranslation();
                   : "border-transparent bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
-              <span>{entry.label}</span>
+              <span>{annotationStatusLabel(entry.id, t)}</span>
               <span className={cn("tabular-nums", isActive ? "text-muted-foreground" : "text-muted-foreground/70")}>
                 {count}
               </span>
@@ -377,12 +387,12 @@ const { t } = useTranslation();
   const { thread } = props;
   const statusVariant: { variant: "default" | "outline" | "secondary"; label: string } =
     thread.status === "resolved"
-      ? { variant: "outline", label: "Resolved" }
+      ? { variant: "outline", label: annotationStatusLabel("resolved", t) }
       : thread.anchorState === "orphaned"
-        ? { variant: "outline", label: "Orphaned" }
+        ? { variant: "outline", label: annotationStatusLabel("orphan", t) }
         : thread.anchorState === "stale"
-          ? { variant: "outline", label: "Stale" }
-          : { variant: "default", label: "Open" };
+          ? { variant: "outline", label: annotationStatusLabel("stale", t) }
+          : { variant: "default", label: annotationStatusLabel("open", t) };
   const latestComment = thread.comments[thread.comments.length - 1];
 
   return (

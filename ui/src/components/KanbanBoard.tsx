@@ -164,11 +164,19 @@ const { t } = useTranslation();
             className="mt-1 flex w-full items-center justify-center rounded-md border border-dashed border-border bg-background/70 px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
             onClick={onShowMore}
           >
-            {t("components.kanbanboard.show.jsx-text", { defaultValue: "\n            Show " })}{nextRevealCount} {t("components.kanbanboard.more.jsx-text", { defaultValue: " more\n          " })}</button>
+            {t("components.kanbanboard.show_more.action", {
+              count: nextRevealCount,
+              defaultValue: "Show {{count}} more",
+            })}
+          </button>
         ) : null}
         {issues.length > 0 && (hiddenCount > 0 || issues.length >= visibleCount) ? (
           <p className="px-1 pt-1 text-[11px] text-muted-foreground">
-            {t("components.kanbanboard.showing.jsx-text", { defaultValue: "\n            Showing " })}{visibleIssues.length} {t("components.kanbanboard.of.jsx-text", { defaultValue: " of " })}{issues.length}
+            {t("components.kanbanboard.showing_count.label", {
+              visible: visibleIssues.length,
+              total: issues.length,
+              defaultValue: "Showing {{visible}} of {{total}}",
+            })}
           </p>
         ) : null}
       </div>

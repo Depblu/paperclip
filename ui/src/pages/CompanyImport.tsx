@@ -43,7 +43,7 @@ import {
   countFiles,
   collectAllPaths,
   parseFrontmatter,
-  FRONTMATTER_FIELD_LABELS,
+  frontmatterFieldLabel,
   FileTree,
 } from "../components/FileTree";
 import { readZipArchive } from "../lib/zip";
@@ -122,7 +122,7 @@ const { t } = useTranslation();
         {Object.entries(data).map(([key, value]) => (
           <div key={key} className="contents">
             <dt className="text-muted-foreground whitespace-nowrap py-0.5">
-              {FRONTMATTER_FIELD_LABELS[key] ?? key}
+              {frontmatterFieldLabel(key, t)}
             </dt>
             <dd className="py-0.5">
               {Array.isArray(value) ? (
@@ -195,11 +195,14 @@ function ImportPreviewPane({
   action: string | null;
   renamedTo: string | null;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   if (!selectedFile || content === null) {
     return (
-      <EmptyState icon={Package} message="Select a file to preview its contents." />
+      <EmptyState
+        icon={Package}
+        message={t("pages.companyimport.select_a_file_to_preview_its.attr_message", { defaultValue: "Select a file to preview its contents." })}
+      />
     );
   }
 
@@ -628,17 +631,17 @@ const { t } = useTranslation();
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
-async function readLocalPackageZip(file: File): Promise<{
+async function readLocalPackageZip(file: File, t: ReturnType<typeof useTranslation>["t"]): Promise<{
   name: string;
   rootPath: string | null;
   files: Record<string, CompanyPortabilityFileEntry>;
 }> {
   if (!/\.zip$/i.test(file.name)) {
-    throw new Error("Select a .zip company package.");
+    throw new Error(t("pages.companyimport.select_zip_company_package.error", { defaultValue: "Select a .zip company package." }));
   }
   const archive = await readZipArchive(await file.arrayBuffer());
   if (Object.keys(archive.files).length === 0) {
-    throw new Error("No package files were found in the selected zip archive.");
+    throw new Error(t("pages.companyimport.no_package_files_found.error", { defaultValue: "No package files were found in the selected zip archive." }));
   }
   return {
     name: file.name,
@@ -710,15 +713,16 @@ const { t } = useTranslation();
     return ceo?.adapterType ?? "claude_local";
   }, [companyAgents]);
 
-  const localZipHelpText =
-    "Upload a .zip exported directly from Paperclip. Re-zipped archives created by Finder, Explorer, or other zip tools may not import correctly.";
+  const localZipHelpText = t("pages.companyimport.local_zip_help.text", {
+    defaultValue: "Upload a .zip exported directly from Paperclip. Re-zipped archives created by Finder, Explorer, or other zip tools may not import correctly.",
+  });
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Org Chart", href: "/org" },
-      { label: "Import" },
+      { label: t("pages.companyimport.org_chart.breadcrumb", { defaultValue: "Org Chart" }), href: "/org" },
+      { label: t("pages.companyimport.import.breadcrumb", { defaultValue: "Import" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   function buildSource(): CompanyPortabilitySource | null {
     if (sourceMode === "local") {
@@ -734,7 +738,7 @@ const { t } = useTranslation();
   const previewMutation = useMutation({
     mutationFn: () => {
       const source = buildSource();
-      if (!source) throw new Error("No source configured.");
+      if (!source) throw new Error(t("pages.companyimport.no_source_configured.error", { defaultValue: "No source configured." }));
       return companiesApi.importPreview({
         source,
         include: { company: true, agents: true, projects: true, issues: true },
@@ -811,8 +815,8 @@ const { t } = useTranslation();
     onError: (err) => {
       pushToast({
         tone: "error",
-        title: "Preview failed",
-        body: err instanceof Error ? err.message : "Failed to preview import.",
+        title: t("pages.companyimport.preview_failed.title", { defaultValue: "Preview failed" }),
+        body: err instanceof Error ? err.message : t("pages.companyimport.failed_to_preview_import.error", { defaultValue: "Failed to preview import." }),
       });
     },
   });
@@ -838,7 +842,7 @@ const { t } = useTranslation();
   const importMutation = useMutation({
     mutationFn: () => {
       const source = buildSource();
-      if (!source) throw new Error("No source configured.");
+      if (!source) throw new Error(t("pages.companyimport.no_source_configured.error", { defaultValue: "No source configured." }));
       return companiesApi.importBundle({
         source,
         include: { company: true, agents: true, projects: true, issues: true },
@@ -870,8 +874,13 @@ const { t } = useTranslation();
       setSelectedCompanyId(importedCompany.id);
       pushToast({
         tone: "success",
-        title: "Import complete",
-        body: `${result.company.name}: ${result.agents.length} agent${result.agents.length === 1 ? "" : "s"} processed.`,
+        title: t("pages.companyimport.import_complete.title", { defaultValue: "Import complete" }),
+        body: t("pages.companyimport.agents_processed.body", {
+          name: result.company.name,
+          count: result.agents.length,
+          defaultValue: "{{name}}: {{count}} agent processed.",
+          defaultValue_plural: "{{name}}: {{count}} agents processed.",
+        }),
       });
       // Force a fresh dashboard load so newly imported agents are immediately visible.
       window.location.assign(`/${importedCompany.issuePrefix}/dashboard`);
@@ -879,8 +888,8 @@ const { t } = useTranslation();
     onError: (err) => {
       pushToast({
         tone: "error",
-        title: "Import failed",
-        body: err instanceof Error ? err.message : "Failed to apply import.",
+        title: t("pages.companyimport.import_failed.title", { defaultValue: "Import failed" }),
+        body: err instanceof Error ? err.message : t("pages.companyimport.failed_to_apply_import.error", { defaultValue: "Failed to apply import." }),
       });
     },
   });
@@ -889,14 +898,14 @@ const { t } = useTranslation();
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
     try {
-      const pkg = await readLocalPackageZip(fileList[0]!);
+      const pkg = await readLocalPackageZip(fileList[0]!, t);
       setLocalPackage(pkg);
       setImportPreview(null);
     } catch (err) {
       pushToast({
         tone: "error",
-        title: "Package read failed",
-        body: err instanceof Error ? err.message : "Failed to read folder.",
+        title: t("pages.companyimport.package_read_failed.title", { defaultValue: "Package read failed" }),
+        body: err instanceof Error ? err.message : t("pages.companyimport.failed_to_read_folder.error", { defaultValue: "Failed to read folder." }),
       });
     }
   }
@@ -1093,7 +1102,12 @@ const { t } = useTranslation();
   const selectedAction = selectedFile ? (actionMap.get(selectedFile) ?? null) : null;
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Download} message="Select a company to import into." />;
+    return (
+      <EmptyState
+        icon={Download}
+        message={t("pages.companyimport.select_a_company_to_import_into.attr_message", { defaultValue: "Select a company to import into." })}
+      />
+    );
   }
 
   return (
@@ -1109,8 +1123,8 @@ const { t } = useTranslation();
         <div className="grid gap-2 md:grid-cols-2">
           {(
             [
-              { key: "github", icon: Github, label: "GitHub repo" },
-              { key: "local", icon: Upload, label: "Local zip" },
+              { key: "github", icon: Github, label: t("pages.companyimport.github_repo.jsx-text", { defaultValue: "GitHub repo" }) },
+              { key: "local", icon: Upload, label: t("pages.companyimport.local_zip.jsx-text", { defaultValue: "Local zip" }) },
             ] as const
           ).map(({ key, icon: Icon, label }) => (
             <button
@@ -1167,7 +1181,7 @@ const { t } = useTranslation();
         ) : (
           <Field
             label={t("pages.companyimport.github_url.attr_label", { defaultValue: "GitHub URL" })}
-            hint="Repo tree path or blob URL to COMPANY.md (e.g. github.com/owner/repo/tree/main/company)."
+            hint={t("pages.companyimport.repo_tree_path_or_blob_url_to.attr_hint", { defaultValue: "Repo tree path or blob URL to COMPANY.md (e.g. github.com/owner/repo/tree/main/company)." })}
           >
             <input
               className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
@@ -1182,7 +1196,10 @@ const { t } = useTranslation();
           </Field>
         )}
 
-        <Field label="Target" hint="Import into this company or create a new one.">
+        <Field
+          label={t("pages.companyimport.target.attr_label", { defaultValue: "Target" })}
+          hint={t("pages.companyimport.import_into_this_company_or_c.attr_hint", { defaultValue: "Import into this company or create a new one." })}
+        >
           <select
             className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
             value={targetMode}
@@ -1201,7 +1218,7 @@ const { t } = useTranslation();
         {targetMode === "new" && (
           <Field
             label={t("pages.companyimport.new_company_name.attr_label", { defaultValue: "New company name" })}
-            hint="Optional override. Leave blank to use the package name."
+            hint={t("pages.companyimport.optional_override_leave_blank.attr_hint", { defaultValue: "Optional override. Leave blank to use the package name." })}
           >
             <input
               className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
@@ -1215,7 +1232,7 @@ const { t } = useTranslation();
 
         <Field
           label={t("pages.companyimport.collision_strategy.attr_label", { defaultValue: "Collision strategy" })}
-          hint="Board imports can rename, skip, or replace matching company content."
+          hint={t("pages.companyimport.board_imports_can_rename_ski.attr_hint", { defaultValue: "Board imports can rename, skip, or replace matching company content." })}
         >
           <select
             className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"

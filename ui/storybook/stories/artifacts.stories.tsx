@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Layers, Package, Search, X } from "lucide-react";
 import { ArtifactCard } from "@/components/artifacts/ArtifactCard";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
   ARTIFACT_GROUP_OPTIONS,
   ARTIFACT_KIND_FILTERS,
   artifactGroupByLabel,
+  artifactKindFilterLabel,
 } from "@/pages/Artifacts";
 
 /**
@@ -169,6 +171,8 @@ function ArtifactsToolbar({
   groupBy: StoryArtifactGroupBy;
   onGroupByChange: (value: StoryArtifactGroupBy) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="relative w-full sm:max-w-sm">
@@ -176,15 +180,15 @@ function ArtifactsToolbar({
         <Input
           value={query}
           onChange={(event) => onQueryChange(event.currentTarget.value)}
-          placeholder="Search artifacts..."
-          aria-label="Search artifacts"
+          placeholder={t("pages.artifacts.search_artifacts.attr_placeholder", { defaultValue: "Search artifacts..." })}
+          aria-label={t("pages.artifacts.search_artifacts.attr_aria-label", { defaultValue: "Search artifacts" })}
           className="h-9 pl-9 pr-9 text-sm"
         />
         {query.length > 0 ? (
           <button
             type="button"
             onClick={() => onQueryChange("")}
-            aria-label="Clear artifact search"
+            aria-label={t("pages.artifacts.clear_artifact_search.attr_aria-label", { defaultValue: "Clear artifact search" })}
             className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
@@ -200,29 +204,32 @@ function ArtifactsToolbar({
               variant="outline"
               size="icon"
               className={cn("h-8 w-8 shrink-0", groupBy !== "none" && "bg-accent")}
-              title="Group artifacts"
-              aria-label={`Group artifacts (currently ${artifactGroupByLabel(groupBy)})`}
+              title={t("pages.artifacts.group_artifacts.attr_title", { defaultValue: "Group artifacts" })}
+              aria-label={t("pages.artifacts.group_artifacts_current.attr_aria-label", {
+                defaultValue: "Group artifacts (currently {{group}})",
+                group: artifactGroupByLabel(groupBy, t),
+              })}
             >
               <Layers className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel>Group by</DropdownMenuLabel>
-            {ARTIFACT_GROUP_OPTIONS.map(({ value, label }) => (
+            <DropdownMenuLabel>{t("pages.artifacts.group_by.jsx-text", { defaultValue: "Group by" })}</DropdownMenuLabel>
+            {ARTIFACT_GROUP_OPTIONS.map(({ value }) => (
               <DropdownMenuItem
                 key={value}
                 aria-selected={groupBy === value}
                 onSelect={() => onGroupByChange(value)}
                 className="justify-between"
               >
-                {label}
+                {artifactGroupByLabel(value, t)}
                 {groupBy === value ? <Check className="h-3.5 w-3.5" /> : null}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Filter artifacts by type">
+        <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label={t("pages.artifacts.filter_artifacts_by_type.attr_aria-label", { defaultValue: "Filter artifacts by type" })}>
           {ARTIFACT_KIND_FILTERS.map((filter) => (
             <button
               key={filter.value}
@@ -237,7 +244,7 @@ function ArtifactsToolbar({
                   : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
               )}
             >
-              {filter.label}
+              {artifactKindFilterLabel(filter.value, t)}
             </button>
           ))}
         </div>

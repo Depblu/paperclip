@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isUuidLike, type ProjectWorkspace } from "@paperclipai/shared";
@@ -37,6 +37,7 @@ type WorkspaceFormState = {
   sharedWorkspaceKey: string;
   runtimeConfig: string;
 };
+type TranslateFn = typeof translate;
 
 type ProjectWorkspaceSourceType = ProjectWorkspace["sourceType"];
 type ProjectWorkspaceVisibility = ProjectWorkspace["visibility"];
@@ -45,14 +46,19 @@ type ProjectWorkspacePluginTab = `plugin:${string}`;
 type ProjectWorkspaceTab = ProjectWorkspaceBaseTab | ProjectWorkspacePluginTab;
 type OrderedProjectWorkspaceTabItem = {
   value: ProjectWorkspaceTab;
-  label: string;
   order: number;
 };
 
 const DEFAULT_PLUGIN_DETAIL_TAB_ORDER = 100;
 const PROJECT_WORKSPACE_BASE_TAB_ITEMS: OrderedProjectWorkspaceTabItem[] = [
-  { value: "configuration", label: "Configuration", order: 30 },
+  { value: "configuration", order: 30 },
 ];
+
+function projectWorkspaceTabLabel(value: ProjectWorkspaceBaseTab, t: TranslateFn) {
+  switch (value) {
+    case "configuration": return t("pages.projectworkspacedetail.configuration.tab_label", { defaultValue: "Configuration" });
+  }
+}
 
 function isProjectWorkspacePluginTab(value: string | null): value is ProjectWorkspacePluginTab {
   return typeof value === "string" && value.startsWith("plugin:");
@@ -71,17 +77,42 @@ function orderProjectWorkspaceTabItems(items: OrderedProjectWorkspaceTabItem[]) 
     .map(({ item }) => item);
 }
 
-const SOURCE_TYPE_OPTIONS: Array<{ value: ProjectWorkspaceSourceType; label: string; description: string }> = [
-  { value: "local_path", label: "Local git checkout", description: "A local path Paperclip can use directly." },
-  { value: "non_git_path", label: "Local non-git path", description: "A local folder without git semantics." },
-  { value: "git_repo", label: "Remote git repo", description: "A repo URL with optional refs and local checkout." },
-  { value: "remote_managed", label: "Remote-managed workspace", description: "A hosted workspace tracked by external reference." },
+const SOURCE_TYPE_OPTIONS: Array<{ value: ProjectWorkspaceSourceType }> = [
+  { value: "local_path" },
+  { value: "non_git_path" },
+  { value: "git_repo" },
+  { value: "remote_managed" },
 ];
 
-const VISIBILITY_OPTIONS: Array<{ value: ProjectWorkspaceVisibility; label: string }> = [
-  { value: "default", label: "Default" },
-  { value: "advanced", label: "Advanced" },
+const VISIBILITY_OPTIONS: Array<{ value: ProjectWorkspaceVisibility }> = [
+  { value: "default" },
+  { value: "advanced" },
 ];
+
+function sourceTypeLabel(value: ProjectWorkspaceSourceType, t: TranslateFn) {
+  switch (value) {
+    case "local_path": return t("pages.projectworkspacedetail.local_git_checkout.source_label", { defaultValue: "Local git checkout" });
+    case "non_git_path": return t("pages.projectworkspacedetail.local_non_git_path.source_label", { defaultValue: "Local non-git path" });
+    case "git_repo": return t("pages.projectworkspacedetail.remote_git_repo.source_label", { defaultValue: "Remote git repo" });
+    case "remote_managed": return t("pages.projectworkspacedetail.remote_managed_workspace.source_label", { defaultValue: "Remote-managed workspace" });
+  }
+}
+
+function sourceTypeDescription(value: ProjectWorkspaceSourceType, t: TranslateFn) {
+  switch (value) {
+    case "local_path": return t("pages.projectworkspacedetail.local_path.source_description", { defaultValue: "A local path Paperclip can use directly." });
+    case "non_git_path": return t("pages.projectworkspacedetail.non_git_path.source_description", { defaultValue: "A local folder without git semantics." });
+    case "git_repo": return t("pages.projectworkspacedetail.git_repo.source_description", { defaultValue: "A repo URL with optional refs and local checkout." });
+    case "remote_managed": return t("pages.projectworkspacedetail.remote_managed.source_description", { defaultValue: "A hosted workspace tracked by external reference." });
+  }
+}
+
+function visibilityLabel(value: ProjectWorkspaceVisibility, t: TranslateFn) {
+  switch (value) {
+    case "default": return t("pages.projectworkspacedetail.default.visibility_label", { defaultValue: "Default" });
+    case "advanced": return t("pages.projectworkspacedetail.advanced.visibility_label", { defaultValue: "Advanced" });
+  }
+}
 
 function isSafeExternalUrl(value: string | null | undefined) {
   if (!value) return false;
@@ -182,28 +213,36 @@ function buildWorkspacePatch(initialState: WorkspaceFormState, nextState: Worksp
   return patch;
 }
 
-function validateWorkspaceForm(form: WorkspaceFormState) {
+function validateWorkspaceForm(form: WorkspaceFormState, t: TranslateFn = translate) {
   const cwd = normalizeText(form.cwd);
   const repoUrl = normalizeText(form.repoUrl);
   const remoteWorkspaceRef = normalizeText(form.remoteWorkspaceRef);
 
   if (form.sourceType === "remote_managed") {
     if (!remoteWorkspaceRef && !repoUrl) {
-      return "Remote-managed workspaces require a remote workspace ref or repo URL.";
+      return t("pages.projectworkspacedetail.remote_workspace_requires_ref_or_repo.error", {
+        defaultValue: "Remote-managed workspaces require a remote workspace ref or repo URL.",
+      });
     }
   } else if (!cwd && !repoUrl) {
-    return "Workspace requires at least one local path or repo URL.";
+    return t("pages.projectworkspacedetail.workspace_requires_path_or_repo.error", {
+      defaultValue: "Workspace requires at least one local path or repo URL.",
+    });
   }
 
   if (cwd && (form.sourceType === "local_path" || form.sourceType === "non_git_path") && !isAbsolutePath(cwd)) {
-    return "Local workspace path must be absolute.";
+    return t("pages.projectworkspacedetail.local_workspace_path_absolute.error", {
+      defaultValue: "Local workspace path must be absolute.",
+    });
   }
 
   if (repoUrl) {
     try {
       new URL(repoUrl);
     } catch {
-      return "Repo URL must be a valid URL.";
+      return t("pages.projectworkspacedetail.repo_url_valid.error", {
+        defaultValue: "Repo URL must be a valid URL.",
+      });
     }
   }
 
@@ -328,12 +367,12 @@ const { t } = useTranslation();
   useEffect(() => {
     if (!project) return;
     setBreadcrumbs([
-      { label: "Projects", href: "/projects" },
+      { label: t("pages.projectworkspacedetail.projects.breadcrumb", { defaultValue: "Projects" }), href: "/projects" },
       { label: project.name, href: `/projects/${canonicalProjectRef}` },
-      { label: "Workspaces", href: `/projects/${canonicalProjectRef}/workspaces` },
+      { label: t("pages.projectworkspacedetail.workspaces.breadcrumb", { defaultValue: "Workspaces" }), href: `/projects/${canonicalProjectRef}/workspaces` },
       { label: workspace?.name ?? routeWorkspaceId },
     ]);
-  }, [setBreadcrumbs, project, canonicalProjectRef, workspace?.name, routeWorkspaceId]);
+  }, [setBreadcrumbs, project, canonicalProjectRef, workspace?.name, routeWorkspaceId, t]);
 
   useEffect(() => {
     if (!project) return;
@@ -418,7 +457,7 @@ const { t } = useTranslation();
   const pendingRuntimeAction = controlRuntimeServices.isPending ? controlRuntimeServices.variables ?? null : null;
 
   const saveChanges = () => {
-    const validationError = validateWorkspaceForm(form);
+    const validationError = validateWorkspaceForm(form, t);
     if (validationError) {
       setErrorMessage(validationError);
       return;
@@ -428,7 +467,7 @@ const { t } = useTranslation();
     updateWorkspace.mutate(patch);
   };
 
-  const sourceTypeDescription = SOURCE_TYPE_OPTIONS.find((option) => option.value === form.sourceType)?.description ?? null;
+  const sourceTypeHelp = sourceTypeDescription(form.sourceType, t);
   const handleTabChange = (tab: ProjectWorkspaceTab) => {
     const workspacePath = projectWorkspaceUrl(project, routeWorkspaceId);
     if (isProjectWorkspacePluginTab(tab)) {
@@ -475,7 +514,12 @@ const { t } = useTranslation();
 
       <Tabs value={activeTab} onValueChange={(value) => handleTabChange(value as ProjectWorkspaceTab)}>
         <PageTabBar
-          items={tabItems.map((item) => ({ value: item.value, label: item.label }))}
+          items={tabItems.map((item) => ({
+            value: item.value,
+            label: item.value.startsWith("plugin:")
+              ? pluginTabItems.find((pluginItem) => pluginItem.value === item.value)?.label ?? item.value
+              : projectWorkspaceTabLabel(item.value as ProjectWorkspaceBaseTab, t),
+          }))}
           align="start"
           value={activeTab}
           onValueChange={(value) => handleTabChange(value as ProjectWorkspaceTab)}
@@ -510,14 +554,14 @@ const { t } = useTranslation();
                   }
                 >
                   {VISIBILITY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>{visibilityLabel(option.value, t)}</option>
                   ))}
                 </select>
               </Field>
             </div>
 
             <div className="mt-4 grid gap-4">
-              <Field label={t("pages.projectworkspacedetail.source_type.attr_label", { defaultValue: "Source type" })} hint={sourceTypeDescription ?? undefined}>
+              <Field label={t("pages.projectworkspacedetail.source_type.attr_label", { defaultValue: "Source type" })} hint={sourceTypeHelp}>
                 <select
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none"
                   value={form.sourceType}
@@ -526,7 +570,7 @@ const { t } = useTranslation();
                   }
                 >
                   {SOURCE_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>{sourceTypeLabel(option.value, t)}</option>
                   ))}
                 </select>
               </Field>
@@ -603,7 +647,7 @@ const { t } = useTranslation();
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label={t("pages.projectworkspacedetail.setup_command.attr_label", { defaultValue: "Setup command" })} hint="Runs when this workspace needs custom bootstrap">
+                <Field label={t("pages.projectworkspacedetail.setup_command.attr_label", { defaultValue: "Setup command" })} hint={t("pages.projectworkspacedetail.runs_when_this_workspace_ne.attr_hint", { defaultValue: "Runs when this workspace needs custom bootstrap" })}>
                   <textarea
                     className="min-h-28 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm outline-none"
                     value={form.setupCommand}
@@ -611,7 +655,7 @@ const { t } = useTranslation();
                     placeholder={t("pages.projectworkspacedetail.pnpm_install_pnpm_dev.attr_placeholder", { defaultValue: "pnpm install && pnpm dev" })}
                   />
                 </Field>
-                <Field label={t("pages.projectworkspacedetail.cleanup_command.attr_label", { defaultValue: "Cleanup command" })} hint="Runs before project-level execution workspace teardown">
+                <Field label={t("pages.projectworkspacedetail.cleanup_command.attr_label", { defaultValue: "Cleanup command" })} hint={t("pages.projectworkspacedetail.runs_before_project_level_e.attr_hint", { defaultValue: "Runs before project-level execution workspace teardown" })}>
                   <textarea
                     className="min-h-28 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm outline-none"
                     value={form.cleanupCommand}
@@ -626,7 +670,7 @@ const { t } = useTranslation();
                 <p className="mt-2 text-sm text-muted-foreground">
                   {t("pages.projectworkspacedetail.paperclip_derives_services_and_j.jsx-text", { defaultValue: "\n                  Paperclip derives Services and Jobs from this JSON. Prefer editing named commands first; use raw JSON for advanced lifecycle, port, readiness, or environment settings.\n                " })}</p>
                 <div className="mt-3">
-                  <Field label={t("pages.projectworkspacedetail.workspace_commands_json.attr_label", { defaultValue: "Workspace commands JSON" })} hint="Execution workspaces inherit this config unless they override it. Legacy `services` arrays still work, but `commands` supports both services and jobs.">
+                  <Field label={t("pages.projectworkspacedetail.workspace_commands_json.attr_label", { defaultValue: "Workspace commands JSON" })} hint={t("pages.projectworkspacedetail.execution_workspaces_inheri.attr_hint", { defaultValue: "Execution workspaces inherit this config unless they override it. Legacy `services` arrays still work, but `commands` supports both services and jobs." })}>
                     <textarea
                       className="min-h-96 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm outline-none"
                       value={form.runtimeConfig}

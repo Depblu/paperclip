@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useParams, useNavigate, Link, Navigate, useBeforeUnload } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -428,16 +429,16 @@ function parseStoredLogContent(content: string): RunLogChunk[] {
   return parsed;
 }
 
-function workspaceOperationPhaseLabel(phase: WorkspaceOperation["phase"]) {
+function workspaceOperationPhaseLabel(phase: WorkspaceOperation["phase"], t: TFunction) {
   switch (phase) {
     case "worktree_prepare":
-      return "Worktree setup";
+      return t("pages.agentdetail.worktree_setup.phase_label", { defaultValue: "Worktree setup" });
     case "workspace_provision":
-      return "Provision";
+      return t("pages.agentdetail.provision.phase_label", { defaultValue: "Provision" });
     case "workspace_teardown":
-      return "Teardown";
+      return t("pages.agentdetail.teardown.phase_label", { defaultValue: "Teardown" });
     case "worktree_cleanup":
-      return "Worktree cleanup";
+      return t("pages.agentdetail.worktree_cleanup.phase_label", { defaultValue: "Worktree cleanup" });
     default:
       return phase;
   }
@@ -567,11 +568,14 @@ const { t } = useTranslation();
           return (
             <div key={operation.id} className="rounded-md border border-border/70 bg-background/70 p-3 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="text-sm font-medium">{workspaceOperationPhaseLabel(operation.phase)}</div>
+                <div className="text-sm font-medium">{workspaceOperationPhaseLabel(operation.phase, t)}</div>
                 <WorkspaceOperationStatusBadge status={operation.status} />
                 <div className="text-[11px] text-muted-foreground">
                   {relativeTime(operation.startedAt)}
-                  {operation.finishedAt && ` to ${relativeTime(operation.finishedAt)}`}
+                  {operation.finishedAt && t("pages.agentdetail.to_relative_time.jsx-text", {
+                    defaultValue: " to {{time}}",
+                    time: relativeTime(operation.finishedAt),
+                  })}
                 </div>
               </div>
               {operation.command && (
@@ -822,7 +826,7 @@ const { t } = useTranslation();
       }
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Action failed");
+      setActionError(err instanceof Error ? err.message : t("pages.agentdetail.action_failed.error", { defaultValue: "Action failed" }));
     },
   });
 
@@ -867,38 +871,38 @@ const { t } = useTranslation();
       }
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Failed to update permissions");
+      setActionError(err instanceof Error ? err.message : t("pages.agentdetail.failed_to_update_permissions.error", { defaultValue: "Failed to update permissions" }));
     },
   });
 
   useEffect(() => {
     const crumbs: { label: string; href?: string }[] = [
-      { label: "Agents", href: "/agents" },
+      { label: t("pages.agentdetail.agents.breadcrumb", { defaultValue: "Agents" }), href: "/agents" },
     ];
-    const agentName = agent?.name ?? routeAgentRef ?? "Agent";
+    const agentName = agent?.name ?? routeAgentRef ?? t("pages.agentdetail.agent.breadcrumb", { defaultValue: "Agent" });
     if (activeView === "dashboard" && !urlRunId) {
       crumbs.push({ label: agentName });
     } else {
       crumbs.push({ label: agentName, href: `/agents/${canonicalAgentRef}/dashboard` });
       if (urlRunId) {
-        crumbs.push({ label: "Runs", href: `/agents/${canonicalAgentRef}/runs` });
+        crumbs.push({ label: t("pages.agentdetail.runs.breadcrumb", { defaultValue: "Runs" }), href: `/agents/${canonicalAgentRef}/runs` });
         crumbs.push({ label: `Run ${urlRunId.slice(0, 8)}` });
       } else if (activeView === "instructions") {
-        crumbs.push({ label: "Instructions" });
+        crumbs.push({ label: t("pages.agentdetail.instructions.breadcrumb", { defaultValue: "Instructions" }) });
       } else if (activeView === "configuration") {
-        crumbs.push({ label: "Configuration" });
+        crumbs.push({ label: t("pages.agentdetail.configuration.breadcrumb", { defaultValue: "Configuration" }) });
       // } else if (activeView === "skills") { // TODO: bring back later
       //   crumbs.push({ label: "Skills" });
       } else if (activeView === "runs") {
-        crumbs.push({ label: "Runs" });
+        crumbs.push({ label: t("pages.agentdetail.runs.breadcrumb", { defaultValue: "Runs" }) });
       } else if (activeView === "budget") {
-        crumbs.push({ label: "Budget" });
+        crumbs.push({ label: t("pages.agentdetail.budget.breadcrumb", { defaultValue: "Budget" }) });
       } else {
-        crumbs.push({ label: "Dashboard" });
+        crumbs.push({ label: t("pages.agentdetail.dashboard.breadcrumb", { defaultValue: "Dashboard" }) });
       }
     }
     setBreadcrumbs(crumbs);
-  }, [setBreadcrumbs, agent, routeAgentRef, canonicalAgentRef, activeView, urlRunId]);
+  }, [setBreadcrumbs, agent, routeAgentRef, canonicalAgentRef, activeView, urlRunId, t]);
 
   useEffect(() => {
     closePanel();
@@ -1043,12 +1047,12 @@ const { t } = useTranslation();
         >
           <PageTabBar
             items={[
-              { value: "dashboard", label: "Dashboard" },
-              { value: "instructions", label: "Instructions" },
-              { value: "skills", label: "Skills" },
-              { value: "configuration", label: "Configuration" },
-              { value: "runs", label: "Runs" },
-              { value: "budget", label: "Budget" },
+              { value: "dashboard", label: t("pages.agentdetail.dashboard.tab_label", { defaultValue: "Dashboard" }) },
+              { value: "instructions", label: t("pages.agentdetail.instructions.tab_label", { defaultValue: "Instructions" }) },
+              { value: "skills", label: t("pages.agentdetail.skills.tab_label", { defaultValue: "Skills" }) },
+              { value: "configuration", label: t("pages.agentdetail.configuration.tab_label", { defaultValue: "Configuration" }) },
+              { value: "runs", label: t("pages.agentdetail.runs.tab_label", { defaultValue: "Runs" }) },
+              { value: "budget", label: t("pages.agentdetail.budget.tab_label", { defaultValue: "Budget" }) },
             ]}
             value={activeView}
             onValueChange={(value) => navigate(`/agents/${canonicalAgentRef}/${value}`)}
@@ -1315,16 +1319,16 @@ const { t } = useTranslation();
 
       {/* Charts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <ChartCard title={t("pages.agentdetail.run_activity.attr_title", { defaultValue: "Run Activity" })} subtitle="Last 14 days">
+        <ChartCard title={t("pages.agentdetail.run_activity.attr_title", { defaultValue: "Run Activity" })} subtitle={t("pages.agentdetail.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
           <RunActivityChart runs={runs} />
         </ChartCard>
-        <ChartCard title={t("pages.agentdetail.tasks_by_priority.attr_title", { defaultValue: "Tasks by Priority" })} subtitle="Last 14 days">
+        <ChartCard title={t("pages.agentdetail.tasks_by_priority.attr_title", { defaultValue: "Tasks by Priority" })} subtitle={t("pages.agentdetail.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
           <PriorityChart issues={assignedIssues} />
         </ChartCard>
-        <ChartCard title={t("pages.agentdetail.tasks_by_status.attr_title", { defaultValue: "Tasks by Status" })} subtitle="Last 14 days">
+        <ChartCard title={t("pages.agentdetail.tasks_by_status.attr_title", { defaultValue: "Tasks by Status" })} subtitle={t("pages.agentdetail.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
           <IssueStatusChart issues={assignedIssues} />
         </ChartCard>
-        <ChartCard title={t("pages.agentdetail.success_rate.attr_title", { defaultValue: "Success Rate" })} subtitle="Last 14 days">
+        <ChartCard title={t("pages.agentdetail.success_rate.attr_title", { defaultValue: "Success Rate" })} subtitle={t("pages.agentdetail.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
           <SuccessRateChart runs={runs} />
         </ChartCard>
       </div>
@@ -1632,8 +1636,8 @@ const { t } = useTranslation();
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Could not save agent";
-      pushToast({ title: "Save failed", body: message, tone: "error" });
+            : t("pages.agentdetail.could_not_save_agent.error", { defaultValue: "Could not save agent" });
+      pushToast({ title: t("pages.agentdetail.save_failed.title", { defaultValue: "Save failed" }), body: message, tone: "error" });
     },
   });
 
@@ -1896,7 +1900,7 @@ const { t } = useTranslation();
 
   const uploadMarkdownImage = useMutation({
     mutationFn: async ({ file, namespace }: { file: File; namespace: string }) => {
-      if (!selectedCompanyId) throw new Error("Select a company to upload images");
+      if (!selectedCompanyId) throw new Error(t("pages.agentdetail.select_company_to_upload_images.error", { defaultValue: "Select a company to upload images" }));
       return assetsApi.uploadImage(selectedCompanyId, file, namespace);
     },
   });
@@ -2414,9 +2418,9 @@ const { t } = useTranslation();
               {!fileLoading && (
                 <CopyText
                   text={displayValue}
-                  ariaLabel="Copy instructions file as markdown"
+                  ariaLabel={t("pages.agentdetail.copy_instructions_file_as.attr_aria-label", { defaultValue: "Copy instructions file as markdown" })}
                   title={t("pages.agentdetail.copy_as_markdown.attr_title", { defaultValue: "Copy as markdown" })}
-                  copiedLabel="Copied"
+                  copiedLabel={t("pages.agentdetail.copied.copy_label", { defaultValue: "Copied" })}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   <Copy className="h-3.5 w-3.5" />
@@ -2715,15 +2719,15 @@ const { t } = useTranslation();
   const skillApplicationLabel = useMemo(() => {
     switch (skillSnapshot?.mode) {
       case "persistent":
-        return "Kept in the workspace";
+        return t("pages.agentdetail.kept_in_workspace.skill_mode", { defaultValue: "Kept in the workspace" });
       case "ephemeral":
-        return "Applied when the agent runs";
+        return t("pages.agentdetail.applied_when_agent_runs.skill_mode", { defaultValue: "Applied when the agent runs" });
       case "unsupported":
-        return "Tracked only";
+        return t("pages.agentdetail.tracked_only.skill_mode", { defaultValue: "Tracked only" });
       default:
-        return "Unknown";
+        return t("pages.agentdetail.unknown.skill_mode", { defaultValue: "Unknown" });
     }
-  }, [skillSnapshot?.mode]);
+  }, [skillSnapshot?.mode, t]);
   const unsupportedSkillMessage = useMemo(() => {
     if (skillSnapshot?.mode !== "unsupported") return null;
     if (
@@ -2731,13 +2735,13 @@ const { t } = useTranslation();
       typeof agent.adapterConfig.agent === "string" &&
       agent.adapterConfig.agent === "custom"
     ) {
-      return "Paperclip cannot manage skills for custom ACP commands yet.";
+      return t("pages.agentdetail.cannot_manage_custom_acp_skills.message", { defaultValue: "Paperclip cannot manage skills for custom ACP commands yet." });
     }
     if (agent.adapterType === "openclaw_gateway") {
-      return "Paperclip cannot manage OpenClaw skills here. Visit your OpenClaw instance to manage this agent's skills.";
+      return t("pages.agentdetail.cannot_manage_openclaw_skills.message", { defaultValue: "Paperclip cannot manage OpenClaw skills here. Visit your OpenClaw instance to manage this agent's skills." });
     }
-    return "Paperclip cannot manage skills for this adapter yet. Manage them in the adapter directly.";
-  }, [agent.adapterConfig.agent, agent.adapterType, skillSnapshot?.mode]);
+    return t("pages.agentdetail.cannot_manage_adapter_skills.message", { defaultValue: "Paperclip cannot manage skills for this adapter yet. Manage them in the adapter directly." });
+  }, [agent.adapterConfig.agent, agent.adapterType, skillSnapshot?.mode, t]);
   const hasUnsavedChanges = !arraysEqual(skillDraft, lastSavedSkills);
   const saveStatusLabel = syncSkills.isPending
     ? "Saving changes..."
@@ -2859,7 +2863,7 @@ const { t } = useTranslation();
                         <span>{checkbox}</span>
                       </TooltipTrigger>
                       <TooltipContent side="top">
-                        {unsupportedSkillMessage ?? "Manage skills in the adapter directly."}
+                        {unsupportedSkillMessage ?? t("pages.agentdetail.manage_skills_in_adapter.tooltip", { defaultValue: "Manage skills in the adapter directly." })}
                       </TooltipContent>
                     </Tooltip>
                   ) : (

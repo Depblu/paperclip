@@ -24,10 +24,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings", href: "/instance/settings/general" },
-      { label: "Access" },
+      { label: t("pages.instanceaccess.instance_settings.breadcrumb", { defaultValue: "Instance Settings" }), href: "/instance/settings/general" },
+      { label: t("pages.instanceaccess.access.breadcrumb", { defaultValue: "Access" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const usersQuery = useQuery({
     queryKey: queryKeys.access.adminUsers(search),
@@ -67,13 +67,13 @@ const { t } = useTranslation();
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.userCompanyAccess(selectedUserId!) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.adminUsers(search) });
-      pushToast({ title: "Company access updated", tone: "success" });
+      pushToast({ title: t("pages.instanceaccess.company_access_updated.title", { defaultValue: "Company access updated" }), tone: "success" });
     },
   });
 
   const setAdminMutation = useMutation({
     mutationFn: async (makeAdmin: boolean) => {
-      if (!selectedUserId) throw new Error("No user selected");
+      if (!selectedUserId) throw new Error(t("pages.instanceaccess.no_user_selected.error", { defaultValue: "No user selected" }));
       if (makeAdmin) return accessApi.promoteInstanceAdmin(selectedUserId);
       return accessApi.demoteInstanceAdmin(selectedUserId);
     },
@@ -82,7 +82,7 @@ const { t } = useTranslation();
       if (selectedUserId) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.access.userCompanyAccess(selectedUserId) });
       }
-      pushToast({ title: "Instance role updated", tone: "success" });
+      pushToast({ title: t("pages.instanceaccess.instance_role_updated.title", { defaultValue: "Instance role updated" }), tone: "success" });
     },
   });
 

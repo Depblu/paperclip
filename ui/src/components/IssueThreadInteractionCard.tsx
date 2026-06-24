@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import type { Agent } from "@paperclipai/shared";
 import { AlertTriangle, CheckCircle2, ChevronRight, CircleDashed, GitBranch, ListChecks, Loader2, MessageSquareQuote, XCircle } from "lucide-react";
 import { Link } from "@/lib/router";
@@ -68,48 +69,49 @@ function resolveActorLabel(args: {
   agentMap?: Map<string, Agent>;
   currentUserId?: string | null;
   userLabelMap?: ReadonlyMap<string, string> | null;
+  t: TFunction;
 }) {
-  const { agentId, userId, agentMap, currentUserId, userLabelMap } = args;
+  const { agentId, userId, agentMap, currentUserId, userLabelMap, t } = args;
   if (agentId) {
     return agentMap?.get(agentId)?.name ?? agentId.slice(0, 8);
   }
   if (userId) {
-    return formatAssigneeUserLabel(userId, currentUserId, userLabelMap) ?? "Board";
+    return formatAssigneeUserLabel(userId, currentUserId, userLabelMap) ?? t("components.issuethreadinteractioncard.board.actor_label", { defaultValue: "Board" });
   }
-  return "Unknown";
+  return t("components.issuethreadinteractioncard.unknown.actor_label", { defaultValue: "Unknown" });
 }
 
-function statusLabel(status: IssueThreadInteraction["status"]) {
+function statusLabel(status: IssueThreadInteraction["status"], t: TFunction) {
   switch (status) {
     case "pending":
-      return "Pending";
+      return t("components.issuethreadinteractioncard.pending.status_label", { defaultValue: "Pending" });
     case "accepted":
-      return "Accepted";
+      return t("components.issuethreadinteractioncard.accepted.status_label", { defaultValue: "Accepted" });
     case "rejected":
-      return "Rejected";
+      return t("components.issuethreadinteractioncard.rejected.status_label", { defaultValue: "Rejected" });
     case "answered":
-      return "Answered";
+      return t("components.issuethreadinteractioncard.answered.status_label", { defaultValue: "Answered" });
     case "cancelled":
-      return "Cancelled";
+      return t("components.issuethreadinteractioncard.cancelled.status_label", { defaultValue: "Cancelled" });
     case "expired":
-      return "Expired";
+      return t("components.issuethreadinteractioncard.expired.status_label", { defaultValue: "Expired" });
     case "failed":
-      return "Failed";
+      return t("components.issuethreadinteractioncard.failed.status_label", { defaultValue: "Failed" });
     default:
       return status;
   }
 }
 
-function interactionKindLabel(kind: IssueThreadInteraction["kind"]) {
+function interactionKindLabel(kind: IssueThreadInteraction["kind"], t: TFunction) {
   switch (kind) {
     case "suggest_tasks":
-      return "Suggested tasks";
+      return t("components.issuethreadinteractioncard.suggested_tasks.kind_label", { defaultValue: "Suggested tasks" });
     case "ask_user_questions":
-      return "Ask user questions";
+      return t("components.issuethreadinteractioncard.ask_user_questions.kind_label", { defaultValue: "Ask user questions" });
     case "request_confirmation":
-      return "Confirmation";
+      return t("components.issuethreadinteractioncard.confirmation.kind_label", { defaultValue: "Confirmation" });
     case "request_checkbox_confirmation":
-      return "Checkbox confirmation";
+      return t("components.issuethreadinteractioncard.checkbox_confirmation.kind_label", { defaultValue: "Checkbox confirmation" });
     default:
       return kind;
   }
@@ -230,6 +232,7 @@ const { t } = useTranslation();
     agentMap,
     currentUserId,
     userLabelMap,
+    t,
   });
   const hasExplicitAssignee = Boolean(
     node.task.assigneeAgentId || node.task.assigneeUserId,
@@ -971,11 +974,14 @@ const { t } = useTranslation();
   );
 }
 
-function requestConfirmationTargetLabel(target: RequestConfirmationTarget) {
+function requestConfirmationTargetLabel(target: RequestConfirmationTarget, t: ReturnType<typeof useTranslation>["t"]) {
   if (target.label) return target.label;
   const revision = target.revisionNumber ? ` v${target.revisionNumber}` : "";
   if (target.type === "issue_document" && target.key === "plan") {
-    return `Plan${revision}`;
+    return t("components.issuethreadinteractioncard.plan_revision", {
+      revision,
+      defaultValue: "Plan{{revision}}",
+    });
   }
   return `${target.key}${revision}`;
 }
@@ -1004,7 +1010,7 @@ const { t } = useTranslation();
   const content = (
     <>
       <GitBranch className="h-3 w-3 shrink-0" />
-      <span className="min-w-0 truncate">{requestConfirmationTargetLabel(target)}</span>
+      <span className="min-w-0 truncate">{requestConfirmationTargetLabel(target, t)}</span>
     </>
   );
 
@@ -1199,7 +1205,7 @@ const { t } = useTranslation();
     try {
       await onAcceptInteraction(interaction);
     } catch {
-      setActionError("Try again");
+      setActionError(t("components.issuethreadinteractioncard.try_again.error", { defaultValue: "Try again" }));
     } finally {
       setWorking(null);
     }
@@ -1214,7 +1220,7 @@ const { t } = useTranslation();
       await onRejectInteraction(interaction, trimmedRejectReason || undefined);
       setRejecting(false);
     } catch {
-      setActionError("Try again");
+      setActionError(t("components.issuethreadinteractioncard.try_again.error", { defaultValue: "Try again" }));
     } finally {
       setWorking(null);
     }
@@ -1572,7 +1578,7 @@ const { t } = useTranslation();
     try {
       await onAcceptInteraction(interaction, undefined, [...selectedOptionIds]);
     } catch {
-      setActionError("Try again");
+      setActionError(t("components.issuethreadinteractioncard.try_again.error", { defaultValue: "Try again" }));
     } finally {
       setWorking(null);
     }
@@ -1587,7 +1593,7 @@ const { t } = useTranslation();
       await onRejectInteraction(interaction, trimmedRejectReason || undefined);
       setRejecting(false);
     } catch {
-      setActionError("Try again");
+      setActionError(t("components.issuethreadinteractioncard.try_again.error", { defaultValue: "Try again" }));
     } finally {
       setWorking(null);
     }
@@ -1781,6 +1787,7 @@ const { t } = useTranslation();
     agentMap,
     currentUserId,
     userLabelMap,
+    t,
   });
   const resolvedByLabel =
     interaction.resolvedByAgentId || interaction.resolvedByUserId
@@ -1790,6 +1797,7 @@ const { t } = useTranslation();
           agentMap,
           currentUserId,
           userLabelMap,
+          t,
         })
       : null;
 
@@ -1800,17 +1808,17 @@ const { t } = useTranslation();
           <div className="flex flex-wrap items-center gap-2">
             <span className={cn("inline-flex items-center gap-1 rounded-sm border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", styles.badge)}>
               <StatusIcon className="h-3.5 w-3.5" />
-              {interactionKindLabel(interaction.kind)}
+              {interactionKindLabel(interaction.kind, t)}
               <span className="text-current/60">/</span>
-              {statusLabel(interaction.status)}
+              {statusLabel(interaction.status, t)}
             </span>
             {interaction.continuationPolicy === "wake_assignee"
               || interaction.continuationPolicy === "wake_assignee_on_accept" ? (
               <span className="inline-flex items-center gap-1 rounded-sm border border-border/70 bg-transparent px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-foreground/70">
                 <ListChecks className="h-3.5 w-3.5" />
                 {interaction.continuationPolicy === "wake_assignee_on_accept"
-                  ? "Wakes on confirm"
-                  : "Wakes assignee"}
+                  ? t("components.issuethreadinteractioncard.wakes_on_confirm.jsx-text", { defaultValue: "Wakes on confirm" })
+                  : t("components.issuethreadinteractioncard.wakes_assignee.jsx-text", { defaultValue: "Wakes assignee" })}
               </span>
             ) : null}
           </div>

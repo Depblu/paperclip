@@ -14,6 +14,7 @@ import {
   issueFilterLabel,
   issuePriorityOrder,
   issueQuickFilterPresets,
+  issueQuickFilterPresetLabel,
   issueStatusOrder,
   toggleIssueFilterValue,
   type IssueFilterState,
@@ -151,7 +152,7 @@ const { t } = useTranslation();
                 const isActive = issueFilterArraysEqual(state.statuses, preset.statuses);
                 return (
                   <button
-                    key={preset.label}
+                    key={preset.id}
                     type="button"
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                       isActive
@@ -160,7 +161,7 @@ const { t } = useTranslation();
                     }`}
                     onClick={() => onChange({ statuses: isActive ? [] : [...preset.statuses] })}
                   >
-                    {preset.label}
+                    {issueQuickFilterPresetLabel(preset.id, t)}
                   </button>
                 );
               })}
@@ -181,7 +182,7 @@ const { t } = useTranslation();
                         onCheckedChange={() => onChange({ statuses: toggleIssueFilterValue(state.statuses, status) })}
                       />
                       <StatusIcon status={status} />
-                      <span className="text-sm">{issueFilterLabel(status)}</span>
+                      <span className="text-sm">{issueFilterLabel(status, t)}</span>
                     </label>
                   ))}
                 </div>
@@ -197,7 +198,7 @@ const { t } = useTranslation();
                         onCheckedChange={() => onChange({ priorities: toggleIssueFilterValue(state.priorities, priority) })}
                       />
                       <PriorityIcon priority={priority} />
-                      <span className="text-sm">{issueFilterLabel(priority)}</span>
+                      <span className="text-sm">{issueFilterLabel(priority, t)}</span>
                     </label>
                   ))}
                 </div>

@@ -244,8 +244,8 @@ const { t } = useTranslation();
   const [routineViewState, setRoutineViewState] = useState<RoutineViewState>(() => getRoutineViewState(routineViewStateKey));
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Routines" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.routines.routines.breadcrumb", { defaultValue: "Routines" }) }]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     setRoutineViewState(getRoutineViewState(routineViewStateKey));
@@ -313,10 +313,10 @@ const { t } = useTranslation();
       setAdvancedOpen(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.routines.list(selectedCompanyId!) });
       pushToast({
-        title: "Routine created",
+        title: t("pages.routines.routine_created.title", { defaultValue: "Routine created" }),
         body: routine.assigneeAgentId
-          ? "Add the first trigger to turn it into a live workflow."
-          : "Draft saved. Add a default agent before enabling automation.",
+          ? t("pages.routines.add_first_trigger.body", { defaultValue: "Add the first trigger to turn it into a live workflow." })
+          : t("pages.routines.draft_saved_add_default_agent.body", { defaultValue: "Draft saved. Add a default agent before enabling automation." }),
         tone: "success",
       });
       navigate(`/routines/${routine.id}?tab=triggers`);
@@ -346,8 +346,8 @@ const { t } = useTranslation();
     },
     onError: (mutationError) => {
       pushToast({
-        title: "Failed to update routine",
-        body: mutationError instanceof Error ? mutationError.message : "Paperclip could not update the routine.",
+        title: t("pages.routines.failed_to_update_routine.title", { defaultValue: "Failed to update routine" }),
+        body: mutationError instanceof Error ? mutationError.message : t("pages.routines.could_not_update_routine.error", { defaultValue: "Paperclip could not update the routine." }),
         tone: "error",
       });
     },
@@ -381,8 +381,8 @@ const { t } = useTranslation();
     },
     onError: (mutationError) => {
       pushToast({
-        title: "Routine run failed",
-        body: mutationError instanceof Error ? mutationError.message : "Paperclip could not start the routine run.",
+        title: t("pages.routines.routine_run_failed.title", { defaultValue: "Routine run failed" }),
+        body: mutationError instanceof Error ? mutationError.message : t("pages.routines.could_not_start_routine_run.error", { defaultValue: "Paperclip could not start the routine run." }),
         tone: "error",
       });
     },
@@ -466,8 +466,8 @@ const { t } = useTranslation();
   function handleToggleEnabled(routine: RoutineListItem, enabled: boolean) {
     if (!enabled && !routine.assigneeAgentId) {
       pushToast({
-        title: "Default agent required",
-        body: "Set a default agent before enabling routine automation.",
+        title: t("pages.routines.default_agent_required.title", { defaultValue: "Default agent required" }),
+        body: t("pages.routines.set_default_agent_before_enabling.body", { defaultValue: "Set a default agent before enabling routine automation." }),
         tone: "warn",
       });
       return;
@@ -486,7 +486,7 @@ const { t } = useTranslation();
   }
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Repeat} message="Select a company to view routines." />;
+    return <EmptyState icon={Repeat} message={t("pages.routines.select_a_company_to_view_rout.jsx-text", { defaultValue: "Select a company to view routines." })} />;
   }
 
   if (isLoading) {
@@ -513,14 +513,18 @@ const { t } = useTranslation();
           value={activeTab}
           onValueChange={handleTabChange}
           items={[
-            { value: "routines", label: "Routines" },
-            { value: "runs", label: "Recent Runs" },
+            { value: "routines", label: t("pages.routines.routines.tab_label", { defaultValue: "Routines" }) },
+            { value: "runs", label: t("pages.routines.recent_runs.tab_label", { defaultValue: "Recent Runs" }) },
           ]}
         />
         <TabsContent value="routines" className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
-              {visibleRoutines.length} {t("pages.routines.routine.jsx-text", { defaultValue: " routine" })}{visibleRoutines.length === 1 ? "" : "s"}
+              {t("pages.routines.routine_count.label", {
+                count: visibleRoutines.length,
+                defaultValue: "{{count}} routine",
+                defaultValue_plural: "{{count}} routines",
+              })}
             </p>
             <div className="flex items-center gap-1">
               <Popover>
@@ -867,7 +871,7 @@ const { t } = useTranslation();
       {error ? (
         <Card>
           <CardContent className="pt-6 text-sm text-destructive">
-            {error instanceof Error ? error.message : "Failed to load routines"}
+            {error instanceof Error ? error.message : t("pages.routines.failed_to_load_routines.jsx-text", { defaultValue: "Failed to load routines" })}
           </CardContent>
         </Card>
       ) : null}
@@ -878,7 +882,7 @@ const { t } = useTranslation();
             <div className="py-12">
               <EmptyState
                 icon={Repeat}
-                message="No active routines. Use Create routine to define the first recurring workflow."
+                message={t("pages.routines.no_active_routines_use_create.jsx-text", { defaultValue: "No active routines. Use Create routine to define the first recurring workflow." })}
               />
             </div>
           ) : (

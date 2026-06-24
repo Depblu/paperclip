@@ -66,7 +66,9 @@
     "saved": "已保存",
     "noResults": "无结果",
     "showMore": "展开更多",
-    "showLess": "收起"
+    "showLess": "收起",
+    "unknown_error": "未知错误",
+    "unknown": "未知"
   },
   "account": {
     "openMenu": "打开账号菜单",
@@ -156,7 +158,10 @@
     "inHours_one": "{{count}} 小时后",
     "inHours_other": "{{count}} 小时后",
     "inDays_one": "{{count}} 天后",
-    "inDays_other": "{{count}} 天后"
+    "inDays_other": "{{count}} 天后",
+    "minutesAgo": "{{count}} 分钟前",
+    "hoursAgo": "{{count}} 小时前",
+    "daysAgo": "{{count}} 天前"
   },
   "errors": {
     "generic": "出现错误。",
@@ -205,11 +210,53 @@
       },
       "paperclip_now_separates_request_": {
         "jsx-text": "\n          Paperclip now separates request-level inference usage from account-level finance events. That keeps provider reporting honest when the biller is OpenRouter, Cloudflare, Bedrock, or another intermediary.\n        "
+      },
+      "inference": {
+        "title": "推理账本",
+        "description": "来自 cost_events 的请求级用量和计费运行。",
+        "tokens": {
+          "point": "token + 计费金额"
+        },
+        "provider": {
+          "point": "provider、biller、model"
+        },
+        "subscription": {
+          "point": "识别订阅与超额用量"
+        }
+      },
+      "finance": {
+        "title": "财务账本",
+        "description": "非单次提示-响应对应的账户级费用。",
+        "topups": {
+          "point": "充值、退款、费用"
+        },
+        "bedrock": {
+          "point": "Bedrock 预置或训练费用"
+        },
+        "credit": {
+          "point": "额度到期与调整"
+        }
+      },
+      "quotas": {
+        "title": "实时配额",
+        "description": "可实时阻断流量的 provider 或 biller 窗口。",
+        "provider": {
+          "point": "provider 配额窗口"
+        },
+        "biller": {
+          "point": "biller 额度系统"
+        },
+        "errors": {
+          "point": "直接暴露错误"
+        }
       }
     },
     "activeagentspanel": {
       "more_active_recent_run": {
         "jsx-text": " more active/recent run"
+      },
+      "open_source_task_to_act": {
+        "title": "{{label}} - 打开来源任务处理。"
       }
     },
     "activitycharts": {
@@ -240,7 +287,7 @@
         "jsx-text": "Click \"Copy as path\"."
       },
       "click_copy_lt_folder_name_gt_as_": {
-        "jsx-text": "Click \"Copy &lt;folder name&gt; as Pathname\"."
+        "jsx-text": "Click \"Copy <folder name> as Pathname\"."
       },
       "copy_the_output_and_paste_it_int": {
         "jsx-text": "Copy the output and paste it into the path input."
@@ -300,6 +347,22 @@
       },
       "terminate": {
         "jsx-text": "\n            Terminate\n          "
+      },
+      "action_failed": {
+        "title": "操作失败",
+        "error": "操作失败"
+      },
+      "agent_not_ready_to_duplicate": {
+        "error": "agent 尚未准备好复制"
+      },
+      "agent_duplicated": {
+        "title": "agent 已复制"
+      },
+      "failed_to_duplicate_agent": {
+        "error": "复制 agent 失败"
+      },
+      "could_not_duplicate_agent": {
+        "title": "无法复制 agent"
       }
     },
     "agentconfigform": {
@@ -316,7 +379,7 @@
         "attr_placeholder": "代理名称"
       },
       "bootstrap_prompt_is_legacy_and_w": {
-        "jsx-text": "\n                    Bootstrap prompt is legacy and will be removed in a future release. Consider moving this content into the agent&apos;s prompt template or instructions file instead.\n                  "
+        "jsx-text": "\n                    Bootstrap prompt is legacy and will be removed in a future release. Consider moving this content into the agent's prompt template or instructions file instead.\n                  "
       },
       "bootstrap_prompt_legacy": {
         "attr_label": "Bootstrap prompt (legacy)"
@@ -418,7 +481,7 @@
         "attr_placeholder": "Optional initial setup prompt for the first run"
       },
       "permissions_amp_configuration": {
-        "jsx-text": "Permissions &amp; Configuration"
+        "jsx-text": "Permissions & Configuration"
       },
       "primary_model": {
         "jsx-text": "Primary model"
@@ -461,6 +524,66 @@
       },
       "you_are_agent_agent_name_your_ro": {
         "attr_placeholder": "You are agent {{ agent.name }}. Your role is {{ agent.role }}..."
+      },
+      "name": {
+        "attr_label": "名称"
+      },
+      "agent_level_default_executi": {
+        "attr_hint": "agent 级默认执行目标。Project 和 task 设置仍可覆盖。"
+      },
+      "choose_manager": {
+        "choose_label": "选择 manager…"
+      },
+      "path_to_project": {
+        "attr_placeholder": "/path/to/project"
+      },
+      "auto": {
+        "option_label": "自动"
+      },
+      "minimal": {
+        "option_label": "Minimal"
+      },
+      "low": {
+        "option_label": "低"
+      },
+      "medium": {
+        "option_label": "中"
+      },
+      "high": {
+        "option_label": "高"
+      },
+      "xhigh": {
+        "option_label": "X-High"
+      },
+      "max": {
+        "option_label": "最大"
+      },
+      "plan": {
+        "option_label": "Plan"
+      },
+      "ask": {
+        "option_label": "Ask"
+      },
+      "passed": {
+        "status_label": "通过"
+      },
+      "warnings": {
+        "status_label": "警告"
+      },
+      "failed": {
+        "status_label": "失败"
+      },
+      "select_company_to_create_secrets": {
+        "error": "请选择公司后再创建密钥"
+      },
+      "select_company_to_upload_images": {
+        "error": "请选择公司后再上传图片"
+      },
+      "select_company_to_detect_model": {
+        "error": "请选择公司后再检测模型"
+      },
+      "select_company_to_test_adapter_environment": {
+        "error": "请选择公司后再测试适配器环境"
       }
     },
     "agenticonpicker": {
@@ -479,22 +602,39 @@
         "attr_label": "已创建"
       },
       "last_error": {
-        "attr_label": "Last error"
+        "attr_label": "上次错误"
       },
       "last_heartbeat": {
         "attr_label": "上次心跳"
       },
       "reports_to": {
-        "attr_label": "Reports To"
+        "attr_label": "汇报对象"
       },
       "session": {
-        "attr_label": "Session"
+        "attr_label": "会话"
       },
       "status": {
         "attr_label": "状态"
       },
       "title": {
         "attr_label": "标题"
+      },
+      "role": {
+        "attr_label": "角色"
+      },
+      "roles": {
+        "ceo": "CEO",
+        "cto": "CTO",
+        "cmo": "CMO",
+        "cfo": "CFO",
+        "security": "安全",
+        "engineer": "工程师",
+        "designer": "设计师",
+        "pm": "产品经理",
+        "qa": "质量保证",
+        "devops": "运维",
+        "researcher": "研究员",
+        "general": "通用"
       }
     },
     "approvalcard": {
@@ -557,6 +697,12 @@
       },
       "window": {
         "attr_label": "Window"
+      },
+      "name": {
+        "jsx-text": "名称"
+      },
+      "role": {
+        "attr_label": "角色"
       }
     },
     "artifactcard": {
@@ -672,6 +818,18 @@
       },
       "you_re_the_instance_admin": {
         "jsx-text": "You're the instance admin"
+      },
+      "already_claimed": {
+        "title": "其他人已认领此实例。"
+      },
+      "refresh_or_ask_admin": {
+        "body": "刷新后登录，或请现有管理员在实例设置 -> 访问权限中邀请你。"
+      },
+      "server_unreachable": {
+        "title": "无法连接服务器，请稍后重试。"
+      },
+      "session_expired": {
+        "title": "会话已过期。请重新登录后认领此实例。"
       }
     },
     "breadcrumb": {
@@ -705,6 +863,21 @@
       },
       "the_new_budget_must_exceed_curre": {
         "jsx-text": "\n              The new budget must exceed current observed spend.\n            "
+      },
+      "resolved": {
+        "status_label": "已解决"
+      },
+      "dismissed": {
+        "status_label": "已忽略"
+      },
+      "escalated": {
+        "status_label": "已升级"
+      },
+      "pending_approval": {
+        "status_label": "等待审批"
+      },
+      "open": {
+        "status_label": "打开"
       }
     },
     "budgetpolicycard": {
@@ -736,7 +909,8 @@
       },
       "used": {
         "jsx-text": "% used\n                  "
-      }
+      },
+      "resets_at": "{{formatted}} 重置"
     },
     "cloudaccessgate": {
       "loading": {
@@ -767,7 +941,8 @@
       },
       "used": {
         "jsx-text": "% used\n        "
-      }
+      },
+      "resets_at": "{{formatted}} 重置"
     },
     "command": {
       "close": {
@@ -803,7 +978,7 @@
         "jsx-text": "\n            Inbox\n          "
       },
       "ldquo": {
-        "jsx-text": "&ldquo;"
+        "jsx-text": "\""
       },
       "no_quick_task_matches_press": {
         "jsx-text": "\n             无 quick task matches. Press"
@@ -818,7 +993,7 @@
         "jsx-text": "\n            Projects\n          "
       },
       "rdquo": {
-        "jsx-text": "&rdquo;"
+        "jsx-text": "\""
       },
       "search_all_for": {
         "jsx-text": "\n                搜索全部 for "
@@ -885,6 +1060,24 @@
       },
       "workspace": {
         "jsx-text": "\n              Workspace\n            "
+      },
+      "none": {
+        "value_label": "无"
+      },
+      "board": {
+        "actor_label": "看板"
+      },
+      "unassigned": {
+        "assignee_label": "未分配"
+      },
+      "system": {
+        "actor_label": "系统"
+      },
+      "requested_follow_up": {
+        "action_label": "请求跟进"
+      },
+      "updated_this_task": {
+        "action_label": "更新了此任务"
       }
     },
     "companysettingssidebar": {
@@ -954,7 +1147,21 @@
       },
       "waiting_for": {
         "jsx-text": "Waiting for "
-      }
+      },
+      "just_now": "刚刚",
+      "minutes_ago": "{{count}} 分钟前",
+      "hours_ago": "{{count}} 小时前",
+      "days_ago": "{{count}} 天前",
+      "reason_backend_changes_and_pending_migrations": "后端文件已变更，且存在待执行迁移",
+      "reason_pending_migrations": "待执行迁移需要重新启动",
+      "reason_backend_changes": "此服务启动后后端文件已变更",
+      "live_run_count": "{{count}} 个实时 run",
+      "restart_interrupt_confirm": "现在重启 Paperclip？这可能会中断 {{activeRunLabel}}。",
+      "restart_confirm": "现在重启 Paperclip？",
+      "failed_to_request_restart": "请求重启失败",
+      "updated_at": " · {{changedAt}} 更新",
+      "more_count": " +{{count}} 个更多",
+      "live_run_count_plural": "{{count}} 个 live run"
     },
     "dialog": {
       "close": {
@@ -1020,6 +1227,24 @@
       },
       "write_a_comment": {
         "attr_placeholder": "Write a comment…"
+      },
+      "open": {
+        "status_label": "开放"
+      },
+      "resolved": {
+        "status_label": "已解决"
+      },
+      "stale": {
+        "status_label": "过期"
+      },
+      "orphaned": {
+        "status_label": "孤立"
+      },
+      "no_selection_to_anchor": {
+        "error": "没有可锚定的选区。"
+      },
+      "document_has_no_revision": {
+        "error": "文档还没有修订版本。"
       }
     },
     "documentdiffmodal": {
@@ -1046,7 +1271,11 @@
       },
       "select_two_revisions_to_compare": {
         "jsx-text": "Select two revisions to compare."
-      }
+      },
+      "actor_board": "看板",
+      "actor_agent": "agent",
+      "actor_system": "系统",
+      "revision_label": "rev {{revisionNumber}} — {{time}} • {{actor}}"
     },
     "envvareditor": {
       "": {
@@ -1172,6 +1401,21 @@
       },
       "workspace_path": {
         "jsx-text": "Workspace path: "
+      },
+      "retry_close": {
+        "action": "重试关闭"
+      },
+      "close_workspace": {
+        "action": "关闭 workspace"
+      },
+      "workspace_close_retried": {
+        "title": "Workspace 关闭已重试"
+      },
+      "workspace_closed": {
+        "title": "Workspace 已关闭"
+      },
+      "failed_to_close_workspace": {
+        "title": "关闭 workspace 失败"
       }
     },
     "filetree": {
@@ -1180,6 +1424,42 @@
       },
       "retry": {
         "jsx-text": "\n              Retry\n            "
+      },
+      "name": {
+        "frontmatter_label": "名称"
+      },
+      "title": {
+        "frontmatter_label": "标题"
+      },
+      "kind": {
+        "frontmatter_label": "类型"
+      },
+      "reports_to": {
+        "frontmatter_label": "汇报给"
+      },
+      "skills": {
+        "frontmatter_label": "技能"
+      },
+      "status": {
+        "frontmatter_label": "状态"
+      },
+      "description": {
+        "frontmatter_label": "描述"
+      },
+      "priority": {
+        "frontmatter_label": "优先级"
+      },
+      "assignee": {
+        "frontmatter_label": "承接人"
+      },
+      "project": {
+        "frontmatter_label": "项目"
+      },
+      "recurring": {
+        "frontmatter_label": "周期"
+      },
+      "target_date": {
+        "frontmatter_label": "目标日期"
       }
     },
     "filterbar": {
@@ -1436,7 +1716,8 @@
       },
       "work_on_this_task_is_blocked_unt": {
         "jsx-text": "Work on this task is blocked until it is moved back to todo. Comments still wake the assignee for questions or triage."
-      }
+      },
+      "recovery_indicator_title": "{{label}} — 打开源任务进行处理。"
     },
     "issuechatthread": {
       "": {
@@ -1611,7 +1892,36 @@
         "jsx-text": "\n              Workspace\n            "
       },
       "you_can_change_this_later_in_ins": {
-        "jsx-text": "You can change this later in Instance Settings &gt; General."
+        "jsx-text": "You can change this later in Instance Settings > General."
+      },
+      "agent": {
+        "author_label": "Agent"
+      },
+      "you": {
+        "author_label": "你"
+      },
+      "system": {
+        "author_label": "系统"
+      },
+      "none": {
+        "value_label": "无"
+      },
+      "board": {
+        "actor_label": "看板"
+      },
+      "unassigned": {
+        "assignee_label": "未分配"
+      },
+      "ran_commands": "运行 {{count}} 条命令",
+      "called_tools": "调用 {{count}} 个工具",
+      "working": "工作中",
+      "worked": "已工作",
+      "for_duration": "持续 {{duration}}",
+      "no_assignee_selected": {
+        "title": "未选择承接人"
+      },
+      "pick_assignee_or_send_again": {
+        "body": "请选择承接人，或再次点击发送以无承接人发布。"
       }
     },
     "issuecolumns": {
@@ -1641,7 +1951,8 @@
       },
       "unassigned": {
         "jsx-text": "\n              Unassigned\n            "
-      }
+      },
+      "updated_time_ago": "{{time}} 更新"
     },
     "issuecontinuationhandoff": {
       "handoff": {
@@ -1736,6 +2047,42 @@
       },
       "viewing_revision": {
         "jsx-text": "\n                            Viewing revision "
+      },
+      "failed_to_delete_document": {
+        "error": "删除文档失败"
+      },
+      "failed_to_restore_revision": {
+        "error": "恢复文档修订失败"
+      },
+      "failed_to_update_lock": {
+        "error": "更新文档锁失败"
+      },
+      "key_and_body_required": {
+        "error": "文档 key 和正文必填"
+      },
+      "body_cannot_be_empty": {
+        "error": "文档正文不能为空"
+      },
+      "invalid_document_key": {
+        "error": "文档 key 必须以字母或数字开头，且只能使用小写字母、数字、- 或 _。"
+      },
+      "document_locked": {
+        "error": "文档已锁定。编辑前请先解锁。"
+      },
+      "remote_changed_load_failed": {
+        "error": "文档已在远端变更，且无法加载最新版本"
+      },
+      "failed_to_save_document": {
+        "error": "保存文档失败"
+      },
+      "could_not_copy_document": {
+        "error": "无法复制文档"
+      },
+      "save_or_cancel_before_revision": {
+        "error": "查看旧修订前，请先保存或取消本地更改。"
+      },
+      "save_or_cancel_before_lock": {
+        "error": "更改文档锁前，请先保存或取消本地更改。"
       }
     },
     "issuefilterspopover": {
@@ -1793,7 +2140,7 @@
     },
     "issuelinkquicklook": {
       "middot": {
-        "jsx-text": "&middot;"
+        "jsx-text": "·"
       },
       "unable_to_load_task_preview": {
         "jsx-text": "Unable to load task preview."
@@ -1886,7 +2233,8 @@
         "jsx-text": " as a blocker for this task.\n            "
       },
       "assign_to_me": {
-        "jsx-text": "\n            Assign to me\n          "
+        "jsx-text": "\n            Assign to me\n          ",
+        "option_label": "分配给我"
       },
       "assignee": {
         "attr_label": "Assignee"
@@ -1927,10 +2275,12 @@
         "attr_label": "已创建"
       },
       "custom": {
-        "jsx-text": "\n          Custom"
+        "jsx-text": "\n          Custom",
+        "lane_label": "自定义"
       },
       "default_model": {
-        "attr_placeholder": "Default model"
+        "attr_placeholder": "Default model",
+        "option_label": "默认模型"
       },
       "depth": {
         "attr_label": "Depth"
@@ -2037,7 +2387,8 @@
         "jsx-text": "\n            Schedule\n          "
       },
       "scheduled_retry": {
-        "attr_label": "Scheduled retry"
+        "attr_label": "Scheduled retry",
+        "jsx-text": "已计划重试"
       },
       "search_assignees": {
         "attr_placeholder": "Search assignees..."
@@ -2082,7 +2433,7 @@
         "attr_label": "已更新"
       },
       "uses_the_agent_apos_s_configured": {
-        "jsx-text": "· uses the agent&apos;s configured cheap profile"
+        "jsx-text": "· uses the agent's configured cheap profile"
       },
       "view_workspace": {
         "jsx-text": "\n                 查看 workspace\n                  "
@@ -2092,6 +2443,130 @@
       },
       "workspace": {
         "attr_label": "Workspace"
+      },
+      "next_check_date": {
+        "monitor_label": "下次检查 {{date}}"
+      },
+      "cleared": {
+        "monitor_label": "已清除"
+      },
+      "last_triggered": {
+        "monitor_label": "上次触发 {{time}}"
+      },
+      "not_scheduled": {
+        "monitor_label": "未计划"
+      },
+      "next_check_offset": {
+        "monitor_label": "下次检查 {{offset}}"
+      },
+      "pending_schedule": {
+        "retry_label": "等待计划"
+      },
+      "continuation_due_now": {
+        "retry_label": "续跑现在到期"
+      },
+      "retry_due_now": {
+        "retry_label": "重试现在到期"
+      },
+      "continuation_offset": {
+        "retry_label": "续跑 {{offset}}"
+      },
+      "retry_offset": {
+        "retry_label": "重试 {{offset}}"
+      },
+      "scheduled_continuation": {
+        "jsx-text": "已计划续跑"
+      },
+      "already_promoted": {
+        "jsx-text": "已提升"
+      },
+      "promoted": {
+        "jsx-text": "已提升"
+      },
+      "promoting_scheduled_retry": {
+        "status_text": "正在提升计划重试"
+      },
+      "already_promoted_run_start": {
+        "status_text": "已提升，run 正在启动"
+      },
+      "promoted_run_starting": {
+        "status_text": "已提升，run 正在启动"
+      },
+      "pulls_continuation_forward": {
+        "status_text": "立即提前续跑"
+      },
+      "pulls_retry_forward_immed": {
+        "status_text": "立即提前重试"
+      },
+      "run_review_now": {
+        "action": "立即运行 review"
+      },
+      "run_approval_now": {
+        "action": "立即运行 approval"
+      },
+      "review_stage": "Review",
+      "approval_stage": "Approval",
+      "stage_requested_changes_by": "{{stage}} 请求 {{participant}} 修改",
+      "stage_requested_changes": "{{stage}} 请求修改",
+      "stage_pending_with": "{{stage}} 等待 {{participant}}",
+      "stage_pending": "{{stage}} 待处理",
+      "default": {
+        "option_label": "默认"
+      },
+      "minimal": {
+        "option_label": "Minimal"
+      },
+      "low": {
+        "option_label": "低"
+      },
+      "medium": {
+        "option_label": "中"
+      },
+      "high": {
+        "option_label": "高"
+      },
+      "xhigh": {
+        "option_label": "X-High"
+      },
+      "max": {
+        "option_label": "最大"
+      },
+      "no_assignee": {
+        "option_label": "无承接人"
+      },
+      "primary": {
+        "lane_label": "主模型"
+      },
+      "cheap": {
+        "lane_label": "低成本"
+      },
+      "search_models": {
+        "placeholder": "搜索模型..."
+      },
+      "no_models_found": {
+        "empty": "未找到模型。"
+      },
+      "assign_to_user": {
+        "option_label": "分配给 {{user}}"
+      },
+      "assign_to_requester": {
+        "option_label": "分配给请求者"
+      },
+      "requester": {
+        "search_text": "请求者",
+        "option_label": "请求者"
+      },
+      "search_reviewers": {
+        "placeholder": "搜索 reviewer..."
+      },
+      "search_approvers": {
+        "placeholder": "搜索 approver..."
+      },
+      "no_reviewers": {
+        "option_label": "无 reviewer"
+      },
+      "no_approvers": {
+        "option_label": "无 approver"
       }
     },
     "issuerecoveryactioncard": {
@@ -2161,6 +2636,79 @@
       },
       "wake": {
         "attr_label": "Wake"
+      },
+      "corrective_wake_queued": {
+        "policy_summary": "纠正唤醒已入队"
+      },
+      "escalated_to_board": {
+        "policy_summary": "已升级到看板"
+      },
+      "manual": {
+        "policy_summary": "手动"
+      },
+      "manual_repair_required": {
+        "policy_summary": "需要手动修复"
+      },
+      "monitor_scheduled_with_interval": {
+        "policy_summary": "监控已计划 · {{interval}}"
+      },
+      "monitor_scheduled": {
+        "policy_summary": "监控已计划"
+      },
+      "outcome_restored": "已恢复",
+      "outcome_delegated": "已委派给后续任务",
+      "outcome_false_positive": "误报",
+      "outcome_blocked": "已阻塞",
+      "outcome_escalated": "已升级",
+      "outcome_cancelled": "已取消",
+      "kind_headline_missing_disposition": "此任务的 run 已结束，但尚未选择下一步。",
+      "kind_headline_stranded_assigned_issue": "Paperclip 已重试此任务的上一次 run，但它仍没有活跃执行路径。",
+      "kind_headline_workspace_validation": "任务 git workspace 校验失败，Paperclip 已停止此 run。",
+      "kind_headline_active_run_watchdog": "活跃 run 已静默。Recovery 正在观察，不会中断它。",
+      "kind_headline_issue_graph_liveness": "Paperclip 检测到此任务丢失活跃动作路径。Recovery owner 需要处理。",
+      "recovery_resolved_as": "Recovery 已按 {{outcome}} 解决。",
+      "kind_label_missing_disposition": "缺少处置",
+      "kind_label_stranded_assigned_issue": "滞留任务",
+      "kind_label_workspace_validation": "Workspace 校验",
+      "kind_label_active_run_watchdog": "活跃 Watchdog",
+      "kind_label_issue_graph_liveness": "任务图存活性",
+      "recovery_needed": {
+        "state_label": "需要 RECOVERY"
+      },
+      "recovery_in_progress": {
+        "state_label": "RECOVERY 进行中"
+      },
+      "observing_active_run": {
+        "state_label": "正在观察活跃 RUN"
+      },
+      "recovery_escalated": {
+        "state_label": "RECOVERY 已升级"
+      },
+      "recovery_resolved": {
+        "state_label": "RECOVERY 已解决"
+      },
+      "try_again": {
+        "resolve_label": "重试",
+        "resolve_description": "关闭 recovery，并把源任务退回 todo。"
+      },
+      "mark_task_done": {
+        "resolve_label": "标记任务完成",
+        "resolve_description": "记录请求的工作已完成以恢复任务。"
+      },
+      "send_for_review": {
+        "resolve_label": "送审",
+        "resolve_description": "交给 reviewer，进入真实 review 路径。"
+      },
+      "false_positive_done": {
+        "resolve_label": "误报，完成",
+        "resolve_description": "关闭 recovery，并把源任务标记为完成。"
+      },
+      "false_positive_review": {
+        "resolve_label": "误报，送审",
+        "resolve_description": "关闭 recovery，并把源任务送审。"
+      },
+      "recovery_action_state": {
+        "attr_aria-label": "Recovery action：{{state}}"
       }
     },
     "issuereferenceactivitysummary": {
@@ -2173,10 +2721,22 @@
     },
     "issuerelatedworkpanel": {
       "referenced_by": {
-        "attr_title": "Referenced by"
+        "attr_title": "被引用"
       },
       "references": {
-        "attr_title": "References"
+        "attr_title": "引用"
+      },
+      "other_tasks_this_task_current": {
+        "attr_description": "此任务在标题、描述、评论或文档中当前指向的其他任务。"
+      },
+      "this_task_does_not_reference": {
+        "jsx-text": "此任务尚未引用其他任务。"
+      },
+      "other_tasks_that_currently_po": {
+        "attr_description": "当前指向此任务的其他任务。"
+      },
+      "no_other_tasks_reference_thi": {
+        "jsx-text": "没有其他任务引用此任务。"
       }
     },
     "issuerow": {
@@ -2193,10 +2753,13 @@
         "attr_aria-label": "标记为已读"
       },
       "middot": {
-        "jsx-text": "\n                &middot;\n              "
+        "jsx-text": "\n                ·\n              "
       },
       "productivity_review_open": {
         "attr_aria-label": "Productivity review open"
+      },
+      "productivity_review_trigger": {
+        "attr_title": "效率评审：{{trigger}}"
       }
     },
     "issuerunledger": {
@@ -2262,7 +2825,173 @@
       },
       "task_run_ledger": {
         "attr_aria-label": "Task run ledger"
-      }
+      },
+      "completed": {
+        "liveness_label": "已完成",
+        "stop_reason": "已完成"
+      },
+      "task_reached_terminal": {
+        "liveness_description": "任务已到达终态。"
+      },
+      "advanced": {
+        "liveness_label": "有进展"
+      },
+      "run_produced_progress": {
+        "liveness_description": "Run 产生了具体进展证据。"
+      },
+      "plan_only": {
+        "liveness_label": "仅计划"
+      },
+      "future_work_without_action": {
+        "liveness_description": "Run 描述了未来工作，但没有具体行动证据。"
+      },
+      "empty_response": {
+        "liveness_label": "空响应"
+      },
+      "finished_without_output": {
+        "liveness_description": "Run 结束时没有有效输出。"
+      },
+      "blocked": {
+        "liveness_label": "阻塞"
+      },
+      "declared_blocker": {
+        "liveness_description": "Run 或任务声明了阻塞。"
+      },
+      "failed": {
+        "liveness_label": "失败"
+      },
+      "ended_unsuccessfully": {
+        "liveness_description": "Run 未成功结束。"
+      },
+      "needs_followup": {
+        "liveness_label": "需要跟进"
+      },
+      "useful_without_progress": {
+        "liveness_description": "Run 产生了有用输出，但没有证明具体进展。"
+      },
+      "checks_after_finish": {
+        "liveness_label": "结束后检查"
+      },
+      "evaluated_after_finish": {
+        "liveness_description": "Liveness 会在 run 结束后评估。"
+      },
+      "retry_pending": {
+        "liveness_label": "重试待处理",
+        "stop_status": "重试待处理"
+      },
+      "queued_automatic_retry": {
+        "liveness_description": "Paperclip 已排队自动重试，但尚未启动。"
+      },
+      "no_liveness_data": {
+        "liveness_label": "无 liveness 数据"
+      },
+      "no_persisted_liveness": {
+        "liveness_description": "此 run 没有持久化的 liveness 分类。"
+      },
+      "silence_watch": {
+        "silence_label": "静默监控"
+      },
+      "stale_run": {
+        "silence_label": "停滞 run"
+      },
+      "silence_snoozed": {
+        "silence_label": "静默已暂缓"
+      },
+      "timeout_with_detail": {
+        "stop_reason": "超时（{{detail}}）"
+      },
+      "timeout": {
+        "stop_reason": "超时"
+      },
+      "max_turns_exhausted": {
+        "stop_reason": "最大轮次耗尽"
+      },
+      "budget_paused": {
+        "stop_reason": "预算暂停"
+      },
+      "cancelled": {
+        "stop_reason": "已取消"
+      },
+      "paused_by_board": {
+        "stop_reason": "看板暂停"
+      },
+      "process_lost": {
+        "stop_reason": "进程丢失"
+      },
+      "adapter_failed": {
+        "stop_reason": "adapter 失败"
+      },
+      "completed_with_detail": {
+        "stop_reason": "已完成（{{detail}}）"
+      },
+      "waiting_to_start": {
+        "stop_status": "等待启动"
+      },
+      "still_running": {
+        "stop_status": "仍在运行"
+      },
+      "unavailable": {
+        "stop_status": "不可用",
+        "action_label": "不可用"
+      },
+      "no_stop_reason": {
+        "stop_status": "无停止原因"
+      },
+      "waiting_for_next_attempt": {
+        "action_label": "等待下一次尝试"
+      },
+      "no_action_recorded_yet": {
+        "action_label": "尚无行动记录"
+      },
+      "no_concrete_action": {
+        "action_label": "无具体行动"
+      },
+      "no_useful_output": {
+        "action_label": "无有效输出"
+      },
+      "none_recorded": {
+        "action_label": "无记录"
+      },
+      "continuation_attempt": {
+        "label": "续跑尝试 {{attempt}}"
+      },
+      "only_board_or_recovery_owner": {
+        "error": "只有看板或已分配的恢复负责人可以记录 watchdog 决策"
+      },
+      "could_not_record_watchdog": {
+        "error": "Paperclip 无法记录 watchdog 决策。"
+      },
+      "watchdog_decision_not_recorded": {
+        "title": "Watchdog 决策未记录"
+      },
+      "runs_and_activity_will_appea": {
+        "empty": "此任务产生历史后，会在这里显示 run 和活动。"
+      },
+      "historical_runs_without_live": {
+        "empty": "没有 liveness 元数据的历史 run 关联到此任务后会显示在这里。"
+      },
+      "status_running": "运行中",
+      "status_queued": "已排队",
+      "status_scheduled_retry": "已安排重试",
+      "status_succeeded": "已成功",
+      "status_failed": "失败",
+      "status_cancelled": "已取消",
+      "status_timed_out": "已超时",
+      "running_now_by": "{{agentName}} 正在运行",
+      "queued_for": "已为 {{agentName}} 排队",
+      "automatic_retry_scheduled_for": "已为 {{agentName}} 安排自动重试",
+      "status_by_agent": "{{agentName}}：{{status}}",
+      "under_1_minute": "少于 1 分钟",
+      "minutes_count": "{{count}} 分钟",
+      "hours_count": "{{count}} 小时",
+      "hours_minutes_short": "{{hours}} 小时 {{minutes}} 分钟",
+      "waiting_for_first_run_record": "正在等待第一条 run 记录。",
+      "no_runs_linked_yet": "尚未关联 run。",
+      "child_work_active_summary": "{{active}} 个活跃，{{done}} 个完成，{{cancelled}} 个取消",
+      "child_work_terminal_summary": "全部 {{total}} 个已终止（{{done}} 个完成，{{cancelled}} 个取消）",
+      "stale_run_watchdog_alert": "陈旧 run watchdog 告警",
+      "output_silence_watchdog_warning": "输出静默 watchdog 警告",
+      "an_extended_period": "较长时间"
     },
     "issuescheduledretrycard": {
       "": {
@@ -2386,6 +3115,24 @@
       },
       "tokens": {
         "jsx-text": " tokens\n                "
+      },
+      "no_tasks_match_the_current_fi": {
+        "jsx-text": "没有任务匹配当前筛选或搜索。"
+      },
+      "no_workspace": {
+        "group_label": "无 Workspace"
+      },
+      "no_project": {
+        "group_label": "无项目"
+      },
+      "no_parent": {
+        "group_label": "无父任务"
+      },
+      "unassigned": {
+        "group_label": "未分配"
+      },
+      "user": {
+        "group_label": "用户"
       }
     },
     "issuethreadinteractioncard": {
@@ -2405,7 +3152,8 @@
         "attr_label": "Answer"
       },
       "ask_user_questions": {
-        "jsx-text": "\n          Ask user questions\n        "
+        "jsx-text": "\n          Ask user questions\n        ",
+        "kind_label": "询问用户问题"
       },
       "assignee": {
         "attr_label": "Assignee"
@@ -2517,6 +3265,52 @@
       },
       "will_be_skipped_if_you_accept_th": {
         "jsx-text": " will be skipped if you accept this interaction.\n                "
+      },
+      "board": {
+        "actor_label": "看板"
+      },
+      "unknown": {
+        "actor_label": "未知"
+      },
+      "pending": {
+        "status_label": "待处理"
+      },
+      "accepted": {
+        "status_label": "已接受"
+      },
+      "rejected": {
+        "status_label": "已拒绝"
+      },
+      "answered": {
+        "status_label": "已回答"
+      },
+      "cancelled": {
+        "status_label": "已取消"
+      },
+      "expired": {
+        "status_label": "已过期"
+      },
+      "failed": {
+        "status_label": "失败"
+      },
+      "suggested_tasks": {
+        "kind_label": "建议任务"
+      },
+      "confirmation": {
+        "kind_label": "确认"
+      },
+      "checkbox_confirmation": {
+        "kind_label": "复选确认"
+      },
+      "wakes_on_confirm": {
+        "jsx-text": "确认后唤醒"
+      },
+      "wakes_assignee": {
+        "jsx-text": "唤醒承接人"
+      },
+      "plan_revision": "计划{{revision}}",
+      "try_again": {
+        "error": "请重试"
       }
     },
     "issueworkspacecard": {
@@ -2549,6 +3343,39 @@
       },
       "view_workspace_details": {
         "jsx-text": "\n               查看 workspace details →\n              "
+      },
+      "copied": {
+        "attr_title": "已复制！"
+      },
+      "copy": {
+        "attr_title": "复制"
+      },
+      "isolated_workspace": {
+        "mode_label": "隔离 workspace"
+      },
+      "operator_branch": {
+        "mode_label": "操作员分支"
+      },
+      "cloud_sandbox": {
+        "mode_label": "云 sandbox"
+      },
+      "adapter_managed": {
+        "mode_label": "Adapter 管理"
+      },
+      "workspace": {
+        "mode_label": "Workspace"
+      },
+      "new_isolated_workspace": {
+        "selection_label": "新建隔离 workspace"
+      },
+      "existing_isolated_workspace": {
+        "selection_label": "现有隔离 workspace"
+      },
+      "reuse_existing_workspace": {
+        "selection_label": "复用现有 workspace"
+      },
+      "project_default": {
+        "selection_label": "项目默认"
       }
     },
     "jsonschemaform": {
@@ -2578,6 +3405,69 @@
       },
       "select_an_option": {
         "attr_placeholder": "Select an option"
+      },
+      "field_required": {
+        "validation": "此字段必填"
+      },
+      "min_length": {
+        "validation": "至少需要 {{count}} 个字符"
+      },
+      "max_length": {
+        "validation": "最多允许 {{count}} 个字符"
+      },
+      "must_match_pattern": {
+        "validation": "必须匹配模式：{{pattern}}"
+      },
+      "valid_number": {
+        "validation": "必须是有效数字"
+      },
+      "minimum": {
+        "validation": "必须至少为 {{value}}"
+      },
+      "maximum": {
+        "validation": "必须至多为 {{value}}"
+      },
+      "exclusive_minimum": {
+        "validation": "必须大于 {{value}}"
+      },
+      "exclusive_maximum": {
+        "validation": "必须小于 {{value}}"
+      },
+      "whole_number": {
+        "validation": "必须是整数"
+      },
+      "multiple_of": {
+        "validation": "必须是 {{value}} 的倍数"
+      },
+      "min_items": {
+        "validation": "至少需要 {{count}} 项"
+      },
+      "max_items": {
+        "validation": "最多允许 {{count}} 项"
+      },
+      "sensitive_characters_hidden": {
+        "value": "敏感内容 - 已隐藏 {{count}} 个字符。点击眼睛图标显示。"
+      },
+      "hide_secret": {
+        "sr": "隐藏 secret"
+      },
+      "show_secret": {
+        "sr": "显示 secret"
+      },
+      "secret_field": {
+        "description": "选择现有公司 secret，或粘贴原始值（保存时 Paperclip 会将其存为 secret）。"
+      },
+      "no_active_secrets": {
+        "empty_hint": "暂无可用 secret。创建一个，或在下方粘贴原始值。"
+      },
+      "add_item": {
+        "button": "添加项"
+      },
+      "add": {
+        "button": "添加"
+      },
+      "more_options": {
+        "group_label": "更多选项"
       }
     },
     "kanbanboard": {
@@ -2617,7 +3507,64 @@
         "jsx-text": "then"
       },
       "to_close_middot_shortcuts_are_di": {
-        "jsx-text": " to close &middot; Shortcuts are disabled in text fields\n        "
+        "jsx-text": " to close · Shortcuts are disabled in text fields\n        "
+      },
+      "inbox": {
+        "section": "收件箱"
+      },
+      "move_down": {
+        "shortcut": "下移"
+      },
+      "move_up": {
+        "shortcut": "上移"
+      },
+      "collapse_selected_group": {
+        "shortcut": "折叠选中分组"
+      },
+      "expand_selected_group": {
+        "shortcut": "展开选中分组"
+      },
+      "open_selected_item": {
+        "shortcut": "打开选中项"
+      },
+      "archive_item": {
+        "shortcut": "归档项目"
+      },
+      "mark_as_read": {
+        "shortcut": "标为已读"
+      },
+      "mark_as_unread": {
+        "shortcut": "标为未读"
+      },
+      "task_detail": {
+        "section": "任务详情"
+      },
+      "quick_archive_back_to_inbox": {
+        "shortcut": "快速归档并返回收件箱"
+      },
+      "go_to_inbox": {
+        "shortcut": "前往收件箱"
+      },
+      "focus_comment_composer": {
+        "shortcut": "聚焦评论输入框"
+      },
+      "global": {
+        "section": "全局"
+      },
+      "search_current_page": {
+        "shortcut": "搜索当前页或快速搜索"
+      },
+      "new_task": {
+        "shortcut": "新建任务"
+      },
+      "toggle_sidebar": {
+        "shortcut": "切换侧边栏"
+      },
+      "toggle_panel": {
+        "shortcut": "切换面板"
+      },
+      "show_keyboard_shortcuts": {
+        "shortcut": "显示键盘快捷键"
       }
     },
     "layout": {
@@ -2686,6 +3633,21 @@
     "mobilebottomnav": {
       "mobile_navigation": {
         "attr_aria-label": "Mobile navigation"
+      },
+      "home": {
+        "label": "首页"
+      },
+      "tasks": {
+        "label": "任务"
+      },
+      "create": {
+        "label": "创建"
+      },
+      "agents": {
+        "label": "Agents"
+      },
+      "inbox": {
+        "label": "收件箱"
       }
     },
     "newagentdialog": {
@@ -2738,7 +3700,34 @@
         "jsx-text": "\n                    Send this prompt to the external agent that should join this company.\n                  "
       },
       "times": {
-        "jsx-text": "&times;"
+        "jsx-text": "×"
+      },
+      "agent_invite_created": {
+        "title": "Agent 邀请已创建"
+      },
+      "agent_onboarding_prompt_copied": {
+        "body": "Agent onboarding prompt 已在下方准备好，并已复制到剪贴板。"
+      },
+      "agent_onboarding_prompt_ready": {
+        "body": "Agent onboarding prompt 已在下方准备好。"
+      },
+      "failed_to_create_agent_invite": {
+        "title": "创建 agent 邀请失败"
+      },
+      "clipboard_unavailable": {
+        "title": "剪贴板不可用"
+      },
+      "copied_prompt": {
+        "action": "已复制提示词"
+      },
+      "copy_prompt": {
+        "action": "复制提示词"
+      },
+      "copy_prompt_manually_above": {
+        "body": "请从上方字段手动复制 agent 入职提示词。"
+      },
+      "copy_prompt_manually_below": {
+        "body": "请从下方字段手动复制 agent 入职提示词。"
       }
     },
     "newgoaldialog": {
@@ -2752,10 +3741,13 @@
         "jsx-text": "\n               无 parent\n              "
       },
       "rsaquo": {
-        "jsx-text": "&rsaquo;"
+        "jsx-text": "›"
       },
       "times": {
-        "jsx-text": "&times;"
+        "jsx-text": "×"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
       }
     },
     "newissuedialog": {
@@ -2783,7 +3775,9 @@
         "jsx-text": "附件"
       },
       "backlog": {
-        "jsx-text": "Backlog"
+        "jsx-text": "Backlog",
+        "status_label": "Backlog",
+        "description": "已搁置 - 不会唤醒承接人"
       },
       "choose_an_existing_workspace": {
         "jsx-text": "Choose an existing workspace"
@@ -2822,7 +3816,8 @@
         "jsx-text": " from "
       },
       "in_progress": {
-        "jsx-text": "进行中"
+        "jsx-text": "进行中",
+        "status_label": "进行中"
       },
       "in": {
         "jsx-text": "后"
@@ -2873,7 +3868,7 @@
         "jsx-text": "\n                    Reviewer\n                  "
       },
       "rsaquo": {
-        "jsx-text": "&rsaquo;"
+        "jsx-text": "›"
       },
       "runs_on_the_agent_s_primary_mode": {
         "jsx-text": "Runs on the agent's primary model."
@@ -2894,10 +3889,12 @@
         "jsx-text": "Thinking effort"
       },
       "times": {
-        "jsx-text": "&times;"
+        "jsx-text": "×"
       },
       "todo": {
-        "jsx-text": "Todo"
+        "jsx-text": "Todo",
+        "status_label": "待办",
+        "description": "可执行 - 会唤醒承接人"
       },
       "upload": {
         "jsx-text": "\n            Upload\n          "
@@ -2907,7 +3904,112 @@
       },
       "warning_this_sub_task_will_no_lo": {
         "jsx-text": "\n                  Warning: this sub-task will无 longer use the parent task workspace"
-      }
+      },
+      "default": {
+        "option_label": "默认"
+      },
+      "minimal": {
+        "option_label": "Minimal"
+      },
+      "low": {
+        "option_label": "低",
+        "priority_label": "低"
+      },
+      "medium": {
+        "option_label": "中",
+        "priority_label": "中"
+      },
+      "high": {
+        "option_label": "高",
+        "priority_label": "高"
+      },
+      "xhigh": {
+        "option_label": "X-High"
+      },
+      "max": {
+        "option_label": "最大"
+      },
+      "standard": {
+        "option_label": "标准"
+      },
+      "planning": {
+        "option_label": "规划"
+      },
+      "project_default": {
+        "option_label": "项目默认"
+      },
+      "new_isolated_workspace": {
+        "option_label": "新建隔离工作区"
+      },
+      "reuse_existing_workspace": {
+        "option_label": "复用现有工作区"
+      },
+      "in_review": {
+        "status_label": "评审中"
+      },
+      "done": {
+        "status_label": "完成"
+      },
+      "critical": {
+        "priority_label": "紧急"
+      },
+      "new_sub_task": {
+        "title": "新建子任务"
+      },
+      "new_task": {
+        "title": "新建任务"
+      },
+      "no_assignee": {
+        "option_label": "无承接人"
+      },
+      "search_assignees": {
+        "placeholder": "搜索承接人..."
+      },
+      "no_assignees_found": {
+        "empty": "未找到承接人。"
+      },
+      "no_project": {
+        "option_label": "无项目"
+      },
+      "search_projects": {
+        "placeholder": "搜索项目..."
+      },
+      "no_projects_found": {
+        "empty": "未找到项目。"
+      },
+      "no_reviewer": {
+        "option_label": "无 reviewer"
+      },
+      "search_reviewers": {
+        "placeholder": "搜索 reviewer..."
+      },
+      "no_reviewers_found": {
+        "empty": "未找到 reviewer。"
+      },
+      "no_approver": {
+        "option_label": "无 approver"
+      },
+      "search_approvers": {
+        "placeholder": "搜索 approver..."
+      },
+      "no_approvers_found": {
+        "empty": "未找到 approver。"
+      },
+      "created_with_upload_warnings": {
+        "title": "已创建 {{issueRef}}，但上传有警告"
+      },
+      "staged_files_could_not_be_added": {
+        "body_one": "{{count}} 个暂存文件无法添加。",
+        "body_other": "{{count}} 个暂存文件无法添加。"
+      },
+      "open_issue": {
+        "action": "打开 {{issueRef}}"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
+      },
+      "staged_files_could_not_be_added_one": "{{count}} 个暂存文件无法添加。",
+      "staged_files_could_not_be_added_other": "{{count}} 个暂存文件无法添加。"
     },
     "newprojectdialog": {
       "add_description": {
@@ -2923,7 +4025,7 @@
         "jsx-text": "\n                  Link a GitHub repository so agents can clone, read, and push code for this project.\n                "
       },
       "local_folder": {
-        "jsx-text": "Local folder"
+        "jsx-text": "本地文件夹"
       },
       "new_project": {
         "jsx-text": "新建项目"
@@ -2941,7 +4043,7 @@
         "jsx-text": "Repo URL"
       },
       "rsaquo": {
-        "jsx-text": "&rsaquo;"
+        "jsx-text": "›"
       },
       "set_an_absolute_path_on_this_mac": {
         "jsx-text": "\n                  Set an absolute path on this machine where local agents will read and write files for this project.\n                "
@@ -2950,7 +4052,32 @@
         "attr_placeholder": "Target date"
       },
       "times": {
-        "jsx-text": "&times;"
+        "jsx-text": "×"
+      },
+      "github_repo": "GitHub 仓库",
+      "local_folder_absolute": {
+        "error": "本地文件夹必须是完整绝对路径。"
+      },
+      "repo_valid_github": {
+        "error": "Repo 必须使用有效的 GitHub 或 GitHub Enterprise repo URL。"
+      },
+      "backlog": {
+        "status_label": "Backlog"
+      },
+      "planned": {
+        "status_label": "已计划"
+      },
+      "in_progress": {
+        "status_label": "进行中"
+      },
+      "completed": {
+        "status_label": "已完成"
+      },
+      "cancelled": {
+        "status_label": "已取消"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
       }
     },
     "onboardingwizard": {
@@ -2991,7 +4118,8 @@
         "jsx-text": "\n                      Company name\n                    "
       },
       "company": {
-        "jsx-text": "公司"
+        "jsx-text": "公司",
+        "step_label": "公司"
       },
       "create_your_first_agent": {
         "jsx-text": "Create your first agent"
@@ -3072,13 +4200,35 @@
         "jsx-text": "\n                      Task title\n                    "
       },
       "task": {
-        "jsx-text": "Task"
+        "jsx-text": "Task",
+        "step_label": "任务"
       },
       "this_is_the_organization_your_ag": {
         "jsx-text": "\n                        This is the organization your agents will work for.\n                      "
       },
       "what_is_this_company_trying_to_a": {
         "attr_placeholder": "What is this company trying to achieve?"
+      },
+      "failed_to_create_company": {
+        "error": "创建公司失败"
+      },
+      "opencode_requires_explicit_model": {
+        "error": "OpenCode 需要 provider/model 格式的明确 model。"
+      },
+      "failed_to_create_agent": {
+        "error": "创建 agent 失败"
+      },
+      "failed_to_create_task": {
+        "error": "创建任务失败"
+      },
+      "ceo": {
+        "attr_placeholder": "CEO"
+      },
+      "agent": {
+        "step_label": "Agent"
+      },
+      "launch": {
+        "step_label": "启动"
       }
     },
     "opencodelogoicon": {
@@ -3130,7 +4280,7 @@
         "jsx-text": "What could have been better?"
       },
       "you_can_change_this_later_in_ins": {
-        "jsx-text": "\n              You can change this later in Instance Settings &gt; General.\n            "
+        "jsx-text": "\n              You can change this later in Instance Settings > General.\n            "
       }
     },
     "outputprimarycard": {
@@ -3187,6 +4337,17 @@
       },
       "under_review": {
         "jsx-text": "Under review"
+      },
+      "trigger_no_comment_streak": "连续无评论",
+      "trigger_long_active_duration": "活动时间过长",
+      "trigger_high_churn": "变更过多",
+      "status_open": "待处理",
+      "status_in_progress": "进行中",
+      "status_in_review": "评审中",
+      "status_blocked": "已阻塞",
+      "productivity_review": "效率评审",
+      "under_review_productivity_review": {
+        "attr_aria-label": "评审中 · 效率评审 {{identifier}}（{{label}}）"
       }
     },
     "projectproperties": {
@@ -3275,7 +4436,7 @@
         "jsx-text": "\n                          If disabled, new tasks stay on the project's primary checkout unless someone opts in.\n                        "
       },
       "ldquo": {
-        "jsx-text": " &ldquo;"
+        "jsx-text": " \""
       },
       "lead": {
         "attr_label": "Lead"
@@ -3320,7 +4481,7 @@
         "jsx-text": "\n                          Provision runs inside the derived worktree before agent execution. Teardown is stored here for future cleanup flows.\n                        "
       },
       "rdquo": {
-        "jsx-text": "&rdquo;?\n          "
+        "jsx-text": "\"?\n          "
       },
       "repo_identifies_the_source_of_tr": {
         "jsx-text": "\n                Repo identifies the source of truth. Local folder is the default place agents write code.\n              "
@@ -3345,6 +4506,66 @@
       },
       "worktree_parent_dir": {
         "jsx-text": "Worktree parent dir"
+      },
+      "name": {
+        "attr_label": "名称"
+      },
+      "description": {
+        "attr_label": "描述"
+      },
+      "no_description": {
+        "jsx-text": "无描述"
+      },
+      "status": {
+        "attr_label": "状态"
+      },
+      "goals": {
+        "attr_label": "目标"
+      },
+      "remove_goal": {
+        "attr_aria-label": "移除目标 {{title}}"
+      },
+      "env": {
+        "attr_label": "环境变量"
+      },
+      "created": {
+        "attr_label": "创建时间"
+      },
+      "updated": {
+        "attr_label": "更新时间"
+      },
+      "target_date": {
+        "attr_label": "目标日期"
+      },
+      "clear_local_folder_from_this": {
+        "jsx-text": "从此工作区清除本地文件夹？"
+      },
+      "delete_this_workspace_local_": {
+        "jsx-text": "删除此工作区的本地文件夹？"
+      },
+      "clear_repo_from_this_workspac": {
+        "jsx-text": "从此工作区清除 repo？"
+      },
+      "delete_this_workspace_repo": {
+        "jsx-text": "删除此工作区 repo？"
+      },
+      "backlog": {
+        "status_label": "Backlog"
+      },
+      "planned": {
+        "status_label": "已计划"
+      },
+      "in_progress": {
+        "status_label": "进行中"
+      },
+      "completed": {
+        "status_label": "已完成"
+      },
+      "cancelled": {
+        "status_label": "已取消"
+      },
+      "select_company_to_create_secrets": {
+        "error": "请选择公司后再创建密钥"
       }
     },
     "projectworkspacescontent": {
@@ -3376,6 +4597,18 @@
       },
       "updated": {
         "jsx-text": "\n                Updated "
+      },
+      "branch_copied": {
+        "copy_label": "已复制分支"
+      },
+      "copy_branch": {
+        "attr_aria-label": "复制分支"
+      },
+      "path_copied": {
+        "copy_label": "已复制路径"
+      },
+      "copy_path": {
+        "attr_aria-label": "复制路径"
       }
     },
     "propertiespanel": {
@@ -3455,7 +4688,7 @@
         "jsx-text": " as new revision\n            "
       },
       "but_haven_apos_t_saved_yet_save_": {
-        "jsx-text": " but haven&apos;t saved yet.保存 or discard before previewing or restoring an older revision.\n          "
+        "jsx-text": " but haven't saved yet.保存 or discard before previewing or restoring an older revision.\n          "
       },
       "by": {
         "jsx-text": " by "
@@ -3632,7 +4865,80 @@
       },
       "you_changed": {
         "jsx-text": "\n            You changed "
-      }
+      },
+      "no_edits_yet": {
+        "jsx-text": "暂无编辑"
+      },
+      "restored_revision_as_revision": {
+        "toast_title": "已将修订 {{restoredFromNumber}} 恢复为修订 {{newNumber}}"
+      },
+      "trigger_state_restored_with_secrets": {
+        "toast_body": "触发器启用状态已从快照恢复。新的 webhook 密钥会显示在上方横幅中。"
+      },
+      "trigger_state_restored": {
+        "toast_body": "触发器启用状态已从快照恢复。"
+      },
+      "failed_to_restore_revision": {
+        "toast_title": "恢复修订失败"
+      },
+      "could_not_restore_revision": {
+        "toast_body": "Paperclip 无法恢复该修订。"
+      },
+      "unknown_error_loading_revisions": "加载修订时发生未知错误。",
+      "the_routine": "该 routine",
+      "restore_this_revision": {
+        "attr_aria-label": "恢复此修订"
+      },
+      "field_title": "标题",
+      "field_priority": "优先级",
+      "field_status": "状态",
+      "field_default_agent": "默认 agent",
+      "field_project": "项目",
+      "field_concurrency": "并发",
+      "field_catch_up": "补跑",
+      "field_env": "环境变量",
+      "field_variables": "变量",
+      "enabled": {
+        "status": "已启用"
+      },
+      "disabled": {
+        "status": "已禁用"
+      },
+      "restoring": {
+        "action": "恢复中..."
+      },
+      "restore_as_revision": {
+        "action": "恢复为修订 {{newRevisionNumber}}"
+      },
+      "actor_board": "看板",
+      "actor_agent": "agent",
+      "actor_system": "系统",
+      "unassigned": "未分配",
+      "no_project": "无项目",
+      "replay_seconds": "重放 {{seconds}} 秒",
+      "api": "API",
+      "two_field_list": "{{first}} 和 {{second}}",
+      "many_field_list": "{{rest}} 和 {{last}}",
+      "plain_set": "明文（已设置）",
+      "key_singular": "个键",
+      "key_plural": "个键",
+      "secret_ref_singular": "个 secret 引用",
+      "secret_ref_plural": "个 secret 引用",
+      "env_summary_with_secret_refs": "{{keyCount}}{{keyLabel}}（{{secretCount}}{{refLabel}}）",
+      "env_keys_added": "新增 {{count}} 个键",
+      "env_keys_removed": "移除 {{count}} 个键",
+      "env_keys_changed": "变更 {{count}} 个键",
+      "env_added_field": "环境变量新增（{{key}}）",
+      "env_removed_field": "环境变量移除（{{key}}）",
+      "env_binding_kind_field": "环境变量 {{key}} 绑定类型",
+      "env_secret_field": "环境变量 {{key}} secret",
+      "env_version_field": "环境变量 {{key}} 版本",
+      "env_value_field": "环境变量 {{key}} 值",
+      "plain_changed": "明文（已变更）",
+      "none_parenthetical": "（无）",
+      "trigger_removed_field": "触发器已移除（{{label}}）",
+      "trigger_added_field": "触发器已新增（{{label}}）",
+      "trigger_field": "触发器 {{label}}"
     },
     "routinerunvariablesdialog": {
       "agent": {
@@ -3649,7 +4955,7 @@
         "jsx-text": "\n              Choose an existing workspace before running.\n            "
       },
       "choose_the_agent_and_optional_pr": {
-        "jsx-text": "\n            Choose the agent and optional project for this one run. Routine defaults are prefilled and won&apos;t be changed.\n          "
+        "jsx-text": "\n            Choose the agent and optional project for this one run. Routine defaults are prefilled and won't be changed.\n          "
       },
       "default_agent_required_for_this_": {
         "jsx-text": "Default agent required for this run."
@@ -3768,6 +5074,15 @@
       },
       "variables": {
         "jsx-text": "Variables"
+      },
+      "type": {
+        "jsx-text": "类型"
+      },
+      "current_date": {
+        "description": "routine 运行时的当前日期，YYYY-MM-DD 格式（UTC）。"
+      },
+      "human_readable_date": {
+        "description": "routine 运行时的人类可读日期和时间（UTC）。"
       }
     },
     "runtranscriptview": {
@@ -3794,6 +5109,92 @@
       },
       "user": {
         "jsx-text": "User"
+      },
+      "executing_command": {
+        "tool_label": "正在执行命令",
+        "title": "正在执行命令"
+      },
+      "tool_failed": {
+        "summary": "工具失败"
+      },
+      "waiting_for_result": {
+        "summary": "等待结果"
+      },
+      "completed": {
+        "summary": "已完成",
+        "status_label": "已完成"
+      },
+      "failed_with_exit_code": {
+        "summary": "失败，退出码 {{code}}"
+      },
+      "failed": {
+        "summary": "失败"
+      },
+      "running": {
+        "status_label": "运行中"
+      },
+      "errored": {
+        "status_label": "出错"
+      },
+      "inspect_tool_input": {
+        "summary": "查看 {{name}} 输入"
+      },
+      "paths_starting_with": {
+        "summary": "{{count}} 个路径，起始为 {{first}}"
+      },
+      "no_tool_input": {
+        "summary": "没有 {{name}} 输入"
+      },
+      "single_payload": {
+        "summary": "{{key}} payload"
+      },
+      "fields_summary": {
+        "summary": "{{count}} 个字段：{{fields}}"
+      },
+      "collapse_tool_details": {
+        "attr_aria-label": "折叠工具详情"
+      },
+      "expand_tool_details": {
+        "attr_aria-label": "展开工具详情"
+      },
+      "waiting_for_result_ellipsis": {
+        "summary": "等待结果..."
+      },
+      "executed_command": {
+        "title": "已执行命令"
+      },
+      "executed_commands": {
+        "title": "已执行 {{count}} 条命令"
+      },
+      "tools_count": {
+        "label": "{{count}} 个工具"
+      },
+      "using_tool": {
+        "title": "正在使用 {{tool}}"
+      },
+      "used_tool": {
+        "title": "已使用 {{tool}}"
+      },
+      "used_tool_calls": {
+        "title": "已使用 {{tool}}（{{count}} 次调用）"
+      },
+      "collapse_stdout": {
+        "attr_aria-label": "折叠 stdout"
+      },
+      "expand_stdout": {
+        "attr_aria-label": "展开 stdout"
+      },
+      "no_transcript_yet": {
+        "empty": "暂无 transcript。"
+      },
+      "run_failed": {
+        "summary": "Run 失败"
+      },
+      "collapse_command_details": {
+        "attr_aria-label": "折叠命令详情"
+      },
+      "expand_command_details": {
+        "attr_aria-label": "展开命令详情"
       }
     },
     "scheduleeditor": {
@@ -3817,7 +5218,64 @@
       },
       "on": {
         "jsx-text": "on"
-      }
+      },
+      "preset_every_minute": {
+        "label": "每分钟"
+      },
+      "preset_every_hour": {
+        "label": "每小时"
+      },
+      "preset_every_day": {
+        "label": "每天"
+      },
+      "preset_weekdays": {
+        "label": "工作日"
+      },
+      "preset_weekly": {
+        "label": "每周"
+      },
+      "preset_monthly": {
+        "label": "每月"
+      },
+      "preset_custom": {
+        "label": "自定义 cron"
+      },
+      "day_mon": {
+        "label": "周一"
+      },
+      "day_tue": {
+        "label": "周二"
+      },
+      "day_wed": {
+        "label": "周三"
+      },
+      "day_thu": {
+        "label": "周四"
+      },
+      "day_fri": {
+        "label": "周五"
+      },
+      "day_sat": {
+        "label": "周六"
+      },
+      "day_sun": {
+        "label": "周日"
+      },
+      "am": {
+        "label": "上午"
+      },
+      "pm": {
+        "label": "下午"
+      },
+      "hour_label": "{{period}} {{hour}} 点",
+      "time_with_period": "{{period}} {{hour}}:{{minute}}",
+      "summary_every_minute": "每分钟",
+      "summary_every_hour": "每小时第 {{minute}} 分钟",
+      "summary_every_day": "每天 {{time}}",
+      "summary_weekdays": "工作日 {{time}}",
+      "summary_weekly": "每{{day}} {{time}}",
+      "summary_monthly": "每月 {{ordinalDay}} {{time}}",
+      "no_schedule_set": "未设置计划"
     },
     "scrolltobottom": {
       "scroll_to_bottom": {
@@ -3838,7 +5296,7 @@
         "jsx-text": " Clear\n            "
       },
       "create_amp_bind": {
-        "jsx-text": "\n             创建 &amp; bind\n            "
+        "jsx-text": "\n             创建 & bind\n            "
       },
       "create_new_secret": {
         "jsx-text": "Create new secret"
@@ -3869,7 +5327,17 @@
       },
       "version": {
         "attr_aria-label": "Version"
-      }
+      },
+      "name": {
+        "attr_label": "名称"
+      },
+      "openai_api_key": {
+        "attr_placeholder": "OPENAI_API_KEY"
+      },
+      "value": {
+        "attr_label": "值"
+      },
+      "external_provider": "外部 · {{provider}}"
     },
     "sheet": {
       "close": {
@@ -3953,6 +5421,27 @@
       },
       "see_all_agents": {
         "jsx-text": "See全部 agents"
+      },
+      "top": {
+        "sort_label": "置顶"
+      },
+      "alphabetical": {
+        "sort_label": "按字母"
+      },
+      "recent": {
+        "sort_label": "最近"
+      },
+      "new_agent": {
+        "attr_aria-label": "新建 agent"
+      },
+      "agents_section_actions": {
+        "attr_aria-label": "Agent 区操作"
+      },
+      "browse_agents": {
+        "menu_item": "浏览 agents"
+      },
+      "agent_sort": {
+        "radio_label": "Agent 排序"
       }
     },
     "sidebarcompanymenu": {
@@ -3980,6 +5469,27 @@
       },
       "projects": {
         "attr_label": "项目"
+      },
+      "top": {
+        "sort_label": "置顶"
+      },
+      "alphabetical": {
+        "sort_label": "按字母"
+      },
+      "recent": {
+        "sort_label": "最近"
+      },
+      "new_project": {
+        "attr_aria-label": "新建项目"
+      },
+      "projects_section_actions": {
+        "attr_aria-label": "项目区操作"
+      },
+      "browse_projects": {
+        "menu_item": "浏览项目"
+      },
+      "project_sort": {
+        "radio_label": "项目排序"
       }
     },
     "sourceresolvedfoldbadge": {
@@ -4037,6 +5547,18 @@
       },
       "share": {
         "attr_label": "分享"
+      },
+      "link_copied": {
+        "title": "链接已复制"
+      },
+      "sharing_unavailable": {
+        "title": "分享不可用"
+      },
+      "share_failed": {
+        "title": "分享失败"
+      },
+      "try_opening_in_browser": {
+        "body": "请尝试在浏览器中打开此页面。"
       }
     },
     "swipetoarchive": {
@@ -4054,91 +5576,239 @@
         "jsx-text": "\n            Advanced permissions remain editable through the EE permissions extension when installed.\n          "
       },
       "allowed_agents": {
-        "attr_label": "Allowed agents"
+        "attr_label": "允许的 agent"
       },
       "allowed_secrets": {
-        "attr_label": "Allowed secrets"
+        "attr_label": "允许的密钥"
       },
       "allowed_tools": {
-        "attr_label": "Allowed tools"
+        "attr_label": "允许的工具"
       },
       "and_cannot_be_edited_by_the_ce_s": {
-        "jsx-text": " and cannot be edited by the CE single-boundary editor.\n                  "
+        "jsx-text": "，无法由 CE 单边界编辑器编辑。\n                  "
       },
       "boundary_type": {
-        "attr_label": "Boundary type"
+        "attr_label": "边界类型"
       },
       "ce_saves_one_containment_boundar": {
-        "jsx-text": "\n                      CE saves one containment boundary at a time. Saved policies include this company id.\n                    "
+        "jsx-text": "\n                      CE 每次保存一个隔离边界。已保存策略会包含此公司 ID。\n                    "
       },
       "clear_boundary": {
-        "jsx-text": "\n                        Clear boundary\n                      "
+        "jsx-text": "\n                        清除边界\n                      "
       },
       "ee_fields": {
-        "attr_label": "EE fields"
+        "attr_label": "EE 字段"
       },
       "explicit_issues": {
-        "attr_label": "Explicit issues"
+        "attr_label": "显式任务"
       },
       "get_paperclip_ee": {
-        "jsx-text": "\n                  Get Paperclip EE.\n                "
+        "jsx-text": "\n                  获取 Paperclip EE。\n                "
       },
       "issue": {
-        "jsx-text": "Issue"
+        "jsx-text": "任务"
       },
       "managed_by_ee_api": {
-        "jsx-text": "Managed by EE/API"
+        "jsx-text": "由 EE/API 管理"
       },
       "preset": {
-        "attr_label": "Preset"
+        "attr_label": "预设"
       },
       "project": {
-        "jsx-text": "Project"
+        "jsx-text": "项目"
       },
       "projects": {
         "attr_label": "项目"
       },
       "promotion_target": {
-        "attr_label": "Promotion target"
+        "attr_label": "提升目标"
       },
       "raw_output": {
-        "attr_label": "Raw output"
+        "attr_label": "原始输出"
       },
       "root_issue": {
-        "attr_label": "Root issue",
-        "jsx-text": "Root issue"
+        "attr_label": "根任务",
+        "jsx-text": "根任务"
       },
       "this_policy_has": {
-        "jsx-text": "\n                    This policy has "
+        "jsx-text": "\n                    此策略包含 "
       },
       "trust_preset": {
-        "attr_label": "Trust preset"
+        "attr_label": "信任预设"
       },
       "trust": {
-        "jsx-text": "Trust"
+        "jsx-text": "信任"
       },
       "view_policy": {
-        "attr_title": "View policy"
+        "attr_title": "查看策略"
       },
       "want_to_set_more_than_one_contai": {
-        "jsx-text": "\n                Want to set more than one containment boundary?"
+        "jsx-text": "\n                想设置多个隔离边界？"
+      },
+      "agent_count_plural": {
+        "jsx-text": "个 agent"
+      },
+      "agent_count_singular": {
+        "jsx-text": "个 agent"
+      },
+      "binding_count_plural": {
+        "jsx-text": "个绑定"
+      },
+      "binding_count_singular": {
+        "jsx-text": "个绑定"
+      },
+      "boundaries_summary": {
+        "jsx-text": "{{count}} 个边界"
+      },
+      "choose_how_broadly_this_agent": {
+        "attr_hint": "选择此 agent 可读取和操作 Paperclip 工作对象的范围。"
+      },
+      "company_visible_collaboration_t": {
+        "jsx-text": "公司内可见协作。这是普通工作的默认设置。"
+      },
+      "contained_for_hostile_or_untru": {
+        "jsx-text": "用于敌意或不可信输入的隔离模式。Paperclip API 范围更窄，输出会被隔离。适合 PR review 和外部内容分流。"
+      },
+      "containment_active": {
+        "jsx-text": "隔离已启用"
+      },
+      "containment_not_configured": {
+        "jsx-text": "隔离未配置"
+      },
+      "issue_count_plural": {
+        "jsx-text": "个任务"
+      },
+      "issue_count_singular": {
+        "jsx-text": "个任务"
+      },
+      "issue_id_summary": {
+        "jsx-text": "任务 {{id}}"
+      },
+      "loading": {
+        "jsx-text": "加载中..."
+      },
+      "low_trust_review": {
+        "jsx-text": "低信任 review"
+      },
+      "no_boundary_selected": {
+        "jsx-text": "未选择边界"
+      },
+      "no_issues_available": {
+        "jsx-text": "没有可用任务"
+      },
+      "no_projects_available": {
+        "jsx-text": "没有可用项目"
+      },
+      "project_count_plural": {
+        "jsx-text": "个项目"
+      },
+      "project_count_singular": {
+        "jsx-text": "个项目"
+      },
+      "project_id_summary": {
+        "jsx-text": "项目 {{id}}"
+      },
+      "quarantined_from_higher_trust": {
+        "attr_value": "已与更高信任 agent 隔离"
+      },
+      "root_issue_id_summary": {
+        "jsx-text": "根任务 {{id}}"
+      },
+      "select_boundary": {
+        "jsx-text": "选择边界"
+      },
+      "standard": {
+        "jsx-text": "标准"
+      },
+      "this_agent_can_only_read_and_mu": {
+        "jsx-text": "此 agent 只能读取和修改其指定 review 边界内的工作。原始输出会与更高信任 agent 隔离，直到受信任 reviewer 提升它。"
+      },
+      "this_agent_is_set_to_low_trust": {
+        "jsx-text": "此 agent 已设为低信任 review，但核心策略中尚未设置项目、根任务或任务范围。请先添加范围，否则该 agent 运行会被拒绝。"
       }
     },
     "workspaceruntimecontrols": {
       "jobs": {
-        "attr_title": "Jobs"
+        "attr_title": "任务"
       },
       "port": {
-        "jsx-text": "Port "
+        "jsx-text": "端口 "
       },
       "services": {
-        "attr_title": "Services"
+        "attr_title": "服务"
       },
       "untracked_services": {
-        "attr_title": "Untracked services"
+        "attr_title": "未跟踪服务"
       },
       "workspace_commands": {
-        "jsx-text": "Workspace commands"
+        "jsx-text": "工作区命令"
+      },
+      "each_command_can_be_controlled": {
+        "jsx-text": "每条命令都可以独立控制。"
+      },
+      "health": {
+        "healthy": "健康",
+        "unhealthy": "异常",
+        "unknown": "未知"
+      },
+      "job": {
+        "jsx-text": "任务"
+      },
+      "jobs_available_to_run_on_demand": {
+        "jsx-text": "{{count}} 个任务可按需运行。"
+      },
+      "lifecycle": {
+        "ephemeral": "临时",
+        "shared": "共享"
+      },
+      "long_running_commands_that_pap": {
+        "attr_description": "Paperclip 可为此工作区托管的长时间运行命令。"
+      },
+      "no_one_shot_jobs_are_configured": {
+        "jsx-text": "此工作区未配置一次性任务。"
+      },
+      "no_services_are_configured_for_t": {
+        "jsx-text": "此工作区未配置服务。"
+      },
+      "no_services_running": {
+        "jsx-text": "没有服务在运行"
+      },
+      "one_shot_commands_that_run_now": {
+        "attr_description": "立即运行并在完成后退出的一次性命令。"
+      },
+      "restart": {
+        "jsx-text": "重启"
+      },
+      "run": {
+        "jsx-text": "运行"
+      },
+      "running_services_that_no_longe": {
+        "attr_description": "正在运行但不再匹配当前工作区命令配置的服务。"
+      },
+      "service": {
+        "jsx-text": "服务"
+      },
+      "services_running": {
+        "jsx-text": "{{count}} 个服务运行中"
+      },
+      "start": {
+        "jsx-text": "启动"
+      },
+      "status": {
+        "failed": "失败",
+        "run_once": "运行一次",
+        "running": "运行中",
+        "starting": "启动中",
+        "stopped": "已停止"
+      },
+      "stop": {
+        "jsx-text": "停止"
+      },
+      "this_job_is_missing_a_command": {
+        "jsx-text": "此任务缺少命令。"
+      },
+      "this_runtime_service_no_longer": {
+        "jsx-text": "此运行时服务不再匹配已配置的工作区命令。"
       }
     },
     "worktreebanner": {
@@ -4147,6 +5817,328 @@
       },
       "worktree": {
         "jsx-text": "Worktree"
+      }
+    },
+    "statusicon": {
+      "backlog": {
+        "status_label": "待整理"
+      },
+      "todo": {
+        "status_label": "待办"
+      },
+      "in_progress": {
+        "status_label": "进行中"
+      },
+      "in_review": {
+        "status_label": "评审中"
+      },
+      "done": {
+        "status_label": "完成"
+      },
+      "cancelled": {
+        "status_label": "已取消"
+      },
+      "blocked": {
+        "status_label": "阻塞"
+      },
+      "blocked_waiting_on_subtask_id": {
+        "label": "阻塞 · 等待活跃子任务 {{identifier}}"
+      },
+      "blocked_waiting_on_one_subtask": {
+        "label": "阻塞 · 等待 1 个活跃子任务"
+      },
+      "blocked_waiting_on_subtasks": {
+        "label": "阻塞 · 等待 {{count}} 个活跃子任务"
+      },
+      "blocked_covered_by_dependency_id": {
+        "label": "阻塞 · 已由活跃依赖 {{identifier}} 覆盖"
+      },
+      "blocked_covered_by_one_dependency": {
+        "label": "阻塞 · 已由 1 个活跃依赖覆盖"
+      },
+      "blocked_covered_by_dependencies": {
+        "label": "阻塞 · 已由 {{count}} 个活跃依赖覆盖"
+      },
+      "blocked_review_stalled_on": {
+        "label": "阻塞 · 评审卡在 {{identifier}}"
+      },
+      "blocked_review_stalled_one": {
+        "label": "阻塞 · 评审停滞且没有明确下一步"
+      },
+      "blocked_reviews_stalled": {
+        "label": "阻塞 · {{count}} 个评审停滞且没有明确下一步"
+      },
+      "one_blocker_needs_attention": {
+        "label": "1 个阻塞需要关注"
+      },
+      "blockers_need_attention": {
+        "label": "{{count}} 个阻塞需要关注"
+      },
+      "blocked_attention_with_covered": {
+        "label": "阻塞 · {{attention}}；{{count}} 个已由活跃工作覆盖"
+      },
+      "blocked_attention": {
+        "label": "阻塞 · {{attention}}"
+      }
+    },
+    "routinelist": {
+      "never": "从未",
+      "run_status_queued": "已排队",
+      "run_status_running": "运行中",
+      "run_status_completed": "已完成",
+      "run_status_failed": "失败",
+      "run_status_cancelled": "已取消",
+      "run_status_scheduled_retry": "已安排重试",
+      "edit": {
+        "action": "编辑"
+      },
+      "running": {
+        "action": "运行中..."
+      },
+      "run_now": {
+        "action": "立即运行"
+      },
+      "archived": {
+        "status": "已归档",
+        "label": "已归档"
+      },
+      "draft": {
+        "status": "草稿",
+        "label": "草稿"
+      },
+      "paused": {
+        "status": "已暂停"
+      },
+      "unknown_project": "未知项目",
+      "no_project": "无项目",
+      "unknown_agent": "未知 agent",
+      "no_default_agent": "无默认 agent",
+      "disable_routine": {
+        "attr_aria-label": "停用 {{title}}"
+      },
+      "enable_routine": {
+        "attr_aria-label": "启用 {{title}}"
+      },
+      "on": {
+        "label": "开"
+      },
+      "off": {
+        "label": "关"
+      },
+      "more_actions_for": {
+        "attr_aria-label": "{{title}} 的更多操作"
+      },
+      "pause": {
+        "action": "暂停"
+      },
+      "enable": {
+        "action": "启用"
+      },
+      "restore": {
+        "action": "恢复"
+      },
+      "archive": {
+        "action": "归档"
+      }
+    },
+    "sourcetrustbadge": {
+      "promoted_from_low_trust_on": "已于 {{date}} 从低信任提升。",
+      "promoted_from_low_trust": "已从低信任提升。",
+      "low_trust_tooltip": "由低信任 review agent 编写。原始{{artifactLabel}}不会自动分享给更高信任 agent。"
+    },
+    "activityrow": {
+      "system": {
+        "actor_label": "系统"
+      },
+      "board": {
+        "actor_label": "看板"
+      },
+      "unknown": {
+        "actor_label": "未知"
+      }
+    },
+    "priorityicon": {
+      "critical": {
+        "label": "紧急"
+      },
+      "high": {
+        "label": "高"
+      },
+      "medium": {
+        "label": "中"
+      },
+      "low": {
+        "label": "低"
+      }
+    },
+    "companysettingsnav": {
+      "general": {
+        "label": "通用"
+      },
+      "environments": {
+        "label": "环境"
+      },
+      "cloud-upstream": {
+        "label": "Cloud upstream"
+      },
+      "members": {
+        "label": "成员"
+      },
+      "invites": {
+        "label": "邀请"
+      },
+      "secrets": {
+        "label": "Secrets"
+      }
+    },
+    "searchresultrow": {
+      "comment": {
+        "label": "评论"
+      },
+      "doc": {
+        "label": "文档"
+      },
+      "artifact": {
+        "label": "Artifact"
+      },
+      "description": {
+        "label": "描述"
+      }
+    },
+    "matchsourcechip": {
+      "title": {
+        "label": "标题"
+      },
+      "identifier": {
+        "label": "标识符"
+      },
+      "comment": {
+        "label": "评论"
+      },
+      "document": {
+        "label": "文档"
+      }
+    },
+    "agentconfigprimitives": {
+      "name": {
+        "help": "此 agent 的显示名称。"
+      },
+      "title": {
+        "help": "显示在组织图中的职位标题。"
+      },
+      "role": {
+        "help": "组织角色，决定位置和能力。"
+      },
+      "reports_to": {
+        "help": "此 agent 在组织层级中汇报给的 agent。"
+      },
+      "capabilities": {
+        "help": "描述此 agent 能做什么。会显示在组织图中，并用于任务路由。"
+      },
+      "adapter_type": {
+        "help": "此 agent 的运行方式：本地 CLI（Claude/Codex/OpenCode）、OpenClaw Gateway、spawned process 或通用 HTTP webhook。"
+      },
+      "cwd": {
+        "help": "已弃用的本地 adapter 工作目录兜底值。已有 agent 可能仍带此值，新配置应改用项目 workspace。"
+      },
+      "prompt_template": {
+        "help": "每次 heartbeat 都会发送。保持短小且动态，用于当前任务上下文，不要放大量静态指令。支持 {{ agent.id }}、{{ agent.name }}、{{ agent.role }} 等模板变量。"
+      },
+      "model": {
+        "help": "覆盖 adapter 使用的默认模型。"
+      },
+      "thinking_effort": {
+        "help": "控制模型推理深度。支持的值取决于 adapter/model。"
+      },
+      "chrome": {
+        "help": "通过传入 --chrome 启用 Claude 的 Chrome 集成。"
+      },
+      "dangerously_skip_permissions": {
+        "help": "支持时自动批准 adapter 权限提示，从而无人值守运行。"
+      },
+      "dangerously_bypass_sandbox": {
+        "help": "让 Codex 在无 sandbox 限制下运行。文件系统/网络访问需要此项。"
+      },
+      "search": {
+        "help": "允许 Codex 在 run 中使用 web search。"
+      },
+      "fast_mode": {
+        "help": "启用 Codex Fast mode。它会更快消耗 credits/tokens，支持 GPT-5.4 和手动 Codex 模型 ID。"
+      },
+      "workspace_strategy": {
+        "help": "Paperclip 如何为此 agent 实现 execution workspace。普通 cwd 执行使用 project_primary；任务隔离 checkout 使用 git_worktree。"
+      },
+      "workspace_base_ref": {
+        "help": "创建 worktree branch 时使用的基础 git ref。留空则使用已解析 workspace ref 或 HEAD。"
+      },
+      "workspace_branch_template": {
+        "help": "派生分支命名模板。支持 {{issue.identifier}}、{{issue.title}}、{{agent.name}}、{{project.id}}、{{workspace.repoRef}} 和 {{slug}}。"
+      },
+      "worktree_parent_dir": {
+        "help": "派生 worktree 的创建目录。支持绝对路径、~ 前缀路径和 repo 相对路径。"
+      },
+      "runtime_services_json": {
+        "help": "可选 workspace runtime service 定义。用于共享 app server、worker 或其他附着在 workspace 上的长期伴随进程。"
+      },
+      "max_turns_per_run": {
+        "help": "每次 heartbeat run 允许的最大 agentic turns（tool calls）数量。"
+      },
+      "command": {
+        "help": "要执行的命令（例如 node、python）。"
+      },
+      "local_command": {
+        "help": "覆盖 adapter 调用的 CLI 命令路径（例如 /usr/local/bin/claude、codex、opencode）。"
+      },
+      "args": {
+        "help": "命令行参数，以逗号分隔。"
+      },
+      "extra_args": {
+        "help": "本地 adapter 的额外 CLI 参数，以逗号分隔。"
+      },
+      "env_vars": {
+        "help": "注入 adapter 进程的环境变量。可使用普通值或 secret 引用。"
+      },
+      "bootstrap_prompt": {
+        "help": "仅在 Paperclip 启动新 session 时发送。用于稳定的初始化指导，不应在每次 heartbeat 重复发送。"
+      },
+      "payload_template_json": {
+        "help": "可选 JSON，在 Paperclip 加入标准 wake 与 workspace 字段前合并到远程 adapter 请求 payload。"
+      },
+      "webhook_url": {
+        "help": "agent 被调用时接收 POST 请求的 URL。"
+      },
+      "heartbeat_interval": {
+        "help": "按计时器自动运行此 agent。适合定期检查新工作等任务。"
+      },
+      "interval_sec": {
+        "help": "两次自动 heartbeat 调用之间的秒数。"
+      },
+      "timeout_sec": {
+        "help": "run 被终止前可运行的最大秒数。0 表示无超时。"
+      },
+      "grace_sec": {
+        "help": "发送 interrupt 后等待多久再强制 kill 进程。"
+      },
+      "wake_on_demand": {
+        "help": "允许通过分配、API 调用、UI 操作或自动化系统唤醒此 agent。"
+      },
+      "cooldown_sec": {
+        "help": "连续 heartbeat run 之间的最小间隔秒数。"
+      },
+      "max_concurrent_runs": {
+        "help": "此 agent 可同时执行的 heartbeat run 最大数量。"
+      },
+      "max_turn_continuation_enabled": {
+        "help": "当 adapter 因每次 run 的 turn 上限耗尽而停止时，自动排队受限 continuation run。"
+      },
+      "max_turn_continuation_max_attempts": {
+        "help": "一次 max-turn stop 后的最大自动 continuation 次数。它与每次 run 的最大 turns 分开计算。"
+      },
+      "max_turn_continuation_delay_sec": {
+        "help": "每次 max-turn continuation 开始前等待的秒数。"
+      },
+      "budget_monthly_cents": {
+        "help": "每月花费上限，单位为 cents。0 表示无限制。"
       }
     }
   },
@@ -4249,6 +6241,9 @@
       },
       "ws_127_0_0_1_18789": {
         "attr_placeholder": "ws://127.0.0.1:18789"
+      },
+      "role": {
+        "attr_label": "角色"
       }
     },
     "launchers": {
@@ -4275,10 +6270,10 @@
     },
     "schema_config_fields": {
       "quot_as_custom_value_press_enter": {
-        "jsx-text": "&quot; as custom value (press Enter)\n              "
+        "jsx-text": "\" as custom value (press Enter)\n              "
       },
       "use_quot": {
-        "jsx-text": "\n                Use &quot;"
+        "jsx-text": "\n                Use \""
       }
     },
     "slots": {
@@ -4297,6 +6292,15 @@
       },
       "filter_by_type": {
         "attr_placeholder": "Filter by type"
+      },
+      "select_a_company_to_view_activ": {
+        "jsx-text": "选择公司以查看活动。"
+      },
+      "no_activity_yet": {
+        "jsx-text": "暂无活动。"
+      },
+      "activity": {
+        "breadcrumb": "活动"
       }
     },
     "adaptermanager": {
@@ -4310,7 +6314,8 @@
         "jsx-text": " adapter? It will be unregistered and removed from the adapter store.\n              "
       },
       "adapters": {
-        "jsx-text": "Adapters"
+        "jsx-text": "Adapters",
+        "breadcrumb": "适配器"
       },
       "add_an_adapter_from_npm_or_a_loc": {
         "jsx-text": "\n               添加 an adapter from npm or a local path. The adapter package must export "
@@ -4429,6 +6434,47 @@
       },
       "version_optional": {
         "jsx-text": "Version (optional)"
+      },
+      "adapter_installed": {
+        "title": "Adapter 已安装"
+      },
+      "adapter_registered": {
+        "body": "类型“{{type}}”已成功注册。{{version}}"
+      },
+      "install_failed": {
+        "title": "安装失败"
+      },
+      "adapter_removed": {
+        "title": "Adapter 已移除"
+      },
+      "removal_failed": {
+        "title": "移除失败"
+      },
+      "toggle_failed": {
+        "title": "切换失败"
+      },
+      "override_toggle_failed": {
+        "title": "覆盖切换失败"
+      },
+      "adapter_reloaded": {
+        "title": "Adapter 已重新加载",
+        "body": "类型“{{type}}”已重新加载。{{version}}"
+      },
+      "reload_failed": {
+        "title": "重新加载失败"
+      },
+      "adapter_reinstalled": {
+        "title": "Adapter 已重新安装",
+        "body": "类型“{{type}}”已从 npm 更新。{{version}}"
+      },
+      "reinstall_failed": {
+        "title": "重新安装失败"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
       }
     },
     "agentdetail": {
@@ -4511,7 +6557,8 @@
         "jsx-text": "Context"
       },
       "copied": {
-        "jsx-text": "Copied!"
+        "jsx-text": "Copied!",
+        "copy_label": "已复制"
       },
       "copy_as_markdown": {
         "attr_title": "Copy as markdown"
@@ -4670,7 +6717,7 @@
         "jsx-text": "Prompt"
       },
       "rarr": {
-        "jsx-text": " &rarr; "
+        "jsx-text": " → "
       },
       "recent_tasks": {
         "jsx-text": "最近任务"
@@ -4703,7 +6750,7 @@
         "jsx-text": "Run"
       },
       "see_all_rarr": {
-        "jsx-text": "\n            See全部 &rarr;\n          "
+        "jsx-text": "\n            See全部 →\n          "
       },
       "selected_skills": {
         "jsx-text": "Selected skills"
@@ -4736,10 +6783,10 @@
         "attr_title": "成功率"
       },
       "tasks_by_priority": {
-        "attr_title": "按优先级分组的任务"
+        "attr_title": "按优先级统计任务"
       },
       "tasks_by_status": {
-        "attr_title": "按状态分组的任务"
+        "attr_title": "按状态统计任务"
       },
       "tasks_touched": {
         "jsx-text": "Tasks Touched ("
@@ -4772,7 +6819,7 @@
         "jsx-text": "\n         查看 company skills library\n        "
       },
       "view_details_rarr": {
-        "jsx-text": "\n         查看 details &rarr;\n        "
+        "jsx-text": "\n         查看 details →\n        "
       },
       "view": {
         "jsx-text": "\n                        View\n                      "
@@ -4791,11 +6838,100 @@
       },
       "you_left_this_agent_it_no_longer": {
         "jsx-text": "\n            You left this agent. It无 longer appears in your sidebar.\n          "
+      },
+      "last_14_days": {
+        "attr_subtitle": "最近 14 天"
+      },
+      "copy_instructions_file_as": {
+        "attr_aria-label": "复制 instructions 文件为 markdown"
+      },
+      "worktree_setup": {
+        "phase_label": "Worktree 设置"
+      },
+      "provision": {
+        "phase_label": "预配"
+      },
+      "teardown": {
+        "phase_label": "拆除"
+      },
+      "worktree_cleanup": {
+        "phase_label": "Worktree 清理"
+      },
+      "to_relative_time": {
+        "jsx-text": " 到 {{time}}"
+      },
+      "could_not_save_agent": {
+        "error": "无法保存 agent"
+      },
+      "save_failed": {
+        "title": "保存失败"
+      },
+      "kept_in_workspace": {
+        "skill_mode": "保留在 workspace 中"
+      },
+      "applied_when_agent_runs": {
+        "skill_mode": "agent 运行时应用"
+      },
+      "tracked_only": {
+        "skill_mode": "仅跟踪"
+      },
+      "unknown": {
+        "skill_mode": "未知"
+      },
+      "cannot_manage_custom_acp_skills": {
+        "message": "Paperclip 暂不能管理自定义 ACP 命令的 skills。"
+      },
+      "cannot_manage_openclaw_skills": {
+        "message": "Paperclip 不能在这里管理 OpenClaw skills。请前往 OpenClaw 实例管理此 agent 的 skills。"
+      },
+      "cannot_manage_adapter_skills": {
+        "message": "Paperclip 暂不能管理此 adapter 的 skills。请直接在 adapter 中管理。"
+      },
+      "manage_skills_in_adapter": {
+        "tooltip": "直接在 adapter 中管理 skills。"
+      },
+      "failed_to_update_permissions": {
+        "error": "权限更新失败"
+      },
+      "agents": {
+        "breadcrumb": "Agents"
+      },
+      "agent": {
+        "breadcrumb": "Agent"
+      },
+      "runs": {
+        "breadcrumb": "Runs",
+        "tab_label": "Runs"
+      },
+      "instructions": {
+        "breadcrumb": "指令",
+        "tab_label": "指令"
+      },
+      "configuration": {
+        "breadcrumb": "配置",
+        "tab_label": "配置"
+      },
+      "budget": {
+        "breadcrumb": "预算",
+        "tab_label": "预算"
+      },
+      "dashboard": {
+        "breadcrumb": "看板",
+        "tab_label": "看板"
+      },
+      "skills": {
+        "tab_label": "技能"
+      },
+      "select_company_to_upload_images": {
+        "error": "请选择公司后再上传图片"
+      },
+      "action_failed": {
+        "error": "操作失败"
       }
     },
     "agents": {
       "agent": {
-        "jsx-text": " agent"
+        "jsx-text": " 个 agent"
       },
       "invalid_reporting_chain": {
         "attr_aria-label": "Invalid reporting chain"
@@ -4804,13 +6940,37 @@
         "jsx-text": "\n        Live"
       },
       "new_agent": {
-        "jsx-text": "\n            New Agent\n          "
+        "jsx-text": "\n            新建 agent\n          "
       },
       "no_agents_match_the_selected_fil": {
-        "jsx-text": "\n         无 agents match the selected filter.\n        "
+        "jsx-text": "\n          没有 agent 匹配所选筛选条件。\n        "
       },
       "no_organizational_hierarchy_defi": {
-        "jsx-text": "\n         无 organizational hierarchy defined.\n        "
+        "jsx-text": "\n          尚未定义组织层级。\n        "
+      },
+      "select_a_company_to_view_agents": {
+        "jsx-text": "选择公司以查看 agent。"
+      },
+      "create_your_first_agent_to_get": {
+        "jsx-text": "创建第一个 agent 以开始使用。"
+      },
+      "new_agent_action": {
+        "jsx-text": "新建 agent"
+      },
+      "agents": {
+        "breadcrumb": "Agents"
+      },
+      "all": {
+        "tab_label": "全部"
+      },
+      "active": {
+        "tab_label": "活跃"
+      },
+      "paused": {
+        "tab_label": "已暂停"
+      },
+      "error": {
+        "tab_label": "错误"
       }
     },
     "approvaldetail": {
@@ -4861,6 +7021,42 @@
       },
       "see_full_request": {
         "jsx-text": "\n            See full request\n          "
+      },
+      "approve_failed": {
+        "error": "批准失败"
+      },
+      "reject_failed": {
+        "error": "拒绝失败"
+      },
+      "revision_request_failed": {
+        "error": "请求修订失败"
+      },
+      "resubmit_failed": {
+        "error": "重新提交失败"
+      },
+      "comment_failed": {
+        "error": "评论失败"
+      },
+      "delete_failed": {
+        "error": "删除失败"
+      },
+      "approvals": {
+        "breadcrumb": "Approvals"
+      },
+      "approval": {
+        "breadcrumb": "Approval"
+      },
+      "review_linked_tasks": {
+        "action": "查看关联任务"
+      },
+      "review_linked_task": {
+        "action": "查看关联任务"
+      },
+      "open_hired_agent": {
+        "action": "打开已聘用 agent"
+      },
+      "back_to_approvals": {
+        "action": "返回 approvals"
       }
     },
     "approvals": {
@@ -4869,11 +7065,23 @@
       },
       "select_a_company_first": {
         "jsx-text": "Select a company first."
+      },
+      "approvals": {
+        "breadcrumb": "审批"
+      },
+      "all": {
+        "tab_label": "全部"
+      },
+      "no_pending_approvals": {
+        "empty": "暂无待处理 approval。"
+      },
+      "no_approvals_yet": {
+        "empty": "暂无 approval。"
       }
     },
     "artifacts": {
       "all_stacks": {
-        "jsx-text": "\n           全部 stacks\n          "
+        "jsx-text": "全部堆栈"
       },
       "clear_artifact_search": {
         "attr_aria-label": "Clear artifact search"
@@ -4890,6 +7098,66 @@
       "search_artifacts": {
         "attr_aria-label": "Search artifacts",
         "attr_placeholder": "Search artifacts..."
+      },
+      "select_a_company_to_view_artif": {
+        "jsx-text": "选择公司以查看制品。"
+      },
+      "loading_more_artifacts": {
+        "status": "正在加载更多 artifact..."
+      },
+      "updating_artifacts": {
+        "status": "正在更新 artifact..."
+      },
+      "all": {
+        "filter_label": "全部"
+      },
+      "images": {
+        "filter_label": "图片"
+      },
+      "videos": {
+        "filter_label": "视频"
+      },
+      "documents": {
+        "filter_label": "文档"
+      },
+      "text": {
+        "filter_label": "文本"
+      },
+      "files": {
+        "filter_label": "文件"
+      },
+      "task": {
+        "group_label": "任务"
+      },
+      "parent_task": {
+        "group_label": "父任务"
+      },
+      "none": {
+        "group_label": "无"
+      },
+      "artifacts": {
+        "breadcrumb": "制品"
+      },
+      "no_artifact_stacks_match_search": {
+        "empty": "没有匹配此搜索的制品栈。"
+      },
+      "no_artifact_stacks_yet": {
+        "empty": "暂无制品栈。"
+      },
+      "no_artifacts_match_search": {
+        "empty": "没有匹配此搜索的制品。"
+      },
+      "no_artifacts_in_stack_match_filters": {
+        "empty": "此栈中没有匹配当前筛选器的制品。"
+      },
+      "no_artifacts_yet": {
+        "empty": "暂无制品。附加到 issue 的输出会显示在这里。"
+      },
+      "no_artifacts_of_type_yet": {
+        "empty": "暂无此类型的制品。"
+      },
+      "group_artifacts_current": {
+        "attr_aria-label": "制品分组：{{value}}"
       }
     },
     "auth": {
@@ -4904,6 +7172,15 @@
       },
       "password": {
         "jsx-text": "密码"
+      },
+      "please_fill_in_all_required": {
+        "feedback": "请填写所有必填字段。"
+      },
+      "name": {
+        "attr_label": "名称"
+      },
+      "authentication_failed": {
+        "error": "认证失败"
       }
     },
     "boardclaim": {
@@ -4952,7 +7229,7 @@
         "jsx-text": "Bootstrap-pending setup states"
       },
       "browser_based_claim_is_intention": {
-        "jsx-text": "\n        Browser‑based claim is intentionally disabled in public mode so anyone on the network can&rsquo;t promote themselves.\n      "
+        "jsx-text": "\n        Browser‑based claim is intentionally disabled in public mode so anyone on the network can't promote themselves.\n      "
       },
       "claim_this_instance": {
         "jsx-text": "Claim this instance"
@@ -4967,10 +7244,10 @@
         "jsx-text": "Continue to dashboard"
       },
       "deploymentexposure_quot_private_": {
-        "jsx-text": "deploymentExposure === &quot;private&quot;"
+        "jsx-text": "deploymentExposure === \"private\""
       },
       "deploymentmode_quot_authenticate": {
-        "jsx-text": "deploymentMode === &quot;authenticated&quot;"
+        "jsx-text": "deploymentMode === \"authenticated\""
       },
       "finish_setting_up_this_paperclip": {
         "jsx-text": "Finish setting up this Paperclip"
@@ -4991,13 +7268,13 @@
         "jsx-text": "Prefer to finish setup from the host?"
       },
       "redirecting_hellip": {
-        "jsx-text": "Redirecting&hellip;"
+        "jsx-text": "Redirecting..."
       },
       "refresh_to_sign_in_or_ask_the_ex": {
         "jsx-text": "\n            Refresh to sign in, or ask the existing admin to invite you from"
       },
       "setup_is_complete_taking_you_to_": {
-        "jsx-text": "\n            Setup is complete. Taking you to onboarding to创建 your first company&hellip;\n          "
+        "jsx-text": "\n            Setup is complete. Taking you to onboarding to创建 your first company...\n          "
       },
       "sign_in_create_account": {
         "jsx-text": "Sign in /创建 account"
@@ -5030,7 +7307,7 @@
         "jsx-text": "\n        Wrong account?"
       },
       "you_rsquo_re_the_instance_admin": {
-        "jsx-text": "You&rsquo;re the instance admin"
+        "jsx-text": "You're the instance admin"
       }
     },
     "cliauth": {
@@ -5091,13 +7368,15 @@
         "jsx-text": "\n          Cloud sync is disabled. Enable it in"
       },
       "cloud_upstream": {
-        "jsx-text": "Cloud upstream"
+        "jsx-text": "Cloud upstream",
+        "breadcrumb": "云端上游"
       },
       "conflicts": {
         "jsx-text": "Conflicts"
       },
       "connect": {
-        "jsx-text": "\n                Connect\n              "
+        "jsx-text": "\n                Connect\n              ",
+        "step_label": "连接"
       },
       "connection": {
         "jsx-text": "Connection"
@@ -5136,7 +7415,8 @@
         "jsx-text": "\n                  Preview push\n                "
       },
       "preview": {
-        "jsx-text": "Preview"
+        "jsx-text": "Preview",
+        "step_label": "预览"
       },
       "progress_and_finish": {
         "jsx-text": "Progress and finish"
@@ -5145,7 +7425,8 @@
         "jsx-text": "\n              Push to cloud\n            "
       },
       "push": {
-        "jsx-text": "\n            Push "
+        "jsx-text": "\n            Push ",
+        "step_label": "推送"
       },
       "re_run": {
         "jsx-text": "\n                  Re-run\n                "
@@ -5170,6 +7451,88 @@
       },
       "warnings": {
         "jsx-text": "\n        Warnings\n      "
+      },
+      "connection_not_approved": {
+        "error": "Cloud upstream 连接未获批准：{{error}}"
+      },
+      "failed_to_start_connection": {
+        "error": "启动连接失败。"
+      },
+      "company_too_large_preview": {
+        "error": "本地公司过大，无法作为单个请求预览。点击 Push 继续（Push 步骤会分块上传），或查看文档了解分块预览选项。"
+      },
+      "failed_to_preview_push": {
+        "error": "预览 push 失败。"
+      },
+      "scan": {
+        "step_label": "扫描"
+      },
+      "verify": {
+        "step_label": "验证"
+      },
+      "activate": {
+        "step_label": "激活",
+        "action": "激活"
+      },
+      "agents": {
+        "category_label": "Agents",
+        "category_detail": "取消暂停导入的 agent 前，请确认云端 secrets 和 adapter 凭证。",
+        "noun": "agent"
+      },
+      "routines": {
+        "category_label": "Routines",
+        "category_detail": "启用导入的 routine 前，请检查 schedule 和触发设置。",
+        "noun": "routine"
+      },
+      "monitors": {
+        "category_label": "Monitors",
+        "category_detail": "目标栈通过 smoke test 后再激活。",
+        "noun": "monitor"
+      },
+      "agent": {
+        "noun": "agent"
+      },
+      "routine": {
+        "noun": "routine"
+      },
+      "monitor": {
+        "noun": "monitor"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
+      },
+      "no_pending_connection": {
+        "error": "未找到待处理的云端上游连接。请重新开始连接。"
+      },
+      "building_manifest": {
+        "status": "正在构建 manifest..."
+      },
+      "building_manifest_elapsed": {
+        "status": "正在构建 manifest... {{seconds}} 秒。大公司可能需要最多一分钟。"
+      },
+      "still_building_manifest_elapsed": {
+        "status": "仍在构建 manifest... {{seconds}} 秒。PAP 规模的公司通常需要约 60 秒。"
+      },
+      "zero_imported_in_run": {
+        "detail": "此 run 中导入了 0 个 {{pluralLabel}}。"
+      },
+      "activated": {
+        "action": "已激活"
+      },
+      "imported_entities_paused": {
+        "detail": "已导入 {{count}} 个 {{pluralLabel}}，默认保持暂停。{{detail}}"
+      },
+      "count_activated": {
+        "status_label": "已激活 {{count}} 个"
+      },
+      "zero_imported": {
+        "status_label": "导入 0 个"
+      },
+      "count_paused": {
+        "status_label": "{{count}} 个已暂停"
       }
     },
     "cloudupstreamuxlab": {
@@ -5273,6 +7636,9 @@
       },
       "unlimited_budget": {
         "jsx-text": "Unlimited budget"
+      },
+      "companies": {
+        "breadcrumb": "公司"
       }
     },
     "companyaccess": {
@@ -5396,6 +7762,75 @@
       },
       "user_account": {
         "jsx-text": "User account"
+      },
+      "unknown_human_requester": {
+        "text": "未知人工请求者"
+      },
+      "no_email_available": {
+        "text": "无可用邮箱"
+      },
+      "join_invite_context": {
+        "text": "{{joinTypes}} 加入邀请{{role}}"
+      },
+      "default_role_suffix": {
+        "text": " · 默认角色 {{role}}"
+      },
+      "invite_metadata_unavailable": {
+        "text": "邀请元数据不可用"
+      },
+      "submitted_at": {
+        "text": "提交时间 {{date}}"
+      },
+      "approve_human": {
+        "action": "批准人工用户"
+      },
+      "reject_human": {
+        "action": "拒绝人工用户"
+      },
+      "role": {
+        "jsx-text": "角色"
+      },
+      "action": {
+        "jsx-text": "操作"
+      },
+      "member_updated": {
+        "title": "成员已更新"
+      },
+      "failed_to_update_member": {
+        "title": "更新成员失败"
+      },
+      "join_request_approved": {
+        "title": "加入申请已批准"
+      },
+      "failed_to_approve_join_request": {
+        "title": "批准加入申请失败"
+      },
+      "join_request_rejected": {
+        "title": "加入申请已拒绝"
+      },
+      "failed_to_reject_join_request": {
+        "title": "拒绝加入申请失败"
+      },
+      "failed_to_remove_member": {
+        "title": "移除成员失败"
+      },
+      "access": {
+        "breadcrumb": "访问权限"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
+      },
+      "members": {
+        "breadcrumb": "成员"
+      },
+      "member_removed": {
+        "title": "成员已移除"
+      },
+      "assigned_tasks_cleaned_up": {
+        "body": "已清理 {{count}} 个已分配任务。"
       }
     },
     "companyenvironments": {
@@ -5415,7 +7850,7 @@
         "attr_label": "描述"
       },
       "driver": {
-        "attr_label": "Driver"
+        "attr_label": "驱动"
       },
       "enable_environments_in_instance_": {
         "jsx-text": "\n          Enable Environments in instance experimental settings to manage company execution targets.\n        "
@@ -5427,13 +7862,13 @@
         "jsx-text": "Environment support by adapter"
       },
       "host": {
-        "attr_label": "Host"
+        "attr_label": "主机"
       },
       "installed_sandbox_providers": {
         "jsx-text": "\n            Installed sandbox providers:"
       },
       "known_hosts": {
-        "attr_label": "Known hosts"
+        "attr_label": "known_hosts"
       },
       "local": {
         "jsx-text": "Local"
@@ -5448,16 +7883,16 @@
         "jsx-text": "否"
       },
       "port": {
-        "attr_label": "Port"
+        "attr_label": "端口"
       },
       "private_key": {
-        "attr_label": "Private key"
+        "attr_label": "私钥"
       },
       "provider": {
         "attr_label": "提供方"
       },
       "remote_workspace_path": {
-        "attr_label": "Remote workspace path"
+        "attr_label": "远程工作区路径"
       },
       "runs_on_this_paperclip_host": {
         "jsx-text": "Runs on this Paperclip host."
@@ -5469,7 +7904,7 @@
         "jsx-text": "Select a company to manage environments."
       },
       "strict_host_key_checking": {
-        "attr_label": "Strict host key checking"
+        "attr_label": "严格主机密钥检查"
       },
       "these_are_not_adapter_types_they": {
         "jsx-text": "\n            . These are not adapter types. They back the Sandbox driver for adapters that support sandbox execution.\n          "
@@ -5482,6 +7917,90 @@
       },
       "yes": {
         "jsx-text": "\n      Yes\n    "
+      },
+      "edit_environment": {
+        "jsx-text": "编辑环境"
+      },
+      "add_environment": {
+        "jsx-text": "添加环境"
+      },
+      "name": {
+        "attr_label": "名称"
+      },
+      "operator_facing_name_for_thi": {
+        "attr_hint": "面向操作者的执行目标名称。"
+      },
+      "optional_note_about_what_thi": {
+        "attr_hint": "关于这台机器用途的可选说明。"
+      },
+      "local_runs_on_this_host_ssh": {
+        "attr_hint": "Local 在此主机上运行。SSH 存储远程机器目标。Sandbox 在共享环境层保存插件提供的 provider 配置。"
+      },
+      "dns_name_or_ip_address_for_t": {
+        "attr_hint": "远程机器的 DNS 名称或 IP 地址。"
+      },
+      "defaults_to_22": {
+        "attr_hint": "默认为 22。"
+      },
+      "ssh_login_user": {
+        "attr_hint": "SSH 登录用户。"
+      },
+      "absolute_path_that_paperclip": {
+        "attr_hint": "Paperclip 会在 SSH 连接测试期间验证的绝对路径。"
+      },
+      "optional_pem_private_key_lea": {
+        "attr_hint": "可选 PEM 私钥。留空则使用服务器的 SSH agent 或默认 keychain。"
+      },
+      "optional_known_hosts_block_u": {
+        "attr_hint": "启用严格主机密钥检查时使用的可选 known_hosts 内容。"
+      },
+      "keep_this_on_unless_you_del": {
+        "attr_hint": "保持开启，除非你明确想在探测时禁用主机密钥接受。"
+      },
+      "installed_run_capable_sandbo": {
+        "attr_hint": "已安装且可运行的 sandbox provider 插件会显示在这里。"
+      },
+      "sandbox_provider_with_summary": "{{displayName}} sandbox provider · {{summary}}",
+      "sandbox_provider": "{{displayName}} sandbox provider",
+      "sandbox": {
+        "jsx-text": "Sandbox"
+      },
+      "environment_updated": {
+        "title": "环境已更新"
+      },
+      "environment_created": {
+        "title": "环境已创建"
+      },
+      "environment_ready": {
+        "body": "{{name}} 已就绪。"
+      },
+      "failed_to_save_environment": {
+        "title": "保存环境失败"
+      },
+      "environment_save_failed": {
+        "error": "环境保存失败。"
+      },
+      "environment_probe_passed": {
+        "title": "环境探测通过"
+      },
+      "environment_probe_failed": {
+        "title": "环境探测失败",
+        "error": "环境探测失败。"
+      },
+      "draft_probe_passed": {
+        "title": "草稿探测通过"
+      },
+      "draft_probe_failed": {
+        "title": "草稿探测失败"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
+      },
+      "environments": {
+        "breadcrumb": "环境"
       }
     },
     "companyexport": {
@@ -5489,7 +8008,8 @@
         "jsx-text": "\n            Binary asset preview is not available for this file type.\n          "
       },
       "export": {
-        "jsx-text": " export\n            "
+        "jsx-text": " export\n            ",
+        "breadcrumb": "导出"
       },
       "file": {
         "jsx-text": " file"
@@ -5511,6 +8031,33 @@
       },
       "warning": {
         "jsx-text": " warning"
+      },
+      "select_a_file_to_preview_its": {
+        "attr_message": "选择文件以预览其内容。"
+      },
+      "select_a_company_to_export": {
+        "attr_message": "选择要导出的公司。"
+      },
+      "loading_export_data": {
+        "attr_message": "正在加载导出数据..."
+      },
+      "export_failed": {
+        "title": "导出失败"
+      },
+      "failed_to_load_export_data": {
+        "error": "加载导出数据失败。"
+      },
+      "export_downloaded": {
+        "title": "导出已下载"
+      },
+      "files_exported": {
+        "body": "已将 {{count}} 个文件导出为 {{path}}"
+      },
+      "failed_to_build_export_package": {
+        "error": "构建导出包失败。"
+      },
+      "org_chart": {
+        "breadcrumb": "组织图"
       }
     },
     "companyimport": {
@@ -5575,7 +8122,7 @@
         "jsx-text": "Package files"
       },
       "rarr": {
-        "jsx-text": "\n          &rarr; "
+        "jsx-text": "\n          → "
       },
       "rename_on_conflict": {
         "jsx-text": "Rename on conflict"
@@ -5594,6 +8141,75 @@
       },
       "with": {
         "jsx-text": " with"
+      },
+      "select_a_file_to_preview_its": {
+        "attr_message": "选择文件以预览其内容。"
+      },
+      "select_a_company_to_import_into": {
+        "attr_message": "选择要导入到的公司。"
+      },
+      "github_repo": {
+        "jsx-text": "GitHub 仓库"
+      },
+      "local_zip": {
+        "jsx-text": "本地 zip"
+      },
+      "repo_tree_path_or_blob_url_to": {
+        "attr_hint": "指向 COMPANY.md 的仓库 tree 路径或 blob URL（例如 github.com/owner/repo/tree/main/company）。"
+      },
+      "target": {
+        "attr_label": "目标"
+      },
+      "import_into_this_company_or_c": {
+        "attr_hint": "导入到当前公司，或创建新公司。"
+      },
+      "optional_override_leave_blank": {
+        "attr_hint": "可选覆盖。留空则使用包名称。"
+      },
+      "board_imports_can_rename_ski": {
+        "attr_hint": "看板导入可重命名、跳过或替换匹配的公司内容。"
+      },
+      "preview_failed": {
+        "title": "预览失败"
+      },
+      "failed_to_preview_import": {
+        "error": "导入预览失败。"
+      },
+      "import_complete": {
+        "title": "导入完成"
+      },
+      "agents_processed": {
+        "body": "{{name}}：已处理 {{count}} 个 agent。"
+      },
+      "import_failed": {
+        "title": "导入失败"
+      },
+      "failed_to_apply_import": {
+        "error": "应用导入失败。"
+      },
+      "package_read_failed": {
+        "title": "读取包失败"
+      },
+      "failed_to_read_folder": {
+        "error": "读取文件夹失败。"
+      },
+      "org_chart": {
+        "breadcrumb": "组织图"
+      },
+      "import": {
+        "breadcrumb": "导入"
+      },
+      "select_zip_company_package": {
+        "error": "请选择 .zip 公司包。"
+      },
+      "no_package_files_found": {
+        "error": "所选 zip 归档中没有包文件。"
+      },
+      "no_source_configured": {
+        "error": "未配置来源。"
+      },
+      "local_zip_help": {
+        "text": "上传直接从 Paperclip 导出的 .zip。Finder、Explorer 或其他压缩工具重新打包的归档可能无法正确导入。"
       }
     },
     "companyinvites": {
@@ -5681,62 +8297,137 @@
       },
       "this_url_includes_the_current_pa": {
         "jsx-text": "\n                This URL includes the current Paperclip domain returned by the server.\n              "
+      },
+      "action": {
+        "jsx-text": "操作"
+      },
+      "invite_url_selected_copy_manually": {
+        "toast_body": "邀请 URL 已选中，请从字段中手动复制。"
+      },
+      "copy_invite_url_manually": {
+        "toast_body": "请从下方字段手动复制邀请 URL。"
+      },
+      "invite_created": {
+        "toast_title": "邀请已创建"
+      },
+      "invite_ready_copied": {
+        "toast_body": "邀请已就绪，并已复制到剪贴板。"
+      },
+      "invite_ready": {
+        "toast_body": "邀请已在下方就绪。"
+      },
+      "failed_to_create_invite": {
+        "toast_title": "创建邀请失败"
+      },
+      "failed_to_revoke_invite": {
+        "toast_title": "撤销邀请失败"
+      },
+      "invite_revoked": {
+        "toast_title": "邀请已撤销"
+      },
+      "unknown_error": "未知错误",
+      "unknown_inviter": "未知邀请人",
+      "loading_more": {
+        "action": "加载更多..."
+      },
+      "view_more": {
+        "action": "查看更多"
+      },
+      "state_active": "有效",
+      "state_accepted": "已接受",
+      "state_expired": "已过期",
+      "state_revoked": "已撤销",
+      "audience_agent": "Agent",
+      "audience_human_or_agent_with_role": "用户或 agent · {{role}}",
+      "audience_human_or_agent": "用户或 agent",
+      "audience_human": "用户",
+      "viewer": {
+        "role_label": "查看者",
+        "role_description": "可查看公司工作并跟进进展。",
+        "role_gets": "只读公司成员资格。"
+      },
+      "operator": {
+        "role_label": "操作员",
+        "role_description": "适合需要协助运行工作但不管理访问权限的成员。",
+        "role_gets": "可分配任务。"
+      },
+      "admin": {
+        "role_label": "管理员",
+        "role_description": "适合需要邀请成员、创建 agent 和批准加入的操作员。",
+        "role_gets": "可创建 agent、邀请用户、分配任务并批准加入请求。"
+      },
+      "owner": {
+        "role_label": "所有者",
+        "role_description": "完整公司访问权限，包括成员管理。",
+        "role_gets": "包含管理员全部权限，另可管理成员。"
+      },
+      "clipboard_unavailable": {
+        "toast_title": "剪贴板不可用"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
+      },
+      "invites": {
+        "breadcrumb": "邀请"
       }
     },
     "companysettings": {
       "appearance": {
-        "jsx-text": "\n          Appearance\n        "
+        "jsx-text": "\n          外观\n        "
       },
       "archive_this_company_to_hide_it_": {
-        "jsx-text": "\n            Archive this company to hide it from the sidebar. This persists in the database.\n          "
+        "jsx-text": "\n            归档此公司会将其从侧边栏隐藏。该状态会保存在数据库中。\n          "
       },
       "attachment_size_limit": {
-        "attr_label": "Attachment size limit"
+        "attr_label": "附件大小限制"
       },
       "auto": {
         "attr_placeholder": "自动"
       },
       "brand_color": {
-        "attr_label": "Brand color"
+        "attr_label": "品牌色"
       },
       "clear": {
-        "jsx-text": "\n                      Clear\n                    "
+        "jsx-text": "\n                      清除\n                    "
       },
       "company_name": {
         "attr_label": "公司名称"
       },
       "company_packages": {
-        "jsx-text": "\n          Company Packages\n        "
+        "jsx-text": "\n          公司包\n        "
       },
       "company_settings": {
-        "jsx-text": "Company Settings"
+        "jsx-text": "公司设置"
       },
       "danger_zone": {
-        "jsx-text": "\n          Danger Zone\n        "
+        "jsx-text": "\n          危险区域\n        "
       },
       "description": {
         "attr_label": "描述"
       },
       "enter_a_whole_number_from_1_to": {
-        "jsx-text": "\n                      Enter a whole number from 1 to "
+        "jsx-text": "\n                      输入 1 到 "
       },
       "export": {
-        "jsx-text": "\n                Export\n              "
+        "jsx-text": "\n                导出\n              "
       },
       "general": {
-        "jsx-text": "\n          General\n        "
+        "jsx-text": "\n          常规\n        "
       },
       "header": {
-        "jsx-text": " header.\n          "
+        "jsx-text": " 标题栏。\n          "
       },
       "hiring": {
-        "jsx-text": "\n          Hiring\n        "
+        "jsx-text": "\n          招聘\n        "
       },
       "import_and_export_have_moved_to_": {
-        "jsx-text": "\n            Import and export have moved to dedicated pages accessible from the"
+        "jsx-text": "\n            导入和导出已移到专门页面，可从"
       },
       "import": {
-        "jsx-text": "\n                Import\n              "
+        "jsx-text": "\n                导入\n              "
       },
       "logo": {
         "attr_label": "Logo"
@@ -5745,25 +8436,80 @@
         "jsx-text": "MiB"
       },
       "no_company_selected_select_a_com": {
-        "jsx-text": "\n       无 company selected. Select a company from the switcher above.\n      "
+        "jsx-text": "\n        未选择公司。请从上方切换器选择公司。\n      "
       },
       "optional_company_description": {
-        "attr_placeholder": "Optional company description"
+        "attr_placeholder": "可选公司描述"
       },
       "org_chart": {
-        "jsx-text": "Org Chart"
+        "jsx-text": "组织图"
       },
       "require_board_approval_for_new_h": {
-        "attr_label": "Require board approval for new hires"
+        "attr_label": "新招聘需要看板审批"
       },
       "saved": {
         "jsx-text": "已保存"
       },
       "send_to_paperclip_cloud": {
-        "jsx-text": "\n                  Send to Paperclip Cloud\n                "
+        "jsx-text": "\n                  发送到 Paperclip Cloud\n                "
       },
       "uploading_logo": {
-        "jsx-text": "Uploading logo..."
+        "jsx-text": "正在上传 Logo..."
+      },
+      "accepted_range_1_max_mib": {
+        "attr_hint": "可接受范围：1-{{max}} MiB。"
+      },
+      "already_archived": {
+        "jsx-text": "已归档"
+      },
+      "archive_company_confirm": "归档公司“{{name}}”？它会从侧边栏隐藏。",
+      "archive_company": {
+        "jsx-text": "归档公司"
+      },
+      "archiving": {
+        "jsx-text": "正在归档..."
+      },
+      "failed_to_archive_company": {
+        "jsx-text": "归档公司失败"
+      },
+      "failed_to_save": {
+        "jsx-text": "保存失败"
+      },
+      "logo_upload_failed": {
+        "jsx-text": "Logo 上传失败"
+      },
+      "new_agent_hires_stay_pending": {
+        "attr_hint": "新 agent 招聘会保持待审批，直到看板批准。"
+      },
+      "optional_description_shown_in_": {
+        "attr_hint": "显示在公司资料中的可选描述。"
+      },
+      "remove_logo": {
+        "jsx-text": "移除 Logo"
+      },
+      "removing": {
+        "jsx-text": "正在移除..."
+      },
+      "save_changes": {
+        "jsx-text": "保存更改"
+      },
+      "saving": {
+        "jsx-text": "保存中..."
+      },
+      "sets_the_hue_for_the_compan": {
+        "attr_hint": "设置公司图标的色相。留空则自动生成颜色。"
+      },
+      "the_display_name_for_your_comp": {
+        "attr_hint": "公司的显示名称。"
+      },
+      "upload_a_png_jpeg_webp_gif_": {
+        "attr_hint": "上传 PNG、JPEG、WEBP、GIF 或 SVG Logo 图片。"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
       }
     },
     "companysettingspluginpage": {
@@ -5781,6 +8527,9 @@
       },
       "select_a_company_to_view_this_pa": {
         "jsx-text": "Select a company to查看 this page."
+      },
+      "settings": {
+        "breadcrumb": "设置"
       }
     },
     "companyskills": {
@@ -5845,10 +8594,12 @@
         "jsx-text": "\n                    Compatible\n                  "
       },
       "copy_content_hash": {
-        "attr_title": "Copy content hash"
+        "attr_title": "Copy content hash",
+        "attr_aria-label": "复制内容 hash"
       },
       "copy_source_path": {
-        "attr_title": "Copy source path"
+        "attr_title": "Copy source path",
+        "attr_aria-label": "复制来源路径"
       },
       "create_blank_skill": {
         "jsx-text": "\n                 创建 blank skill\n                "
@@ -5887,10 +8638,12 @@
         "jsx-text": "\n                      Import from URL\n                    "
       },
       "install_skill": {
-        "jsx-text": "\n              Install skill\n            "
+        "jsx-text": "\n              Install skill\n            ",
+        "button": "安装 skill"
       },
       "install_update": {
-        "jsx-text": "\n                    Install update"
+        "jsx-text": "\n                    Install update",
+        "button": "安装更新"
       },
       "installed_from_the_app_shipped_s": {
         "jsx-text": "Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash."
@@ -5956,7 +8709,8 @@
         "jsx-text": "Provenance"
       },
       "remove_skill": {
-        "jsx-text": "Remove skill"
+        "jsx-text": "Remove skill",
+        "button": "移除 skill"
       },
       "remove_this_skill_from_the_compa": {
         "jsx-text": "\n             移除 this skill from the company library. If any agents still use it, removal will be blocked until it is detached.\n            "
@@ -6029,6 +8783,299 @@
       },
       "you_have_edited_this_skill_after": {
         "jsx-text": "You have edited this skill after installing. Updates from the catalog will overwrite your changes."
+      },
+      "filters_count": {
+        "attr_title": "筛选：{{count}}"
+      },
+      "filter": {
+        "attr_title": "筛选"
+      },
+      "type": {
+        "jsx-text": "类型"
+      },
+      "select_a_catalog_skill_to": {
+        "attr_message": "选择目录 skill 以查看详情。"
+      },
+      "key": {
+        "jsx-text": "键"
+      },
+      "copied_hash": {
+        "copy_label": "已复制 hash"
+      },
+      "select_a_skill_to_inspect_i": {
+        "attr_message": "选择 skill 以查看其文件。"
+      },
+      "editable": {
+        "jsx-text": "可编辑"
+      },
+      "read_only": {
+        "jsx-text": "只读"
+      },
+      "select_a_company_to_manage": {
+        "attr_message": "选择公司以管理 skills。"
+      },
+      "no_skills_installed_yet": {
+        "attr_message": "尚未安装 skill。"
+      },
+      "copied_path": {
+        "copy_label": "已复制路径"
+      },
+      "skills_imported": {
+        "title": "Skills 已导入"
+      },
+      "skills_added": {
+        "body": "已添加 {{count}} 个 skill。"
+      },
+      "import_warnings": {
+        "title": "导入警告"
+      },
+      "skill_import_failed": {
+        "title": "Skill 导入失败"
+      },
+      "failed_to_import_skill_source": {
+        "error": "导入 skill source 失败。"
+      },
+      "skill_installed": {
+        "title": "Skill 已安装"
+      },
+      "skill_updated": {
+        "title": "Skill 已更新"
+      },
+      "skill_up_to_date": {
+        "title": "Skill 已是最新"
+      },
+      "install_warnings": {
+        "title": "安装警告"
+      },
+      "failed_to_install_catalog_skill": {
+        "error": "安装目录 skill 失败。"
+      },
+      "agents_updated": {
+        "title": "Agents 已更新"
+      },
+      "agents_attached": {
+        "body": "已附加 {{count}} 个 agent。"
+      },
+      "update_failed": {
+        "title": "更新失败"
+      },
+      "failed_to_update_agent_skills": {
+        "error": "更新 agent skills 失败。"
+      },
+      "company": {
+        "filter_label": "公司"
+      },
+      "external": {
+        "filter_label": "外部"
+      },
+      "markdown_only": {
+        "trust_label": "仅 Markdown",
+        "trust_tooltip": "仅文本 - 无脚本、二进制或资源文件。"
+      },
+      "includes_assets": {
+        "trust_label": "包含资源",
+        "trust_tooltip": "包含图片、字体或其它非脚本文件。"
+      },
+      "includes_scripts": {
+        "trust_label": "包含脚本",
+        "trust_tooltip": "包含可执行脚本。安装前请审查。"
+      },
+      "unknown_format": {
+        "compat_label": "格式未知",
+        "compat_tooltip": "Paperclip 无法验证此 skill 是否为 Agent Skills markdown。安装需自行承担风险。"
+      },
+      "invalid": {
+        "compat_label": "无效",
+        "compat_tooltip": "此 skill 无法安装 - 内容不是有效的 Agent Skills markdown。"
+      },
+      "creating": {
+        "button": "正在创建..."
+      },
+      "create_skill": {
+        "button": "创建 skill"
+      },
+      "collapse_skill": {
+        "attr_aria-label": "折叠 {{name}}"
+      },
+      "expand_skill": {
+        "attr_aria-label": "展开 {{name}}"
+      },
+      "preparing": {
+        "button": "准备中..."
+      },
+      "install_bundled_skill": {
+        "button": "安装内置 skill"
+      },
+      "install_optional_skill": {
+        "button": "安装可选 skill"
+      },
+      "replace_existing_skill": {
+        "button": "替换现有 skill",
+        "text": "替换现有 skill"
+      },
+      "installing": {
+        "button": "正在安装..."
+      },
+      "update": {
+        "action_label": "更新"
+      },
+      "replace": {
+        "action_label": "替换"
+      },
+      "install": {
+        "action_label": "安装"
+      },
+      "none": {
+        "value_label": "无"
+      },
+      "any": {
+        "value_label": "任意"
+      },
+      "overwrite_catalog_content": {
+        "text": "覆盖 catalog 内容"
+      },
+      "required_suffix": {
+        "text": " - 必需"
+      },
+      "skills_not_supported_suffix": {
+        "text": " - 不支持 skills"
+      },
+      "saving": {
+        "button": "正在保存..."
+      },
+      "save": {
+        "button": "保存"
+      },
+      "detach_before_removing": {
+        "tooltip": "移除前先从所有 agent 解绑此 skill。"
+      },
+      "removing": {
+        "button": "正在移除..."
+      },
+      "remove": {
+        "button": "移除"
+      },
+      "stop_editing": {
+        "button": "停止编辑"
+      },
+      "untracked": {
+        "value_label": "未跟踪"
+      },
+      "skill_created": {
+        "title": "Skill 已创建",
+        "body": "{{name}} 现在可在 Paperclip workspace 中编辑。"
+      },
+      "skill_creation_failed": {
+        "title": "Skill 创建失败"
+      },
+      "failed_to_create_skill": {
+        "error": "创建 skill 失败。"
+      },
+      "scanning_project_workspaces": {
+        "status": "正在扫描项目 workspace 中的 skills..."
+      },
+      "refreshing_skills_list": {
+        "status": "正在刷新 skills 列表..."
+      },
+      "project_skill_scan_complete": {
+        "title": "项目 skill 扫描完成"
+      },
+      "skill_conflicts_found": {
+        "title": "发现 skill 冲突"
+      },
+      "scan_warnings": {
+        "title": "扫描警告"
+      },
+      "project_skill_scan_failed": {
+        "title": "项目 skill 扫描失败"
+      },
+      "failed_to_scan_project_workspaces": {
+        "error": "扫描项目 workspace 失败。"
+      },
+      "skill_saved": {
+        "title": "Skill 已保存"
+      },
+      "save_failed": {
+        "title": "保存失败"
+      },
+      "failed_to_save_skill_file": {
+        "error": "保存 skill 文件失败。"
+      },
+      "pinned_to": {
+        "body": "已固定到 {{ref}}"
+      },
+      "failed_to_install_skill_update": {
+        "error": "安装 skill 更新失败。"
+      },
+      "scan_found": {
+        "part": "发现 {{count}} 个"
+      },
+      "scan_imported": {
+        "part": "导入 {{count}} 个"
+      },
+      "scan_updated": {
+        "part": "更新 {{count}} 个"
+      },
+      "scan_conflicts": {
+        "part": "冲突 {{count}} 个"
+      },
+      "scan_skipped": {
+        "part": "跳过 {{count}} 个"
+      },
+      "scan_summary": {
+        "text": "{{parts}}，覆盖 {{count}} 个 workspace。"
+      },
+      "skill_removed": {
+        "title": "Skill 已移除",
+        "body": "{{name}} 已从公司 skill 库中移除。"
+      },
+      "remove_failed": {
+        "title": "移除失败"
+      },
+      "failed_to_remove_skill": {
+        "error": "移除 skill 失败。"
+      },
+      "about_to_remove_named": {
+        "text": "即将移除 {{name}}。"
+      },
+      "about_to_remove_this_skill": {
+        "text": "即将移除此 skill。"
+      },
+      "add": {
+        "button": "添加"
+      },
+      "skills_sh_managed": {
+        "source_label": "skills.sh 管理"
+      },
+      "github_managed": {
+        "source_label": "GitHub 管理"
+      },
+      "url_managed": {
+        "source_label": "URL 管理"
+      },
+      "folder": {
+        "source_label": "文件夹"
+      },
+      "folder_managed": {
+        "source_label": "文件夹管理"
+      },
+      "paperclip_managed": {
+        "source_label": "Paperclip 管理"
+      },
+      "catalog_managed": {
+        "source_label": "Catalog 管理"
+      },
+      "failed_to_load_file": {
+        "error": "加载文件失败"
+      },
+      "skills": {
+        "breadcrumb": "Skills"
+      },
+      "detail": {
+        "breadcrumb": "详情"
+      },
+      "no_filtered_skills_installed": {
+        "text": "没有已安装的{{filter}} skills。"
       }
     },
     "costs": {
@@ -6073,7 +9120,8 @@
         "jsx-text": "By project"
       },
       "costs": {
-        "jsx-text": "成本"
+        "jsx-text": "成本",
+        "breadcrumb": "成本"
       },
       "credits": {
         "attr_label": "Credits"
@@ -6173,6 +9221,66 @@
       },
       "what_each_agent_consumed_in_the_": {
         "jsx-text": "What each agent consumed in the selected period."
+      },
+      "select_a_company_to_view_costs": {
+        "jsx-text": "选择公司以查看成本。"
+      },
+      "to": {
+        "jsx-text": "到"
+      },
+      "tokens_across_request_scoped": {
+        "jsx-text": "{{tokens}} token，来自请求级事件"
+      },
+      "open": {
+        "jsx-text": "开放"
+      },
+      "agents_projects_paused": {
+        "jsx-text": "{{agents}} 个 agent 已暂停 · {{projects}} 个项目已暂停"
+      },
+      "spend_of_budget": {
+        "jsx-text": "{{spend}} / {{budget}}"
+      },
+      "no_monthly_cap_configured": {
+        "jsx-text": "未配置月度上限"
+      },
+      "debits_credits": {
+        "jsx-text": "{{debits}} 借记 · {{credits}} 贷记"
+      },
+      "estimated_in_range": {
+        "jsx-text": "区间内预估 {{amount}}"
+      },
+      "budget_amount": {
+        "jsx-text": "预算 {{amount}}"
+      },
+      "unlimited_budget": {
+        "jsx-text": "无限预算"
+      },
+      "no_finance_events_yet_add_acco": {
+        "jsx-text": "暂无财务事件。收到 biller 发票或额度后，可添加账户级费用。"
+      },
+      "open_soft_or_hard_threshold": {
+        "jsx-text": "打开的软阈值或硬阈值事件"
+      },
+      "budget_override_approvals_awa": {
+        "jsx-text": "等待看板处理的预算覆盖审批"
+      },
+      "agent_heartbeats_blocked_by_b": {
+        "jsx-text": "因预算阻止的 agent 心跳"
+      },
+      "project_execution_blocked_by_": {
+        "jsx-text": "因预算阻止的项目执行"
+      },
+      "total_events_in_range": {
+        "jsx-text": "区间内共 {{count}} 个事件"
+      },
+      "refunds_offsets_and_credit_r": {
+        "jsx-text": "退款、抵扣和额度返还"
+      },
+      "debit_minus_credit_for_the_s": {
+        "jsx-text": "所选周期的借记减贷记"
+      },
+      "estimated_debits_that_are_no": {
+        "jsx-text": "尚未由发票确认的预估借记"
       }
     },
     "dashboard": {
@@ -6192,7 +9300,7 @@
         "jsx-text": " errors\n                "
       },
       "middot": {
-        "jsx-text": "&middot;"
+        "jsx-text": "·"
       },
       "month_spend": {
         "attr_label": "本月支出"
@@ -6234,16 +9342,43 @@
         "attr_title": "成功率"
       },
       "tasks_by_priority": {
-        "attr_title": "按优先级分组的任务"
+        "attr_title": "按优先级统计任务"
       },
       "tasks_by_status": {
-        "attr_title": "按状态分组的任务"
+        "attr_title": "按状态统计任务"
       },
       "tasks_in_progress": {
         "attr_label": "进行中任务"
       },
       "you_have_no_agents": {
         "jsx-text": "\n              You have无 agents.\n            "
+      },
+      "percent_of_budget": {
+        "jsx-text": "{{budget}} 预算的 {{percent}}%"
+      },
+      "unlimited_budget": {
+        "jsx-text": "无限预算"
+      },
+      "budget_overrides_awaiting_boar": {
+        "jsx-text": "{{count}} 个预算覆盖待看板 review"
+      },
+      "awaiting_board_review": {
+        "jsx-text": "等待看板 review"
+      },
+      "last_14_days": {
+        "attr_subtitle": "最近 14 天"
+      },
+      "welcome_to_paperclip_set_up": {
+        "jsx-text": "欢迎使用 Paperclip。设置第一个公司和 agent 以开始使用。"
+      },
+      "get_started": {
+        "jsx-text": "开始"
+      },
+      "create_or_select_a_company_t": {
+        "jsx-text": "创建或选择公司以查看看板。"
+      },
+      "dashboard": {
+        "breadcrumb": "仪表盘"
       }
     },
     "dashboardlive": {
@@ -6254,13 +9389,23 @@
         "jsx-text": "\n            Active runs first, followed by the most recent completed runs.\n          "
       },
       "dashboard": {
-        "jsx-text": "\n            Dashboard\n          "
+        "jsx-text": "\n            Dashboard\n          ",
+        "breadcrumb": "看板"
       },
       "live_agent_runs": {
         "jsx-text": "Live agent runs"
       },
       "showing_up_to": {
         "jsx-text": "Showing up to "
+      },
+      "live_runs": {
+        "breadcrumb": "实时 run"
+      },
+      "create_a_company_to_view_live_runs": {
+        "empty": "创建公司后可查看实时 run。"
+      },
+      "select_a_company_to_view_live_runs": {
+        "empty": "选择公司以查看实时 run。"
       }
     },
     "designguide": {
@@ -6601,7 +9746,7 @@
         "jsx-text": "). Fixtures are shared with the Storybook stories.\n        "
       },
       "for_quot_removed_quot_contexts": {
-        "jsx-text": " for &quot;removed&quot; contexts.\n          "
+        "jsx-text": " for \"removed\" contexts.\n          "
       },
       "form_elements": {
         "attr_title": "Form Elements"
@@ -6925,7 +10070,7 @@
         "attr_title": "Source policy step (StepSourcePolicy)"
       },
       "square_tile_for_the_onboarding_l": {
-        "jsx-text": "\n            Square tile for the onboarding &ldquo;Pick a starter team&rdquo; grid. Selected tile gets"
+        "jsx-text": "\n            Square tile for the onboarding \"Pick a starter team\" grid. Selected tile gets"
       },
       "standard_card": {
         "attr_title": "Standard Card"
@@ -7012,7 +10157,7 @@
         "jsx-text": "标题"
       },
       "to_show_the_target_issue_apos_s_": {
-        "jsx-text": " to show the target issue&apos;s state at a glance. Use "
+        "jsx-text": " to show the target issue's state at a glance. Use "
       },
       "todo": {
         "jsx-text": "Todo"
@@ -7246,6 +10391,70 @@
       },
       "workspace_settings": {
         "jsx-text": "Workspace settings"
+      },
+      "useful_for_isolated_worktrees": {
+        "attr_hint": "适合隔离 worktree"
+      },
+      "runs_when_paperclip_prepares": {
+        "attr_hint": "Paperclip 准备此执行工作区时运行"
+      },
+      "runs_when_the_execution_wo": {
+        "attr_hint": "执行工作区归档或清理时运行"
+      },
+      "workspace_specific_cleanup_b": {
+        "attr_hint": "teardown 前的工作区专属清理"
+      },
+      "this_execution_workspace_cur": {
+        "jsx-text": "此执行工作区当前覆盖项目工作区 runtime config。"
+      },
+      "this_execution_workspace_is_": {
+        "jsx-text": "此执行工作区正在继承项目工作区 runtime config。"
+      },
+      "no_runtime_config_is_current": {
+        "jsx-text": "此执行工作区及其项目工作区当前都未定义 runtime config。"
+      },
+      "legacy_services_arrays_stil": {
+        "attr_hint": "旧版 `services` 数组仍可使用，但 `commands` 同时支持服务和任务。"
+      },
+      "copied": {
+        "copy_label": "已复制"
+      },
+      "repo_url_valid": {
+        "error": "Repo URL 必须是有效 URL。"
+      },
+      "failed_to_build_workspace_update": {
+        "error": "构建 workspace 更新失败。"
+      },
+      "routine_started": {
+        "title": "例程已启动",
+        "body": "已为此工作区启动例程运行。"
+      },
+      "routine_run_failed": {
+        "title": "例程运行失败"
+      },
+      "could_not_start_routine_run": {
+        "error": "无法启动例程运行。"
+      },
+      "projects": {
+        "breadcrumb": "项目"
+      },
+      "workspaces": {
+        "breadcrumb": "Workspaces"
+      },
+      "tasks": {
+        "tab_label": "任务"
+      },
+      "services": {
+        "tab_label": "服务"
+      },
+      "configuration": {
+        "tab_label": "配置"
+      },
+      "runtime_logs": {
+        "tab_label": "运行日志"
+      },
+      "routines": {
+        "tab_label": "Routines"
       }
     },
     "goaldetail": {
@@ -7269,11 +10478,32 @@
       },
       "sub_goals": {
         "jsx-text": "\n            Sub-Goals ("
+      },
+      "goals": {
+        "breadcrumb": "目标"
+      },
+      "goal": {
+        "breadcrumb": "目标"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
       }
     },
     "goals": {
       "new_goal": {
         "jsx-text": "\n              New Goal\n            "
+      },
+      "select_a_company_to_view_goals": {
+        "jsx-text": "选择公司以查看目标。"
+      },
+      "no_goals_yet": {
+        "jsx-text": "暂无目标。"
+      },
+      "add_goal_action": {
+        "jsx-text": "添加目标"
+      },
+      "goals": {
+        "breadcrumb": "目标"
       }
     },
     "importfromvaultdialog": {
@@ -7340,7 +10570,8 @@
         "jsx-text": "Paperclip name"
       },
       "ready": {
-        "jsx-text": " ready\n        "
+        "jsx-text": " ready\n        ",
+        "status_label": "就绪"
       },
       "reference": {
         "jsx-text": "Reference"
@@ -7390,6 +10621,93 @@
       },
       "warning": {
         "jsx-text": "警告"
+      },
+      "no_aws_provider_vault_config": {
+        "attr_message": "尚未配置 AWS provider vault。添加一个后才能导入 secret。"
+      },
+      "manage_vaults": {
+        "action": "管理 vault"
+      },
+      "no_remote_secrets_match": {
+        "attr_message": "没有远程 secret 匹配“{{query}}”。"
+      },
+      "no_secrets_visible_to_this": {
+        "attr_message": "此 vault 中没有可见 secret。"
+      },
+      "no_secrets_selected_go_ba": {
+        "attr_message": "尚未选择 secret。返回选择要导入的远程 secret。"
+      },
+      "key": {
+        "jsx-text": "键"
+      },
+      "imported": {
+        "status_label": "已导入"
+      },
+      "conflict": {
+        "status_label": "冲突"
+      },
+      "unexpected_error": {
+        "error": "意外错误"
+      },
+      "name_required": {
+        "validation": "名称必填。"
+      },
+      "name_too_long": {
+        "validation": "名称不能超过 160 个字符。"
+      },
+      "key_required": {
+        "validation": "键必填。"
+      },
+      "key_invalid_chars": {
+        "validation": "键只能包含小写字母、数字、点、下划线或连字符。"
+      },
+      "key_too_long": {
+        "validation": "键不能超过 120 个字符。"
+      },
+      "description_too_long": {
+        "validation": "描述不能超过 500 个字符。"
+      },
+      "existing_secret_name": {
+        "validation": "已有 Paperclip secret 使用此名称。"
+      },
+      "existing_secret_key": {
+        "validation": "已有 Paperclip secret 使用此键。"
+      },
+      "duplicate_batch_name": {
+        "validation": "此批次已有另一行使用此名称。"
+      },
+      "duplicate_batch_key": {
+        "validation": "此批次已有另一行使用此键。"
+      },
+      "import_failed": {
+        "title": "导入失败"
+      },
+      "no_secrets_imported_from": {
+        "body": "没有从 {{vaultName}} 导入任何 secret。"
+      },
+      "import_completed_with_errors": {
+        "title": "导入完成但有错误"
+      },
+      "import_complete": {
+        "title": "导入完成"
+      },
+      "import_result_counts": {
+        "body": "已创建 {{created}} · 已跳过 {{skipped}} · 失败 {{failed}}"
+      },
+      "could_not_load_more_results": {
+        "title": "无法加载更多结果"
+      },
+      "aws_denied_list_access": {
+        "error_title": "AWS 拒绝列表访问"
+      },
+      "aws_throttled_listing": {
+        "error_title": "AWS 限流了列表请求"
+      },
+      "could_not_load_remote_secrets": {
+        "error_title": "无法加载远程 secret"
+      },
+      "aws_missing_listsecrets": {
+        "error_body": "此 vault 背后的 AWS principal 缺少 secretsmanager:ListSecrets。更新 IAM 后重试。"
       }
     },
     "inbox": {
@@ -7493,13 +10811,35 @@
         "jsx-text": "\n                          This will mark "
       },
       "unread": {
-        "jsx-text": " unread "
+        "jsx-text": " unread ",
+        "tab_label": "未读"
       },
       "updated": {
         "jsx-text": "updated "
       },
       "utilization_this_month": {
         "jsx-text": "\n                      utilization this month\n                    "
+      },
+      "select_a_company_to_view_inbox": {
+        "jsx-text": "选择公司以查看收件箱。"
+      },
+      "agent_join_request_named": "Agent 加入请求：{{name}}",
+      "agent_join_request": "Agent 加入请求",
+      "human_join_request": "用户加入请求",
+      "inbox": {
+        "breadcrumb": "收件箱"
+      },
+      "mine": {
+        "tab_label": "我的"
+      },
+      "recent": {
+        "tab_label": "最近"
+      },
+      "blocked": {
+        "tab_label": "受阻"
+      },
+      "all": {
+        "tab_label": "全部"
       }
     },
     "instanceaccess": {
@@ -7535,6 +10875,21 @@
       },
       "toggle_company_membership_for_th": {
         "jsx-text": "\n                    Toggle company membership for this user. New access defaults to an active operator membership.\n                  "
+      },
+      "company_access_updated": {
+        "title": "公司访问权限已更新"
+      },
+      "no_user_selected": {
+        "error": "未选择用户"
+      },
+      "instance_role_updated": {
+        "title": "实例角色已更新"
+      },
+      "instance_settings": {
+        "breadcrumb": "实例设置"
+      },
+      "access": {
+        "breadcrumb": "访问"
       }
     },
     "instanceexperimentalsettings": {
@@ -7569,7 +10924,8 @@
         "jsx-text": "\n            Enable only\n          "
       },
       "experimental": {
-        "jsx-text": "Experimental"
+        "jsx-text": "Experimental",
+        "breadcrumb": "实验功能"
       },
       "in_pnpm_dev_once_wait_for_all_qu": {
         "jsx-text": "\n              In `pnpm dev:once`, wait for全部 queued and running local agent runs to finish, then restart the server automatically when backend changes or migrations make the current boot stale.\n            "
@@ -7645,6 +11001,12 @@
       },
       "toggle_task_plan_decomposition_p": {
         "attr_aria-label": "Toggle task plan decomposition panel experimental setting"
+      },
+      "instance_settings": {
+        "breadcrumb": "实例设置"
+      },
+      "lookback_hours_invalid": {
+        "error": "回看小时数必须是 1 到 720 之间的整数。"
       }
     },
     "instancegeneralsettings": {
@@ -7694,7 +11056,8 @@
         "jsx-text": "feedbackDataSharingPreference"
       },
       "general": {
-        "jsx-text": "常规"
+        "jsx-text": "常规",
+        "breadcrumb": "通用"
       },
       "hide_the_username_segment_in_hom": {
         "jsx-text": "\n              Hide the username segment in home-directory paths and similar operator-visible log output. Standalone username mentions outside of paths are not yet masked in the live transcript view. This is off by default.\n            "
@@ -7746,6 +11109,24 @@
       },
       "weekly": {
         "jsx-text": "Weekly"
+      },
+      "failed_to_sign_out": {
+        "error": "退出登录失败。"
+      },
+      "instance_settings": {
+        "breadcrumb": "实例设置"
+      },
+      "always_allow": {
+        "option_label": "始终允许"
+      },
+      "share_voted_outputs": {
+        "option_description": "自动共享已投票的 AI 输出。"
+      },
+      "dont_allow": {
+        "option_label": "不允许"
+      },
+      "keep_voted_outputs_local": {
+        "option_description": "已投票的 AI 输出仅保存在本地。"
       }
     },
     "instancesettings": {
@@ -7766,6 +11147,24 @@
       },
       "scheduler_heartbeats": {
         "jsx-text": "Scheduler Heartbeats"
+      },
+      "no_scheduler_heartbeats_match": {
+        "jsx-text": "没有调度器心跳匹配当前条件。"
+      },
+      "instance_settings": {
+        "breadcrumb": "实例设置"
+      },
+      "heartbeats": {
+        "breadcrumb": "Heartbeats"
+      },
+      "failed_to_update_heartbeat": {
+        "error": "更新 heartbeat 失败。"
+      },
+      "failed_to_disable_one_timer_heartbeat": {
+        "error": "禁用 1 个定时 heartbeat 失败：{{detail}}"
+      },
+      "failed_to_disable_timer_heartbeats": {
+        "error": "禁用 {{total}} 个定时 heartbeat 中的 {{failures}} 个失败。首个错误：{{detail}}"
       }
     },
     "invitelanding": {
@@ -7866,13 +11265,43 @@
         "jsx-text": " to approve your request.\n          "
       },
       "you_apos_ve_been_invited_to_join": {
-        "jsx-text": "\n                  You&apos;ve been invited to join Paperclip\n                "
+        "jsx-text": "\n                  You've been invited to join Paperclip\n                "
       },
       "you_joined_the_company": {
         "jsx-text": "You joined the company"
       },
       "your_request_is_still_awaiting_a": {
         "jsx-text": "\n            Your request is still awaiting approval. "
+      },
+      "name": {
+        "jsx-text": "名称"
+      },
+      "please_fill_in_all_required": {
+        "feedback": "请填写所有必填字段。"
+      },
+      "failed_to_accept_invite": {
+        "error": "接受邀请失败"
+      },
+      "continue": {
+        "action": "继续"
+      },
+      "open_company": {
+        "action": "打开公司"
+      },
+      "accept_invite": {
+        "action": "接受邀请"
+      },
+      "submit_request": {
+        "action": "提交请求"
+      },
+      "invite_not_found": {
+        "error": "未找到邀请"
+      },
+      "checking_company_access_try_again": {
+        "error": "正在检查您的公司访问权限。请稍后重试。"
+      },
+      "account_already_belongs_to_company": {
+        "error": "此账号已属于该公司。"
       }
     },
     "inviteuxlab": {
@@ -8055,7 +11484,7 @@
         "jsx-text": "POST /api/agents/claim-api-key"
       },
       "refresh_this_page_after_you_apos": {
-        "jsx-text": "\n              Refresh this page after you&apos;ve been approved — you&apos;ll be redirected automatically.\n            "
+        "jsx-text": "\n              Refresh this page after you've been approved — you'll be redirected automatically.\n            "
       },
       "request_to_join_acme_robotics": {
         "attr_title": "Request to join Acme Robotics"
@@ -8106,7 +11535,7 @@
         "jsx-text": "\n                  This URL includes the current Paperclip domain returned by the server.\n                "
       },
       "you_apos_ve_been_invited_to_join": {
-        "jsx-text": "You&apos;ve been invited to join Paperclip"
+        "jsx-text": "You've been invited to join Paperclip"
       },
       "you_do_not_have_permission_to_ma": {
         "jsx-text": "\n                You do not have permission to manage company invites.\n              "
@@ -8260,7 +11689,8 @@
         "jsx-text": "\n             被阻塞于 parked work\n            "
       },
       "cancel_subtree": {
-        "jsx-text": "\n                     取消 subtree...\n                    "
+        "jsx-text": "\n                     取消 subtree...\n                    ",
+        "label": "取消子树"
       },
       "cancelling_a_subtree_is_destruct": {
         "jsx-text": "\n                Cancelling a subtree is destructive. Non-terminal tasks will be marked cancelled, and running or queued work will be interrupted where possible.\n              "
@@ -8318,10 +11748,12 @@
         "jsx-text": "\n                 无 project\n                "
       },
       "pause_subtree": {
-        "jsx-text": "\n                    Pause subtree...\n                  "
+        "jsx-text": "\n                    Pause subtree...\n                  ",
+        "label": "暂停子树"
       },
       "pause_work": {
-        "jsx-text": "\n                  Pause work...\n                "
+        "jsx-text": "\n                  Pause work...\n                ",
+        "label": "暂停工作"
       },
       "planning": {
         "jsx-text": "\n              Planning\n            "
@@ -8343,16 +11775,19 @@
         "jsx-text": "\n            Related work\n          "
       },
       "restore_subtree": {
-        "jsx-text": "\n                      Restore subtree...\n                    "
+        "jsx-text": "\n                      Restore subtree...\n                    ",
+        "label": "恢复子树"
       },
       "resume_from_the_root_task_to_del": {
         "jsx-text": "\n              . Resume from the root task to deliver deferred work.\n            "
       },
       "resume_subtree": {
-        "jsx-text": "\n                      Resume subtree\n                    "
+        "jsx-text": "\n                      Resume subtree\n                    ",
+        "label": "恢复子树"
       },
       "resume_work": {
-        "jsx-text": "\n                  Resume work\n                "
+        "jsx-text": "\n                  Resume work\n                ",
+        "label": "恢复工作"
       },
       "retry_preview": {
         "jsx-text": "\n                    Retry preview\n                  "
@@ -8370,7 +11805,8 @@
         "jsx-text": "子任务"
       },
       "task": {
-        "jsx-text": " task"
+        "jsx-text": " task",
+        "breadcrumb": "任务"
       },
       "tasks": {
         "jsx-text": " tasks."
@@ -8404,6 +11840,313 @@
       },
       "wake_affected_agents": {
         "jsx-text": "Wake affected agents ("
+      },
+      "only_board_preview_subtree": {
+        "error": "只有看板用户可以预览子树控制。"
+      },
+      "preview_stale_retry": {
+        "error": "子树 hold 状态已变更，预览已过期。请重试刷新。"
+      },
+      "subtree_action_invalid": {
+        "error": "此子树动作当前不适用于所选任务。"
+      },
+      "unable_to_load_preview": {
+        "error": "无法加载预览。"
+      },
+      "task_archived_from_inbox": {
+        "title": "任务已从 inbox 归档"
+      },
+      "archive_failed": {
+        "title": "归档失败"
+      },
+      "unable_to_archive_from_inbox": {
+        "error": "无法从 inbox 归档此任务"
+      },
+      "copied_to_clipboard": {
+        "title": "已复制到剪贴板"
+      },
+      "feedback_saved_future_votes_share": {
+        "title": "Feedback 已保存。后续投票将共享"
+      },
+      "feedback_saved_future_votes_stay_local": {
+        "title": "Feedback 已保存。后续投票将保留本地"
+      },
+      "feedback_saved_sharing_enabled": {
+        "title": "Feedback 已保存并启用共享"
+      },
+      "feedback_saved": {
+        "title": "Feedback 已保存"
+      },
+      "failed_to_save_feedback": {
+        "title": "保存 feedback 失败"
+      },
+      "system": {
+        "label": "系统"
+      },
+      "board": {
+        "label": "看板"
+      },
+      "pause_work_help": {
+        "description": "暂停此任务上的活跃执行，直到明确恢复。"
+      },
+      "resume_work_help": {
+        "description": "释放活跃暂停 hold，让此任务继续。"
+      },
+      "pause_subtree_help": {
+        "description": "暂停此任务子树中的活跃执行，直到明确恢复。"
+      },
+      "resume_subtree_help": {
+        "description": "释放活跃子树暂停 hold，让已暂停工作继续。"
+      },
+      "cancel_subtree_help": {
+        "description": "取消此子树中的非终态任务，并尽可能停止排队或运行中的工作。"
+      },
+      "restore_subtree_help": {
+        "description": "恢复此子树操作取消的任务，让工作可继续。"
+      },
+      "task_update_failed": {
+        "title": "任务更新失败"
+      },
+      "unable_to_save_task_changes": {
+        "error": "无法保存任务变更"
+      },
+      "recovery_resolution_failed": {
+        "title": "恢复处理失败"
+      },
+      "unable_to_resolve_recovery_action": {
+        "error": "无法处理恢复动作"
+      },
+      "no_active_subtree_pause_hold": {
+        "error": "没有可恢复的活跃子树暂停 hold。"
+      },
+      "work_resumed": {
+        "title": "工作已恢复"
+      },
+      "subtree_resumed": {
+        "title": "子树已恢复"
+      },
+      "work_paused": {
+        "title": "工作已暂停"
+      },
+      "subtree_paused": {
+        "title": "子树已暂停"
+      },
+      "tree_control_applied": {
+        "title": "已应用{{mode}}"
+      },
+      "active_task_pause_released": {
+        "body": "活跃任务暂停已释放。"
+      },
+      "active_subtree_pause_released": {
+        "body": "活跃子树暂停已释放。"
+      },
+      "work_paused_runs_cancelled": {
+        "body": "工作已暂停。已取消 {{count}} 次运行。"
+      },
+      "subtree_paused_runs_cancelled": {
+        "body": "子树已暂停。已取消 {{count}} 次运行。"
+      },
+      "subtree_control_applied": {
+        "body": "子树控制已应用。"
+      },
+      "unable_to_apply_subtree_control": {
+        "title": "无法应用子树控制"
+      },
+      "work_paused_until_resume": {
+        "body": "工作已暂停。此任务将保持 hold 直到恢复。"
+      },
+      "unable_to_pause_work": {
+        "title": "无法暂停工作"
+      },
+      "unable_to_save_sub_task_changes": {
+        "error": "无法保存子任务变更"
+      },
+      "monitor_check_queued": {
+        "title": "监控检查已入队"
+      },
+      "monitor_check_failed": {
+        "title": "监控检查失败"
+      },
+      "unable_to_trigger_monitor_now": {
+        "error": "当前无法触发监控"
+      },
+      "approval_approved": {
+        "title": "审批已通过"
+      },
+      "approval_rejected": {
+        "title": "审批已拒绝"
+      },
+      "approval_failed": {
+        "title": "审批失败"
+      },
+      "rejection_failed": {
+        "title": "拒绝失败"
+      },
+      "unable_to_update_approval": {
+        "error": "无法更新审批"
+      },
+      "cancel_failed": {
+        "title": "取消失败"
+      },
+      "unable_to_cancel_queued_comment": {
+        "error": "无法取消排队评论"
+      },
+      "comment_failed": {
+        "title": "评论失败"
+      },
+      "unable_to_post_comment": {
+        "error": "无法发布评论"
+      },
+      "request_confirmed": {
+        "title": "请求已确认"
+      },
+      "selection_confirmed": {
+        "title": "选择已确认"
+      },
+      "accepted_drafts_skipped": {
+        "title": "已接受 {{createdCount}} 个草稿并跳过 {{skippedCount}} 个"
+      },
+      "suggested_tasks_accepted": {
+        "title": "建议任务已接受"
+      },
+      "accept_failed": {
+        "title": "接受失败"
+      },
+      "unable_to_accept_suggested_tasks": {
+        "error": "无法接受建议任务"
+      },
+      "request_declined": {
+        "title": "请求已拒绝"
+      },
+      "suggestion_rejected": {
+        "title": "建议已拒绝"
+      },
+      "reject_failed": {
+        "title": "拒绝失败"
+      },
+      "unable_to_reject_suggested_tasks": {
+        "error": "无法拒绝建议任务"
+      },
+      "answers_submitted": {
+        "title": "答案已提交"
+      },
+      "submit_failed": {
+        "title": "提交失败"
+      },
+      "unable_to_submit_answers": {
+        "error": "无法提交答案"
+      },
+      "question_cancelled": {
+        "title": "问题已取消"
+      },
+      "unable_to_cancel_question": {
+        "error": "无法取消问题"
+      },
+      "interrupt_requested": {
+        "title": "已请求中断"
+      },
+      "active_run_stopping_for_queued_comments": {
+        "body": "活跃运行正在停止，随后将继续处理排队评论。"
+      },
+      "interrupt_failed": {
+        "title": "中断失败"
+      },
+      "unable_to_interrupt_active_run": {
+        "error": "无法中断活跃运行"
+      },
+      "queued_comment_canceled": {
+        "title": "排队评论已取消"
+      },
+      "queued_message_restored": {
+        "body": "排队消息已恢复到编辑器。"
+      },
+      "comment_deleted": {
+        "title": "评论已删除"
+      },
+      "thread_shows_deleted_comment_marker": {
+        "body": "线程现在显示已删除评论标记。"
+      },
+      "delete_failed": {
+        "title": "删除失败",
+        "error": "删除失败"
+      },
+      "unable_to_delete_comment": {
+        "error": "无法删除评论"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
+      },
+      "upload_failed": {
+        "error": "上传失败"
+      },
+      "document_import_failed": {
+        "error": "文档导入失败"
+      },
+      "paused": {
+        "label": "已暂停"
+      },
+      "pause_and_stop_work": {
+        "action": "暂停并停止工作"
+      },
+      "cancel_tasks": {
+        "action": "取消 {{count}} 个任务"
+      },
+      "restore_tasks": {
+        "action": "恢复 {{count}} 个任务"
+      },
+      "sending_comment_wakes_assignee": {
+        "hint": "发送此评论会唤醒 {{assignee}} 进行分诊，同时子树保持暂停。"
+      },
+      "the_assignee": {
+        "label": "承接人"
+      },
+      "assign_agent_to_wake_for_triage": {
+        "hint": "分配 agent 以唤醒其进行分诊，同时子树保持暂停。"
+      },
+      "uploading": {
+        "action": "上传中..."
+      },
+      "paused_by_board": {
+        "label": "已由看板暂停。"
+      },
+      "subtree_pause_active": {
+        "label": "子树暂停已生效。"
+      },
+      "task_execution_held_until_resume": {
+        "body": "任务执行已 hold 到恢复为止。人工评论仍可唤醒承接人进行分诊。"
+      },
+      "root_descendant_execution_held_until_resume": {
+        "body": "根任务和后代任务执行已 hold 到恢复为止。人工评论仍可唤醒承接人进行分诊。"
+      },
+      "one_task_held": {
+        "label": "1 个任务已 hold"
+      },
+      "descendants_held": {
+        "label": "{{count}} 个后代已 hold"
+      },
+      "started_relative": {
+        "label": " · 开始于 {{time}}"
+      },
+      "no_assigned_agents_eligible_wake": {
+        "body": "此预览中没有可唤醒的已分配 agent。"
+      },
+      "wake_assigned_agents_after_operation": {
+        "body": "此操作完成后唤醒已分配的 agent。"
+      },
+      "applying": {
+        "action": "应用中..."
+      },
+      "sub_task": {
+        "label": "子任务"
+      },
+      "load_earlier_comments": {
+        "action": "加载更早评论"
+      },
+      "loading_earlier_comments": {
+        "action": "正在加载更早评论..."
+      },
+      "pausing": {
+        "action": "暂停中..."
       }
     },
     "joinrequestqueue": {
@@ -8463,6 +12206,21 @@
       },
       "submitted": {
         "jsx-text": "Submitted "
+      },
+      "join_request_approved": {
+        "toast_title": "加入请求已批准"
+      },
+      "join_request_rejected": {
+        "toast_title": "加入请求已拒绝"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "inbox": {
+        "breadcrumb": "Inbox"
+      },
+      "join_requests": {
+        "breadcrumb": "加入请求"
       }
     },
     "newagent": {
@@ -8479,7 +12237,8 @@
         "jsx-text": "Company skills"
       },
       "new_agent": {
-        "jsx-text": "新建代理"
+        "jsx-text": "新建代理",
+        "breadcrumb": "新建 agent"
       },
       "no_optional_company_skills_insta": {
         "jsx-text": "\n               无 optional company skills installed yet.\n              "
@@ -8492,6 +12251,9 @@
       },
       "title_e_g_vp_of_engineering": {
         "attr_placeholder": "Title (e.g. VP of Engineering)"
+      },
+      "agents": {
+        "breadcrumb": "Agents"
       }
     },
     "notfound": {
@@ -8503,6 +12265,9 @@
       },
       "requested_path": {
         "jsx-text": "\n          Requested path: "
+      },
+      "not_found": {
+        "breadcrumb": "未找到"
       }
     },
     "orgchart": {
@@ -8525,6 +12290,15 @@
       "zoom_out": {
         "attr_aria-label": "Zoom out",
         "attr_title": "Zoom out"
+      },
+      "select_a_company_to_view_the_o": {
+        "jsx-text": "选择公司以查看组织图。"
+      },
+      "no_organizational_hierarchy_d": {
+        "jsx-text": "尚未定义组织层级。"
+      },
+      "org_chart": {
+        "breadcrumb": "组织图"
       }
     },
     "pluginmanager": {
@@ -8629,6 +12403,39 @@
       },
       "what_errored": {
         "jsx-text": "\n                    What errored\n                  "
+      },
+      "plugin_installed_success": {
+        "title": "插件安装成功"
+      },
+      "failed_to_install_plugin": {
+        "title": "插件安装失败"
+      },
+      "plugin_uninstalled_success": {
+        "title": "插件卸载成功"
+      },
+      "failed_to_uninstall_plugin": {
+        "title": "插件卸载失败"
+      },
+      "plugin_enabled": {
+        "title": "插件已启用"
+      },
+      "failed_to_enable_plugin": {
+        "title": "插件启用失败"
+      },
+      "plugin_disabled": {
+        "title": "插件已禁用"
+      },
+      "failed_to_disable_plugin": {
+        "title": "插件禁用失败"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "settings": {
+        "breadcrumb": "设置"
+      },
+      "plugins": {
+        "breadcrumb": "插件"
       }
     },
     "pluginpage": {
@@ -8646,6 +12453,9 @@
       },
       "use_the_plugin_id_route_until_th": {
         "jsx-text": ". Use the plugin-id route until the conflict is resolved.\n        "
+      },
+      "plugins": {
+        "breadcrumb": "插件"
       }
     },
     "pluginsettings": {
@@ -8806,10 +12616,12 @@
         "jsx-text": "\n        Select a company to configure this plugin's local folders.\n      "
       },
       "settings": {
-        "jsx-text": "设置"
+        "jsx-text": "设置",
+        "breadcrumb": "设置"
       },
       "status": {
-        "jsx-text": "状态"
+        "jsx-text": "状态",
+        "tab_label": "状态"
       },
       "testing": {
         "jsx-text": "\n                Testing...\n              "
@@ -8837,6 +12649,18 @@
       },
       "writable": {
         "attr_label": "Writable"
+      },
+      "company": {
+        "breadcrumb": "公司"
+      },
+      "plugins": {
+        "breadcrumb": "插件"
+      },
+      "plugin_details": {
+        "breadcrumb": "插件详情"
+      },
+      "configuration": {
+        "tab_label": "配置"
       }
     },
     "profilesettings": {
@@ -8862,13 +12686,29 @@
         "jsx-text": "Loading profile..."
       },
       "profile": {
-        "jsx-text": "个人资料"
+        "jsx-text": "个人资料",
+        "breadcrumb": "个人资料"
       },
       "remove": {
         "jsx-text": "\n                      Remove\n                    "
       },
       "shown_in_the_sidebar_account_foo": {
         "jsx-text": "\n              Shown in the sidebar account footer and comment author surfaces.\n            "
+      },
+      "instance_settings": {
+        "breadcrumb": "实例设置"
+      },
+      "failed_to_update_profile": {
+        "error": "更新个人资料失败。"
+      },
+      "select_company_before_uploading_avatar": {
+        "error": "请选择公司后再上传头像。"
+      },
+      "failed_to_upload_avatar": {
+        "error": "上传头像失败。"
+      },
+      "failed_to_remove_avatar": {
+        "error": "移除头像失败。"
       }
     },
     "projectdetail": {
@@ -8913,6 +12753,48 @@
       },
       "you_left_this_project_it_no_long": {
         "jsx-text": "\n            You left this project. It无 longer appears in your sidebar.\n          "
+      },
+      "color": {
+        "jsx-text": "颜色"
+      },
+      "project_archived": {
+        "toast_title": "“{{name}}”已归档"
+      },
+      "project_unarchived": {
+        "toast_title": "“{{name}}”已取消归档"
+      },
+      "failed_to_archive_project": {
+        "toast_title": "项目归档失败"
+      },
+      "failed_to_unarchive_project": {
+        "toast_title": "项目取消归档失败"
+      },
+      "no_company_selected": {
+        "error": "未选择公司"
+      },
+      "projects": {
+        "breadcrumb": "项目"
+      },
+      "project": {
+        "breadcrumb": "项目"
+      },
+      "tasks": {
+        "tab_label": "任务"
+      },
+      "overview": {
+        "tab_label": "概览"
+      },
+      "plugin_operations": {
+        "tab_label": "插件操作"
+      },
+      "workspaces": {
+        "tab_label": "Workspaces"
+      },
+      "configuration": {
+        "tab_label": "配置"
+      },
+      "budget": {
+        "tab_label": "预算"
       }
     },
     "projects": {
@@ -8928,6 +12810,30 @@
       },
       "task": {
         "jsx-text": " task"
+      },
+      "select_a_company_to_view_proj": {
+        "jsx-text": "选择公司以查看项目。"
+      },
+      "no_projects_yet": {
+        "jsx-text": "暂无项目。"
+      },
+      "add_project_action": {
+        "jsx-text": "添加项目"
+      },
+      "projects": {
+        "breadcrumb": "项目"
+      },
+      "name": {
+        "sort_label": "名称"
+      },
+      "updated": {
+        "sort_label": "更新时间"
+      },
+      "created": {
+        "sort_label": "创建时间"
+      },
+      "target_date": {
+        "sort_label": "目标日期"
       }
     },
     "projectworkspacedetail": {
@@ -8959,7 +12865,8 @@
         "jsx-text": "Loading workspace…"
       },
       "local_path": {
-        "attr_label": "Local path"
+        "attr_label": "Local path",
+        "source_description": "Paperclip 可直接使用的本地路径。"
       },
       "long_running_services_stay_super": {
         "jsx-text": "\n                  Long-running services stay supervised here, while one-shot jobs run on demand against this workspace. Execution workspaces inherit this config unless they override it.\n                "
@@ -9051,6 +12958,63 @@
       },
       "workspace_not_found_for_this_pro": {
         "jsx-text": "Workspace not found for this project."
+      },
+      "runs_when_this_workspace_ne": {
+        "attr_hint": "此工作区需要自定义 bootstrap 时运行"
+      },
+      "runs_before_project_level_e": {
+        "attr_hint": "项目级执行工作区 teardown 前运行"
+      },
+      "execution_workspaces_inheri": {
+        "attr_hint": "执行工作区会继承此配置，除非自行覆盖。旧版 `services` 数组仍可使用，但 `commands` 同时支持服务和任务。"
+      },
+      "remote_workspace_requires_ref_or_repo": {
+        "error": "远程托管 workspace 需要远程 workspace 引用或 repo URL。"
+      },
+      "workspace_requires_path_or_repo": {
+        "error": "Workspace 至少需要一个本地路径或 repo URL。"
+      },
+      "local_workspace_path_absolute": {
+        "error": "本地 workspace 路径必须是绝对路径。"
+      },
+      "repo_url_valid": {
+        "error": "Repo URL 必须是有效 URL。"
+      },
+      "projects": {
+        "breadcrumb": "项目"
+      },
+      "workspaces": {
+        "breadcrumb": "Workspaces"
+      },
+      "configuration": {
+        "tab_label": "配置"
+      },
+      "local_git_checkout": {
+        "source_label": "本地 git checkout"
+      },
+      "local_non_git_path": {
+        "source_label": "本地非 git 路径"
+      },
+      "remote_git_repo": {
+        "source_label": "远程 git repo"
+      },
+      "remote_managed_workspace": {
+        "source_label": "远程托管 workspace"
+      },
+      "non_git_path": {
+        "source_description": "没有 git 语义的本地文件夹。"
+      },
+      "git_repo": {
+        "source_description": "带可选 ref 和本地 checkout 的 repo URL。"
+      },
+      "remote_managed": {
+        "source_description": "由外部引用跟踪的托管 workspace。"
+      },
+      "default": {
+        "visibility_label": "默认"
+      },
+      "advanced": {
+        "visibility_label": "高级"
       }
     },
     "routinedetail": {
@@ -9175,6 +13139,111 @@
       },
       "webhook_trigger": {
         "jsx-text": "\n                    Webhook trigger "
+      },
+      "select_a_company_to_view_rout": {
+        "jsx-text": "选择公司以查看例程。"
+      },
+      "routine_changed": {
+        "toast_title": "Routine 已变更"
+      },
+      "routine_changed_reload": {
+        "toast_body": "其他人更新了此 routine。重新加载以查看最新修订。"
+      },
+      "failed_to_save_routine": {
+        "toast_title": "保存 routine 失败"
+      },
+      "could_not_save_routine": {
+        "toast_body": "Paperclip 无法保存该 routine。"
+      },
+      "routine_run_started": {
+        "toast_title": "Routine run 已启动"
+      },
+      "routine_run_failed": {
+        "toast_title": "Routine run 失败"
+      },
+      "could_not_start_routine_run": {
+        "toast_body": "Paperclip 无法启动该 routine run。"
+      },
+      "routine_saved": {
+        "toast_title": "Routine 已保存"
+      },
+      "automation_paused": {
+        "toast_body": "自动化已暂停。"
+      },
+      "automation_enabled": {
+        "toast_body": "自动化已启用。"
+      },
+      "failed_to_update_routine": {
+        "toast_title": "更新 routine 失败"
+      },
+      "could_not_update_routine": {
+        "toast_body": "Paperclip 无法更新该 routine。"
+      },
+      "webhook_trigger_created": {
+        "secret_title": "Webhook 触发器已创建"
+      },
+      "trigger_added": {
+        "toast_title": "触发器已添加"
+      },
+      "routine_schedule_saved": {
+        "toast_body": "Routine 计划已保存。"
+      },
+      "failed_to_add_trigger": {
+        "toast_title": "添加触发器失败"
+      },
+      "could_not_create_trigger": {
+        "toast_body": "Paperclip 无法创建该触发器。"
+      },
+      "trigger_saved": {
+        "toast_title": "触发器已保存"
+      },
+      "routine_cadence_saved": {
+        "toast_body": "Routine 节奏更新已保存。"
+      },
+      "failed_to_update_trigger": {
+        "toast_title": "更新触发器失败"
+      },
+      "could_not_update_trigger": {
+        "toast_body": "Paperclip 无法更新该触发器。"
+      },
+      "trigger_deleted": {
+        "toast_title": "触发器已删除"
+      },
+      "failed_to_delete_trigger": {
+        "toast_title": "删除触发器失败"
+      },
+      "could_not_delete_trigger": {
+        "toast_body": "Paperclip 无法删除该触发器。"
+      },
+      "webhook_secret_rotated": {
+        "secret_title": "Webhook secret 已轮换"
+      },
+      "failed_to_rotate_webhook_secret": {
+        "toast_title": "轮换 webhook secret 失败"
+      },
+      "could_not_rotate_webhook_secret": {
+        "toast_body": "Paperclip 无法轮换 webhook secret。"
+      },
+      "secret_value_copied": {
+        "toast_title": "{{label}} 已复制"
+      },
+      "failed_to_copy_secret_value": {
+        "toast_title": "复制 {{label}} 失败"
+      },
+      "clipboard_access_denied": {
+        "toast_body": "剪贴板访问被拒绝。"
+      },
+      "routines": {
+        "breadcrumb": "例程"
+      },
+      "default_agent_required": {
+        "title": "需要默认 agent"
+      },
+      "set_default_agent_before_enabling": {
+        "body": "启用此例程前请设置默认 agent。"
+      },
+      "select_company_to_create_secrets": {
+        "error": "请选择公司后再创建密钥"
       }
     },
     "routines": {
@@ -9236,11 +13305,52 @@
         "jsx-text": " routine"
       },
       "routines": {
-        "jsx-text": "\n            Routines\n          "
+        "jsx-text": "\n            Routines\n          ",
+        "breadcrumb": "Routines",
+        "tab_label": "Routines"
       },
       "sort": {
         "attr_title": "排序",
         "jsx-text": "排序"
+      },
+      "select_a_company_to_view_rout": {
+        "jsx-text": "选择公司以查看例程。"
+      },
+      "failed_to_load_routines": {
+        "jsx-text": "加载例程失败"
+      },
+      "no_active_routines_use_create": {
+        "jsx-text": "暂无活跃例程。使用“创建例程”定义第一个周期性工作流。"
+      },
+      "routine_created": {
+        "title": "例程已创建"
+      },
+      "add_first_trigger": {
+        "body": "启用前请先添加第一个触发器。"
+      },
+      "draft_saved_add_default_agent": {
+        "body": "草稿已保存。启用前请添加默认 agent。"
+      },
+      "failed_to_update_routine": {
+        "title": "更新例程失败"
+      },
+      "could_not_update_routine": {
+        "error": "无法更新例程。"
+      },
+      "routine_run_failed": {
+        "title": "例程运行失败"
+      },
+      "could_not_start_routine_run": {
+        "error": "无法启动例程运行。"
+      },
+      "default_agent_required": {
+        "title": "需要默认 agent"
+      },
+      "set_default_agent_before_enabling": {
+        "body": "启用此例程前请设置默认 agent。"
+      },
+      "recent_runs": {
+        "tab_label": "最近 runs"
       }
     },
     "runtranscriptuxlab": {
@@ -9289,7 +13399,7 @@
         "jsx-text": "\n            ⌘K\n          "
       },
       "no_results_for_ldquo": {
-        "jsx-text": "No results for &ldquo;"
+        "jsx-text": "No results for \""
       },
       "open_tasks_filter_view": {
         "jsx-text": "\n            Open Tasks 筛选 view\n          "
@@ -9298,7 +13408,7 @@
         "jsx-text": "Quoted phrases:"
       },
       "rdquo": {
-        "jsx-text": "&rdquo;…\n        "
+        "jsx-text": "\"…\n        "
       },
       "recent_searches": {
         "jsx-text": "\n              Recent searches\n            "
@@ -9319,10 +13429,11 @@
         "attr_placeholder": "Search tasks, comments, documents, artifacts, agents, projects…"
       },
       "search": {
-        "jsx-text": "搜索"
+        "jsx-text": "搜索",
+        "breadcrumb": "搜索"
       },
       "searching_for_ldquo": {
-        "jsx-text": "\n          Searching for &ldquo;"
+        "jsx-text": "\n          Searching for \""
       },
       "sorted_by_relevance": {
         "jsx-text": " · sorted by relevance\n        "
@@ -9359,7 +13470,17 @@
       },
       "your_input_and_filters_are_still": {
         "jsx-text": " Your input and filters are still here, so you can retry or fall back to the Tasks filter.\n        "
-      }
+      },
+      "scope_all": "全部",
+      "scope_issues": "任务",
+      "scope_comments": "评论",
+      "scope_documents": "文档",
+      "scope_artifacts": "产物",
+      "scope_agents": "Agents",
+      "scope_projects": "项目",
+      "all_scopes": "全部范围",
+      "unknown_error": "未知错误",
+      "results_count": "{{count}} 条结果"
     },
     "secrets": {
       "activate": {
@@ -9432,7 +13553,7 @@
         "attr_title": "Configure an AWS provider vault to enable remote import"
       },
       "create_or_link_a_secret_here_the": {
-        "jsx-text": "\n         创建 or link a secret here, then open an agent&apos;s Environment variables or a project&apos;s Env field.添加 the env key the process expects, for example "
+        "jsx-text": "\n         创建 or link a secret here, then open an agent's Environment variables or a project's Env field.添加 the env key the process expects, for example "
       },
       "create_secret": {
         "jsx-text": "Create secret"
@@ -9447,7 +13568,8 @@
         "jsx-text": "\n                Default for "
       },
       "default": {
-        "jsx-text": "\n                Default\n              "
+        "jsx-text": "\n                Default\n              ",
+        "option_suffix": "（默认）"
       },
       "delete_secret": {
         "jsx-text": "Delete secret"
@@ -9466,7 +13588,8 @@
         "jsx-text": " Disable\n                  "
       },
       "disabled": {
-        "jsx-text": "已禁用"
+        "jsx-text": "已禁用",
+        "status_label": "已禁用"
       },
       "display_name": {
         "jsx-text": "显示名称"
@@ -9558,7 +13681,8 @@
         "attr_label": "Namespace"
       },
       "new_secret": {
-        "jsx-text": " New secret\n            "
+        "jsx-text": " New secret\n            ",
+        "action": "新建 secret"
       },
       "new_value": {
         "jsx-text": "New value"
@@ -9693,7 +13817,9 @@
         "jsx-text": "\n              Secrets using this vault will lose the vault association until you assign another one.\n            "
       },
       "secrets": {
-        "jsx-text": "Secrets"
+        "jsx-text": "Secrets",
+        "breadcrumb": "密钥",
+        "tab_label": "Secrets"
       },
       "select_a_company_to_manage_secre": {
         "jsx-text": "Select a company to manage secrets."
@@ -9736,6 +13862,169 @@
       },
       "what_is_this_secret_used_for_no_": {
         "attr_placeholder": "What is this secret used for? (no values)"
+      },
+      "paperclip_managed": {
+        "mode_label": "Paperclip 托管"
+      },
+      "linked_external": {
+        "mode_label": "链接外部引用"
+      },
+      "paperclip_owns_create_and_rot": {
+        "text": "Paperclip 负责创建此 provider secret 并写入轮换版本。"
+      },
+      "paperclip_resolves_this_pro": {
+        "text": "Paperclip 会解析此 provider 引用，但不会轮换 provider 值。"
+      },
+      "select_a_provider": {
+        "block_reason": "选择一个 provider。"
+      },
+      "provider_does_not_support_m": {
+        "block_reason": "{{provider}} 不支持 Paperclip 托管的 secret 值。"
+      },
+      "provider_does_not_support_l": {
+        "block_reason": "{{provider}} 不支持链接外部引用。"
+      },
+      "provider_is_not_configured_w": {
+        "block_reason": "{{provider}} 尚未在此部署中配置。{{message}}"
+      },
+      "provider_is_not_configured": {
+        "block_reason": "{{provider}} 尚未在此部署中配置。"
+      },
+      "provider_health_check_failed": {
+        "block_reason": "{{provider}} 健康检查失败：{{message}}"
+      },
+      "this_provider_vault_is_dis": {
+        "block_reason": "此 provider vault 已禁用。"
+      },
+      "this_provider_vault_is_sav": {
+        "block_reason": "此 provider vault 仅保存为草稿元数据。"
+      },
+      "this_provider_vault_health": {
+        "block_reason": "此 provider vault 健康检查失败。"
+      },
+      "no_secrets_yet_create_first": {
+        "attr_message": "还没有 secret。创建第一个托管 secret 或链接外部引用。"
+      },
+      "no_secrets_match_filters": {
+        "attr_message": "没有 secret 匹配当前筛选。"
+      },
+      "name": {
+        "table_header": "名称",
+        "attr_label": "名称"
+      },
+      "not_configured": {
+        "option_suffix": "（未配置）"
+      },
+      "external_only": {
+        "option_suffix": "（仅外部）"
+      },
+      "value": {
+        "attr_label": "值"
+      },
+      "linked_provider_reference": {
+        "jsx-text": "链接的 provider 引用"
+      },
+      "provider_managed_path": {
+        "jsx-text": "Provider 托管路径"
+      },
+      "unknown_vault": {
+        "text": "未知 vault"
+      },
+      "secret_created": {
+        "title": "Secret 已创建"
+      },
+      "select_a_secret_first": {
+        "error": "请先选择一个 secret"
+      },
+      "rotated": {
+        "title": "已轮换"
+      },
+      "secret_rotated": {
+        "body": "{{name}} → v{{version}}"
+      },
+      "rotate_failed": {
+        "error": "轮换失败"
+      },
+      "secret_status_updated": {
+        "title": "Secret 已变为 {{status}}"
+      },
+      "status_update_failed": {
+        "title": "状态更新失败"
+      },
+      "try_again": {
+        "error": "请重试"
+      },
+      "secret_deleted": {
+        "title": "Secret 已删除"
+      },
+      "delete_failed": {
+        "title": "删除失败"
+      },
+      "provider_vault_updated": {
+        "title": "Provider vault 已更新"
+      },
+      "provider_vault_created": {
+        "title": "Provider vault 已创建"
+      },
+      "provider_vault_disabled": {
+        "title": "Provider vault 已禁用"
+      },
+      "disable_failed": {
+        "title": "禁用失败"
+      },
+      "provider_vault_removed": {
+        "title": "Provider vault 已移除",
+        "body": "{{name}} 仅已从 Paperclip 移除。"
+      },
+      "remove_failed": {
+        "title": "移除失败"
+      },
+      "default_vault_set": {
+        "title": "默认 vault 已设置"
+      },
+      "default_update_failed": {
+        "title": "默认值更新失败"
+      },
+      "health_checked": {
+        "title": "健康检查完成"
+      },
+      "health_check_failed": {
+        "title": "健康检查失败"
+      },
+      "provider_vaults": {
+        "tab_label": "Provider vaults"
+      },
+      "details": {
+        "tab_label": "详情"
+      },
+      "usage_count": {
+        "tab_label": "使用（{{count}}）"
+      },
+      "usage": {
+        "tab_label": "使用"
+      },
+      "access_events": {
+        "tab_label": "访问事件"
+      },
+      "active": {
+        "status_label": "活跃"
+      },
+      "all_statuses": {
+        "status_label": "全部状态"
+      },
+      "archived": {
+        "status_label": "已归档"
+      },
+      "importfromvaultdialog": {
+        "select": {
+          "step_label": "选择"
+        },
+        "review": {
+          "step_label": "检查"
+        },
+        "result": {
+          "step_label": "结果"
+        }
       }
     },
     "systemnoticeuxlab": {
@@ -9761,7 +14050,7 @@
         "jsx-text": "\n              Author reads as "
       },
       "authortype_quot_system_quot": {
-        "jsx-text": "authorType === &quot;system&quot;"
+        "jsx-text": "authorType === \"system\""
       },
       "body": {
         "jsx-text": "body"
@@ -9827,7 +14116,7 @@
         "jsx-text": "Normalized cause: Run completed without disposition"
       },
       "only_when_they_need_run_evidence": {
-        "jsx-text": " only when they need run evidence. Tone is reinforced by the octagon icon and the &quot;System alert&quot; label, not just red.\n            "
+        "jsx-text": " only when they need run evidence. Tone is reinforced by the octagon icon and the \"System alert\" label, not just red.\n            "
       },
       "or_assistant_bubble": {
         "jsx-text": "\n            or assistant bubble.\n          "
@@ -9839,7 +14128,7 @@
         "jsx-text": "\n                phase 1 — UX\n              "
       },
       "presentation_kind_quot_system_no": {
-        "jsx-text": "presentation.kind === &quot;system_notice&quot;"
+        "jsx-text": "presentation.kind === \"system_notice\""
       },
       "presentation": {
         "jsx-text": "presentation"
@@ -9854,7 +14143,7 @@
         "jsx-text": "\n              Replaces the current pattern where a Paperclip-authored warning renders inside a user-style chat bubble. The notice is one container, system-styled, with hidden-by-default operational metadata. Tone is conveyed by icon, label, and color together so it stays accessible.\n            "
       },
       "role_quot_status_quot": {
-        "jsx-text": "role=&quot;status&quot;"
+        "jsx-text": "role=\"status\""
       },
       "routing_in_issuechatthread": {
         "jsx-text": "Routing in IssueChatThread"
@@ -9976,7 +14265,8 @@
         "jsx-text": "\n        Before agents are imported, the catalog resolves the skills they depend on. This is the resolution plan.\n      "
       },
       "blocked": {
-        "jsx-text": "已阻塞"
+        "jsx-text": "已阻塞",
+        "skill_action_label": "受阻"
       },
       "bundled": {
         "jsx-text": "Bundled"
@@ -10018,7 +14308,9 @@
         "jsx-text": " external source\n        "
       },
       "external_sources": {
-        "jsx-text": "\n        External sources · "
+        "jsx-text": "\n        External sources · ",
+        "trust_label": "外部来源",
+        "trust_tip": "引用在安装时解析的外部来源。"
       },
       "external": {
         "jsx-text": "\n              external\n            "
@@ -10116,7 +14408,8 @@
         "jsx-text": "Requires board operator or agent-create permissions."
       },
       "reset_filters": {
-        "jsx-text": " Reset filters\n                "
+        "jsx-text": " Reset filters\n                ",
+        "action": "重置筛选"
       },
       "resolved": {
         "jsx-text": "\n              resolved\n            "
@@ -10176,19 +14469,21 @@
         "jsx-text": "Target manager"
       },
       "team_installed": {
-        "jsx-text": "Team installed"
+        "jsx-text": "Team installed",
+        "title": "Team 已安装"
       },
       "teams": {
-        "jsx-text": "Teams"
+        "jsx-text": "Teams",
+        "breadcrumb": "团队"
       },
       "this_team_apos_s_root_agents_nee": {
-        "jsx-text": "\n        This team&apos;s root agents need a manager in your company. Pick the agent who will become their parent. Internal team hierarchy is preserved.\n      "
+        "jsx-text": "\n        This team's root agents need a manager in your company. Pick the agent who will become their parent. Internal team hierarchy is preserved.\n      "
       },
       "this_team_cannot_be_installed_th": {
         "jsx-text": "This team cannot be installed — the package manifest is invalid."
       },
       "this_team_has_local_path_sources": {
-        "jsx-text": "\n          This team has local-path sources. Enable &ldquo;Allow local-path sources&rdquo; to continue, or install it from the CLI.\n        "
+        "jsx-text": "\n          This team has local-path sources. Enable \"Allow local-path sources\" to continue, or install it from the CLI.\n        "
       },
       "this_team_references": {
         "jsx-text": "\n        This team references "
@@ -10223,6 +14518,63 @@
       },
       "was_imported_into_your_company_i": {
         "jsx-text": " was imported into your company. Imported entities are stamped with catalog provenance.\n      "
+      },
+      "resolve_github_url_skill_and": {
+        "attr_description": "安装时解析 github/url 类型的 skill 和 team 来源。"
+      },
+      "permit_optional_sources_that": {
+        "attr_description": "允许未固定到 ref 或 checksum 的可选来源。"
+      },
+      "required_for_local_path_age": {
+        "attr_description": "local_path / agent_package 来源需要此项。仅用于开发。"
+      },
+      "select_a_company_to_browse": {
+        "attr_message": "选择公司以浏览 team 目录。"
+      },
+      "category_filter_value": {
+        "jsx-text": "分类 · {{category}}"
+      },
+      "no_team_catalog_configured": {
+        "attr_message": "尚未配置 team 目录。"
+      },
+      "no_teams_match_this_filter": {
+        "attr_message": "没有 team 匹配此筛选。"
+      },
+      "team_imported": {
+        "body": "{{team}} 已导入。"
+      },
+      "org_chart": {
+        "breadcrumb": "组织图"
+      },
+      "markdown_only": {
+        "trust_label": "仅 Markdown",
+        "trust_tip": "仅包含 markdown 和引用，不含可执行内容。"
+      },
+      "assets": {
+        "trust_label": "资产",
+        "trust_tip": "包含静态资产（图片、fixtures），不含可执行内容。"
+      },
+      "scripts": {
+        "trust_label": "脚本",
+        "trust_tip": "包含已在打包前完成安全审查的可执行脚本。"
+      },
+      "compatible": {
+        "compat_label": "兼容"
+      },
+      "unknown_compat": {
+        "compat_label": "兼容性未知"
+      },
+      "invalid": {
+        "compat_label": "无效"
+      },
+      "bundled_in_package": {
+        "skill_action_label": "已打包在 package 中"
+      },
+      "will_install_from_catalog": {
+        "skill_action_label": "将从 catalog 安装"
+      },
+      "will_import_from_source": {
+        "skill_action_label": "将从来源导入"
       }
     },
     "userprofile": {
@@ -10288,6 +14640,24 @@
       },
       "touched": {
         "attr_label": "Touched"
+      },
+      "select_a_company_to_view_user_": {
+        "jsx-text": "选择公司以查看用户资料。"
+      },
+      "user_profile_not_found_for_t": {
+        "jsx-text": "未找到此公司的用户资料。"
+      },
+      "users": {
+        "breadcrumb": "用户"
+      },
+      "user": {
+        "fallback": "用户"
+      },
+      "task_linked_usage": {
+        "sublabel": "任务关联用量"
+      },
+      "billed_through": {
+        "sublabel": "通过 {{biller}} 计费"
       }
     },
     "workspaces": {
@@ -10298,7 +14668,569 @@
         "jsx-text": " workspace"
       },
       "workspaces": {
-        "jsx-text": "工作区"
+        "jsx-text": "工作区",
+        "breadcrumb": "工作区"
+      }
+    },
+    "myissues": {
+      "select_a_company_to_view_your": {
+        "jsx-text": "选择公司以查看你的任务。"
+      },
+      "no_tasks_assigned_to_you": {
+        "jsx-text": "没有分配给你的任务。"
+      },
+      "my_tasks": {
+        "breadcrumb": "我的任务"
+      }
+    },
+    "issues": {
+      "select_a_company_to_view_tasks": {
+        "jsx-text": "选择公司以查看任务。"
+      },
+      "tasks": {
+        "breadcrumb": "任务"
+      }
+    },
+    "org": {
+      "select_a_company_to_view_org_c": {
+        "jsx-text": "选择公司以查看组织图。"
+      },
+      "no_agents_in_the_organization": {
+        "jsx-text": "组织中暂无 agent。创建 agent 来构建组织图。"
+      },
+      "org_chart": {
+        "breadcrumb": "组织图"
+      }
+    }
+  },
+  "context": {
+    "liveupdatesprovider": {
+      "agent_with_id": "Agent {{id}}",
+      "actor_system": "系统",
+      "actor_board": "看板",
+      "actor_someone": "有人",
+      "actor_agent": "Agent",
+      "issue_created": {
+        "toast_title": "{{actor}} 创建了 {{ref}}"
+      },
+      "issue_updated": {
+        "toast_title": "{{actor}} 更新了 {{ref}}"
+      },
+      "view_ref": {
+        "action": "查看 {{ref}}"
+      },
+      "reopened_from": "从 {{source}} 重新打开",
+      "reopened": "重新打开",
+      "issue_reopened_and_commented": {
+        "toast_title": "{{actor}} 重新打开并评论了 {{ref}}"
+      },
+      "issue_commented_and_updated": {
+        "toast_title": "{{actor}} 评论并更新了 {{ref}}"
+      },
+      "issue_commented": {
+        "toast_title": "{{actor}} 评论了 {{ref}}"
+      },
+      "wants_to_join": {
+        "toast_title": "{{label}} 想加入"
+      },
+      "new_join_request_waiting": {
+        "toast_body": "新的加入请求正在等待批准。"
+      },
+      "view_inbox": {
+        "action": "查看 inbox"
+      },
+      "agent_started": {
+        "toast_title": "{{name}} 已启动"
+      },
+      "agent_errored": {
+        "toast_title": "{{name}} 发生错误"
+      },
+      "view_agent": {
+        "action": "查看 agent"
+      },
+      "run_status_succeeded": "已成功",
+      "run_status_failed": "失败",
+      "run_status_timed_out": "超时",
+      "run_status_cancelled": "已取消",
+      "agent_run_status": {
+        "toast_title": "{{name}} run {{status}}"
+      },
+      "trigger_detail": {
+        "toast_body": "触发器：{{detail}}"
+      },
+      "view_run": {
+        "action": "查看 run"
+      },
+      "status_changed": "状态 -> {{status}}",
+      "priority_changed": "优先级 -> {{priority}}",
+      "reassigned": "已重新分配",
+      "unassigned": "已取消分配",
+      "title_changed": "标题已变更",
+      "description_changed": "描述已变更"
+    }
+  },
+  "hooks": {
+    "useretrynowmutation": {
+      "request_failed_with_status": "请求失败（{{status}}）",
+      "request_failed_retry": "请求失败。请稍后重试。",
+      "outcome_promoted": "重试已提升",
+      "outcome_already_promoted": "重试已在运行",
+      "outcome_no_scheduled_retry": "没有已安排的重试",
+      "outcome_gate_suppressed": "现在无法重试",
+      "missing_issue_id": {
+        "error": "缺少 issue ID"
+      }
+    },
+    "useresourcememberships": {
+      "select_company_first": {
+        "error": "请先选择公司。"
+      },
+      "could_not_leave": {
+        "title": "无法离开 {{name}}。"
+      },
+      "could_not_join": {
+        "title": "无法加入 {{name}}。"
+      },
+      "try_again": {
+        "body": "请重试。"
+      }
+    }
+  },
+  "lib": {
+    "transcriptpresentation": {
+      "executing_command": "正在执行命令",
+      "inspect_tool_input": "查看 {{name}} 输入",
+      "paths_starting_with": "{{count}} 个路径，以 {{first}} 开头",
+      "no_tool_input": "{{name}} 无输入",
+      "single_payload": "{{key}} 载荷",
+      "fields_summary": "{{count}} 个字段：{{fields}}",
+      "tool_failed": "工具失败",
+      "waiting_for_result": "等待结果",
+      "completed": "已完成",
+      "failed_with_exit_code": "失败，退出码 {{exitCode}}",
+      "failed": "失败",
+      "command": {
+        "detail_label": "命令"
+      },
+      "input": {
+        "detail_label": "输入"
+      },
+      "intent": {
+        "detail_label": "意图"
+      },
+      "path": {
+        "detail_label": "路径"
+      },
+      "directory": {
+        "detail_label": "目录"
+      },
+      "query": {
+        "detail_label": "查询"
+      },
+      "target": {
+        "detail_label": "目标"
+      },
+      "prompt": {
+        "detail_label": "Prompt"
+      },
+      "pattern": {
+        "detail_label": "模式"
+      },
+      "name": {
+        "detail_label": "名称"
+      },
+      "paths": {
+        "detail_label": "路径"
+      },
+      "more_paths": {
+        "suffix": "，另有 {{count}} 个"
+      }
+    },
+    "trustpolicyui": {
+      "project_boundary": "项目 {{id}}",
+      "root_issue_boundary": "根任务 {{id}}",
+      "issue_boundary": "任务 {{id}}",
+      "no_boundary_selected": "未选择边界",
+      "boundaries_count": "{{count}} 个边界",
+      "promoted_from_low_trust": "已从低信任提升",
+      "low_trust_source": "低信任来源",
+      "boundaries_count_plural": "{{count}} 个边界",
+      "boundaries_count_other": "{{count}} 个边界",
+      "boundaries_count_one": "{{count}} 个边界"
+    },
+    "activityformat": {
+      "board": "看板",
+      "you": "你",
+      "user_short": "用户 {{id}}",
+      "action_for_service": "{{action}}：{{serviceName}}",
+      "row": {
+        "issue_created": "创建了",
+        "issue_updated": "更新了",
+        "issue_checked_out": "签出了",
+        "issue_released": "释放了",
+        "issue_comment_added": "评论了",
+        "issue_comment_cancelled": "取消了队列评论：",
+        "issue_comment_deleted": "删除了评论：",
+        "issue_attachment_added": "添加了附件到",
+        "issue_attachment_removed": "移除了附件：",
+        "issue_document_created": "创建了文档：",
+        "issue_document_updated": "更新了文档：",
+        "issue_document_locked": "锁定了文档：",
+        "issue_document_unlocked": "解锁了文档：",
+        "issue_document_deleted": "删除了文档：",
+        "issue_monitor_scheduled": "安排了 monitor：",
+        "issue_monitor_triggered": "触发了 monitor：",
+        "issue_monitor_cleared": "清除了 monitor：",
+        "issue_monitor_skipped": "跳过了 monitor：",
+        "issue_monitor_exhausted": "耗尽了 monitor：",
+        "issue_monitor_recovery_wake_queued": "为 monitor recovery 排队：",
+        "issue_monitor_recovery_issue_created": "创建了 monitor recovery：",
+        "issue_monitor_escalated_to_board": "升级了 monitor：",
+        "issue_commented": "评论了",
+        "issue_deleted": "删除了",
+        "issue_successful_run_handoff_required": "标记缺少下一步：",
+        "issue_successful_run_handoff_resolved": "记录已选择下一步：",
+        "issue_successful_run_handoff_escalated": "升级缺少下一步：",
+        "issue_accepted_plan_decomposition_updated": "更新了 accepted-plan decomposition：",
+        "issue_recovery_action_opened": "打开了 recovery action：",
+        "issue_recovery_action_resolved": "解决了 recovery action：",
+        "issue_recovery_action_escalated": "升级了 recovery action：",
+        "agent_created": "创建了",
+        "agent_updated": "更新了",
+        "agent_paused": "暂停了",
+        "agent_resumed": "恢复了",
+        "agent_terminated": "终止了",
+        "agent_key_created": "创建了 API key：",
+        "agent_budget_updated": "更新了预算：",
+        "agent_runtime_session_reset": "重置了会话：",
+        "heartbeat_invoked": "调用了 heartbeat：",
+        "heartbeat_cancelled": "取消了 heartbeat：",
+        "heartbeat_output_stale_source_resolved": "系统折叠了陈旧 run：",
+        "heartbeat_output_stale_recovery_recursion_refused": "拒绝 recovery-on-recovery：",
+        "approval_created": "请求了 approval",
+        "approval_approved": "批准了",
+        "approval_rejected": "拒绝了",
+        "project_created": "创建了",
+        "project_updated": "更新了",
+        "project_deleted": "删除了",
+        "goal_created": "创建了",
+        "goal_updated": "更新了",
+        "goal_deleted": "删除了",
+        "cost_reported": "报告了成本：",
+        "cost_recorded": "记录了成本：",
+        "company_created": "创建了公司",
+        "company_updated": "更新了公司",
+        "company_archived": "归档了",
+        "company_reactivated": "重新激活了",
+        "company_budget_updated": "更新了预算："
+      },
+      "issue": {
+        "issue_created": "创建了任务",
+        "issue_updated": "更新了任务",
+        "issue_checked_out": "签出了任务",
+        "issue_released": "释放了任务",
+        "issue_comment_added": "添加了评论",
+        "issue_comment_cancelled": "取消了队列评论",
+        "issue_comment_deleted": "删除了评论",
+        "issue_feedback_vote_saved": "保存了 AI 输出反馈",
+        "issue_attachment_added": "添加了附件",
+        "issue_attachment_removed": "移除了附件",
+        "issue_document_created": "创建了文档",
+        "issue_document_updated": "更新了文档",
+        "issue_document_locked": "锁定了文档",
+        "issue_document_unlocked": "解锁了文档",
+        "issue_document_deleted": "删除了文档",
+        "issue_monitor_scheduled": "安排了 monitor",
+        "issue_monitor_triggered": "触发了 monitor",
+        "issue_monitor_cleared": "清除了 monitor",
+        "issue_monitor_skipped": "跳过了 monitor",
+        "issue_monitor_exhausted": "耗尽了 monitor",
+        "issue_monitor_recovery_wake_queued": "排队了 monitor recovery wake",
+        "issue_monitor_recovery_issue_created": "创建了 monitor recovery 任务",
+        "issue_monitor_escalated_to_board": "将 monitor 升级给看板",
+        "issue_deleted": "删除了任务",
+        "issue_successful_run_handoff_required": "Run 结束但缺少明确下一步",
+        "issue_successful_run_handoff_resolved": "已选择下一步",
+        "issue_successful_run_handoff_escalated": "Run 结束但缺少下一步 - recovery 已升级",
+        "issue_recovery_action_opened": "打开了源范围 recovery action",
+        "issue_recovery_action_resolved": "解决了 recovery action",
+        "issue_recovery_action_escalated": "升级了 recovery action",
+        "issue_accepted_plan_decomposition_updated": "更新了 accepted-plan decomposition",
+        "agent_created": "创建了 agent",
+        "agent_updated": "更新了 agent",
+        "agent_paused": "暂停了 agent",
+        "agent_resumed": "恢复了 agent",
+        "agent_terminated": "终止了 agent",
+        "heartbeat_invoked": "调用了 heartbeat",
+        "heartbeat_cancelled": "取消了 heartbeat",
+        "heartbeat_output_stale_source_resolved": "系统折叠了陈旧 run",
+        "heartbeat_output_stale_recovery_recursion_refused": "拒绝 recovery-on-recovery 升级",
+        "approval_created": "请求了 approval",
+        "approval_approved": "已批准",
+        "approval_rejected": "已拒绝"
+      }
+    },
+    "recoverydisplay": {
+      "workspace_recovery_needed": "Workspace recovery 需要处理",
+      "needed": "Recovery 需要处理",
+      "in_progress": "Recovery 进行中",
+      "observe_only": "正在观察活跃 run",
+      "escalated": "Recovery 已升级"
+    },
+    "issuethreadinteractions": {
+      "accepted_created_of_tasks": "已接受 {{createdCount}} / {{count}} 个任务",
+      "accepted_tasks": "已接受 {{count}} 个任务",
+      "rejected_tasks": "已拒绝 {{count}} 个任务",
+      "suggested_tasks": "建议了 {{count}} 个任务",
+      "confirmed_request": "已确认请求",
+      "declined_request": "已拒绝请求",
+      "confirmation_expired_after_comment": "确认因评论而过期",
+      "confirmation_expired_after_target_changed": "确认因目标变更而过期",
+      "confirmation_expired": "确认已过期",
+      "requested_confirmation": "请求确认",
+      "confirmed_no_options": "已确认且未选择选项",
+      "confirmed_selected_of_options": "已确认 {{selectedCount}} / {{optionCount}} 个选项",
+      "declined_selection": "已拒绝选择",
+      "selection_expired_after_comment": "选择因评论而过期",
+      "selection_expired_after_target_changed": "选择因目标变更而过期",
+      "selection_expired": "选择已过期",
+      "requested_selection_from_options": "请求从 {{count}} 个选项中选择",
+      "answered_questions": "已回答 {{count}} 个问题",
+      "cancelled_questions": "已取消 {{count}} 个问题",
+      "asked_questions": "提出了 {{count}} 个问题",
+      "accepted_tasks_plural": "已接受 {{count}} 个任务",
+      "accepted_tasks_other": "已接受 {{count}} 个任务",
+      "accepted_tasks_one": "已接受 {{count}} 个任务",
+      "rejected_tasks_plural": "已拒绝 {{count}} 个任务",
+      "rejected_tasks_other": "已拒绝 {{count}} 个任务",
+      "rejected_tasks_one": "已拒绝 {{count}} 个任务",
+      "suggested_tasks_plural": "建议了 {{count}} 个任务",
+      "suggested_tasks_other": "建议了 {{count}} 个任务",
+      "suggested_tasks_one": "建议了 {{count}} 个任务",
+      "requested_selection_from_options_plural": "请求从 {{count}} 个选项中选择",
+      "requested_selection_from_options_other": "请求从 {{count}} 个选项中选择",
+      "requested_selection_from_options_one": "请求从 {{count}} 个选项中选择",
+      "answered_questions_plural": "已回答 {{count}} 个问题",
+      "answered_questions_other": "已回答 {{count}} 个问题",
+      "answered_questions_one": "已回答 {{count}} 个问题",
+      "cancelled_questions_plural": "已取消 {{count}} 个问题",
+      "cancelled_questions_other": "已取消 {{count}} 个问题",
+      "cancelled_questions_one": "已取消 {{count}} 个问题",
+      "asked_questions_plural": "提出了 {{count}} 个问题",
+      "asked_questions_other": "提出了 {{count}} 个问题",
+      "asked_questions_one": "提出了 {{count}} 个问题"
+    },
+    "issuechatmessages": {
+      "seconds_count": "{{count}} 秒",
+      "minutes_count": "{{count}} 分钟",
+      "hours_count": "{{count}} 小时",
+      "hours_minutes_count": "{{hours}} 小时 {{minutes}} 分钟",
+      "queued": "已排队",
+      "working": "工作中...",
+      "worked_for": "工作了 {{duration}}",
+      "finished_work": "工作已完成",
+      "failed_after": "{{duration}} 后失败",
+      "run_failed": "Run 失败",
+      "timed_out_after": "{{duration}} 后超时",
+      "run_timed_out": "Run 超时",
+      "paused_by_board_after": "{{duration}} 后由看板暂停",
+      "paused_by_board": "由看板暂停",
+      "cancelled_after": "{{duration}} 后取消",
+      "run_cancelled": "Run 已取消",
+      "system": "系统",
+      "actor_requested_follow_up": "{{actor}} 请求继续跟进",
+      "actor_updated_issue": "{{actor}} 更新了此任务",
+      "status_changed": "状态：{{from}} -> {{to}}",
+      "none": "无",
+      "unassigned": "未分配",
+      "assignee_changed": "承接人：{{from}} -> {{to}}",
+      "workspace_changed": "Workspace：{{from}} -> {{to}}",
+      "run_status_line": "{{agent}} run {{runId}} {{status}}",
+      "run_finished": "Run 已完成",
+      "queued_ellipsis": "已排队...",
+      "run_error": "Run 错误：{{error}}",
+      "minutes_count_plural": "{{count}} 分钟",
+      "minutes_count_other": "{{count}} 分钟",
+      "minutes_count_one": "{{count}} 分钟",
+      "hours_count_plural": "{{count}} 小时",
+      "hours_count_other": "{{count}} 小时",
+      "hours_count_one": "{{count}} 小时",
+      "hours_minutes_count_plural": "{{hours}} 小时 {{minutes}} 分钟",
+      "hours_minutes_count_other": "{{hours}} 小时 {{minutes}} 分钟",
+      "hours_minutes_count_one": "{{hours}} 小时 {{minutes}} 分钟"
+    },
+    "assignees": {
+      "me": {
+        "label": "我"
+      },
+      "you": {
+        "label": "你"
+      },
+      "board": {
+        "label": "看板"
+      }
+    },
+    "sourceresolvedwatchdogfold": {
+      "cleanup_terminated": "已终止",
+      "cleanup_termination_sent_still_running": "已发送终止信号（仍在运行）",
+      "cleanup_failed": "失败",
+      "cleanup_not_running": "未运行",
+      "cleanup_no_process_metadata": "无进程元数据",
+      "cleanup_skipped_non_local_adapter": "已跳过（非本地适配器）",
+      "under_one_minute": "不到 1 分钟",
+      "minutes_count": "{{count}} 分钟",
+      "hours_count": "{{count}} 小时"
+    },
+    "companymembers": {
+      "board": {
+        "label": "看板"
+      }
+    },
+    "inbox": {
+      "no_workspace": {
+        "group_label": "无 workspace"
+      },
+      "tasks": {
+        "group_label": "任务"
+      },
+      "approvals": {
+        "group_label": "Approval"
+      },
+      "failed_runs": {
+        "group_label": "失败 run"
+      },
+      "join_requests": {
+        "group_label": "加入请求"
+      },
+      "user": {
+        "group_label": "用户"
+      },
+      "unassigned": {
+        "group_label": "未分配"
+      },
+      "no_project": {
+        "group_label": "无项目"
+      }
+    },
+    "issuefilters": {
+      "all": {
+        "quick_filter_label": "全部"
+      },
+      "active": {
+        "quick_filter_label": "活跃"
+      },
+      "backlog": {
+        "quick_filter_label": "Backlog",
+        "filter_label": "Backlog"
+      },
+      "done": {
+        "quick_filter_label": "完成",
+        "filter_label": "完成"
+      },
+      "in_progress": {
+        "filter_label": "进行中"
+      },
+      "todo": {
+        "filter_label": "Todo"
+      },
+      "in_review": {
+        "filter_label": "Review 中"
+      },
+      "blocked": {
+        "filter_label": "受阻"
+      },
+      "cancelled": {
+        "filter_label": "已取消"
+      },
+      "critical": {
+        "filter_label": "严重"
+      },
+      "high": {
+        "filter_label": "高"
+      },
+      "medium": {
+        "filter_label": "中"
+      },
+      "low": {
+        "filter_label": "低"
+      }
+    },
+    "issuedetailbreadcrumb": {
+      "inbox": {
+        "label": "收件箱"
+      },
+      "tasks": {
+        "label": "任务"
+      }
+    },
+    "zip": {
+      "unsupported_store_deflate_only": {
+        "error": "不支持的 zip 归档：仅支持 STORE 和 DEFLATE 条目。"
+      },
+      "browser_cannot_read_compressed_entries": {
+        "error": "不支持的 zip 归档：此浏览器无法读取压缩 zip 条目。"
+      },
+      "unsupported_local_file_header": {
+        "error": "无效的 zip 归档：不支持的本地文件头。"
+      },
+      "truncated_local_file_header": {
+        "error": "无效的 zip 归档：本地文件头被截断。"
+      },
+      "data_descriptors_not_supported": {
+        "error": "不支持的 zip 归档：不支持 data descriptor。"
+      },
+      "truncated_file_contents": {
+        "error": "无效的 zip 归档：文件内容被截断。"
+      }
+    }
+  },
+  "adapters": {
+    "display": {
+      "acpx_local": {
+        "description": "实验性本地 ACPX 多 agent 适配器"
+      },
+      "claude_local": {
+        "description": "本地 Claude agent"
+      },
+      "codex_local": {
+        "description": "本地 Codex agent"
+      },
+      "gemini_local": {
+        "description": "本地 Gemini agent"
+      },
+      "grok_local": {
+        "description": "本地 Grok Build agent"
+      },
+      "opencode_local": {
+        "description": "本地多供应商 agent"
+      },
+      "hermes_local": {
+        "description": "本地 Hermes CLI agent"
+      },
+      "pi_local": {
+        "description": "本地 Pi agent"
+      },
+      "cursor": {
+        "description": "本地 Cursor agent"
+      },
+      "cursor_cloud": {
+        "description": "托管远程 Cursor agent"
+      },
+      "openclaw_gateway": {
+        "description": "外部网关适配器",
+        "disabled_label": "请从添加 agent 弹窗邀请外部 agent"
+      },
+      "process": {
+        "description": "内部进程适配器"
+      },
+      "http": {
+        "description": "内部 HTTP 适配器"
+      },
+      "external_with_suffix": {
+        "description": "外部 {{suffix}} 适配器"
+      },
+      "external": {
+        "description": "外部适配器"
       }
     }
   }

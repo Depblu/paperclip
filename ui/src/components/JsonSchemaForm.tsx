@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import {
   ChevronDown,
   ChevronRight,
@@ -32,6 +32,7 @@ import { SecretBindingPicker, type SecretBindingValue } from "./SecretBindingPic
  * Threshold for string length above which a Textarea is used instead of a standard Input.
  */
 const TEXTAREA_THRESHOLD = 200;
+type TranslateFn = typeof translate;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -178,12 +179,13 @@ export function validateField(
   value: unknown,
   schema: JsonSchemaNode,
   isRequired: boolean,
+  t: TranslateFn = translate,
 ): string | null {
   const type = resolveType(schema);
 
   // Required check
   if (isRequired && (value === undefined || value === null || value === "")) {
-    return "This field is required";
+    return t("components.jsonschemaform.field_required.validation", { defaultValue: "This field is required" });
   }
 
   // Skip further validation if empty and not required
@@ -192,10 +194,16 @@ export function validateField(
   if (type === "string" || type === "secret-ref") {
     const str = String(value);
     if (schema.minLength != null && str.length < schema.minLength) {
-      return `Must be at least ${schema.minLength} characters`;
+      return t("components.jsonschemaform.min_length.validation", {
+        defaultValue: "Must be at least {{count}} characters",
+        count: schema.minLength,
+      });
     }
     if (schema.maxLength != null && str.length > schema.maxLength) {
-      return `Must be at most ${schema.maxLength} characters`;
+      return t("components.jsonschemaform.max_length.validation", {
+        defaultValue: "Must be at most {{count}} characters",
+        count: schema.maxLength,
+      });
     }
     if (schema.pattern) {
       // Guard against ReDoS: reject overly complex patterns from plugin JSON Schemas.
@@ -205,7 +213,10 @@ export function validateField(
         try {
           const re = new RegExp(schema.pattern);
           if (!re.test(str)) {
-            return `Must match pattern: ${schema.pattern}`;
+            return t("components.jsonschemaform.must_match_pattern.validation", {
+              defaultValue: "Must match pattern: {{pattern}}",
+              pattern: schema.pattern,
+            });
           }
         } catch {
           // Invalid regex in schema — skip
@@ -216,34 +227,55 @@ export function validateField(
 
   if (type === "number" || type === "integer") {
     const num = Number(value);
-    if (isNaN(num)) return "Must be a valid number";
+    if (isNaN(num)) return t("components.jsonschemaform.valid_number.validation", { defaultValue: "Must be a valid number" });
     if (schema.minimum != null && num < schema.minimum) {
-      return `Must be at least ${schema.minimum}`;
+      return t("components.jsonschemaform.minimum.validation", {
+        defaultValue: "Must be at least {{value}}",
+        value: schema.minimum,
+      });
     }
     if (schema.maximum != null && num > schema.maximum) {
-      return `Must be at most ${schema.maximum}`;
+      return t("components.jsonschemaform.maximum.validation", {
+        defaultValue: "Must be at most {{value}}",
+        value: schema.maximum,
+      });
     }
     if (schema.exclusiveMinimum != null && num <= schema.exclusiveMinimum) {
-      return `Must be greater than ${schema.exclusiveMinimum}`;
+      return t("components.jsonschemaform.exclusive_minimum.validation", {
+        defaultValue: "Must be greater than {{value}}",
+        value: schema.exclusiveMinimum,
+      });
     }
     if (schema.exclusiveMaximum != null && num >= schema.exclusiveMaximum) {
-      return `Must be less than ${schema.exclusiveMaximum}`;
+      return t("components.jsonschemaform.exclusive_maximum.validation", {
+        defaultValue: "Must be less than {{value}}",
+        value: schema.exclusiveMaximum,
+      });
     }
     if (type === "integer" && !Number.isInteger(num)) {
-      return "Must be a whole number";
+      return t("components.jsonschemaform.whole_number.validation", { defaultValue: "Must be a whole number" });
     }
     if (schema.multipleOf != null && num % schema.multipleOf !== 0) {
-      return `Must be a multiple of ${schema.multipleOf}`;
+      return t("components.jsonschemaform.multiple_of.validation", {
+        defaultValue: "Must be a multiple of {{value}}",
+        value: schema.multipleOf,
+      });
     }
   }
 
   if (type === "array") {
     const arr = value as unknown[];
     if (schema.minItems != null && arr.length < schema.minItems) {
-      return `Must have at least ${schema.minItems} items`;
+      return t("components.jsonschemaform.min_items.validation", {
+        count: schema.minItems,
+        defaultValue: "Must have at least {{count}} items",
+      });
     }
     if (schema.maxItems != null && arr.length > schema.maxItems) {
-      return `Must have at most ${schema.maxItems} items`;
+      return t("components.jsonschemaform.max_items.validation", {
+        count: schema.maxItems,
+        defaultValue: "Must have at most {{count}} items",
+      });
     }
   }
 
@@ -255,6 +287,7 @@ export function validateJsonSchemaForm(
   schema: JsonSchemaNode,
   values: Record<string, unknown>,
   path: string[] = [],
+  t: TranslateFn = translate,
 ): Record<string, string> {
   const errors: Record<string, string> = {};
   const properties = schema.properties ?? {};
@@ -268,7 +301,7 @@ export function validateJsonSchemaForm(
     const type = resolveType(propSchema);
 
     // Per-field validation
-    const fieldErr = validateField(value, propSchema, isRequired);
+    const fieldErr = validateField(value, propSchema, isRequired, t);
     if (fieldErr) {
       errors[errorKey] = fieldErr;
     }
@@ -297,10 +330,11 @@ export function validateJsonSchemaForm(
               itemSchema,
               item as Record<string, unknown>,
               itemPath,
+              t,
             ),
           );
         } else {
-          const itemErr = validateField(item, itemSchema, false);
+          const itemErr = validateField(item, itemSchema, false, t);
           if (itemErr) {
             errors[itemErrorKey] = itemErr;
           }
@@ -577,7 +611,10 @@ const { t } = useTranslation();
           value={
             stringValue.length === 0
               ? ""
-              : `Sensitive — ${stringValue.length} characters hidden. Click the eye to reveal.`
+              : t("components.jsonschemaform.sensitive_characters_hidden.value", {
+                count: stringValue.length,
+                defaultValue: "Sensitive - {{count}} characters hidden. Click the eye to reveal.",
+              })
           }
           readOnly
           placeholder={String(defaultValue ?? "")}
@@ -600,7 +637,9 @@ const { t } = useTranslation();
           <Eye className="h-4 w-4 text-muted-foreground" />
         )}
         <span className="sr-only">
-          {isVisible ? "Hide secret" : "Show secret"}
+          {isVisible
+            ? t("components.jsonschemaform.hide_secret.sr", { defaultValue: "Hide secret" })
+            : t("components.jsonschemaform.show_secret.sr", { defaultValue: "Show secret" })}
         </span>
       </Button>
     </div>
@@ -629,7 +668,9 @@ const { t } = useTranslation();
           <Eye className="h-4 w-4 text-muted-foreground" />
         )}
         <span className="sr-only">
-          {isVisible ? "Hide secret" : "Show secret"}
+          {isVisible
+            ? t("components.jsonschemaform.hide_secret.sr", { defaultValue: "Hide secret" })
+            : t("components.jsonschemaform.show_secret.sr", { defaultValue: "Show secret" })}
         </span>
       </Button>
     </div>
@@ -640,7 +681,9 @@ const { t } = useTranslation();
       label={label}
       description={
         description ||
-        "Pick an existing company secret, or paste a raw value (Paperclip will store it as a secret on save)."
+        t("components.jsonschemaform.secret_field.description", {
+          defaultValue: "Pick an existing company secret, or paste a raw value (Paperclip will store it as a secret on save).",
+        })
       }
       required={isRequired}
       error={error}
@@ -653,7 +696,7 @@ const { t } = useTranslation();
           label=""
           placeholder={t("components.jsonschemaform.select_an_existing_secret.attr_placeholder", { defaultValue: "Select an existing secret" })}
           allowVersionSelector={false}
-          emptyHint="No active secrets yet. Create one or paste a raw value below."
+          emptyHint={t("components.jsonschemaform.no_active_secrets.empty_hint", { defaultValue: "No active secrets yet. Create one or paste a raw value below." })}
           disabled={disabled}
         />
         {!isBoundToSecret ? (
@@ -855,7 +898,9 @@ const { t } = useTranslation();
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
-          {isComplex ? "Add item" : "Add"}
+          {isComplex
+            ? t("components.jsonschemaform.add_item.button", { defaultValue: "Add item" })
+            : t("components.jsonschemaform.add.button", { defaultValue: "Add" })}
         </Button>
       </div>
 
@@ -1179,7 +1224,7 @@ const { t } = useTranslation();
     const groupOrder: string[] = [];
     const groups = new Map<string, Array<[string, JsonSchemaNode]>>();
     const advancedKeys = new Set<string>();
-    const DEFAULT_GROUP = "More options";
+    const DEFAULT_GROUP = t("components.jsonschemaform.more_options.group_label", { defaultValue: "More options" });
 
     for (const entry of Object.entries(properties)) {
       const [key, propSchema] = entry;
@@ -1207,7 +1252,7 @@ const { t } = useTranslation();
       })),
       advancedKeys,
     };
-  }, [properties]);
+  }, [properties, t]);
 
   const hasAdvanced = advancedGroups.length > 0;
 

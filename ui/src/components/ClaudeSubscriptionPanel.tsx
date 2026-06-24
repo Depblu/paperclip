@@ -1,5 +1,5 @@
 import type { QuotaWindow } from "@paperclipai/shared";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { cn, quotaSourceDisplayName } from "@/lib/utils";
 
 interface ClaudeSubscriptionPanelProps {
@@ -22,7 +22,9 @@ function normalizeLabel(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
-function detailText(window: QuotaWindow): string | null {
+type TranslateFn = typeof translate;
+
+function detailText(window: QuotaWindow, t: TranslateFn = translate): string | null {
   if (typeof window.detail === "string" && window.detail.trim().length > 0) return window.detail.trim();
   if (window.resetsAt) {
     const formatted = new Date(window.resetsAt).toLocaleString(undefined, {
@@ -32,7 +34,10 @@ function detailText(window: QuotaWindow): string | null {
       minute: "2-digit",
       timeZoneName: "short",
     });
-    return `Resets ${formatted}`;
+    return t("components.claudesubscriptionpanel.resets_at", {
+      formatted,
+      defaultValue: "Resets {{formatted}}",
+    });
   }
   return null;
 }
@@ -86,7 +91,7 @@ const { t } = useTranslation();
       <div className="mt-4 space-y-4">
         {ordered.map((window) => {
           const normalized = normalizeLabel(window.label);
-          const detail = detailText(window);
+          const detail = detailText(window, t);
           if (normalized === "extrausage") {
             return (
               <div

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { OpenCodeLogoIcon } from "@/components/OpenCodeLogoIcon";
 import { HermesIcon } from "@/components/HermesIcon";
+import { t as translate } from "@/i18n";
 
 // ---------------------------------------------------------------------------
 // Type suffix parsing
@@ -42,6 +43,8 @@ function withSuffix(label: string, suffix: string | null): string {
 // Display metadata per adapter type
 // ---------------------------------------------------------------------------
 
+type TranslateFn = typeof translate;
+
 export interface AdapterDisplayInfo {
   label: string;
   description: string;
@@ -53,82 +56,109 @@ export interface AdapterDisplayInfo {
   hideFromVisualSelection?: boolean;
 }
 
-const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
+type AdapterDisplayEntry = Omit<AdapterDisplayInfo, "description" | "disabledLabel">;
+
+const adapterDisplayMap: Record<string, AdapterDisplayEntry> = {
   acpx_local: {
     label: "ACPX",
-    description: "Experimental local ACPX multi-agent adapter",
     icon: Bot,
     experimental: true,
     hideFromVisualSelection: true,
   },
   claude_local: {
     label: "Claude Code",
-    description: "Local Claude agent",
     icon: Sparkles,
     recommended: true,
   },
   codex_local: {
     label: "Codex",
-    description: "Local Codex agent",
     icon: Code,
     recommended: true,
   },
   gemini_local: {
     label: "Gemini CLI",
-    description: "Local Gemini agent",
     icon: Gem,
   },
   grok_local: {
     label: "Grok Build",
-    description: "Local Grok Build agent",
     icon: Bot,
   },
   opencode_local: {
     label: "OpenCode",
-    description: "Local multi-provider agent",
     icon: OpenCodeLogoIcon,
   },
   hermes_local: {
     label: "Hermes Agent",
-    description: "Local Hermes CLI agent",
     icon: HermesIcon,
   },
   pi_local: {
     label: "Pi",
-    description: "Local Pi agent",
     icon: Terminal,
   },
   cursor: {
     label: "Cursor",
-    description: "Local Cursor agent",
     icon: MousePointer2,
   },
   cursor_cloud: {
     label: "Cursor Cloud",
-    description: "Managed remote Cursor agent",
     icon: MousePointer2,
   },
   openclaw_gateway: {
     label: "OpenClaw Gateway",
-    description: "External gateway adapter",
     icon: Bot,
     comingSoon: true,
-    disabledLabel: "Invite external agents from the add-agent modal",
     hideFromVisualSelection: true,
   },
   process: {
     label: "Process",
-    description: "Internal process adapter",
     icon: Cpu,
     comingSoon: true,
   },
   http: {
     label: "HTTP",
-    description: "Internal HTTP adapter",
     icon: Cpu,
     comingSoon: true,
   },
 };
+
+function adapterDescription(type: string, suffix: string | null, t: TranslateFn): string {
+  switch (type) {
+    case "acpx_local":
+      return t("adapters.display.acpx_local.description", { defaultValue: "Experimental local ACPX multi-agent adapter" });
+    case "claude_local":
+      return t("adapters.display.claude_local.description", { defaultValue: "Local Claude agent" });
+    case "codex_local":
+      return t("adapters.display.codex_local.description", { defaultValue: "Local Codex agent" });
+    case "gemini_local":
+      return t("adapters.display.gemini_local.description", { defaultValue: "Local Gemini agent" });
+    case "grok_local":
+      return t("adapters.display.grok_local.description", { defaultValue: "Local Grok Build agent" });
+    case "opencode_local":
+      return t("adapters.display.opencode_local.description", { defaultValue: "Local multi-provider agent" });
+    case "hermes_local":
+      return t("adapters.display.hermes_local.description", { defaultValue: "Local Hermes CLI agent" });
+    case "pi_local":
+      return t("adapters.display.pi_local.description", { defaultValue: "Local Pi agent" });
+    case "cursor":
+      return t("adapters.display.cursor.description", { defaultValue: "Local Cursor agent" });
+    case "cursor_cloud":
+      return t("adapters.display.cursor_cloud.description", { defaultValue: "Managed remote Cursor agent" });
+    case "openclaw_gateway":
+      return t("adapters.display.openclaw_gateway.description", { defaultValue: "External gateway adapter" });
+    case "process":
+      return t("adapters.display.process.description", { defaultValue: "Internal process adapter" });
+    case "http":
+      return t("adapters.display.http.description", { defaultValue: "Internal HTTP adapter" });
+    default:
+      return suffix
+        ? t("adapters.display.external_with_suffix.description", { defaultValue: "External {{suffix}} adapter", suffix })
+        : t("adapters.display.external.description", { defaultValue: "External adapter" });
+  }
+}
+
+export function getAdapterDescription(type: string, t: TranslateFn = translate): string {
+  return adapterDescription(type, getTypeSuffix(type), t);
+}
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -159,15 +189,23 @@ export function getAdapterLabels(): Record<string, string> {
   return suffixed;
 }
 
-export function getAdapterDisplay(type: string): AdapterDisplayInfo {
+export function getAdapterDisplay(type: string, t: TranslateFn = translate): AdapterDisplayInfo {
   const known = adapterDisplayMap[type];
-  if (known) return known;
-
   const suffix = getTypeSuffix(type);
+  if (known) {
+    return {
+      ...known,
+      description: adapterDescription(type, suffix, t),
+      disabledLabel: type === "openclaw_gateway"
+        ? t("adapters.display.openclaw_gateway.disabled_label", { defaultValue: "Invite external agents from the add-agent modal" })
+        : undefined,
+    };
+  }
+
   const label = withSuffix(humanizeType(type), suffix);
   return {
     label,
-    description: suffix ? `External ${suffix} adapter` : "External adapter",
+    description: adapterDescription(type, suffix, t),
     icon: Cpu,
   };
 }

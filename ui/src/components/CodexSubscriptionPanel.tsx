@@ -1,5 +1,5 @@
 import type { QuotaWindow } from "@paperclipai/shared";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { cn, quotaSourceDisplayName } from "@/lib/utils";
 
 interface CodexSubscriptionPanelProps {
@@ -13,6 +13,7 @@ const WINDOW_PRIORITY = [
   "weeklylimit",
   "credits",
 ] as const;
+type TranslateFn = typeof translate;
 
 function normalizeLabel(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -28,7 +29,7 @@ function orderedWindows(windows: QuotaWindow[]): QuotaWindow[] {
   });
 }
 
-function detailText(window: QuotaWindow): string | null {
+function detailText(window: QuotaWindow, t: TranslateFn = translate): string | null {
   if (typeof window.detail === "string" && window.detail.trim().length > 0) return window.detail.trim();
   if (!window.resetsAt) return null;
   const formatted = new Date(window.resetsAt).toLocaleString(undefined, {
@@ -38,7 +39,10 @@ function detailText(window: QuotaWindow): string | null {
     minute: "2-digit",
     timeZoneName: "short",
   });
-  return `Resets ${formatted}`;
+  return t("components.codexsubscriptionpanel.resets_at", {
+    formatted,
+    defaultValue: "Resets {{formatted}}",
+  });
 }
 
 function fillClass(usedPercent: number | null): string {
@@ -116,7 +120,7 @@ const { t } = useTranslation();
 function QuotaWindowRow({ window }: { window: QuotaWindow }) {
 const { t } = useTranslation();
 
-  const detail = detailText(window);
+  const detail = detailText(window, t);
   if (window.usedPercent == null) {
     return (
       <div className="border border-border px-3.5 py-3">

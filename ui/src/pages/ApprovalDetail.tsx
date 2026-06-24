@@ -68,10 +68,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Approvals", href: "/approvals" },
-      { label: approval?.id?.slice(0, 8) ?? approvalId ?? "Approval" },
+      { label: t("pages.approvaldetail.approvals.breadcrumb", { defaultValue: "Approvals" }), href: "/approvals" },
+      { label: approval?.id?.slice(0, 8) ?? approvalId ?? t("pages.approvaldetail.approval.breadcrumb", { defaultValue: "Approval" }) },
     ]);
-  }, [setBreadcrumbs, approval, approvalId]);
+  }, [setBreadcrumbs, approval, approvalId, t]);
 
   const refresh = () => {
     if (!approvalId) return;
@@ -94,7 +94,7 @@ const { t } = useTranslation();
       refresh();
       navigate(`/approvals/${approvalId}?resolved=approved`, { replace: true });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Approve failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.approve_failed.error", { defaultValue: "Approve failed" })),
   });
 
   const rejectMutation = useMutation({
@@ -103,7 +103,7 @@ const { t } = useTranslation();
       setError(null);
       refresh();
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Reject failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.reject_failed.error", { defaultValue: "Reject failed" })),
   });
 
   const revisionMutation = useMutation({
@@ -112,7 +112,7 @@ const { t } = useTranslation();
       setError(null);
       refresh();
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Revision request failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.revision_request_failed.error", { defaultValue: "Revision request failed" })),
   });
 
   const resubmitMutation = useMutation({
@@ -121,7 +121,7 @@ const { t } = useTranslation();
       setError(null);
       refresh();
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Resubmit failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.resubmit_failed.error", { defaultValue: "Resubmit failed" })),
   });
 
   const addCommentMutation = useMutation({
@@ -131,7 +131,7 @@ const { t } = useTranslation();
       setError(null);
       refresh();
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Comment failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.comment_failed.error", { defaultValue: "Comment failed" })),
   });
 
   const deleteAgentMutation = useMutation({
@@ -141,7 +141,7 @@ const { t } = useTranslation();
       refresh();
       navigate("/approvals");
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Delete failed"),
+    onError: (err) => setError(err instanceof Error ? err.message : t("pages.approvaldetail.delete_failed.error", { defaultValue: "Delete failed" })),
   });
 
   if (isLoading) return <PageSkeleton variant="detail" />;
@@ -159,17 +159,17 @@ const { t } = useTranslation();
       ? {
           label:
             (linkedIssues?.length ?? 0) > 1
-              ? "Review linked tasks"
-              : "Review linked task",
+              ? t("pages.approvaldetail.review_linked_tasks.action", { defaultValue: "Review linked tasks" })
+              : t("pages.approvaldetail.review_linked_task.action", { defaultValue: "Review linked task" }),
           to: `/issues/${primaryLinkedIssue.identifier ?? primaryLinkedIssue.id}`,
         }
       : linkedAgentId
         ? {
-            label: "Open hired agent",
+            label: t("pages.approvaldetail.open_hired_agent.action", { defaultValue: "Open hired agent" }),
             to: `/agents/${linkedAgentId}`,
           }
         : {
-            label: "Back to approvals",
+            label: t("pages.approvaldetail.back_to_approvals.action", { defaultValue: "Back to approvals" }),
             to: "/approvals",
           };
 

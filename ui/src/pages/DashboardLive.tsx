@@ -17,16 +17,18 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Live runs" },
+      { label: t("pages.dashboardlive.dashboard.breadcrumb", { defaultValue: "Dashboard" }), href: "/dashboard" },
+      { label: t("pages.dashboardlive.live_runs.breadcrumb", { defaultValue: "Live runs" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   if (!selectedCompanyId) {
     return (
       <EmptyState
         icon={RadioTower}
-        message={companies.length === 0 ? "Create a company to view live runs." : "Select a company to view live runs."}
+        message={companies.length === 0
+          ? t("pages.dashboardlive.create_a_company_to_view_live_runs.empty", { defaultValue: "Create a company to view live runs." })
+          : t("pages.dashboardlive.select_a_company_to_view_live_runs.empty", { defaultValue: "Select a company to view live runs." })}
       />
     );
   }

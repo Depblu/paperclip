@@ -1,5 +1,6 @@
 import type { KeyboardEvent, ReactNode } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useMemo, useRef, useState } from "react";
 import { cn } from "../lib/utils";
 import {
@@ -216,20 +217,23 @@ export function parseFrontmatter(content: string): { data: FrontmatterData; body
   return Object.keys(data).length > 0 ? { data, body } : null;
 }
 
-export const FRONTMATTER_FIELD_LABELS: Record<string, string> = {
-  name: "Name",
-  title: "Title",
-  kind: "Kind",
-  reportsTo: "Reports to",
-  skills: "Skills",
-  status: "Status",
-  description: "Description",
-  priority: "Priority",
-  assignee: "Assignee",
-  project: "Project",
-  recurring: "Recurring",
-  targetDate: "Target date",
-};
+export function frontmatterFieldLabel(key: string, t: TFunction) {
+  switch (key) {
+    case "name": return t("components.filetree.name.frontmatter_label", { defaultValue: "Name" });
+    case "title": return t("components.filetree.title.frontmatter_label", { defaultValue: "Title" });
+    case "kind": return t("components.filetree.kind.frontmatter_label", { defaultValue: "Kind" });
+    case "reportsTo": return t("components.filetree.reports_to.frontmatter_label", { defaultValue: "Reports to" });
+    case "skills": return t("components.filetree.skills.frontmatter_label", { defaultValue: "Skills" });
+    case "status": return t("components.filetree.status.frontmatter_label", { defaultValue: "Status" });
+    case "description": return t("components.filetree.description.frontmatter_label", { defaultValue: "Description" });
+    case "priority": return t("components.filetree.priority.frontmatter_label", { defaultValue: "Priority" });
+    case "assignee": return t("components.filetree.assignee.frontmatter_label", { defaultValue: "Assignee" });
+    case "project": return t("components.filetree.project.frontmatter_label", { defaultValue: "Project" });
+    case "recurring": return t("components.filetree.recurring.frontmatter_label", { defaultValue: "Recurring" });
+    case "targetDate": return t("components.filetree.target_date.frontmatter_label", { defaultValue: "Target date" });
+    default: return key;
+  }
+}
 
 // -- File tree component -----------------------------------------------------
 

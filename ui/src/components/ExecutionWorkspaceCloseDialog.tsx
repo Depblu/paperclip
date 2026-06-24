@@ -48,7 +48,9 @@ const { t } = useTranslation();
 
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
-  const actionLabel = currentStatus === "cleanup_failed" ? "Retry close" : "Close workspace";
+  const actionLabel = currentStatus === "cleanup_failed"
+    ? t("components.executionworkspaceclosedialog.retry_close.action", { defaultValue: "Retry close" })
+    : t("components.executionworkspaceclosedialog.close_workspace.action", { defaultValue: "Close workspace" });
 
   const readinessQuery = useQuery({
     queryKey: queryKeys.executionWorkspaces.closeReadiness(workspaceId),
@@ -62,7 +64,9 @@ const { t } = useTranslation();
       queryClient.setQueryData(queryKeys.executionWorkspaces.detail(workspace.id), workspace);
       queryClient.invalidateQueries({ queryKey: queryKeys.executionWorkspaces.closeReadiness(workspace.id) });
       pushToast({
-        title: currentStatus === "cleanup_failed" ? "Workspace close retried" : "Workspace closed",
+        title: currentStatus === "cleanup_failed"
+          ? t("components.executionworkspaceclosedialog.workspace_close_retried.title", { defaultValue: "Workspace close retried" })
+          : t("components.executionworkspaceclosedialog.workspace_closed.title", { defaultValue: "Workspace closed" }),
         tone: "success",
       });
       onOpenChange(false);
@@ -70,8 +74,8 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to close workspace",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("components.executionworkspaceclosedialog.failed_to_close_workspace.title", { defaultValue: "Failed to close workspace" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },

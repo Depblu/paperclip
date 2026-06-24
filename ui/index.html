@@ -55,7 +55,7 @@
           const m = String(raw).split("-")[0];
           return isSupported(m) ? m : null;
         };
-        let chosen = "en";
+        let chosen = "zh-CN";
         try {
           const stored = window.localStorage.getItem(key);
           if (isSupported(stored)) chosen = stored;

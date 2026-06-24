@@ -100,15 +100,15 @@ const { t } = useTranslation();
     <div className="space-y-3">
       <Section
         title={t("components.issuerelatedworkpanel.references.attr_title", { defaultValue: "References" })}
-        description="Other tasks this task currently points at in its title, description, comments, or documents."
+        description={t("components.issuerelatedworkpanel.other_tasks_this_task_current.attr_description", { defaultValue: "Other tasks this task currently points at in its title, description, comments, or documents." })}
         items={outbound}
-        emptyLabel="This task does not reference any other tasks yet."
+        emptyLabel={t("components.issuerelatedworkpanel.this_task_does_not_reference.jsx-text", { defaultValue: "This task does not reference any other tasks yet." })}
       />
       <Section
         title={t("components.issuerelatedworkpanel.referenced_by.attr_title", { defaultValue: "Referenced by" })}
-        description="Other tasks that currently point at this task."
+        description={t("components.issuerelatedworkpanel.other_tasks_that_currently_po.attr_description", { defaultValue: "Other tasks that currently point at this task." })}
         items={inbound}
-        emptyLabel="No other tasks reference this task yet."
+        emptyLabel={t("components.issuerelatedworkpanel.no_other_tasks_reference_thi.jsx-text", { defaultValue: "No other tasks reference this task yet." })}
       />
     </div>
   );

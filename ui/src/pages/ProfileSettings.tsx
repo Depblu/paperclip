@@ -38,10 +38,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings" },
-      { label: "Profile" },
+      { label: t("pages.profilesettings.instance_settings.breadcrumb", { defaultValue: "Instance Settings" }) },
+      { label: t("pages.profilesettings.profile.breadcrumb", { defaultValue: "Profile" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     const session = sessionQuery.data;
@@ -81,14 +81,14 @@ const { t } = useTranslation();
       setImage(profile.image ?? "");
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to update profile.");
+      setActionError(error instanceof Error ? error.message : t("pages.profilesettings.failed_to_update_profile.error", { defaultValue: "Failed to update profile." }));
     },
   });
 
   const uploadAvatarMutation = useMutation({
     mutationFn: async (file: File) => {
       if (!selectedCompanyId) {
-        throw new Error("Select a company before uploading a profile avatar.");
+        throw new Error(t("pages.profilesettings.select_company_before_uploading_avatar.error", { defaultValue: "Select a company before uploading a profile avatar." }));
       }
 
       const asset = await assetsApi.uploadImage(
@@ -104,7 +104,7 @@ const { t } = useTranslation();
       setImage(profile.image ?? "");
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to upload avatar.");
+      setActionError(error instanceof Error ? error.message : t("pages.profilesettings.failed_to_upload_avatar.error", { defaultValue: "Failed to upload avatar." }));
     },
   });
 
@@ -116,7 +116,7 @@ const { t } = useTranslation();
       setImage(profile.image ?? "");
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to remove avatar.");
+      setActionError(error instanceof Error ? error.message : t("pages.profilesettings.failed_to_remove_avatar.error", { defaultValue: "Failed to remove avatar." }));
     },
   });
 

@@ -189,7 +189,7 @@ const { t } = useTranslation();
 
         {/* Color swatches */}
         <div className="mt-3 border-t border-border pt-3">
-          <p className="text-xs font-medium text-muted-foreground mb-2">Color</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">{t("pages.projectdetail.color.jsx-text", { defaultValue: "Color" })}</p>
           <div className="grid grid-cols-5 gap-1.5">
             {/* Neutral / reset-to-gray option */}
             <button
@@ -481,15 +481,23 @@ const { t } = useTranslation();
       invalidateProject();
       const name = updatedProject?.name ?? project?.name ?? "Project";
       if (archived) {
-        pushToast({ title: `"${name}" has been archived`, tone: "success" });
+        pushToast({
+          title: t("pages.projectdetail.project_archived.toast_title", { defaultValue: "\"{{name}}\" has been archived", name }),
+          tone: "success",
+        });
         navigate("/dashboard");
       } else {
-        pushToast({ title: `"${name}" has been unarchived`, tone: "success" });
+        pushToast({
+          title: t("pages.projectdetail.project_unarchived.toast_title", { defaultValue: "\"{{name}}\" has been unarchived", name }),
+          tone: "success",
+        });
       }
     },
     onError: (_, archived) => {
       pushToast({
-        title: archived ? "Failed to archive project" : "Failed to unarchive project",
+        title: archived
+          ? t("pages.projectdetail.failed_to_archive_project.toast_title", { defaultValue: "Failed to archive project" })
+          : t("pages.projectdetail.failed_to_unarchive_project.toast_title", { defaultValue: "Failed to unarchive project" }),
         tone: "error",
       });
     },
@@ -497,7 +505,7 @@ const { t } = useTranslation();
 
   const uploadImage = useMutation({
     mutationFn: async (file: File) => {
-      if (!resolvedCompanyId) throw new Error("No company selected");
+      if (!resolvedCompanyId) throw new Error(t("pages.projectdetail.no_company_selected.error", { defaultValue: "No company selected" }));
       return assetsApi.uploadImage(resolvedCompanyId, file, `projects/${projectLookupRef || "draft"}`);
     },
   });
@@ -512,10 +520,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Projects", href: "/projects" },
-      { label: project?.name ?? routeProjectRef ?? "Project" },
+      { label: t("pages.projectdetail.projects.breadcrumb", { defaultValue: "Projects" }), href: "/projects" },
+      { label: project?.name ?? routeProjectRef ?? t("pages.projectdetail.project.breadcrumb", { defaultValue: "Project" }) },
     ]);
-  }, [setBreadcrumbs, project, routeProjectRef]);
+  }, [setBreadcrumbs, project, routeProjectRef, t]);
 
   useEffect(() => {
     if (!project) return;
@@ -831,12 +839,12 @@ const { t } = useTranslation();
       <Tabs value={activeTab ?? "list"} onValueChange={(value) => handleTabChange(value as ProjectTab)}>
         <PageTabBar
           items={[
-            { value: "list", label: "Tasks" },
-            { value: "overview", label: "Overview" },
-            ...(project.managedByPlugin ? [{ value: "plugin-operations", label: "Plugin operations" }] : []),
-            ...(showWorkspacesTab ? [{ value: "workspaces", label: "Workspaces" }] : []),
-            { value: "configuration", label: "Configuration" },
-            { value: "budget", label: "Budget" },
+            { value: "list", label: t("pages.projectdetail.tasks.tab_label", { defaultValue: "Tasks" }) },
+            { value: "overview", label: t("pages.projectdetail.overview.tab_label", { defaultValue: "Overview" }) },
+            ...(project.managedByPlugin ? [{ value: "plugin-operations", label: t("pages.projectdetail.plugin_operations.tab_label", { defaultValue: "Plugin operations" }) }] : []),
+            ...(showWorkspacesTab ? [{ value: "workspaces", label: t("pages.projectdetail.workspaces.tab_label", { defaultValue: "Workspaces" }) }] : []),
+            { value: "configuration", label: t("pages.projectdetail.configuration.tab_label", { defaultValue: "Configuration" }) },
+            { value: "budget", label: t("pages.projectdetail.budget.tab_label", { defaultValue: "Budget" }) },
             ...pluginTabItems.map((item) => ({
               value: item.value,
               label: item.label,

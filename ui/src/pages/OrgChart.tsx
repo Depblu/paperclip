@@ -197,8 +197,8 @@ const { t } = useTranslation();
   }, [agents]);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Org Chart" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.orgchart.org_chart.breadcrumb", { defaultValue: "Org Chart" }) }]);
+  }, [setBreadcrumbs, t]);
 
   // Layout computation
   const layout = useMemo(() => layoutForest(orgTree ?? []), [orgTree]);
@@ -432,7 +432,7 @@ const { t } = useTranslation();
   }, [pan, zoom]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Network} message="Select a company to view the org chart." />;
+    return <EmptyState icon={Network} message={t("pages.orgchart.select_a_company_to_view_the_o.jsx-text", { defaultValue: "Select a company to view the org chart." })} />;
   }
 
   if (isLoading) {
@@ -440,7 +440,7 @@ const { t } = useTranslation();
   }
 
   if (orgTree && orgTree.length === 0) {
-    return <EmptyState icon={Network} message="No organizational hierarchy defined." />;
+    return <EmptyState icon={Network} message={t("pages.orgchart.no_organizational_hierarchy_d.jsx-text", { defaultValue: "No organizational hierarchy defined." })} />;
   }
 
   return (

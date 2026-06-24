@@ -135,11 +135,11 @@ const { t } = useTranslation();
   }, [agents]);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Agents" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.agents.agents.breadcrumb", { defaultValue: "Agents" }) }]);
+  }, [setBreadcrumbs, t]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Bot} message="Select a company to view agents." />;
+    return <EmptyState icon={Bot} message={t("pages.agents.select_a_company_to_view_agents.jsx-text", { defaultValue: "Select a company to view agents." })} />;
   }
 
   if (isLoading) {
@@ -155,10 +155,10 @@ const { t } = useTranslation();
         <Tabs value={tab} onValueChange={(v) => navigate(`/agents/${v}`)}>
           <PageTabBar
             items={[
-              { value: "all", label: "All" },
-              { value: "active", label: "Active" },
-              { value: "paused", label: "Paused" },
-              { value: "error", label: "Error" },
+              { value: "all", label: t("pages.agents.all.tab_label", { defaultValue: "All" }) },
+              { value: "active", label: t("pages.agents.active.tab_label", { defaultValue: "Active" }) },
+              { value: "paused", label: t("pages.agents.paused.tab_label", { defaultValue: "Paused" }) },
+              { value: "error", label: t("pages.agents.error.tab_label", { defaultValue: "Error" }) },
             ]}
             value={tab}
             onValueChange={(v) => navigate(`/agents/${v}`)}
@@ -203,8 +203,8 @@ const { t } = useTranslation();
       {agents && agents.length === 0 && (
         <EmptyState
           icon={Bot}
-          message="Create your first agent to get started."
-          action="New Agent"
+          message={t("pages.agents.create_your_first_agent_to_get.jsx-text", { defaultValue: "Create your first agent to get started." })}
+          action={t("pages.agents.new_agent_action.jsx-text", { defaultValue: "New Agent" })}
           onAction={openNewAgent}
         />
       )}

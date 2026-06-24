@@ -106,8 +106,8 @@ const { t } = useTranslation();
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Workspaces" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.workspaces.workspaces.breadcrumb", { defaultValue: "Workspaces" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const groups = useMemo(
     () => buildProjectWorkspaceGroups({ projects, issues, executionWorkspaces }),

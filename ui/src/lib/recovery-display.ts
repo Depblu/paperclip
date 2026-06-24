@@ -1,4 +1,5 @@
 import type { IssueRecoveryAction, IssueRecoveryActionKind } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 import { Eye, OctagonAlert, RefreshCw, TriangleAlert } from "lucide-react";
 
 export type RecoveryDisplayState =
@@ -9,34 +10,40 @@ export type RecoveryDisplayState =
   | "resolved";
 
 export type ActiveRecoveryDisplayState = Exclude<RecoveryDisplayState, "resolved">;
+type TranslateFn = typeof translate;
 
 export const RECOVERY_CHIP_DEFAULT_TONE: Record<
   ActiveRecoveryDisplayState,
-  { className: string; icon: typeof TriangleAlert; label: string }
+  { className: string; icon: typeof TriangleAlert }
 > = {
   needed: {
     className:
       "border-amber-500/60 bg-amber-500/15 text-amber-700 dark:text-amber-300",
     icon: TriangleAlert,
-    label: "Recovery needed",
   },
   in_progress: {
     className:
       "border-sky-500/60 bg-sky-500/15 text-sky-700 dark:text-sky-300",
     icon: RefreshCw,
-    label: "Recovery in progress",
   },
   observe_only: {
     className: "border-border bg-muted text-muted-foreground",
     icon: Eye,
-    label: "Observing active run",
   },
   escalated: {
     className: "border-red-500/60 bg-red-500/15 text-red-700 dark:text-red-300",
     icon: OctagonAlert,
-    label: "Recovery escalated",
   },
 };
+
+function recoveryChipDefaultLabel(state: ActiveRecoveryDisplayState): string {
+  switch (state) {
+    case "needed": return "Recovery needed";
+    case "in_progress": return "Recovery in progress";
+    case "observe_only": return "Observing active run";
+    case "escalated": return "Recovery escalated";
+  }
+}
 
 export function deriveRecoveryDisplayState(
   action: Pick<IssueRecoveryAction, "status" | "kind" | "outcome">,
@@ -59,9 +66,10 @@ export function deriveActiveRecoveryDisplayState(
 export function recoveryChipLabel(
   state: ActiveRecoveryDisplayState,
   kind: IssueRecoveryActionKind,
+  t: TranslateFn = translate,
 ): string {
   if (kind === "workspace_validation" && state === "needed") {
-    return "Workspace recovery needed";
+    return t("lib.recoverydisplay.workspace_recovery_needed", { defaultValue: "Workspace recovery needed" });
   }
-  return RECOVERY_CHIP_DEFAULT_TONE[state].label;
+  return t(`lib.recoverydisplay.${state}`, { defaultValue: recoveryChipDefaultLabel(state) });
 }

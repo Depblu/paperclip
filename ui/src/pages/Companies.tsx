@@ -72,8 +72,8 @@ const { t } = useTranslation();
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Companies" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.companies.companies.breadcrumb", { defaultValue: "Companies" }) }]);
+  }, [setBreadcrumbs, t]);
 
   function startEdit(companyId: string, currentName: string) {
     setEditingId(companyId);

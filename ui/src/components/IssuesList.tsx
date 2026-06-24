@@ -569,7 +569,9 @@ const { t } = useTranslation();
           {target && targetIssue ? (
             <>
               <div className="text-xs font-medium text-muted-foreground">
-                {target.kind === "next" ? "Next up" : "Waiting on blockers"}
+                {target.kind === "next"
+                  ? t("components.issueslist.next_up.label", { defaultValue: "Next up" })
+                  : t("components.issueslist.waiting_on_blockers.label", { defaultValue: "Waiting on blockers" })}
               </div>
               <Link
                 to={createIssueDetailPath(targetPathId)}
@@ -1073,13 +1075,13 @@ const { t } = useTranslation();
       const groups = groupBy(filtered, (i) => i.status);
       return issueStatusOrder
         .filter((s) => groups[s]?.length)
-        .map((s) => ({ key: s, label: issueFilterLabel(s), items: groups[s]! }));
+        .map((s) => ({ key: s, label: issueFilterLabel(s, t), items: groups[s]! }));
     }
     if (viewState.groupBy === "priority") {
       const groups = groupBy(filtered, (i) => i.priority);
       return issuePriorityOrder
         .filter((p) => groups[p]?.length)
-        .map((p) => ({ key: p, label: issueFilterLabel(p), items: groups[p]! }));
+        .map((p) => ({ key: p, label: issueFilterLabel(p, t), items: groups[p]! }));
     }
     if (viewState.groupBy === "workspace") {
       const groups = groupBy(
@@ -1095,7 +1097,9 @@ const { t } = useTranslation();
         })
         .map((key) => ({
           key,
-          label: key === "__no_workspace" ? "No Workspace" : (workspaceNameMap.get(key) ?? key.slice(0, 8)),
+          label: key === "__no_workspace"
+            ? t("components.issueslist.no_workspace.group_label", { defaultValue: "No Workspace" })
+            : (workspaceNameMap.get(key) ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }
@@ -1111,7 +1115,9 @@ const { t } = useTranslation();
         })
         .map((key) => ({
           key,
-          label: key === "__no_project" ? "No Project" : (projectById.get(key)?.name ?? key.slice(0, 8)),
+          label: key === "__no_project"
+            ? t("components.issueslist.no_project.group_label", { defaultValue: "No Project" })
+            : (projectById.get(key)?.name ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }
@@ -1126,7 +1132,9 @@ const { t } = useTranslation();
         })
         .map((key) => ({
           key,
-          label: key === "__no_parent" ? "No Parent" : (issueTitleMap.get(key) ?? key.slice(0, 8)),
+          label: key === "__no_parent"
+            ? t("components.issueslist.no_parent.group_label", { defaultValue: "No Parent" })
+            : (issueTitleMap.get(key) ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }
@@ -1139,9 +1147,9 @@ const { t } = useTranslation();
       key,
       label:
         key === "__unassigned"
-          ? "Unassigned"
+          ? t("components.issueslist.unassigned.group_label", { defaultValue: "Unassigned" })
           : key.startsWith("__user:")
-            ? (formatAssigneeUserLabel(key.slice("__user:".length), currentUserId, companyUserLabelMap) ?? "User")
+            ? (formatAssigneeUserLabel(key.slice("__user:".length), currentUserId, companyUserLabelMap) ?? t("components.issueslist.user.group_label", { defaultValue: "User" }))
             : (agentName(key) ?? key.slice(0, 8)),
       items: groups[key]!,
     }));
@@ -1156,6 +1164,7 @@ const { t } = useTranslation();
     issueTitleMap,
     companyUserLabelMap,
     projectById,
+    t,
   ]);
 
   useEffect(() => {
@@ -1435,7 +1444,12 @@ const { t } = useTranslation();
                         )}
                         onClick={() => updateView({ boardColumnPageSize: pageSize })}
                       >
-                        <span>{pageSize} {t("components.issueslist.per_column.jsx-text", { defaultValue: " per column" })}</span>
+                        <span>
+                          {t("components.issueslist.per_column.option_label", {
+                            count: pageSize,
+                            defaultValue: "{{count}} per column",
+                          })}
+                        </span>
                         {viewState.boardColumnPageSize === pageSize && <Check className="h-3.5 w-3.5" />}
                       </button>
                     ))}
@@ -1568,16 +1582,24 @@ const { t } = useTranslation();
       {error && <p className="text-sm text-destructive">{error.message}</p>}
       {!searchWithinLoadedIssues && normalizedIssueSearch.length > 0 && searchedIssues.length === ISSUE_SEARCH_RESULT_LIMIT && (
         <p className="text-xs text-muted-foreground">
-          {t("components.issueslist.showing_up_to.jsx-text", { defaultValue: "\n          Showing up to " })}{ISSUE_SEARCH_RESULT_LIMIT} {t("components.issueslist.matches_refine_the_search_to_nar.jsx-text", { defaultValue: " matches. Refine the search to narrow further.\n        " })}</p>
+          {t("components.issueslist.showing_up_to_matches.message", {
+            count: ISSUE_SEARCH_RESULT_LIMIT,
+            defaultValue: "Showing up to {{count}} matches. Refine the search to narrow further.",
+          })}
+        </p>
       )}
       {boardColumnLimitReached && (
         <p className="text-xs text-muted-foreground">
-          {t("components.issueslist.some_board_columns_are_showing_u.jsx-text", { defaultValue: "\n          Some board columns are showing up to " })}{ISSUE_BOARD_COLUMN_RESULT_LIMIT} {t("components.issueslist.tasks_refine_filters_or_search_t.jsx-text", { defaultValue: " tasks. Refine filters or search to reveal the rest.\n        " })}</p>
+          {t("components.issueslist.board_columns_limit.message", {
+            count: ISSUE_BOARD_COLUMN_RESULT_LIMIT,
+            defaultValue: "Some board columns are showing up to {{count}} tasks. Refine filters or search to reveal the rest.",
+          })}
+        </p>
       )}
       {!isLoading && filtered.length === 0 && viewState.viewMode === "list" && (
         <EmptyState
           icon={CircleDot}
-          message="No tasks match the current filters or search."
+          message={t("components.issueslist.no_tasks_match_the_current_fi.jsx-text", { defaultValue: "No tasks match the current filters or search." })}
           action={createActionLabel}
           onAction={() => openCreateIssueDialog()}
         />
@@ -1819,7 +1841,7 @@ const { t } = useTranslation();
                             />
                           </>
                         )}
-                        mobileMeta={issueActivityText(issue).toLowerCase()}
+                        mobileMeta={issueActivityText(issue, t).toLowerCase()}
                         desktopTrailing={(
                           visibleTrailingIssueColumns.length > 0 ? (
                             <InboxIssueTrailingColumns

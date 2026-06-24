@@ -78,15 +78,19 @@ const { t } = useTranslation();
       }
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
-        toastActions?.pushToast({ title: "Link copied", tone: "success" });
+        toastActions?.pushToast({ title: t("components.standalonebrowsercontrols.link_copied.title", { defaultValue: "Link copied" }), tone: "success" });
         return;
       }
-      toastActions?.pushToast({ title: "Sharing is unavailable", body: url, tone: "warn" });
+      toastActions?.pushToast({ title: t("components.standalonebrowsercontrols.sharing_unavailable.title", { defaultValue: "Sharing is unavailable" }), body: url, tone: "warn" });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      toastActions?.pushToast({ title: "Share failed", body: "Try opening the page in your browser.", tone: "error" });
+      toastActions?.pushToast({
+        title: t("components.standalonebrowsercontrols.share_failed.title", { defaultValue: "Share failed" }),
+        body: t("components.standalonebrowsercontrols.try_opening_in_browser.body", { defaultValue: "Try opening the page in your browser." }),
+        tone: "error",
+      });
     }
-  }, [toastActions]);
+  }, [t, toastActions]);
 
   const openInBrowser = useCallback(() => {
     window.open(window.location.href, "_blank", "noopener,noreferrer");

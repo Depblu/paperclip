@@ -73,7 +73,7 @@ const { t } = useTranslation();
 
   const uploadDescriptionImage = useMutation({
     mutationFn: async (file: File) => {
-      if (!selectedCompanyId) throw new Error("No company selected");
+      if (!selectedCompanyId) throw new Error(t("components.newgoaldialog.no_company_selected.error", { defaultValue: "No company selected" }));
       return assetsApi.uploadImage(selectedCompanyId, file, "goals/drafts");
     },
   });

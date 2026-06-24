@@ -183,26 +183,26 @@ function buildTree(entries: CompanySkillFileInventoryEntry[]) {
   return root.children;
 }
 
-function sourceMeta(sourceBadge: CompanySkillSourceBadge, sourceLabel: string | null) {
+function sourceMeta(sourceBadge: CompanySkillSourceBadge, sourceLabel: string | null, t: ReturnType<typeof useTranslation>["t"]) {
   const normalizedLabel = sourceLabel?.toLowerCase() ?? "";
   const isSkillsShManaged =
     normalizedLabel.includes("skills.sh") || normalizedLabel.includes("vercel-labs/skills");
 
   switch (sourceBadge) {
     case "skills_sh":
-      return { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: "skills.sh managed" };
+      return { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: t("pages.companyskills.skills_sh_managed.source_label", { defaultValue: "skills.sh managed" }) };
     case "github":
       return isSkillsShManaged
-        ? { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: "skills.sh managed" }
-        : { icon: Github, label: sourceLabel ?? "GitHub", managedLabel: "GitHub managed" };
+        ? { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: t("pages.companyskills.skills_sh_managed.source_label", { defaultValue: "skills.sh managed" }) }
+        : { icon: Github, label: sourceLabel ?? "GitHub", managedLabel: t("pages.companyskills.github_managed.source_label", { defaultValue: "GitHub managed" }) };
     case "url":
-      return { icon: Link2, label: sourceLabel ?? "URL", managedLabel: "URL managed" };
+      return { icon: Link2, label: sourceLabel ?? "URL", managedLabel: t("pages.companyskills.url_managed.source_label", { defaultValue: "URL managed" }) };
     case "local":
-      return { icon: Folder, label: sourceLabel ?? "Folder", managedLabel: "Folder managed" };
+      return { icon: Folder, label: sourceLabel ?? t("pages.companyskills.folder.source_label", { defaultValue: "Folder" }), managedLabel: t("pages.companyskills.folder_managed.source_label", { defaultValue: "Folder managed" }) };
     case "paperclip":
-      return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: "Paperclip managed" };
+      return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: t("pages.companyskills.paperclip_managed.source_label", { defaultValue: "Paperclip managed" }) };
     default:
-      return { icon: Boxes, label: sourceLabel ?? "Catalog", managedLabel: "Catalog managed" };
+      return { icon: Boxes, label: sourceLabel ?? t("pages.companyskills.catalog.jsx-text", { defaultValue: "Catalog" }), managedLabel: t("pages.companyskills.catalog_managed.source_label", { defaultValue: "Catalog managed" }) };
   }
 }
 
@@ -217,15 +217,24 @@ function middleTruncate(value: string, maxLength = 72) {
   return `${value.slice(0, edgeLength)}...${value.slice(value.length - edgeLength)}`;
 }
 
-function formatProjectScanSummary(result: CompanySkillProjectScanResult) {
+function formatProjectScanSummary(result: CompanySkillProjectScanResult, t: ReturnType<typeof useTranslation>["t"]) {
   const parts = [
-    `${result.discovered} found`,
-    `${result.imported.length} imported`,
-    `${result.updated.length} updated`,
+    t("pages.companyskills.scan_found.part", { count: result.discovered, defaultValue: "{{count}} found" }),
+    t("pages.companyskills.scan_imported.part", { count: result.imported.length, defaultValue: "{{count}} imported" }),
+    t("pages.companyskills.scan_updated.part", { count: result.updated.length, defaultValue: "{{count}} updated" }),
   ];
-  if (result.conflicts.length > 0) parts.push(`${result.conflicts.length} conflicts`);
-  if (result.skipped.length > 0) parts.push(`${result.skipped.length} skipped`);
-  return `${parts.join(", ")} across ${result.scannedWorkspaces} workspace${result.scannedWorkspaces === 1 ? "" : "s"}.`;
+  if (result.conflicts.length > 0) {
+    parts.push(t("pages.companyskills.scan_conflicts.part", { count: result.conflicts.length, defaultValue: "{{count}} conflicts" }));
+  }
+  if (result.skipped.length > 0) {
+    parts.push(t("pages.companyskills.scan_skipped.part", { count: result.skipped.length, defaultValue: "{{count}} skipped" }));
+  }
+  return t("pages.companyskills.scan_summary.text", {
+    parts: parts.join(", "),
+    count: result.scannedWorkspaces,
+    defaultValue: "{{parts}} across {{count}} workspace.",
+    defaultValue_plural: "{{parts}} across {{count}} workspaces.",
+  });
 }
 
 function fileIcon(kind: CompanySkillFileInventoryEntry["kind"]) {
@@ -293,13 +302,20 @@ function parentDirectoryPaths(filePath: string) {
 
 type SourceFilter = "all" | "company" | "bundled" | "optional" | "external";
 
-const SOURCE_FILTER_LABELS: Record<SourceFilter, string> = {
-  all: "All",
-  company: "Company",
-  bundled: "Bundled",
-  optional: "Optional",
-  external: "External",
-};
+function sourceFilterLabel(filter: SourceFilter, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (filter) {
+    case "all":
+      return t("pages.companyskills.all.jsx-text", { defaultValue: "All" });
+    case "company":
+      return t("pages.companyskills.company.filter_label", { defaultValue: "Company" });
+    case "bundled":
+      return t("pages.companyskills.bundled.jsx-text", { defaultValue: "Bundled" });
+    case "optional":
+      return t("pages.companyskills.optional.jsx-text", { defaultValue: "Optional" });
+    case "external":
+      return t("pages.companyskills.external.filter_label", { defaultValue: "External" });
+  }
+}
 
 function readonlyMetadataValue(metadata: Record<string, unknown> | null | undefined, key: string): string | null {
   if (!metadata || typeof metadata !== "object") return null;
@@ -358,7 +374,12 @@ const { t } = useTranslation();
           variant="ghost"
           size="icon-sm"
           className={cn("relative shrink-0", activeFilterCount > 0 && "text-blue-600 dark:text-blue-400")}
-          title={activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}
+          title={activeFilterCount > 0
+            ? t("pages.companyskills.filters_count.attr_title", {
+              defaultValue: "Filters: {{count}}",
+              count: activeFilterCount,
+            })
+            : t("pages.companyskills.filter.attr_title", { defaultValue: "Filter" })}
         >
           <Filter className="h-3.5 w-3.5" />
           {activeFilterCount > 0 ? (
@@ -373,7 +394,7 @@ const { t } = useTranslation();
         <DropdownMenuRadioGroup value={value} onValueChange={(next) => onChange(next as SourceFilter)}>
           {filters.map((filter) => (
             <DropdownMenuRadioItem key={filter} value={filter}>
-              <span>{SOURCE_FILTER_LABELS[filter]}</span>
+              <span>{sourceFilterLabel(filter, t)}</span>
               <span className="ml-auto text-xs text-muted-foreground">{counts[filter] ?? 0}</span>
             </DropdownMenuRadioItem>
           ))}
@@ -406,7 +427,12 @@ const { t } = useTranslation();
           variant="ghost"
           size="icon-sm"
           className={cn("relative shrink-0", activeFilterCount > 0 && "text-blue-600 dark:text-blue-400")}
-          title={activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}
+          title={activeFilterCount > 0
+            ? t("pages.companyskills.filters_count.attr_title", {
+              defaultValue: "Filters: {{count}}",
+              count: activeFilterCount,
+            })
+            : t("pages.companyskills.filter.attr_title", { defaultValue: "Filter" })}
         >
           <Filter className="h-3.5 w-3.5" />
           {activeFilterCount > 0 ? (
@@ -417,7 +443,7 @@ const { t } = useTranslation();
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-[min(28rem,70vh)] w-56 overflow-y-auto">
-        <DropdownMenuLabel>Type</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("pages.companyskills.type.jsx-text", { defaultValue: "Type" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={kindFilter} onValueChange={(next) => onKindChange(next as "all" | "bundled" | "optional")}>
           <DropdownMenuRadioItem value="all">{t("pages.companyskills.all.jsx-text", { defaultValue: "All" })}</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="bundled">{t("pages.companyskills.bundled.jsx-text", { defaultValue: "Bundled" })}</DropdownMenuRadioItem>
@@ -444,20 +470,20 @@ const { t } = useTranslation();
   const map = {
     markdown_only: {
       icon: ShieldCheck,
-      label: "Markdown only",
-      tooltip: "Text only — no scripts, no binaries, no assets.",
+      label: t("pages.companyskills.markdown_only.trust_label", { defaultValue: "Markdown only" }),
+      tooltip: t("pages.companyskills.markdown_only.trust_tooltip", { defaultValue: "Text only - no scripts, no binaries, no assets." }),
       className: "border-border bg-muted/40 text-muted-foreground",
     },
     assets: {
       icon: Folder,
-      label: "Includes assets",
-      tooltip: "Ships images, fonts, or other non-script files.",
+      label: t("pages.companyskills.includes_assets.trust_label", { defaultValue: "Includes assets" }),
+      tooltip: t("pages.companyskills.includes_assets.trust_tooltip", { defaultValue: "Ships images, fonts, or other non-script files." }),
       className: "border-cyan-500/30 bg-cyan-500/10 text-cyan-200",
     },
     scripts_executables: {
       icon: AlertTriangle,
-      label: "Includes scripts",
-      tooltip: "Ships executable scripts. Review before installing.",
+      label: t("pages.companyskills.includes_scripts.trust_label", { defaultValue: "Includes scripts" }),
+      tooltip: t("pages.companyskills.includes_scripts.trust_tooltip", { defaultValue: "Ships executable scripts. Review before installing." }),
       className: "border-amber-500/40 bg-amber-500/10 text-amber-200",
     },
   } as const;
@@ -483,14 +509,14 @@ const { t } = useTranslation();
   const map = {
     unknown: {
       icon: HelpCircle,
-      label: "Unknown format",
-      tooltip: "Paperclip could not validate this skill as Agent Skills markdown. Install at your own risk.",
+      label: t("pages.companyskills.unknown_format.compat_label", { defaultValue: "Unknown format" }),
+      tooltip: t("pages.companyskills.unknown_format.compat_tooltip", { defaultValue: "Paperclip could not validate this skill as Agent Skills markdown. Install at your own risk." }),
       className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-200",
     },
     invalid: {
       icon: XOctagon,
-      label: "Invalid",
-      tooltip: "This skill cannot be installed — content is not valid Agent Skills markdown.",
+      label: t("pages.companyskills.invalid.compat_label", { defaultValue: "Invalid" }),
+      tooltip: t("pages.companyskills.invalid.compat_tooltip", { defaultValue: "This skill cannot be installed - content is not valid Agent Skills markdown." }),
       className: "border-destructive/40 bg-destructive/10 text-destructive",
     },
   } as const;
@@ -576,7 +602,9 @@ const { t } = useTranslation();
             onClick={() => onCreate({ name, slug: slug || null, description: description || null })}
             disabled={isPending || name.trim().length === 0}
           >
-            {isPending ? "Creating..." : "Create skill"}
+            {isPending
+              ? t("pages.companyskills.creating.button", { defaultValue: "Creating..." })
+              : t("pages.companyskills.create_skill.button", { defaultValue: "Create skill" })}
           </Button>
         </div>
       </div>
@@ -669,7 +697,9 @@ const { t } = useTranslation();
             type="button"
             className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-sm text-muted-foreground opacity-80 transition-[background-color,color,opacity] hover:bg-accent hover:text-foreground group-hover:opacity-100"
             onClick={() => onToggleSkill(skill.id)}
-            aria-label={expanded ? `Collapse ${skill.name}` : `Expand ${skill.name}`}
+            aria-label={expanded
+              ? t("pages.companyskills.collapse_skill.attr_aria-label", { name: skill.name, defaultValue: "Collapse {{name}}" })
+              : t("pages.companyskills.expand_skill.attr_aria-label", { name: skill.name, defaultValue: "Expand {{name}}" })}
           >
             {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
           </button>
@@ -756,7 +786,12 @@ function CatalogDetailPane({
 const { t } = useTranslation();
 
   if (!skill) {
-    return <EmptyState icon={Boxes} message="Select a catalog skill to inspect." />;
+    return (
+      <EmptyState
+        icon={Boxes}
+        message={t("pages.companyskills.select_a_catalog_skill_to.attr_message", { defaultValue: "Select a catalog skill to inspect." })}
+      />
+    );
   }
 
   const installedHash = installedSkill?.originHash ?? null;
@@ -781,7 +816,11 @@ const { t } = useTranslation();
     cta = (
       <Button onClick={onInstall} disabled={loadingPrimaryAction}>
         {skill.trustLevel === "scripts_executables" ? <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> : <Download className="mr-1.5 h-3.5 w-3.5" />}
-        {loadingPrimaryAction ? "Preparing..." : (skill.kind === "bundled" ? "Install bundled skill" : "Install optional skill")}
+        {loadingPrimaryAction
+          ? t("pages.companyskills.preparing.button", { defaultValue: "Preparing..." })
+          : skill.kind === "bundled"
+            ? t("pages.companyskills.install_bundled_skill.button", { defaultValue: "Install bundled skill" })
+            : t("pages.companyskills.install_optional_skill.button", { defaultValue: "Install optional skill" })}
       </Button>
     );
   } else if (hashOutOfSync) {
@@ -852,15 +891,15 @@ const { t } = useTranslation();
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="uppercase tracking-[0.18em]">Key</span>
+          <span className="uppercase tracking-[0.18em]">{t("pages.companyskills.key.jsx-text", { defaultValue: "Key" })}</span>
           <span className="font-mono">{skill.key}</span>
           <span className="uppercase tracking-[0.18em]">·</span>
           <span className="uppercase tracking-[0.18em]">{t("pages.companyskills.hash.jsx-text", { defaultValue: "Hash" })}</span>
           <span className="font-mono">{skill.contentHash.slice(0, 24)}…</span>
           <CopyText
             text={skill.contentHash}
-            copiedLabel="Copied hash"
-            ariaLabel="Copy content hash"
+            copiedLabel={t("pages.companyskills.copied_hash.copy_label", { defaultValue: "Copied hash" })}
+            ariaLabel={t("pages.companyskills.copy_content_hash.attr_aria-label", { defaultValue: "Copy content hash" })}
             title={t("pages.companyskills.copy_content_hash.attr_title", { defaultValue: "Copy content hash" })}
             className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
           >
@@ -877,7 +916,7 @@ const { t } = useTranslation();
         {fileQuery.isLoading ? (
           <PageSkeleton variant="detail" />
         ) : fileQuery.error ? (
-          <div className="text-sm text-destructive">{fileQuery.error instanceof Error ? fileQuery.error.message : "Failed to load file"}</div>
+          <div className="text-sm text-destructive">{fileQuery.error instanceof Error ? fileQuery.error.message : t("pages.companyskills.failed_to_load_file.error", { defaultValue: "Failed to load file" })}</div>
         ) : !fileQuery.data ? (
           <div className="text-sm text-muted-foreground">{t("pages.companyskills.select_a_file_to_inspect.jsx-text", { defaultValue: "Select a file to inspect." })}</div>
         ) : fileQuery.data.markdown ? (
@@ -934,22 +973,26 @@ const { t } = useTranslation();
 
   if (!skill) return null;
 
-  let confirmLabel = "Install skill";
+  let confirmLabel = t("pages.companyskills.install_skill.button", { defaultValue: "Install skill" });
   let confirmVariant: "default" | "destructive" = "default";
   if (defaultAction === "update") {
-    confirmLabel = "Install update";
+    confirmLabel = t("pages.companyskills.install_update.button", { defaultValue: "Install update" });
   } else if (defaultAction === "replace") {
-    confirmLabel = "Replace existing skill";
+    confirmLabel = t("pages.companyskills.replace_existing_skill.button", { defaultValue: "Replace existing skill" });
     confirmVariant = "destructive";
   }
-  if (isPending) confirmLabel = "Installing…";
+  if (isPending) confirmLabel = t("pages.companyskills.installing.button", { defaultValue: "Installing..." });
 
   return (
     <Dialog open={open} onOpenChange={(value) => (!isPending ? onOpenChange(value) : null)}>
       <DialogContent className="sm:max-w-2xl" showCloseButton={!isPending}>
         <DialogHeader>
           <DialogTitle>
-            {defaultAction === "update" ? "Update" : defaultAction === "replace" ? "Replace" : "Install"} · {skill.name}
+            {defaultAction === "update"
+              ? t("pages.companyskills.update.action_label", { defaultValue: "Update" })
+              : defaultAction === "replace"
+                ? t("pages.companyskills.replace.action_label", { defaultValue: "Replace" })
+                : t("pages.companyskills.install.action_label", { defaultValue: "Install" })} · {skill.name}
           </DialogTitle>
           <DialogDescription>
             <span className="capitalize">{skill.kind}</span> · {skill.category}
@@ -982,9 +1025,9 @@ const { t } = useTranslation();
                 )}
               </div>
               <div className="text-muted-foreground">{t("pages.companyskills.requires.jsx-text", { defaultValue: "Requires" })}</div>
-              <div className="text-foreground">{skill.requires.length === 0 ? "none" : skill.requires.join(", ")}</div>
+              <div className="text-foreground">{skill.requires.length === 0 ? t("pages.companyskills.none.value_label", { defaultValue: "none" }) : skill.requires.join(", ")}</div>
               <div className="text-muted-foreground">{t("pages.companyskills.roles.jsx-text", { defaultValue: "Roles" })}</div>
-              <div className="text-foreground">{skill.recommendedForRoles.length === 0 ? "any" : skill.recommendedForRoles.join(" · ")}</div>
+              <div className="text-foreground">{skill.recommendedForRoles.length === 0 ? t("pages.companyskills.any.value_label", { defaultValue: "any" }) : skill.recommendedForRoles.join(" · ")}</div>
               <div className="text-muted-foreground">{t("pages.companyskills.provenance.jsx-text", { defaultValue: "Provenance" })}</div>
               <div className="min-w-0">
                 <div className="truncate">{packageName ?? "—"}{packageVersion ? ` v${packageVersion}` : ""}</div>
@@ -1010,7 +1053,9 @@ const { t } = useTranslation();
 
           {conflict ? (
             <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-              {t("pages.companyskills.an_existing_skill_with_key.jsx-text", { defaultValue: "\n              An existing skill with key " })}<span className="font-mono">{conflict.key}</span> {t("pages.companyskills.is_installed.jsx-text", { defaultValue: " is installed (\n              " })}{conflict.sourceLabel ?? conflict.sourceType}{t("pages.companyskills.installing_will.jsx-text", { defaultValue: "). Installing will " })}{defaultAction === "update" ? "overwrite the catalog content" : "replace the existing skill"}.
+              {t("pages.companyskills.an_existing_skill_with_key.jsx-text", { defaultValue: "\n              An existing skill with key " })}<span className="font-mono">{conflict.key}</span> {t("pages.companyskills.is_installed.jsx-text", { defaultValue: " is installed (\n              " })}{conflict.sourceLabel ?? conflict.sourceType}{t("pages.companyskills.installing_will.jsx-text", { defaultValue: "). Installing will " })}{defaultAction === "update"
+                ? t("pages.companyskills.overwrite_catalog_content.text", { defaultValue: "overwrite the catalog content" })
+                : t("pages.companyskills.replace_existing_skill.text", { defaultValue: "replace the existing skill" })}.
             </div>
           ) : null}
 
@@ -1139,8 +1184,8 @@ const { t } = useTranslation();
                     <span className="truncate">{agent.name}</span>
                     <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                       {agent.adapterType}
-                      {agent.required ? " · required" : ""}
-                      {!agent.supportsSkills ? " · skills not supported" : ""}
+                      {agent.required ? t("pages.companyskills.required_suffix.text", { defaultValue: " - required" }) : ""}
+                      {!agent.supportsSkills ? t("pages.companyskills.skills_not_supported_suffix.text", { defaultValue: " - skills not supported" }) : ""}
                     </span>
                   </span>
                 </label>
@@ -1155,7 +1200,9 @@ const { t } = useTranslation();
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={pending}>
             {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button size="sm" onClick={() => onSubmit(Array.from(draft))} disabled={pending}>
-            {pending ? "Saving…" : "Save"}
+            {pending
+              ? t("pages.companyskills.saving.button", { defaultValue: "Saving..." })
+              : t("pages.companyskills.save.button", { defaultValue: "Save" })}
           </Button>
         </div>
       </PopoverContent>
@@ -1297,7 +1344,10 @@ const { t } = useTranslation();
     if (sourceFilter !== "all" && skills.length > 0) {
       return (
         <div className="px-4 py-6 text-sm text-muted-foreground">
-          {t("pages.companyskills.no.jsx-text", { defaultValue: "\n          No " })}{SOURCE_FILTER_LABELS[sourceFilter].toLowerCase()} {t("pages.companyskills.skills_installed.jsx-text", { defaultValue: " skills installed." })}{" "}
+          {t("pages.companyskills.no_filtered_skills_installed.text", {
+            filter: sourceFilterLabel(sourceFilter, t).toLowerCase(),
+            defaultValue: "No {{filter}} skills installed.",
+          })}{" "}
           <button type="button" className="text-foreground underline" onClick={onClearFilters}>
             {t("pages.companyskills.clear_filter.jsx-text", { defaultValue: "\n            Clear filter\n          " })}</button>
         </div>
@@ -1314,7 +1364,7 @@ const { t } = useTranslation();
       {filteredSkills.map((skill) => {
         const expanded = expandedSkillId === skill.id;
         const tree = buildTree(skill.fileInventory);
-        const source = sourceMeta(skill.sourceBadge, skill.sourceLabel);
+        const source = sourceMeta(skill.sourceBadge, skill.sourceLabel, t);
         const SourceIcon = source.icon;
 
         return (
@@ -1349,7 +1399,9 @@ const { t } = useTranslation();
                 type="button"
                 className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-sm text-muted-foreground opacity-80 transition-[background-color,color,opacity] hover:bg-accent hover:text-foreground group-hover:opacity-100"
                 onClick={() => onToggleSkill(skill.id)}
-                aria-label={expanded ? `Collapse ${skill.name}` : `Expand ${skill.name}`}
+                aria-label={expanded
+                  ? t("pages.companyskills.collapse_skill.attr_aria-label", { name: skill.name, defaultValue: "Collapse {{name}}" })
+                  : t("pages.companyskills.expand_skill.attr_aria-label", { name: skill.name, defaultValue: "Expand {{name}}" })}
               >
                 {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
               </button>
@@ -1442,12 +1494,12 @@ const { t } = useTranslation();
     return (
       <EmptyState
         icon={Boxes}
-        message="Select a skill to inspect its files."
+        message={t("pages.companyskills.select_a_skill_to_inspect_i.attr_message", { defaultValue: "Select a skill to inspect its files." })}
       />
     );
   }
 
-  const source = sourceMeta(detail.sourceBadge, detail.sourceLabel);
+  const source = sourceMeta(detail.sourceBadge, detail.sourceLabel, t);
   const SourceIcon = source.icon;
   const usedBy = detail.usedByAgents;
   const body = file?.markdown ? stripFrontmatter(file.content) : file?.content ?? "";
@@ -1456,7 +1508,7 @@ const { t } = useTranslation();
   const displaySourcePath = detail.sourcePath ? middleTruncate(detail.sourcePath) : null;
   const removeBlocked = usedBy.length > 0;
   const removeDisabledReason = removeBlocked
-    ? "Detach this skill from all agents before removing it."
+    ? t("pages.companyskills.detach_before_removing.tooltip", { defaultValue: "Detach this skill from all agents before removing it." })
     : null;
 
   return (
@@ -1481,7 +1533,9 @@ const { t } = useTranslation();
               title={removeDisabledReason ?? undefined}
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              {deletePending ? "Removing..." : "Remove"}
+              {deletePending
+                ? t("pages.companyskills.removing.button", { defaultValue: "Removing..." })
+                : t("pages.companyskills.remove.button", { defaultValue: "Remove" })}
             </Button>
             {detail.editable ? (
               <button
@@ -1489,7 +1543,9 @@ const { t } = useTranslation();
                 onClick={() => setEditMode(!editMode)}
               >
                 <Pencil className="h-3.5 w-3.5" />
-                {editMode ? "Stop editing" : "Edit"}
+                {editMode
+                  ? t("pages.companyskills.stop_editing.button", { defaultValue: "Stop editing" })
+                  : t("pages.companyskills.edit.jsx-text", { defaultValue: "Edit" })}
               </button>
             ) : (
               <div className="text-sm text-muted-foreground">{detail.editableReason}</div>
@@ -1513,8 +1569,8 @@ const { t } = useTranslation();
                     </span>
                     <CopyText
                       text={detail.sourcePath}
-                      copiedLabel="Copied path"
-                      ariaLabel="Copy source path"
+                      copiedLabel={t("pages.companyskills.copied_path.copy_label", { defaultValue: "Copied path" })}
+                      ariaLabel={t("pages.companyskills.copy_source_path.attr_aria-label", { defaultValue: "Copy source path" })}
                       title={t("pages.companyskills.copy_source_path.attr_title", { defaultValue: "Copy source path" })}
                       className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                     >
@@ -1529,7 +1585,7 @@ const { t } = useTranslation();
             {detail.sourceType === "github" && (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.pin.jsx-text", { defaultValue: "Pin" })}</span>
-                <span className="font-mono text-xs">{currentPin ?? "untracked"}</span>
+                <span className="font-mono text-xs">{currentPin ?? t("pages.companyskills.untracked.value_label", { defaultValue: "untracked" })}</span>
                 {updateStatus?.trackingRef && (
                   <span className="text-xs text-muted-foreground">{t("pages.companyskills.tracking.jsx-text", { defaultValue: "tracking " })}{updateStatus.trackingRef}</span>
                 )}
@@ -1560,12 +1616,16 @@ const { t } = useTranslation();
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Key</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.key.jsx-text", { defaultValue: "Key" })}</span>
               <span className="font-mono text-xs">{detail.key}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("pages.companyskills.mode.jsx-text", { defaultValue: "Mode" })}</span>
-              <span>{detail.editable ? "Editable" : "Read only"}</span>
+              <span>
+                {detail.editable
+                  ? t("pages.companyskills.editable.jsx-text", { defaultValue: "Editable" })
+                  : t("pages.companyskills.read_only.jsx-text", { defaultValue: "Read only" })}
+              </span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1651,7 +1711,9 @@ const { t } = useTranslation();
                   {t("pages.companyskills.cancel.jsx-text", { defaultValue: "\n                  Cancel\n                " })}</Button>
                 <Button size="sm" onClick={onSave} disabled={savePending}>
                   <Save className="mr-1.5 h-3.5 w-3.5" />
-                  {savePending ? "Saving..." : "Save"}
+                  {savePending
+                    ? t("pages.companyskills.saving.button", { defaultValue: "Saving..." })
+                    : t("pages.companyskills.save.button", { defaultValue: "Save" })}
                 </Button>
               </>
             )}
@@ -1774,10 +1836,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Skills", href: "/skills" },
-      ...(routeSkillId ? [{ label: "Detail" }] : []),
+      { label: t("pages.companyskills.skills.breadcrumb", { defaultValue: "Skills" }), href: "/skills" },
+      ...(routeSkillId ? [{ label: t("pages.companyskills.detail.breadcrumb", { defaultValue: "Detail" }) }] : []),
     ]);
-  }, [routeSkillId, setBreadcrumbs]);
+  }, [routeSkillId, setBreadcrumbs, t]);
 
   const skillsQuery = useQuery({
     queryKey: queryKeys.companySkills.list(selectedCompanyId ?? ""),
@@ -1886,19 +1948,22 @@ const { t } = useTranslation();
       if (result.imported[0]) navigate(skillRoute(result.imported[0].id));
       pushToast({
         tone: "success",
-        title: "Skills imported",
-        body: `${result.imported.length} skill${result.imported.length === 1 ? "" : "s"} added.`,
+        title: t("pages.companyskills.skills_imported.title", { defaultValue: "Skills imported" }),
+        body: t("pages.companyskills.skills_added.body", {
+          defaultValue: "{{count}} skill(s) added.",
+          count: result.imported.length,
+        }),
       });
       if (result.warnings[0]) {
-        pushToast({ tone: "warn", title: "Import warnings", body: result.warnings[0] });
+        pushToast({ tone: "warn", title: t("pages.companyskills.import_warnings.title", { defaultValue: "Import warnings" }), body: result.warnings[0] });
       }
       setSource("");
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Skill import failed",
-        body: error instanceof Error ? error.message : "Failed to import skill source.",
+        title: t("pages.companyskills.skill_import_failed.title", { defaultValue: "Skill import failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_import_skill_source.error", { defaultValue: "Failed to import skill source." }),
       });
     },
   });
@@ -1911,15 +1976,18 @@ const { t } = useTranslation();
       setCreateOpen(false);
       pushToast({
         tone: "success",
-        title: "Skill created",
-        body: `${skill.name} is now editable in the Paperclip workspace.`,
+        title: t("pages.companyskills.skill_created.title", { defaultValue: "Skill created" }),
+        body: t("pages.companyskills.skill_created.body", {
+          name: skill.name,
+          defaultValue: "{{name}} is now editable in the Paperclip workspace.",
+        }),
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Skill creation failed",
-        body: error instanceof Error ? error.message : "Failed to create skill.",
+        title: t("pages.companyskills.skill_creation_failed.title", { defaultValue: "Skill creation failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_create_skill.error", { defaultValue: "Failed to create skill." }),
       });
     },
   });
@@ -1927,28 +1995,28 @@ const { t } = useTranslation();
   const scanProjects = useMutation({
     mutationFn: () => companySkillsApi.scanProjects(selectedCompanyId!),
     onMutate: () => {
-      setScanStatusMessage("Scanning project workspaces for skills...");
+      setScanStatusMessage(t("pages.companyskills.scanning_project_workspaces.status", { defaultValue: "Scanning project workspaces for skills..." }));
     },
     onSuccess: async (result) => {
-      setScanStatusMessage("Refreshing skills list...");
+      setScanStatusMessage(t("pages.companyskills.refreshing_skills_list.status", { defaultValue: "Refreshing skills list..." }));
       await queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(selectedCompanyId!) });
-      const summary = formatProjectScanSummary(result);
+      const summary = formatProjectScanSummary(result, t);
       setScanStatusMessage(summary);
       pushToast({
         tone: "success",
-        title: "Project skill scan complete",
+        title: t("pages.companyskills.project_skill_scan_complete.title", { defaultValue: "Project skill scan complete" }),
         body: summary,
       });
       if (result.conflicts[0]) {
         pushToast({
           tone: "warn",
-          title: "Skill conflicts found",
+          title: t("pages.companyskills.skill_conflicts_found.title", { defaultValue: "Skill conflicts found" }),
           body: result.conflicts[0].reason,
         });
       } else if (result.warnings[0]) {
         pushToast({
           tone: "warn",
-          title: "Scan warnings",
+          title: t("pages.companyskills.scan_warnings.title", { defaultValue: "Scan warnings" }),
           body: result.warnings[0],
         });
       }
@@ -1957,8 +2025,8 @@ const { t } = useTranslation();
       setScanStatusMessage(null);
       pushToast({
         tone: "error",
-        title: "Project skill scan failed",
-        body: error instanceof Error ? error.message : "Failed to scan project workspaces.",
+        title: t("pages.companyskills.project_skill_scan_failed.title", { defaultValue: "Project skill scan failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_scan_project_workspaces.error", { defaultValue: "Failed to scan project workspaces." }),
       });
     },
   });
@@ -1980,15 +2048,15 @@ const { t } = useTranslation();
       setEditMode(false);
       pushToast({
         tone: "success",
-        title: "Skill saved",
+        title: t("pages.companyskills.skill_saved.title", { defaultValue: "Skill saved" }),
         body: result.path,
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Save failed",
-        body: error instanceof Error ? error.message : "Failed to save skill file.",
+        title: t("pages.companyskills.save_failed.title", { defaultValue: "Save failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_save_skill_file.error", { defaultValue: "Failed to save skill file." }),
       });
     },
   });
@@ -2005,15 +2073,17 @@ const { t } = useTranslation();
       navigate(skillRoute(skill.id, selectedPath));
       pushToast({
         tone: "success",
-        title: "Skill updated",
-        body: skill.sourceRef ? `Pinned to ${shortRef(skill.sourceRef)}` : skill.name,
+        title: t("pages.companyskills.skill_updated.title", { defaultValue: "Skill updated" }),
+        body: skill.sourceRef
+          ? t("pages.companyskills.pinned_to.body", { ref: shortRef(skill.sourceRef), defaultValue: "Pinned to {{ref}}" })
+          : skill.name,
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Update failed",
-        body: error instanceof Error ? error.message : "Failed to install skill update.",
+        title: t("pages.companyskills.update_failed.title", { defaultValue: "Update failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_install_skill_update.error", { defaultValue: "Failed to install skill update." }),
       });
     },
   });
@@ -2105,11 +2175,15 @@ const { t } = useTranslation();
       setInstallDialogState((current) => ({ ...current, open: false, error: null }));
       pushToast({
         tone: "success",
-        title: result.action === "created" ? "Skill installed" : result.action === "updated" ? "Skill updated" : "Skill is up to date",
+        title: result.action === "created"
+          ? t("pages.companyskills.skill_installed.title", { defaultValue: "Skill installed" })
+          : result.action === "updated"
+            ? t("pages.companyskills.skill_updated.title", { defaultValue: "Skill updated" })
+            : t("pages.companyskills.skill_up_to_date.title", { defaultValue: "Skill is up to date" }),
         body: result.skill.name,
       });
       if (result.warnings[0]) {
-        pushToast({ tone: "warn", title: "Install warnings", body: result.warnings[0] });
+        pushToast({ tone: "warn", title: t("pages.companyskills.install_warnings.title", { defaultValue: "Install warnings" }), body: result.warnings[0] });
       }
       if (result.action === "created") {
         setViewParam("installed");
@@ -2117,7 +2191,7 @@ const { t } = useTranslation();
       }
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "Failed to install catalog skill.";
+      const message = error instanceof Error ? error.message : t("pages.companyskills.failed_to_install_catalog_skill.error", { defaultValue: "Failed to install catalog skill." });
       setInstallDialogState((current) => ({ ...current, error: message }));
     },
   });
@@ -2174,10 +2248,21 @@ const { t } = useTranslation();
         else current.delete(skillKey);
         await attachAgentsMutation.mutateAsync({ agentId, desiredSkills: Array.from(current) });
       }
-      pushToast({ tone: "success", title: "Agents updated", body: `${nextAgentIds.length} agent(s) attached.` });
+      pushToast({
+        tone: "success",
+        title: t("pages.companyskills.agents_updated.title", { defaultValue: "Agents updated" }),
+        body: t("pages.companyskills.agents_attached.body", {
+          defaultValue: "{{count}} agent(s) attached.",
+          count: nextAgentIds.length,
+        }),
+      });
       setAttachPopoverOpen(false);
     } catch (error) {
-      pushToast({ tone: "error", title: "Update failed", body: error instanceof Error ? error.message : "Failed to update agent skills." });
+      pushToast({
+        tone: "error",
+        title: t("pages.companyskills.update_failed.title", { defaultValue: "Update failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_update_agent_skills.error", { defaultValue: "Failed to update agent skills." }),
+      });
     }
   }
 
@@ -2227,21 +2312,29 @@ const { t } = useTranslation();
       navigate("/skills", { replace: true });
       pushToast({
         tone: "success",
-        title: "Skill removed",
-        body: `${skill.name} was removed from the company skill library.`,
+        title: t("pages.companyskills.skill_removed.title", { defaultValue: "Skill removed" }),
+        body: t("pages.companyskills.skill_removed.body", {
+          name: skill.name,
+          defaultValue: "{{name}} was removed from the company skill library.",
+        }),
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Remove failed",
-        body: error instanceof Error ? error.message : "Failed to remove skill.",
+        title: t("pages.companyskills.remove_failed.title", { defaultValue: "Remove failed" }),
+        body: error instanceof Error ? error.message : t("pages.companyskills.failed_to_remove_skill.error", { defaultValue: "Failed to remove skill." }),
       });
     },
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Boxes} message="Select a company to manage skills." />;
+    return (
+      <EmptyState
+        icon={Boxes}
+        message={t("pages.companyskills.select_a_company_to_manage.attr_message", { defaultValue: "Select a company to manage skills." })}
+      />
+    );
   }
 
   function handleAddSkillSource() {
@@ -2265,8 +2358,11 @@ const { t } = useTranslation();
           <div className="space-y-3 text-sm">
             <p>
               {deleteTargetDetail
-                ? `You are about to remove ${deleteTargetDetail.name}.`
-                : "You are about to remove this skill."}
+                ? t("pages.companyskills.about_to_remove_named.text", {
+                  name: deleteTargetDetail.name,
+                  defaultValue: "You are about to remove {{name}}.",
+                })
+                : t("pages.companyskills.about_to_remove_this_skill.text", { defaultValue: "You are about to remove this skill." })}
             </p>
             {deleteTargetDetail?.usedByAgents?.length ? (
               <div className="rounded-md border border-border px-3 py-3 text-muted-foreground">
@@ -2291,7 +2387,9 @@ const { t } = useTranslation();
                   onClick={() => deleteSkill.mutate()}
                   disabled={deleteSkill.isPending || !deleteTargetSkillId}
                 >
-                  {deleteSkill.isPending ? "Removing..." : "Remove skill"}
+                  {deleteSkill.isPending
+                    ? t("pages.companyskills.removing.button", { defaultValue: "Removing..." })
+                    : t("pages.companyskills.remove_skill.button", { defaultValue: "Remove skill" })}
                 </Button>
               </>
             )}
@@ -2446,7 +2544,9 @@ const { t } = useTranslation();
                     onClick={handleAddSkillSource}
                     disabled={importSkill.isPending}
                   >
-                    {importSkill.isPending ? <RefreshCw className="h-4 w-4 animate-spin" /> : "Add"}
+                    {importSkill.isPending
+                      ? <RefreshCw className="h-4 w-4 animate-spin" />
+                      : t("pages.companyskills.add.button", { defaultValue: "Add" })}
                   </Button>
                 </div>
                 {scanStatusMessage && (
@@ -2470,7 +2570,7 @@ const { t } = useTranslation();
                 <div className="px-4 py-8">
                   <EmptyState
                     icon={Boxes}
-                    message="No skills installed yet."
+                    message={t("pages.companyskills.no_skills_installed_yet.attr_message", { defaultValue: "No skills installed yet." })}
                   />
                   <div className="mt-3 flex flex-col items-center gap-2">
                     <Button size="sm" onClick={() => setViewParam("catalog")}>

@@ -29,8 +29,8 @@ const { t } = useTranslation();
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Approvals" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.approvals.approvals.breadcrumb", { defaultValue: "Approvals" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.approvals.list(selectedCompanyId!),
@@ -98,7 +98,7 @@ const { t } = useTranslation();
                 {pendingCount}
               </span>
             )}</> },
-            { value: "all", label: "All" },
+            { value: "all", label: t("pages.approvals.all.tab_label", { defaultValue: "All" }) },
           ]} />
         </Tabs>
       </div>
@@ -110,7 +110,9 @@ const { t } = useTranslation();
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ShieldCheck className="h-8 w-8 text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">
-            {statusFilter === "pending" ? "No pending approvals." : "No approvals yet."}
+            {statusFilter === "pending"
+              ? t("pages.approvals.no_pending_approvals.empty", { defaultValue: "No pending approvals." })
+              : t("pages.approvals.no_approvals_yet.empty", { defaultValue: "No approvals yet." })}
           </p>
         </div>
       )}

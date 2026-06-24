@@ -104,7 +104,7 @@ const { t } = useTranslation();
 
   const uploadImage = useMutation({
     mutationFn: async (file: File) => {
-      if (!resolvedCompanyId) throw new Error("No company selected");
+      if (!resolvedCompanyId) throw new Error(t("pages.goaldetail.no_company_selected.error", { defaultValue: "No company selected" }));
       return assetsApi.uploadImage(
         resolvedCompanyId,
         file,
@@ -123,10 +123,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Goals", href: "/goals" },
-      { label: goal?.title ?? goalId ?? "Goal" }
+      { label: t("pages.goaldetail.goals.breadcrumb", { defaultValue: "Goals" }), href: "/goals" },
+      { label: goal?.title ?? goalId ?? t("pages.goaldetail.goal.breadcrumb", { defaultValue: "Goal" }) }
     ]);
-  }, [setBreadcrumbs, goal, goalId]);
+  }, [setBreadcrumbs, goal, goalId, t]);
 
   useEffect(() => {
     if (goal) {

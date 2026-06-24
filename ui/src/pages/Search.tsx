@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, AlertTriangle, FileQuestion, Plus, X } from "lucide-react";
 import {
@@ -31,27 +31,29 @@ import type { Agent } from "@paperclipai/shared";
 const SEARCH_DEBOUNCE_MS = 250;
 const IDENTIFIER_PATTERN = /^[A-Z]+-\d+$/;
 
-const SCOPE_LABELS: Record<CompanySearchScope, string> = {
-  all: "All",
-  issues: "Tasks",
-  comments: "Comments",
-  documents: "Documents",
-  artifacts: "Artifacts",
-  agents: "Agents",
-  projects: "Projects",
+type TranslateFn = typeof translate;
+
+const SCOPE_LABELS: Record<CompanySearchScope, { key: string; defaultValue: string }> = {
+  all: { key: "pages.search.scope_all", defaultValue: "All" },
+  issues: { key: "pages.search.scope_issues", defaultValue: "Tasks" },
+  comments: { key: "pages.search.scope_comments", defaultValue: "Comments" },
+  documents: { key: "pages.search.scope_documents", defaultValue: "Documents" },
+  artifacts: { key: "pages.search.scope_artifacts", defaultValue: "Artifacts" },
+  agents: { key: "pages.search.scope_agents", defaultValue: "Agents" },
+  projects: { key: "pages.search.scope_projects", defaultValue: "Projects" },
 };
 
 type SubGroupKey = "issues" | "comments" | "documents" | "artifacts" | "agents" | "projects";
 
 const SUBGROUP_ORDER: SubGroupKey[] = ["issues", "comments", "documents", "artifacts", "agents", "projects"];
 
-const SUBGROUP_LABELS: Record<SubGroupKey, string> = {
-  issues: "Tasks",
-  comments: "Comments",
-  documents: "Documents",
-  artifacts: "Artifacts",
-  agents: "Agents",
-  projects: "Projects",
+const SUBGROUP_LABELS: Record<SubGroupKey, { key: string; defaultValue: string }> = {
+  issues: { key: "pages.search.scope_issues", defaultValue: "Tasks" },
+  comments: { key: "pages.search.scope_comments", defaultValue: "Comments" },
+  documents: { key: "pages.search.scope_documents", defaultValue: "Documents" },
+  artifacts: { key: "pages.search.scope_artifacts", defaultValue: "Artifacts" },
+  agents: { key: "pages.search.scope_agents", defaultValue: "Agents" },
+  projects: { key: "pages.search.scope_projects", defaultValue: "Projects" },
 };
 
 function classifyResult(result: CompanySearchResult): SubGroupKey {
@@ -83,9 +85,13 @@ function isCompanySearchScope(value: string | null): value is CompanySearchScope
   return Boolean(value) && (COMPANY_SEARCH_SCOPES as readonly string[]).includes(value as string);
 }
 
-function describeScope(scope: CompanySearchScope) {
-  if (scope === "all") return "All scopes";
-  return SCOPE_LABELS[scope];
+function translateSearchLabel(label: { key: string; defaultValue: string }, t: TranslateFn = translate) {
+  return t(label.key, { defaultValue: label.defaultValue });
+}
+
+function describeScope(scope: CompanySearchScope, t: TranslateFn = translate) {
+  if (scope === "all") return t("pages.search.all_scopes", { defaultValue: "All scopes" });
+  return translateSearchLabel(SCOPE_LABELS[scope], t);
 }
 
 export function buildSearchUrl(href: string, query: string, scope: CompanySearchScope): string {
@@ -104,7 +110,7 @@ export function buildSearchUrl(href: string, query: string, scope: CompanySearch
 }
 
 function shapeError(error: unknown): { message: string; status?: number } {
-  if (!error) return { message: "Unknown error" };
+  if (!error) return { message: translate("pages.search.unknown_error", { defaultValue: "Unknown error" }) };
   if (error instanceof Error) {
     const status = (error as Error & { status?: number }).status;
     return { message: error.message, status: typeof status === "number" ? status : undefined };
@@ -134,8 +140,8 @@ const { t } = useTranslation();
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Search" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.search.search.breadcrumb", { defaultValue: "Search" }) }]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     if (!selectedCompanyId) return;
@@ -291,13 +297,13 @@ const { t } = useTranslation();
         value,
         label: (
           <span className="flex items-center">
-            {SCOPE_LABELS[value as CompanySearchScope]}
+            {translateSearchLabel(SCOPE_LABELS[value as CompanySearchScope], t)}
             {count !== null ? pill(count) : null}
           </span>
         ),
       } satisfies PageTabItem;
     });
-  }, [counts, data]);
+  }, [counts, data, t]);
 
   const subgroups = useMemo(() => buildSubgroups(data?.results ?? []), [data?.results]);
 
@@ -542,7 +548,7 @@ const { t } = useTranslation();
         <FileQuestion className="h-10 w-10 text-muted-foreground" aria-hidden />
         <div className="text-base font-semibold">{t("pages.search.no_results_for_ldquo.jsx-text", { defaultValue: "No results for &ldquo;" })}{trimmedQuery}{t("pages.search.rdquo.jsx-text", { defaultValue: "&rdquo;" })}</div>
         <p className="text-sm text-muted-foreground">
-          {t("pages.search.we_couldn_t_find_a_match_in.jsx-text", { defaultValue: "\n          We couldn’t find a match in " })}{describeScope(scope).toLowerCase()}{t("pages.search.try_widening_the_scope_or_rephra.jsx-text", { defaultValue: ". Try widening the scope or rephrasing your query.\n        " })}</p>
+          {t("pages.search.we_couldn_t_find_a_match_in.jsx-text", { defaultValue: "\n          We couldn’t find a match in " })}{describeScope(scope, t).toLowerCase()}{t("pages.search.try_widening_the_scope_or_rephra.jsx-text", { defaultValue: ". Try widening the scope or rephrasing your query.\n        " })}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {scope !== "all" ? (
             <Button onClick={showAllScope} size="sm" variant="outline">
@@ -571,7 +577,11 @@ const { t } = useTranslation();
     <div className="flex w-full max-w-[960px] flex-col px-2 sm:px-4" data-testid="search-results">
       <div className="flex items-center justify-between py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
         <span>
-          {totalResults === 1 ? "1 result" : `${totalResults} results`} {t("pages.search.sorted_by_relevance.jsx-text", { defaultValue: " · sorted by relevance\n        " })}</span>
+          {t("pages.search.results_count", {
+            count: totalResults,
+            defaultValue: "{{count}} result",
+            defaultValue_plural: "{{count}} results",
+          })} {t("pages.search.sorted_by_relevance.jsx-text", { defaultValue: " · sorted by relevance\n        " })}</span>
         {isFetching ? <span aria-live="polite" className="normal-case tracking-normal">{t("pages.search.updating.jsx-text", { defaultValue: "Updating…" })}</span> : null}
       </div>
       <div className="flex flex-col pb-10">
@@ -579,11 +589,11 @@ const { t } = useTranslation();
           subgroups.map((group, groupIndex) => (
             <section
               key={group.key}
-              aria-label={SUBGROUP_LABELS[group.key]}
+              aria-label={translateSearchLabel(SUBGROUP_LABELS[group.key], t)}
               className={cn("flex flex-col", groupIndex > 0 && "mt-6")}
             >
               <IssueGroupHeader
-                label={SUBGROUP_LABELS[group.key]}
+                label={translateSearchLabel(SUBGROUP_LABELS[group.key], t)}
                 trailing={
                   <span className="text-xs font-normal tabular-nums text-muted-foreground">
                     {group.results.length}

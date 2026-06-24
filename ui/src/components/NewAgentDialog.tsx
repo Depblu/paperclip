@@ -100,7 +100,7 @@ const { t } = useTranslation();
     // Sort: recommended first, then alphabetical
     return registered
       .map((a) => {
-        const display = getAdapterDisplay(a.type);
+        const display = getAdapterDisplay(a.type, t);
         return {
           value: a.type,
           label: display.label,
@@ -116,7 +116,7 @@ const { t } = useTranslation();
         if (!a.recommended && b.recommended) return 1;
         return a.label.localeCompare(b.label);
       });
-  }, [disabledTypes, serverAdapters]);
+  }, [disabledTypes, serverAdapters, t]);
 
   function handleAskCeo() {
     closeNewAgent();
@@ -152,7 +152,7 @@ const { t } = useTranslation();
     }
 
     pushToast({
-      title: "Clipboard unavailable",
+      title: t("components.newagentdialog.clipboard_unavailable.title", { defaultValue: "Clipboard unavailable" }),
       body: unavailableBody,
       tone: "warn",
     });
@@ -198,19 +198,21 @@ const { t } = useTranslation();
       setLatestAgentPrompt(prompt);
       setLatestAgentPromptCopied(false);
       setMode("prompt");
-      const copied = await copyText(prompt, "Copy the agent onboarding prompt manually from the field below.");
+      const copied = await copyText(prompt, t("components.newagentdialog.copy_prompt_manually_below.body", { defaultValue: "Copy the agent onboarding prompt manually from the field below." }));
 
       await queryClient.invalidateQueries({ queryKey: inviteHistoryQueryKey });
       pushToast({
-        title: "Agent invite created",
-        body: copied ? "Agent onboarding prompt ready below and copied to clipboard." : "Agent onboarding prompt ready below.",
+        title: t("components.newagentdialog.agent_invite_created.title", { defaultValue: "Agent invite created" }),
+        body: copied
+          ? t("components.newagentdialog.agent_onboarding_prompt_copied.body", { defaultValue: "Agent onboarding prompt ready below and copied to clipboard." })
+          : t("components.newagentdialog.agent_onboarding_prompt_ready.body", { defaultValue: "Agent onboarding prompt ready below." }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to create agent invite",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("components.newagentdialog.failed_to_create_agent_invite.title", { defaultValue: "Failed to create agent invite" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -391,11 +393,13 @@ const { t } = useTranslation();
                 disabled={!latestAgentPrompt}
                 onClick={async () => {
                   if (!latestAgentPrompt) return;
-                  const copied = await copyText(latestAgentPrompt, "Copy the agent onboarding prompt manually from the field above.");
+                  const copied = await copyText(latestAgentPrompt, t("components.newagentdialog.copy_prompt_manually_above.body", { defaultValue: "Copy the agent onboarding prompt manually from the field above." }));
                   setLatestAgentPromptCopied(copied);
                 }}
               >
-                {latestAgentPromptCopied ? "Copied prompt" : "Copy prompt"}
+                {latestAgentPromptCopied
+                  ? t("components.newagentdialog.copied_prompt.action", { defaultValue: "Copied prompt" })
+                  : t("components.newagentdialog.copy_prompt.action", { defaultValue: "Copy prompt" })}
               </Button>
             </div>
           )}

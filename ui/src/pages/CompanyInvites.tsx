@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, ExternalLink, MailPlus } from "lucide-react";
 import { accessApi } from "@/api/access";
@@ -14,29 +15,44 @@ import { queryKeys } from "@/lib/queryKeys";
 const inviteRoleOptions = [
   {
     value: "viewer",
-    label: "Viewer",
-    description: "Can view company work and follow along.",
-    gets: "View-only company membership.",
   },
   {
     value: "operator",
-    label: "Operator",
-    description: "Recommended for people who need to help run work without managing access.",
-    gets: "Can assign tasks.",
   },
   {
     value: "admin",
-    label: "Admin",
-    description: "Recommended for operators who need to invite people, create agents, and approve joins.",
-    gets: "Can create agents, invite users, assign tasks, and approve join requests.",
   },
   {
     value: "owner",
-    label: "Owner",
-    description: "Full company access, including membership management.",
-    gets: "Everything in Admin, plus managing members.",
   },
 ] as const;
+
+function inviteRoleLabel(role: (typeof inviteRoleOptions)[number]["value"], t: TFunction) {
+  switch (role) {
+    case "viewer": return t("pages.companyinvites.viewer.role_label", { defaultValue: "Viewer" });
+    case "operator": return t("pages.companyinvites.operator.role_label", { defaultValue: "Operator" });
+    case "admin": return t("pages.companyinvites.admin.role_label", { defaultValue: "Admin" });
+    case "owner": return t("pages.companyinvites.owner.role_label", { defaultValue: "Owner" });
+  }
+}
+
+function inviteRoleDescription(role: (typeof inviteRoleOptions)[number]["value"], t: TFunction) {
+  switch (role) {
+    case "viewer": return t("pages.companyinvites.viewer.role_description", { defaultValue: "Can view company work and follow along." });
+    case "operator": return t("pages.companyinvites.operator.role_description", { defaultValue: "Recommended for people who need to help run work without managing access." });
+    case "admin": return t("pages.companyinvites.admin.role_description", { defaultValue: "Recommended for operators who need to invite people, create agents, and approve joins." });
+    case "owner": return t("pages.companyinvites.owner.role_description", { defaultValue: "Full company access, including membership management." });
+  }
+}
+
+function inviteRoleGets(role: (typeof inviteRoleOptions)[number]["value"], t: TFunction) {
+  switch (role) {
+    case "viewer": return t("pages.companyinvites.viewer.role_gets", { defaultValue: "View-only company membership." });
+    case "operator": return t("pages.companyinvites.operator.role_gets", { defaultValue: "Can assign tasks." });
+    case "admin": return t("pages.companyinvites.admin.role_gets", { defaultValue: "Can create agents, invite users, assign tasks, and approve join requests." });
+    case "owner": return t("pages.companyinvites.owner.role_gets", { defaultValue: "Everything in Admin, plus managing members." });
+  }
+}
 
 const INVITE_HISTORY_PAGE_SIZE = 5;
 
@@ -108,7 +124,7 @@ const { t } = useTranslation();
 
     afterFallback?.();
     pushToast({
-      title: "Clipboard unavailable",
+      title: t("pages.companyinvites.clipboard_unavailable.toast_title", { defaultValue: "Clipboard unavailable" }),
       body: unavailableBody,
       tone: "warn",
     });
@@ -116,16 +132,22 @@ const { t } = useTranslation();
   }
 
   async function copyInviteUrl(url: string) {
-    return copyText(url, "The invite URL is selected. Copy it manually from the field.", selectLatestInviteUrl);
+    return copyText(
+      url,
+      t("pages.companyinvites.invite_url_selected_copy_manually.toast_body", {
+        defaultValue: "The invite URL is selected. Copy it manually from the field.",
+      }),
+      selectLatestInviteUrl,
+    );
   }
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/company/settings" },
-      { label: "Invites" },
+      { label: selectedCompany?.name ?? t("pages.companyinvites.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.companyinvites.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("pages.companyinvites.invites.breadcrumb", { defaultValue: "Invites" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const inviteHistoryQueryKey = queryKeys.access.invites(selectedCompanyId ?? "", "all", INVITE_HISTORY_PAGE_SIZE);
   const invitesQuery = useInfiniteQuery({
@@ -157,19 +179,26 @@ const { t } = useTranslation();
     onSuccess: async (invite) => {
       setLatestInviteUrl(invite.inviteUrl);
       setLatestInviteCopied(false);
-      const copied = await copyText(invite.inviteUrl, "Copy the invite URL manually from the field below.");
+      const copied = await copyText(
+        invite.inviteUrl,
+        t("pages.companyinvites.copy_invite_url_manually.toast_body", {
+          defaultValue: "Copy the invite URL manually from the field below.",
+        }),
+      );
 
       await queryClient.invalidateQueries({ queryKey: inviteHistoryQueryKey });
       pushToast({
-        title: "Invite created",
-        body: copied ? "Invite ready below and copied to clipboard." : "Invite ready below.",
+        title: t("pages.companyinvites.invite_created.toast_title", { defaultValue: "Invite created" }),
+        body: copied
+          ? t("pages.companyinvites.invite_ready_copied.toast_body", { defaultValue: "Invite ready below and copied to clipboard." })
+          : t("pages.companyinvites.invite_ready.toast_body", { defaultValue: "Invite ready below." }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to create invite",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyinvites.failed_to_create_invite.toast_title", { defaultValue: "Failed to create invite" }),
+        body: error instanceof Error ? error.message : t("pages.companyinvites.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -179,12 +208,12 @@ const { t } = useTranslation();
     mutationFn: (inviteId: string) => accessApi.revokeInvite(inviteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: inviteHistoryQueryKey });
-      pushToast({ title: "Invite revoked", tone: "success" });
+      pushToast({ title: t("pages.companyinvites.invite_revoked.toast_title", { defaultValue: "Invite revoked" }), tone: "success" });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to revoke invite",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyinvites.failed_to_revoke_invite.toast_title", { defaultValue: "Failed to revoke invite" }),
+        body: error instanceof Error ? error.message : t("pages.companyinvites.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -246,14 +275,14 @@ const { t } = useTranslation();
                   />
                   <span className="min-w-0 space-y-1">
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-medium">{option.label}</span>
+                      <span className="text-sm font-medium">{inviteRoleLabel(option.value, t)}</span>
                       {option.value === "operator" ? (
                         <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                           {t("pages.companyinvites.default.jsx-text", { defaultValue: "\n                          Default\n                        " })}</span>
                       ) : null}
                     </span>
-                    <span className="block max-w-2xl text-sm text-muted-foreground">{option.description}</span>
-                    <span className="block text-sm text-foreground">{option.gets}</span>
+                    <span className="block max-w-2xl text-sm text-muted-foreground">{inviteRoleDescription(option.value, t)}</span>
+                    <span className="block text-sm text-foreground">{inviteRoleGets(option.value, t)}</span>
                   </span>
                 </label>
               );
@@ -344,7 +373,7 @@ const { t } = useTranslation();
                     <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.invited_by.jsx-text", { defaultValue: "Invited by" })}</th>
                     <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.created.jsx-text", { defaultValue: "Created" })}</th>
                     <th className="px-5 py-3 font-medium text-muted-foreground">{t("pages.companyinvites.join_request.jsx-text", { defaultValue: "Join request" })}</th>
-                    <th className="px-5 py-3 text-right font-medium text-muted-foreground">Action</th>
+                    <th className="px-5 py-3 text-right font-medium text-muted-foreground">{t("pages.companyinvites.action.jsx-text", { defaultValue: "Action" })}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -352,12 +381,12 @@ const { t } = useTranslation();
                     <tr key={invite.id} className="border-b border-border last:border-b-0">
                       <td className="px-5 py-3 align-top">
                         <span className="inline-flex rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                          {formatInviteState(invite.state)}
+                          {formatInviteState(invite.state, t)}
                         </span>
                       </td>
-                      <td className="px-5 py-3 align-top">{formatInviteAudience(invite)}</td>
+                      <td className="px-5 py-3 align-top">{formatInviteAudience(invite, t)}</td>
                       <td className="px-5 py-3 align-top">
-                        <div>{invite.invitedByUser?.name || invite.invitedByUser?.email || "Unknown inviter"}</div>
+                        <div>{invite.invitedByUser?.name || invite.invitedByUser?.email || t("pages.companyinvites.unknown_inviter", { defaultValue: "Unknown inviter" })}</div>
                         {invite.invitedByUser?.email && invite.invitedByUser.name ? (
                           <div className="text-xs text-muted-foreground">{invite.invitedByUser.email}</div>
                         ) : null}
@@ -399,7 +428,9 @@ const { t } = useTranslation();
                   onClick={() => invitesQuery.fetchNextPage()}
                   disabled={invitesQuery.isFetchingNextPage}
                 >
-                  {invitesQuery.isFetchingNextPage ? "Loading more…" : "View more"}
+                  {invitesQuery.isFetchingNextPage
+                    ? t("pages.companyinvites.loading_more.action", { defaultValue: "Loading more…" })
+                    : t("pages.companyinvites.view_more.action", { defaultValue: "View more" })}
                 </Button>
               </div>
             ) : null}
@@ -410,12 +441,31 @@ const { t } = useTranslation();
   );
 }
 
-function formatInviteState(state: "active" | "accepted" | "expired" | "revoked") {
-  return state.charAt(0).toUpperCase() + state.slice(1);
+function formatInviteState(state: "active" | "accepted" | "expired" | "revoked", t: ReturnType<typeof useTranslation>["t"]) {
+  switch (state) {
+    case "active":
+      return t("pages.companyinvites.state_active", { defaultValue: "Active" });
+    case "accepted":
+      return t("pages.companyinvites.state_accepted", { defaultValue: "Accepted" });
+    case "expired":
+      return t("pages.companyinvites.state_expired", { defaultValue: "Expired" });
+    case "revoked":
+      return t("pages.companyinvites.state_revoked", { defaultValue: "Revoked" });
+  }
 }
 
-function formatInviteAudience(invite: Awaited<ReturnType<typeof accessApi.listInvites>>["invites"][number]) {
-  if (invite.allowedJoinTypes === "agent") return "Agent";
-  if (invite.allowedJoinTypes === "both") return invite.humanRole ? `Human or agent · ${invite.humanRole}` : "Human or agent";
-  return invite.humanRole ?? "Human";
+function formatInviteAudience(
+  invite: Awaited<ReturnType<typeof accessApi.listInvites>>["invites"][number],
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  if (invite.allowedJoinTypes === "agent") return t("pages.companyinvites.audience_agent", { defaultValue: "Agent" });
+  if (invite.allowedJoinTypes === "both") {
+    return invite.humanRole
+      ? t("pages.companyinvites.audience_human_or_agent_with_role", {
+        role: invite.humanRole,
+        defaultValue: "Human or agent · {{role}}",
+      })
+      : t("pages.companyinvites.audience_human_or_agent", { defaultValue: "Human or agent" });
+  }
+  return invite.humanRole ?? t("pages.companyinvites.audience_human", { defaultValue: "Human" });
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { ChevronDown, ChevronRight, HelpCircle } from "lucide-react";
 import { syncRoutineVariablesWithTemplate, type RoutineVariable } from "@paperclipai/shared";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +55,7 @@ export function RoutineVariablesEditor({
   value: RoutineVariable[];
   onChange: (value: RoutineVariable[]) => void;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const [open, setOpen] = useState(true);
   const syncedVariables = useMemo(
@@ -109,7 +110,7 @@ const { t } = useTranslation();
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs">Type</Label>
+                <Label className="text-xs">{t("components.routinevariableseditor.type.jsx-text", { defaultValue: "Type" })}</Label>
                 <Select
                   value={variable.type}
                   onValueChange={(type) => onChange(updateVariableList(syncedVariables, variable.name, (current) => ({
@@ -220,7 +221,7 @@ const { t } = useTranslation();
                       ...current,
                       defaultValue: event.target.value || null,
                     })))}
-                    placeholder={variable.type === "number" ? "42" : "Default value"}
+                    placeholder={variable.type === "number" ? "42" : t("components.routinevariableseditor.default_value.jsx-text", { defaultValue: "Default value" })}
                   />
                 )}
               </div>
@@ -235,24 +236,32 @@ const { t } = useTranslation();
 type BuiltinVariableDoc = {
   name: string;
   example: string;
-  description: string;
 };
 
 const BUILTIN_VARIABLE_DOCS: BuiltinVariableDoc[] = [
   {
     name: "date",
     example: "2026-04-28",
-    description: "Current date in YYYY-MM-DD format (UTC) at the time the routine runs.",
   },
   {
     name: "timestamp",
     example: "April 28, 2026 at 12:17 PM UTC",
-    description: "Human-readable date and time (UTC) at the time the routine runs.",
   },
 ];
 
+function builtinVariableDescription(name: string, t: TFunction) {
+  switch (name) {
+    case "date":
+      return t("components.routinevariableseditor.current_date.description", { defaultValue: "Current date in YYYY-MM-DD format (UTC) at the time the routine runs." });
+    case "timestamp":
+      return t("components.routinevariableseditor.human_readable_date.description", { defaultValue: "Human-readable date and time (UTC) at the time the routine runs." });
+    default:
+      return name;
+  }
+}
+
 export function RoutineVariablesHint() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const [helpOpen, setHelpOpen] = useState(false);
 
@@ -317,7 +326,7 @@ const { t } = useTranslation();
                           <Badge variant="outline" className="font-mono text-xs">{`{{${entry.name}}}`}</Badge>
                         </td>
                         <td className="px-3 py-2 font-mono text-muted-foreground">{entry.example}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{entry.description}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{builtinVariableDescription(entry.name, t)}</td>
                       </tr>
                     ))}
                   </tbody>

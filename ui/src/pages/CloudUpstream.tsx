@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -30,39 +30,72 @@ import { Link, useLocation } from "@/lib/router";
 import { queryKeys } from "@/lib/queryKeys";
 
 const PENDING_CONNECTION_KEY = "paperclip-cloud-upstream-pending-connection";
-const STEPS: Array<{ key: CloudUpstreamStep; label: string }> = [
-  { key: "connect", label: "Connect" },
-  { key: "scan", label: "Scan" },
-  { key: "preview", label: "Preview" },
-  { key: "push", label: "Push" },
-  { key: "verify", label: "Verify" },
-  { key: "activate", label: "Activate" },
+const STEPS: Array<{ key: CloudUpstreamStep }> = [
+  { key: "connect" },
+  { key: "scan" },
+  { key: "preview" },
+  { key: "push" },
+  { key: "verify" },
+  { key: "activate" },
 ];
 const ACTIVATION_CATEGORIES: Array<{
   key: CloudUpstreamActivationEntityType;
-  label: string;
-  singular: string;
-  detail: string;
 }> = [
   {
     key: "agents",
-    label: "Agents",
-    singular: "agent",
-    detail: "Confirm cloud secrets and adapter credentials before unpausing imported agents.",
   },
   {
     key: "routines",
-    label: "Routines",
-    singular: "routine",
-    detail: "Review schedules and trigger settings before enabling imported routines.",
   },
   {
     key: "monitors",
-    label: "Monitors",
-    singular: "monitor",
-    detail: "Activate after the target stack has been smoke tested.",
   },
 ];
+type TranslateFn = typeof translate;
+
+function cloudUpstreamStepLabel(step: CloudUpstreamStep, t: TranslateFn) {
+  switch (step) {
+    case "connect": return t("pages.cloudupstream.connect.step_label", { defaultValue: "Connect" });
+    case "scan": return t("pages.cloudupstream.scan.step_label", { defaultValue: "Scan" });
+    case "preview": return t("pages.cloudupstream.preview.step_label", { defaultValue: "Preview" });
+    case "push": return t("pages.cloudupstream.push.step_label", { defaultValue: "Push" });
+    case "verify": return t("pages.cloudupstream.verify.step_label", { defaultValue: "Verify" });
+    case "activate": return t("pages.cloudupstream.activate.step_label", { defaultValue: "Activate" });
+  }
+}
+
+function activationCategoryLabel(category: CloudUpstreamActivationEntityType, t: TranslateFn) {
+  switch (category) {
+    case "agents": return t("pages.cloudupstream.agents.category_label", { defaultValue: "Agents" });
+    case "routines": return t("pages.cloudupstream.routines.category_label", { defaultValue: "Routines" });
+    case "monitors": return t("pages.cloudupstream.monitors.category_label", { defaultValue: "Monitors" });
+  }
+}
+
+function activationCategoryDetail(category: CloudUpstreamActivationEntityType, t: TranslateFn) {
+  switch (category) {
+    case "agents": return t("pages.cloudupstream.agents.category_detail", { defaultValue: "Confirm cloud secrets and adapter credentials before unpausing imported agents." });
+    case "routines": return t("pages.cloudupstream.routines.category_detail", { defaultValue: "Review schedules and trigger settings before enabling imported routines." });
+    case "monitors": return t("pages.cloudupstream.monitors.category_detail", { defaultValue: "Activate after the target stack has been smoke tested." });
+  }
+}
+
+function activationCategoryNoun(category: CloudUpstreamActivationEntityType, count: number, t: TranslateFn) {
+  switch (category) {
+    case "agents":
+      return count === 1
+        ? t("pages.cloudupstream.agent.noun", { defaultValue: "agent" })
+        : t("pages.cloudupstream.agents.noun", { defaultValue: "agents" });
+    case "routines":
+      return count === 1
+        ? t("pages.cloudupstream.routine.noun", { defaultValue: "routine" })
+        : t("pages.cloudupstream.routines.noun", { defaultValue: "routines" });
+    case "monitors":
+      return count === 1
+        ? t("pages.cloudupstream.monitor.noun", { defaultValue: "monitor" })
+        : t("pages.cloudupstream.monitors.noun", { defaultValue: "monitors" });
+  }
+}
 
 export function CloudUpstream() {
 const { t } = useTranslation();
@@ -79,11 +112,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/company/settings" },
-      { label: "Cloud upstream" },
+      { label: selectedCompany?.name ?? t("pages.cloudupstream.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.cloudupstream.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("pages.cloudupstream.cloud_upstream.breadcrumb", { defaultValue: "Cloud upstream" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const experimentalQuery = useQuery({
     queryKey: queryKeys.instance.experimentalSettings,
@@ -133,7 +166,7 @@ const { t } = useTranslation();
     if (!cloudSyncEnabled || !code || !state || finishConnectPending || finishConnectSucceeded || finishConnectFailed) return;
     const pendingConnectionId = localStorage.getItem(PENDING_CONNECTION_KEY);
     if (!pendingConnectionId) {
-      setActionError("No pending cloud upstream connection was found. Start the connection again.");
+      setActionError(t("pages.cloudupstream.no_pending_connection.error", { defaultValue: "No pending cloud upstream connection was found. Start the connection again." }));
       return;
     }
     finishConnect({ pendingConnectionId, code, state });
@@ -141,9 +174,12 @@ const { t } = useTranslation();
 
   useEffect(() => {
     if (callbackError) {
-      setActionError(`Cloud upstream connection was not approved: ${callbackError}`);
+      setActionError(t("pages.cloudupstream.connection_not_approved.error", {
+        error: callbackError,
+        defaultValue: "Cloud upstream connection was not approved: {{error}}",
+      }));
     }
-  }, [callbackError]);
+  }, [callbackError, t]);
 
   const startMutation = useMutation({
     mutationFn: () =>
@@ -157,7 +193,9 @@ const { t } = useTranslation();
       setActionError(null);
       window.location.assign(result.authorizationUrl);
     },
-    onError: (error) => setActionError(error instanceof Error ? error.message : "Failed to start connection."),
+    onError: (error) => setActionError(error instanceof Error
+      ? error.message
+      : t("pages.cloudupstream.failed_to_start_connection.error", { defaultValue: "Failed to start connection." })),
   });
 
   const previewMutation = useMutation({
@@ -167,7 +205,7 @@ const { t } = useTranslation();
       setPreview(nextPreview);
       setActionError(null);
     },
-    onError: (error) => setActionError(previewErrorMessage(error)),
+    onError: (error) => setActionError(previewErrorMessage(error, t)),
   });
 
   const runMutation = useMutation({
@@ -426,10 +464,16 @@ const { t } = useTranslation();
     return () => window.clearInterval(interval);
   }, []);
   const message = elapsed < 15
-    ? "Building manifest..."
+    ? t("pages.cloudupstream.building_manifest.status", { defaultValue: "Building manifest..." })
     : elapsed < 45
-      ? `Building manifest... ${elapsed}s. Large companies can take up to a minute.`
-      : `Still building manifest... ${elapsed}s. PAP-scale companies routinely take ~60s.`;
+      ? t("pages.cloudupstream.building_manifest_elapsed.status", {
+        defaultValue: "Building manifest... {{seconds}}s. Large companies can take up to a minute.",
+        seconds: elapsed,
+      })
+      : t("pages.cloudupstream.still_building_manifest_elapsed.status", {
+        defaultValue: "Still building manifest... {{seconds}}s. PAP-scale companies routinely take ~60s.",
+        seconds: elapsed,
+      });
   return <div className="text-xs text-muted-foreground">{message}</div>;
 }
 
@@ -449,7 +493,7 @@ const { t } = useTranslation();
             ) : (
               <span className={active ? "h-4 w-4 rounded-full border-2 border-primary" : "h-4 w-4 rounded-full border border-border"} />
             )}
-            <span className={active ? "font-medium text-foreground" : "text-muted-foreground"}>{step.label}</span>
+            <span className={active ? "font-medium text-foreground" : "text-muted-foreground"}>{cloudUpstreamStepLabel(step.key, t)}</span>
           </div>
         );
       })}
@@ -530,7 +574,7 @@ function ActivationChecklist({
 }) {
 const { t } = useTranslation();
 
-  const rows = buildActivationRows(run);
+  const rows = buildActivationRows(run, t);
   return (
     <div className="rounded-md border border-border px-4 py-3">
       <div className="mb-2 text-sm font-medium">{t("pages.cloudupstream.activation_checklist.jsx-text", { defaultValue: "Activation checklist" })}</div>
@@ -545,7 +589,12 @@ const { t } = useTranslation();
                 <div className="text-xs text-muted-foreground">{row.statusLabel}</div>
               </div>
               <div className="text-muted-foreground">
-                {row.count === 0 ? `0 imported ${row.pluralLabel} in this run.` : row.detail}
+                {row.count === 0
+                  ? t("pages.cloudupstream.zero_imported_in_run.detail", {
+                    defaultValue: "0 imported {{pluralLabel}} in this run.",
+                    pluralLabel: row.pluralLabel,
+                  })
+                  : row.detail}
               </div>
               <div className="flex flex-wrap gap-2 sm:justify-end">
                 <Button
@@ -555,7 +604,9 @@ const { t } = useTranslation();
                   disabled={row.count === 0 || activated || isPending}
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {activated ? "Activated" : "Activate"}
+                  {activated
+                    ? t("pages.cloudupstream.activated.action", { defaultValue: "Activated" })
+                    : t("pages.cloudupstream.activate.action", { defaultValue: "Activate" })}
                 </Button>
                 <Button variant="ghost" size="sm" disabled={activated || isPending}>
                   {t("pages.cloudupstream.keep_paused.jsx-text", { defaultValue: "\n                  Keep paused\n                " })}</Button>
@@ -568,24 +619,30 @@ const { t } = useTranslation();
   );
 }
 
-export function buildActivationRows(run: CloudUpstreamRun) {
+export function buildActivationRows(run: CloudUpstreamRun, t: TranslateFn = translate) {
   const activationChecklist = activationChecklistFromReport(run.report);
   return ACTIVATION_CATEGORIES.map((category) => {
     const decision = activationChecklist[category.key];
     const count = summaryCount(run.summary, category.key);
     const status = decision?.status === "activated" ? "activated" : "paused";
-    const pluralLabel = `${category.singular}${count === 1 ? "" : "s"}`;
+    const pluralLabel = activationCategoryNoun(category.key, count, t);
     return {
       ...category,
+      label: activationCategoryLabel(category.key, t),
       count,
       pluralLabel,
       status,
-      detail: `${count} imported ${pluralLabel} are paused by default. ${category.detail}`,
+      detail: t("pages.cloudupstream.imported_entities_paused.detail", {
+        defaultValue: "{{count}} imported {{pluralLabel}} are paused by default. {{detail}}",
+        count,
+        pluralLabel,
+        detail: activationCategoryDetail(category.key, t),
+      }),
       statusLabel: status === "activated"
-        ? `${count} activated`
+        ? t("pages.cloudupstream.count_activated.status_label", { defaultValue: "{{count}} activated", count })
         : count === 0
-          ? "0 imported"
-          : `${count} paused`,
+          ? t("pages.cloudupstream.zero_imported.status_label", { defaultValue: "0 imported" })
+          : t("pages.cloudupstream.count_paused.status_label", { defaultValue: "{{count}} paused", count }),
     };
   });
 }
@@ -639,10 +696,12 @@ function formatBytes(value: number) {
   return `${value} B`;
 }
 
-function previewErrorMessage(error: unknown): string {
+function previewErrorMessage(error: unknown, t: TranslateFn = translate): string {
   const code = error instanceof Error ? error.message : null;
   if (code === "payload_too_large" || code === "bad_request") {
-    return "Local company is too large to preview as a single request. Click Push to continue (the Push step uploads in chunks), or see the docs for chunked-preview options.";
+    return t("pages.cloudupstream.company_too_large_preview.error", {
+      defaultValue: "Local company is too large to preview as a single request. Click Push to continue (the Push step uploads in chunks), or see the docs for chunked-preview options.",
+    });
   }
-  return code ?? "Failed to preview push.";
+  return code ?? t("pages.cloudupstream.failed_to_preview_push.error", { defaultValue: "Failed to preview push." });
 }

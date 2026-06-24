@@ -10,6 +10,7 @@ import { AgentStatusBadge } from "./StatusBadge";
 import { Identity } from "./Identity";
 import { formatDate, agentUrl } from "../lib/utils";
 import { Separator } from "@/components/ui/separator";
+import type { TFunction } from "i18next";
 
 interface AgentPropertiesProps {
   agent: Agent;
@@ -19,14 +20,30 @@ interface AgentPropertiesProps {
 const roleLabels = AGENT_ROLE_LABELS as Record<string, string>;
 
 function PropertyRow({ label, children }: { label: string; children: React.ReactNode }) {
-const { t } = useTranslation();
-
   return (
     <div className="flex items-start gap-3 py-1.5">
       <span className="text-xs text-muted-foreground shrink-0 w-20 mt-0.5">{label}</span>
       <div className="flex items-center gap-1.5 min-w-0 flex-1 flex-wrap">{children}</div>
     </div>
   );
+}
+
+function roleLabel(role: string, t: TFunction): string {
+  const labels: Record<string, string> = {
+    ceo: t("components.agentproperties.roles.ceo", { defaultValue: "CEO" }),
+    cto: t("components.agentproperties.roles.cto", { defaultValue: "CTO" }),
+    cmo: t("components.agentproperties.roles.cmo", { defaultValue: "CMO" }),
+    cfo: t("components.agentproperties.roles.cfo", { defaultValue: "CFO" }),
+    security: t("components.agentproperties.roles.security", { defaultValue: "Security" }),
+    engineer: t("components.agentproperties.roles.engineer", { defaultValue: "Engineer" }),
+    designer: t("components.agentproperties.roles.designer", { defaultValue: "Designer" }),
+    pm: t("components.agentproperties.roles.pm", { defaultValue: "PM" }),
+    qa: t("components.agentproperties.roles.qa", { defaultValue: "QA" }),
+    devops: t("components.agentproperties.roles.devops", { defaultValue: "DevOps" }),
+    researcher: t("components.agentproperties.roles.researcher", { defaultValue: "Researcher" }),
+    general: t("components.agentproperties.roles.general", { defaultValue: "General" }),
+  };
+  return labels[role] ?? roleLabels[role] ?? role;
 }
 
 export function AgentProperties({ agent, runtimeState }: AgentPropertiesProps) {
@@ -48,8 +65,8 @@ const { t } = useTranslation();
         <PropertyRow label={t("components.agentproperties.status.attr_label", { defaultValue: "Status" })}>
           <AgentStatusBadge status={agent.status} />
         </PropertyRow>
-        <PropertyRow label="Role">
-          <span className="text-sm">{roleLabels[agent.role] ?? agent.role}</span>
+        <PropertyRow label={t("components.agentproperties.role.attr_label", { defaultValue: "Role" })}>
+          <span className="text-sm">{roleLabel(agent.role, t)}</span>
         </PropertyRow>
         {agent.title && (
           <PropertyRow label={t("components.agentproperties.title.attr_label", { defaultValue: "Title" })}>

@@ -6,6 +6,7 @@ import type {
   Issue,
   JoinRequest,
 } from "@paperclipai/shared";
+import type { TFunction } from "i18next";
 import {
   applyIssueFilters,
   defaultIssueFilterState,
@@ -144,6 +145,7 @@ export interface InboxWorkspaceGroupingOptions {
   agentById?: ReadonlyMap<string, string | null | undefined>;
   userLabelById?: ReadonlyMap<string, string>;
   currentUserId?: string | null;
+  t?: TFunction;
 }
 
 export interface InboxIssueGroupCreateDefaults {
@@ -544,6 +546,7 @@ export function resolveIssueWorkspaceGroup(
     executionWorkspaceById,
     projectWorkspaceById,
     defaultProjectWorkspaceIdByProjectId,
+    t,
   }: InboxWorkspaceGroupingOptions = {},
 ): { key: string; label: string } {
   const defaultProjectWorkspace = resolveDefaultProjectWorkspaceInfo(issue, {
@@ -602,7 +605,7 @@ export function resolveIssueWorkspaceGroup(
 
   return {
     key: "workspace:none",
-    label: "No workspace",
+    label: t?.("lib.inbox.no_workspace.group_label", { defaultValue: "No workspace" }) ?? "No workspace",
   };
 }
 
@@ -820,20 +823,23 @@ const inboxWorkItemKindOrder: InboxWorkItem["kind"][] = [
   "join_request",
 ];
 
-const inboxWorkItemKindLabels: Record<InboxWorkItem["kind"], string> = {
-  issue: "Tasks",
-  approval: "Approvals",
-  failed_run: "Failed runs",
-  join_request: "Join requests",
-};
+function inboxWorkItemKindLabel(kind: InboxWorkItem["kind"], t?: TFunction): string {
+  switch (kind) {
+    case "issue": return t?.("lib.inbox.tasks.group_label", { defaultValue: "Tasks" }) ?? "Tasks";
+    case "approval": return t?.("lib.inbox.approvals.group_label", { defaultValue: "Approvals" }) ?? "Approvals";
+    case "failed_run": return t?.("lib.inbox.failed_runs.group_label", { defaultValue: "Failed runs" }) ?? "Failed runs";
+    case "join_request": return t?.("lib.inbox.join_requests.group_label", { defaultValue: "Join requests" }) ?? "Join requests";
+  }
+}
 
 function resolveIssueAssigneeGroup(
   issue: Pick<Issue, "assigneeAgentId" | "assigneeUserId">,
   {
     agentById,
     currentUserId,
+    t,
     userLabelById,
-  }: Pick<InboxWorkspaceGroupingOptions, "agentById" | "currentUserId" | "userLabelById">,
+  }: Pick<InboxWorkspaceGroupingOptions, "agentById" | "currentUserId" | "t" | "userLabelById">,
 ): { key: string; label: string } {
   if (issue.assigneeAgentId) {
     const agentName = agentById?.get(issue.assigneeAgentId)?.trim();
@@ -846,18 +852,22 @@ function resolveIssueAssigneeGroup(
   if (issue.assigneeUserId) {
     return {
       key: `assignee:user:${issue.assigneeUserId}`,
-      label: formatAssigneeUserLabel(issue.assigneeUserId, currentUserId, userLabelById) ?? "User",
+      label: formatAssigneeUserLabel(issue.assigneeUserId, currentUserId, userLabelById)
+        ?? t?.("lib.inbox.user.group_label", { defaultValue: "User" })
+        ?? "User",
     };
   }
 
-  return { key: "assignee:none", label: "Unassigned" };
+  return { key: "assignee:none", label: t?.("lib.inbox.unassigned.group_label", { defaultValue: "Unassigned" }) ?? "Unassigned" };
 }
 
 function resolveIssueProjectGroup(
   issue: Pick<Issue, "projectId">,
-  { projectById }: Pick<InboxWorkspaceGroupingOptions, "projectById">,
+  { projectById, t }: Pick<InboxWorkspaceGroupingOptions, "projectById" | "t">,
 ): { key: string; label: string } {
-  if (!issue.projectId) return { key: "project:none", label: "No project" };
+  if (!issue.projectId) {
+    return { key: "project:none", label: t?.("lib.inbox.no_project.group_label", { defaultValue: "No project" }) ?? "No project" };
+  }
 
   const projectName = projectById?.get(issue.projectId)?.name?.trim();
   return {
@@ -869,12 +879,13 @@ function resolveIssueProjectGroup(
 function groupInboxWorkItemsByIssueGroup(
   items: InboxWorkItem[],
   resolveIssueGroup: (issue: Issue) => { key: string; label: string },
+  t?: TFunction,
 ): InboxWorkItemGroup[] {
   const groups = new Map<string, { label: string; items: InboxWorkItem[]; latestTimestamp: number }>();
   for (const item of items) {
     const resolvedGroup = item.kind === "issue"
       ? resolveIssueGroup(item.issue)
-      : { key: `kind:${item.kind}`, label: inboxWorkItemKindLabels[item.kind] };
+      : { key: `kind:${item.kind}`, label: inboxWorkItemKindLabel(item.kind, t) };
     const existing = groups.get(resolvedGroup.key);
     if (existing) {
       existing.items.push(item);
@@ -917,15 +928,15 @@ export function groupInboxWorkItems(
   }
 
   if (groupBy === "workspace") {
-    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueWorkspaceGroup(issue, options));
+    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueWorkspaceGroup(issue, options), options.t);
   }
 
   if (groupBy === "assignee") {
-    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueAssigneeGroup(issue, options));
+    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueAssigneeGroup(issue, options), options.t);
   }
 
   if (groupBy === "project") {
-    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueProjectGroup(issue, options));
+    return groupInboxWorkItemsByIssueGroup(items, (issue) => resolveIssueProjectGroup(issue, options), options.t);
   }
 
   const groups = new Map<InboxWorkItem["kind"], InboxWorkItem[]>();
@@ -941,7 +952,7 @@ export function groupInboxWorkItems(
     if (groupItems.length === 0) continue;
     orderedGroups.push({
         key: kind,
-        label: inboxWorkItemKindLabels[kind],
+        label: inboxWorkItemKindLabel(kind, options.t),
         items: groupItems,
     });
   }

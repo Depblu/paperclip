@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { pickTextColorForPillBg } from "@/lib/color-contrast";
 import { Link } from "@/lib/router";
 import type { Issue, IssueLabel, Project, WorkspaceRuntimeService } from "@paperclipai/shared";
@@ -163,29 +164,42 @@ const { t } = useTranslation();
 
 const ISSUE_THINKING_EFFORT_OPTIONS = {
   claude_local: [
-    { value: "", label: "Default" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
+    { value: "" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
   ],
   codex_local: [
-    { value: "", label: "Default" },
-    { value: "minimal", label: "Minimal" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "xhigh", label: "X-High" },
+    { value: "" },
+    { value: "minimal" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
+    { value: "xhigh" },
   ],
   opencode_local: [
-    { value: "", label: "Default" },
-    { value: "minimal", label: "Minimal" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "xhigh", label: "X-High" },
-    { value: "max", label: "Max" },
+    { value: "" },
+    { value: "minimal" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
+    { value: "xhigh" },
+    { value: "max" },
   ],
 } as const;
+
+function thinkingEffortLabel(value: string, t: TFunction) {
+  switch (value) {
+    case "": return t("components.issueproperties.default.option_label", { defaultValue: "Default" });
+    case "minimal": return t("components.issueproperties.minimal.option_label", { defaultValue: "Minimal" });
+    case "low": return t("components.issueproperties.low.option_label", { defaultValue: "Low" });
+    case "medium": return t("components.issueproperties.medium.option_label", { defaultValue: "Medium" });
+    case "high": return t("components.issueproperties.high.option_label", { defaultValue: "High" });
+    case "xhigh": return t("components.issueproperties.xhigh.option_label", { defaultValue: "X-High" });
+    case "max": return t("components.issueproperties.max.option_label", { defaultValue: "Max" });
+    default: return value;
+  }
+}
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -712,7 +726,11 @@ const { t } = useTranslation();
               )}
               onClick={() => setAssigneeOverrideLane(lane)}
             >
-              {lane === "primary" ? "Primary" : lane === "cheap" ? "Cheap" : "Custom"}
+              {lane === "primary"
+                ? t("components.issueproperties.primary.lane_label", { defaultValue: "Primary" })
+                : lane === "cheap"
+                  ? t("components.issueproperties.cheap.lane_label", { defaultValue: "Cheap" })
+                  : t("components.issueproperties.custom.lane_label", { defaultValue: "Custom" })}
             </button>
           ))}
         </div>
@@ -736,9 +754,9 @@ const { t } = useTranslation();
               options={modelOverrideOptions}
               placeholder={t("components.issueproperties.default_model.attr_placeholder", { defaultValue: "Default model" })}
               disablePortal
-              noneLabel="Default model"
-              searchPlaceholder="Search models..."
-              emptyMessage="No models found."
+              noneLabel={t("components.issueproperties.default_model.option_label", { defaultValue: "Default model" })}
+              searchPlaceholder={t("components.issueproperties.search_models.placeholder", { defaultValue: "Search models..." })}
+              emptyMessage={t("components.issueproperties.no_models_found.empty", { defaultValue: "No models found." })}
               onChange={(model) => updateAssigneeOverrideConfig({ model: model || undefined })}
             />
           </div>
@@ -754,7 +772,7 @@ const { t } = useTranslation();
                   )}
                   onClick={() => updateAssigneeOverrideThinkingEffort(option.value)}
                 >
-                  {option.label}
+                  {thinkingEffortLabel(option.value, t)}
                 </button>
               ))}
             </div>
@@ -846,13 +864,17 @@ const { t } = useTranslation();
         className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
         onClick={() => onUpdate({ status: "in_review" })}
       >
-        {stageType === "review" ? "Run review now" : "Run approval now"}
+        {stageType === "review"
+          ? t("components.issueproperties.run_review_now.action", { defaultValue: "Run review now" })
+          : t("components.issueproperties.run_approval_now.action", { defaultValue: "Run approval now" })}
       </button>
     </PropertyRow>
   );
   const currentExecutionLabel = (() => {
     if (!issue.executionState?.currentStageType) return null;
-    const stageLabel = issue.executionState.currentStageType === "review" ? "Review" : "Approval";
+    const stageLabel = issue.executionState.currentStageType === "review"
+      ? t("components.issueproperties.review_stage", { defaultValue: "Review" })
+      : t("components.issueproperties.approval_stage", { defaultValue: "Approval" });
     const participant = issue.executionState.currentParticipant;
     const participantLabel = participant
       ? (participant.type === "agent"
@@ -860,9 +882,27 @@ const { t } = useTranslation();
         : userLabel(participant.userId ?? null))
       : null;
     if (issue.executionState.status === "changes_requested") {
-      return `${stageLabel} requested changes${participantLabel ? ` by ${participantLabel}` : ""}`;
+      return participantLabel
+        ? t("components.issueproperties.stage_requested_changes_by", {
+          stage: stageLabel,
+          participant: participantLabel,
+          defaultValue: "{{stage}} requested changes by {{participant}}",
+        })
+        : t("components.issueproperties.stage_requested_changes", {
+          stage: stageLabel,
+          defaultValue: "{{stage}} requested changes",
+        });
     }
-    return `${stageLabel} pending${participantLabel ? ` with ${participantLabel}` : ""}`;
+    return participantLabel
+      ? t("components.issueproperties.stage_pending_with", {
+        stage: stageLabel,
+        participant: participantLabel,
+        defaultValue: "{{stage}} pending with {{participant}}",
+      })
+      : t("components.issueproperties.stage_pending", {
+        stage: stageLabel,
+        defaultValue: "{{stage}} pending",
+      });
   })();
   useEffect(() => {
     setMonitorAtInput(toDateTimeLocalValue(issue.executionPolicy?.monitor?.nextCheckAt));
@@ -918,15 +958,21 @@ const { t } = useTranslation();
   };
   const currentMonitorLabel = (() => {
     if (issue.executionPolicy?.monitor?.nextCheckAt) {
-      return `Next check ${formatDate(new Date(issue.executionPolicy.monitor.nextCheckAt))}`;
+      return t("components.issueproperties.next_check_date.monitor_label", {
+        defaultValue: "Next check {{date}}",
+        date: formatDate(new Date(issue.executionPolicy.monitor.nextCheckAt)),
+      });
     }
     if (issue.executionState?.monitor?.status === "cleared") {
-      return "Cleared";
+      return t("components.issueproperties.cleared.monitor_label", { defaultValue: "Cleared" });
     }
     if (issue.monitorLastTriggeredAt) {
-      return `Last triggered ${timeAgo(issue.monitorLastTriggeredAt)}`;
+      return t("components.issueproperties.last_triggered.monitor_label", {
+        defaultValue: "Last triggered {{time}}",
+        time: timeAgo(issue.monitorLastTriggeredAt),
+      });
     }
-    return "Not scheduled";
+    return t("components.issueproperties.not_scheduled.monitor_label", { defaultValue: "Not scheduled" });
   })();
   const monitorNextCheckAt = issue.executionPolicy?.monitor?.nextCheckAt ?? null;
   const monitorTrigger = (
@@ -941,7 +987,12 @@ const { t } = useTranslation();
         )}
         title={monitorNextCheckAt ? currentMonitorLabel : undefined}
       >
-        {monitorNextCheckAt ? `Next check ${formatMonitorOffset(monitorNextCheckAt)}` : currentMonitorLabel}
+        {monitorNextCheckAt
+          ? t("components.issueproperties.next_check_offset.monitor_label", {
+            defaultValue: "Next check {{offset}}",
+            offset: formatMonitorOffset(monitorNextCheckAt),
+          })
+          : currentMonitorLabel}
       </span>
       {monitorNextCheckAt ? (
         <span className="text-xs text-muted-foreground" title={currentMonitorLabel}>
@@ -981,10 +1032,23 @@ const { t } = useTranslation();
   const scheduledRetryIsContinuation =
     scheduledRetry?.scheduledRetryReason === "max_turns_continuation";
   const scheduledRetryRelativeLabel = (() => {
-    if (!scheduledRetryRelative) return "Pending schedule";
-    const action = scheduledRetryIsContinuation ? "Continuation" : "Retry";
-    if (scheduledRetryRelative === "now") return `${action} due now`;
-    return `${action} ${scheduledRetryRelative}`;
+    if (!scheduledRetryRelative) {
+      return t("components.issueproperties.pending_schedule.retry_label", { defaultValue: "Pending schedule" });
+    }
+    if (scheduledRetryRelative === "now") {
+      return scheduledRetryIsContinuation
+        ? t("components.issueproperties.continuation_due_now.retry_label", { defaultValue: "Continuation due now" })
+        : t("components.issueproperties.retry_due_now.retry_label", { defaultValue: "Retry due now" });
+    }
+    return scheduledRetryIsContinuation
+      ? t("components.issueproperties.continuation_offset.retry_label", {
+        defaultValue: "Continuation {{offset}}",
+        offset: scheduledRetryRelative,
+      })
+      : t("components.issueproperties.retry_offset.retry_label", {
+        defaultValue: "Retry {{offset}}",
+        offset: scheduledRetryRelative,
+      });
   })();
   const scheduledRetryRetryNowSuccess = retryNow.isSuccess
     && (retryNow.data?.outcome === "promoted" || retryNow.data?.outcome === "already_promoted");
@@ -1011,7 +1075,9 @@ const { t } = useTranslation();
     <div className="flex w-full flex-col gap-2 p-2 text-xs">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">
-          {scheduledRetryIsContinuation ? "Scheduled continuation" : "Scheduled retry"}
+          {scheduledRetryIsContinuation
+            ? t("components.issueproperties.scheduled_continuation.jsx-text", { defaultValue: "Scheduled continuation" })
+            : t("components.issueproperties.scheduled_retry.jsx-text", { defaultValue: "Scheduled retry" })}
         </span>
         {scheduledRetryAttempt !== null ? (
           <span className="rounded-full border border-border bg-muted/30 px-2 py-0.5 text-xs text-muted-foreground">
@@ -1094,7 +1160,9 @@ const { t } = useTranslation();
           ) : scheduledRetryRetryNowSuccess ? (
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              {retryNow.data?.outcome === "already_promoted" ? "Already promoted" : "Promoted"}
+              {retryNow.data?.outcome === "already_promoted"
+                ? t("components.issueproperties.already_promoted.jsx-text", { defaultValue: "Already promoted" })
+                : t("components.issueproperties.promoted.jsx-text", { defaultValue: "Promoted" })}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
@@ -1104,14 +1172,14 @@ const { t } = useTranslation();
         </Button>
         <span className="text-right text-xs text-muted-foreground">
           {retryNow.isPending
-            ? "Promoting scheduled retry"
+            ? t("components.issueproperties.promoting_scheduled_retry.status_text", { defaultValue: "Promoting scheduled retry" })
             : scheduledRetryRetryNowSuccess
               ? retryNow.data?.outcome === "already_promoted"
-                ? "Already promoted — run starting"
-                : "Promoted — run starting"
+                ? t("components.issueproperties.already_promoted_run_start.status_text", { defaultValue: "Already promoted — run starting" })
+                : t("components.issueproperties.promoted_run_starting.status_text", { defaultValue: "Promoted — run starting" })
               : scheduledRetryIsContinuation
-                ? "Pulls continuation forward immediately"
-                : "Pulls retry forward immediately"}
+                ? t("components.issueproperties.pulls_continuation_forward.status_text", { defaultValue: "Pulls continuation forward immediately" })
+                : t("components.issueproperties.pulls_retry_forward_immed.status_text", { defaultValue: "Pulls retry forward immediately" })}
         </span>
       </div>
     </div>
@@ -1293,13 +1361,13 @@ const { t } = useTranslation();
 
   const assigneePickerOptions = orderItemsBySelectedAndRecent(
     [
-      { id: "", kind: "none" as const, label: "No assignee", searchText: "" },
+      { id: "", kind: "none" as const, label: t("components.issueproperties.no_assignee.option_label", { defaultValue: "No assignee" }), searchText: "" },
       ...(currentUserId
         ? [{
             id: `user:${currentUserId}`,
             kind: "user" as const,
             userId: currentUserId,
-            label: "Assign to me",
+            label: t("components.issueproperties.assign_to_me.option_label", { defaultValue: "Assign to me" }),
             searchText: userLabel(currentUserId) ?? "",
           }]
         : []),
@@ -1308,8 +1376,10 @@ const { t } = useTranslation();
             id: `user:${issue.createdByUserId}`,
             kind: "user" as const,
             userId: issue.createdByUserId,
-            label: creatorUserLabel ? `Assign to ${creatorUserLabel}` : "Assign to requester",
-            searchText: creatorUserLabel ?? "requester",
+            label: creatorUserLabel
+              ? t("components.issueproperties.assign_to_user.option_label", { defaultValue: "Assign to {{user}}", user: creatorUserLabel })
+              : t("components.issueproperties.assign_to_requester.option_label", { defaultValue: "Assign to requester" }),
+            searchText: creatorUserLabel ?? t("components.issueproperties.requester.search_text", { defaultValue: "requester" }),
           }]
         : []),
       ...otherUserOptions.map((option) => ({
@@ -1389,7 +1459,9 @@ const { t } = useTranslation();
     <>
       <input
         className="w-full px-2 py-1.5 text-xs bg-transparent outline-none border-b border-border mb-1 placeholder:text-muted-foreground/50"
-        placeholder={`Search ${stageType === "review" ? "reviewers" : "approvers"}...`}
+        placeholder={stageType === "review"
+          ? t("components.issueproperties.search_reviewers.placeholder", { defaultValue: "Search reviewers..." })
+          : t("components.issueproperties.search_approvers.placeholder", { defaultValue: "Search approvers..." })}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         autoFocus={!inline}
@@ -1402,7 +1474,9 @@ const { t } = useTranslation();
           )}
           onClick={onClear}
         >
-          {t("components.issueproperties.no.jsx-text", { defaultValue: "\n          No " })}{stageType === "review" ? "reviewers" : "approvers"}
+          {stageType === "review"
+            ? t("components.issueproperties.no_reviewers.option_label", { defaultValue: "No reviewers" })
+            : t("components.issueproperties.no_approvers.option_label", { defaultValue: "No approvers" })}
         </button>
         {currentUserId && (
           <button
@@ -1424,7 +1498,7 @@ const { t } = useTranslation();
             onClick={() => toggleExecutionParticipant(stageType, `user:${issue.createdByUserId}`)}
           >
             <User className="h-3 w-3 shrink-0 text-muted-foreground" />
-            {creatorUserLabel ? creatorUserLabel : "Requester"}
+            {creatorUserLabel ?? t("components.issueproperties.requester.option_label", { defaultValue: "Requester" })}
           </button>
         )}
         {otherUserOptions

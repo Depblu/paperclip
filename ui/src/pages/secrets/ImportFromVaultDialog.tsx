@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -106,15 +107,15 @@ function statusToneClasses(status: RemoteSecretImportCandidate["status"]) {
   }
 }
 
-function statusBadgeLabel(status: RemoteSecretImportCandidate["status"]) {
+function statusBadgeLabel(status: RemoteSecretImportCandidate["status"], t: TFunction) {
   switch (status) {
     case "duplicate":
-      return "Imported";
+      return t("pages.importfromvaultdialog.imported.status_label", { defaultValue: "Imported" });
     case "conflict":
-      return "Conflict";
+      return t("pages.importfromvaultdialog.conflict.status_label", { defaultValue: "Conflict" });
     case "ready":
     default:
-      return "Ready";
+      return t("pages.importfromvaultdialog.ready.status_label", { defaultValue: "Ready" });
   }
 }
 
@@ -134,7 +135,7 @@ const { t } = useTranslation();
   return (
     <Badge variant="outline" className={cn("gap-1 px-1.5 py-0 font-normal", statusToneClasses(status))}>
       <Icon className="h-3 w-3" />
-      {statusBadgeLabel(status)}
+      {statusBadgeLabel(status, t)}
     </Badge>
   );
 }
@@ -195,12 +196,12 @@ function formatRelativeShort(value: string | null | undefined): string {
   return date.toLocaleDateString();
 }
 
-function readableErrorMessage(error: unknown): string {
+function readableErrorMessage(error: unknown, t: TFunction): string {
   if (error instanceof ApiError) {
     return error.message || `Request failed: ${error.status}`;
   }
   if (error instanceof Error) return error.message;
-  return "Unexpected error";
+  return t("pages.importfromvaultdialog.unexpected_error.error", { defaultValue: "Unexpected error" });
 }
 
 function apiErrorCode(error: ApiError): string | null {
@@ -264,35 +265,36 @@ function validateDraftRow(
   draft: DraftSelection,
   existing: CompanySecret[],
   otherDrafts: DraftSelection[],
+  t: TFunction,
 ): string | null {
-  if (!draft.name.trim()) return "Name is required.";
-  if (draft.name.length > 160) return "Name must be 160 characters or fewer.";
-  if (!draft.key.trim()) return "Key is required.";
+  if (!draft.name.trim()) return t("pages.importfromvaultdialog.name_required.validation", { defaultValue: "Name is required." });
+  if (draft.name.length > 160) return t("pages.importfromvaultdialog.name_too_long.validation", { defaultValue: "Name must be 160 characters or fewer." });
+  if (!draft.key.trim()) return t("pages.importfromvaultdialog.key_required.validation", { defaultValue: "Key is required." });
   if (!KEY_PATTERN.test(draft.key)) {
-    return "Key may only contain lowercase letters, numbers, dot, underscore, or hyphen.";
+    return t("pages.importfromvaultdialog.key_invalid_chars.validation", { defaultValue: "Key may only contain lowercase letters, numbers, dot, underscore, or hyphen." });
   }
-  if (draft.key.length > 120) return "Key must be 120 characters or fewer.";
-  if (draft.description.length > 500) return "Description must be 500 characters or fewer.";
+  if (draft.key.length > 120) return t("pages.importfromvaultdialog.key_too_long.validation", { defaultValue: "Key must be 120 characters or fewer." });
+  if (draft.description.length > 500) return t("pages.importfromvaultdialog.description_too_long.validation", { defaultValue: "Description must be 500 characters or fewer." });
 
   const lowerName = draft.name.trim().toLowerCase();
   const lowerKey = draft.key.trim().toLowerCase();
 
   for (const existingSecret of existing) {
     if (existingSecret.name.trim().toLowerCase() === lowerName) {
-      return "A Paperclip secret already uses this name.";
+      return t("pages.importfromvaultdialog.existing_secret_name.validation", { defaultValue: "A Paperclip secret already uses this name." });
     }
     if (existingSecret.key.trim().toLowerCase() === lowerKey) {
-      return "A Paperclip secret already uses this key.";
+      return t("pages.importfromvaultdialog.existing_secret_key.validation", { defaultValue: "A Paperclip secret already uses this key." });
     }
   }
 
   for (const other of otherDrafts) {
     if (other === draft) continue;
     if (other.name.trim().toLowerCase() === lowerName) {
-      return "Another row in this batch already uses this name.";
+      return t("pages.importfromvaultdialog.duplicate_batch_name.validation", { defaultValue: "Another row in this batch already uses this name." });
     }
     if (other.key.trim().toLowerCase() === lowerKey) {
-      return "Another row in this batch already uses this key.";
+      return t("pages.importfromvaultdialog.duplicate_batch_key.validation", { defaultValue: "Another row in this batch already uses this key." });
     }
   }
 
@@ -453,11 +455,11 @@ const { t } = useTranslation();
   const reviewErrors = useMemo<Map<string, string>>(() => {
     const errors = new Map<string, string>();
     for (const draft of draftList) {
-      const error = validateDraftRow(draft, existingSecrets, draftList);
+      const error = validateDraftRow(draft, existingSecrets, draftList, t);
       if (error) errors.set(draft.candidate.externalRef, error);
     }
     return errors;
-  }, [draftList, existingSecrets]);
+  }, [draftList, existingSecrets, t]);
 
   const blockedReviewCount = reviewErrors.size;
   const readyReviewCount = draftList.length - blockedReviewCount;
@@ -473,22 +475,32 @@ const { t } = useTranslation();
         awsVaults.find((vault) => vault.id === vaultId)?.displayName ?? "AWS";
       if (result.errorCount === draftList.length && result.errorCount > 0) {
         toast.pushToast({
-          title: "Import failed",
-          body: `No secrets were imported from ${vaultName}.`,
+          title: t("pages.importfromvaultdialog.import_failed.title", { defaultValue: "Import failed" }),
+          body: t("pages.importfromvaultdialog.no_secrets_imported_from.body", {
+            defaultValue: "No secrets were imported from {{vaultName}}.",
+            vaultName,
+          }),
           tone: "error",
         });
       } else {
         toast.pushToast({
-          title: result.errorCount > 0 ? "Import completed with errors" : "Import complete",
-          body: `${result.importedCount} created · ${result.skippedCount} skipped · ${result.errorCount} failed`,
+          title: result.errorCount > 0
+            ? t("pages.importfromvaultdialog.import_completed_with_errors.title", { defaultValue: "Import completed with errors" })
+            : t("pages.importfromvaultdialog.import_complete.title", { defaultValue: "Import complete" }),
+          body: t("pages.importfromvaultdialog.import_result_counts.body", {
+            defaultValue: "{{created}} created · {{skipped}} skipped · {{failed}} failed",
+            created: result.importedCount,
+            skipped: result.skippedCount,
+            failed: result.errorCount,
+          }),
           tone: result.errorCount > 0 ? "warn" : "success",
         });
       }
     },
     onError: (error) => {
       toast.pushToast({
-        title: "Import failed",
-        body: readableErrorMessage(error),
+        title: t("pages.importfromvaultdialog.import_failed.title", { defaultValue: "Import failed" }),
+        body: readableErrorMessage(error, t),
         tone: "error",
       });
     },
@@ -548,8 +560,8 @@ const { t } = useTranslation();
       })
       .catch((error) => {
         toast.pushToast({
-          title: "Could not load more results",
-          body: readableErrorMessage(error),
+          title: t("pages.importfromvaultdialog.could_not_load_more_results.title", { defaultValue: "Could not load more results" }),
+          body: readableErrorMessage(error, t),
           tone: "error",
         });
       })
@@ -776,9 +788,9 @@ function Stepper({ step }: { step: Step }) {
 const { t } = useTranslation();
 
   const steps: { id: Step; label: string }[] = [
-    { id: "select", label: "Select" },
-    { id: "review", label: "Review" },
-    { id: "result", label: "Result" },
+    { id: "select", label: t("pages.secrets.importfromvaultdialog.select.step_label", { defaultValue: "Select" }) },
+    { id: "review", label: t("pages.secrets.importfromvaultdialog.review.step_label", { defaultValue: "Review" }) },
+    { id: "result", label: t("pages.secrets.importfromvaultdialog.result.step_label", { defaultValue: "Result" }) },
   ];
   const activeIndex = steps.findIndex((s) => s.id === step);
   return (
@@ -877,8 +889,8 @@ const { t } = useTranslation();
       <div className="flex min-h-0 flex-1 items-center justify-center p-6" data-testid="select-empty-vaults">
         <EmptyState
           icon={Cloud}
-          message="No AWS provider vault configured. Add one to import secrets."
-          action={onManageVaults ? "Manage vaults" : undefined}
+          message={t("pages.importfromvaultdialog.no_aws_provider_vault_config.attr_message", { defaultValue: "No AWS provider vault configured. Add one to import secrets." })}
+          action={onManageVaults ? t("pages.importfromvaultdialog.manage_vaults.action", { defaultValue: "Manage vaults" }) : undefined}
           onAction={onManageVaults}
         />
       </div>
@@ -1110,7 +1122,7 @@ const { t } = useTranslation();
 
   const isPermission = isPermissionError(error);
   const isThrottling = isThrottlingError(error);
-  const message = readableErrorMessage(error);
+  const message = readableErrorMessage(error, t);
   return (
     <div
       className="m-5 flex items-start gap-3 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
@@ -1121,14 +1133,14 @@ const { t } = useTranslation();
       <div className="flex-1">
         <div className="font-medium">
           {isPermission
-            ? "AWS denied list access"
+            ? t("pages.importfromvaultdialog.aws_denied_list_access.error_title", { defaultValue: "AWS denied list access" })
             : isThrottling
-              ? "AWS throttled the listing request"
-              : "Could not load remote secrets"}
+              ? t("pages.importfromvaultdialog.aws_throttled_listing.error_title", { defaultValue: "AWS throttled the listing request" })
+              : t("pages.importfromvaultdialog.could_not_load_remote_secrets.error_title", { defaultValue: "Could not load remote secrets" })}
         </div>
         <div className="mt-1 text-xs leading-relaxed text-destructive/80">
           {isPermission
-            ? "The AWS principal behind this vault is missing secretsmanager:ListSecrets. Update IAM and try again."
+            ? t("pages.importfromvaultdialog.aws_missing_listsecrets.error_body", { defaultValue: "The AWS principal behind this vault is missing secretsmanager:ListSecrets. Update IAM and try again." })
             : message}
         </div>
         <div className="mt-2 flex items-center gap-2">
@@ -1169,14 +1181,17 @@ const { t } = useTranslation();
     return (
       <EmptyState
         icon={Search}
-        message={`No remote secrets match "${query}".`}
+        message={t("pages.importfromvaultdialog.no_remote_secrets_match.attr_message", {
+          defaultValue: "No remote secrets match \"{{query}}\".",
+          query,
+        })}
       />
     );
   }
   return (
     <EmptyState
       icon={Database}
-      message="No secrets visible to this vault."
+      message={t("pages.importfromvaultdialog.no_secrets_visible_to_this.attr_message", { defaultValue: "No secrets visible to this vault." })}
     />
   );
 }
@@ -1197,7 +1212,7 @@ const { t } = useTranslation();
       <div className="flex min-h-0 flex-1 items-center justify-center p-6">
         <EmptyState
           icon={Info}
-          message="No secrets selected. Go back to pick remote secrets to import."
+          message={t("pages.importfromvaultdialog.no_secrets_selected_go_ba.attr_message", { defaultValue: "No secrets selected. Go back to pick remote secrets to import." })}
         />
       </div>
     );
@@ -1253,7 +1268,7 @@ const { t } = useTranslation();
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-xs">
-                      <span className="text-muted-foreground">Key</span>
+                      <span className="text-muted-foreground">{t("pages.importfromvaultdialog.key.jsx-text", { defaultValue: "Key" })}</span>
                       <Input
                         value={draft.key}
                         onChange={(e) =>

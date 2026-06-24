@@ -28,6 +28,7 @@ import {
   type Ref,
   type ReactNode,
 } from "react";
+import type { TFunction } from "i18next";
 import { Link, useLocation } from "@/lib/router";
 import { useTranslation } from "@/i18n";
 import type {
@@ -454,30 +455,34 @@ const { t } = useTranslation();
 
   const pauseDetail =
     agent.pauseReason === "budget"
-      ? "It was paused by a budget hard stop."
+      ? t("components.issuechatthread.paused_by_budget_hard_stop.sentence", { defaultValue: "It was paused by a budget hard stop." })
       : agent.pauseReason === "system"
-        ? "It was paused by the system."
-        : "It was paused manually.";
+        ? t("components.issuechatthread.paused_by_system.sentence", { defaultValue: "It was paused by the system." })
+        : t("components.issuechatthread.paused_manually.sentence", { defaultValue: "It was paused manually." });
 
   return (
     <div className="mb-3 rounded-md border border-orange-300/70 bg-orange-50/90 px-3 py-2.5 text-sm text-orange-950 shadow-sm dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-100">
       <div className="flex items-start gap-2">
         <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 dark:text-orange-300" />
         <p className="min-w-0 leading-5">
-          <span className="font-medium">{agent.name}</span> {t("components.issuechatthread.is_paused_new_runs_will_not_star.jsx-text", { defaultValue: " is paused. New runs will not start until the agent is resumed. " })}{pauseDetail}
+          <span className="font-medium">{agent.name}</span>{" "}
+          {t("components.issuechatthread.agent_paused_notice.body", {
+            pauseDetail,
+            defaultValue: "is paused. New runs will not start until the agent is resumed. {{pauseDetail}}",
+          })}
         </p>
       </div>
     </div>
   );
 }
 
-function fallbackAuthorLabel(message: ThreadMessage) {
+function fallbackAuthorLabel(message: ThreadMessage, t: TFunction) {
   const custom = message.metadata?.custom as Record<string, unknown> | undefined;
   if (typeof custom?.["authorName"] === "string") return custom["authorName"];
   if (typeof custom?.["runAgentName"] === "string") return custom["runAgentName"];
-  if (message.role === "assistant") return "Agent";
-  if (message.role === "user") return "You";
-  return "System";
+  if (message.role === "assistant") return t("components.issuechatthread.agent.author_label", { defaultValue: "Agent" });
+  if (message.role === "user") return t("components.issuechatthread.you.author_label", { defaultValue: "You" });
+  return t("components.issuechatthread.system.author_label", { defaultValue: "System" });
 }
 
 function fallbackTextParts(message: ThreadMessage) {
@@ -542,7 +547,7 @@ const { t } = useTranslation();
             return (
               <div key={message.id} className="rounded-xl border border-border/60 bg-card/70 px-4 py-3">
                 <div className="mb-2 flex items-center gap-2 text-sm">
-                  <span className="font-medium text-foreground">{fallbackAuthorLabel(message)}</span>
+                  <span className="font-medium text-foreground">{fallbackAuthorLabel(message, t)}</span>
                   {message.createdAt ? (
                     <span className="text-[11px] text-muted-foreground">
                       {commentDateLabel(message.createdAt)}
@@ -712,8 +717,8 @@ const { t } = useTranslation();
   );
 }
 
-function humanizeValue(value: string | null) {
-  if (!value) return "None";
+function humanizeValue(value: string | null, t: TFunction) {
+  if (!value) return t("components.issuechatthread.none.value_label", { defaultValue: "None" });
   return value.replace(/_/g, " ");
 }
 
@@ -722,14 +727,17 @@ function formatTimelineAssigneeLabel(
   agentMap?: Map<string, Agent>,
   currentUserId?: string | null,
   userLabelMap?: ReadonlyMap<string, string> | null,
+  t?: TFunction,
 ) {
   if (assignee.agentId) {
     return agentMap?.get(assignee.agentId)?.name ?? assignee.agentId.slice(0, 8);
   }
   if (assignee.userId) {
-    return formatAssigneeUserLabel(assignee.userId, currentUserId, userLabelMap) ?? "Board";
+    return formatAssigneeUserLabel(assignee.userId, currentUserId, userLabelMap)
+      ?? t?.("components.issuechatthread.board.actor_label", { defaultValue: "Board" })
+      ?? "Board";
   }
-  return "Unassigned";
+  return t?.("components.issuechatthread.unassigned.assignee_label", { defaultValue: "Unassigned" }) ?? "Unassigned";
 }
 
 function initialsForName(name: string) {
@@ -746,15 +754,17 @@ function formatInteractionActorLabel(args: {
   agentMap?: Map<string, Agent>;
   currentUserId?: string | null;
   userLabelMap?: ReadonlyMap<string, string> | null;
+  t?: TFunction;
 }) {
-  const { agentId, userId, agentMap, currentUserId, userLabelMap } = args;
+  const { agentId, userId, agentMap, currentUserId, userLabelMap, t } = args;
   if (agentId) return agentMap?.get(agentId)?.name ?? agentId.slice(0, 8);
   if (userId) {
     return userLabelMap?.get(userId)
       ?? formatAssigneeUserLabel(userId, currentUserId, userLabelMap)
+      ?? t?.("components.issuechatthread.board.actor_label", { defaultValue: "Board" })
       ?? "Board";
   }
-  return "System";
+  return t?.("components.issuechatthread.system.actor_label", { defaultValue: "System" }) ?? "System";
 }
 
 export function resolveIssueChatHumanAuthor(args: {
@@ -807,7 +817,7 @@ function runStatusClass(status: string) {
   }
 }
 
-function toolCountSummary(toolParts: ToolCallMessagePart[]): string | null {
+function toolCountSummary(toolParts: ToolCallMessagePart[], t: ReturnType<typeof useTranslation>["t"]): string | null {
   if (toolParts.length === 0) return null;
   let commands = 0;
   let other = 0;
@@ -816,16 +826,28 @@ function toolCountSummary(toolParts: ToolCallMessagePart[]): string | null {
     else other++;
   }
   const parts: string[] = [];
-  if (commands > 0) parts.push(`ran ${commands} command${commands === 1 ? "" : "s"}`);
-  if (other > 0) parts.push(`called ${other} tool${other === 1 ? "" : "s"}`);
+  if (commands > 0) {
+    parts.push(t("components.issuechatthread.ran_commands", {
+      count: commands,
+      defaultValue: "ran {{count}} command",
+      defaultValue_plural: "ran {{count}} commands",
+    }));
+  }
+  if (other > 0) {
+    parts.push(t("components.issuechatthread.called_tools", {
+      count: other,
+      defaultValue: "called {{count}} tool",
+      defaultValue_plural: "called {{count}} tools",
+    }));
+  }
   return parts.join(", ");
 }
 
-function cleanToolDisplayText(tool: ToolCallMessagePart): string {
-  const name = displayToolName(tool.toolName, tool.args);
+function cleanToolDisplayText(tool: ToolCallMessagePart, t: ReturnType<typeof useTranslation>["t"]): string {
+  const name = displayToolName(tool.toolName, tool.args, t);
   if (isCommandTool(tool.toolName, tool.args)) return name;
   const summary = tool.result === undefined
-    ? summarizeToolInput(tool.toolName, tool.args)
+    ? summarizeToolInput(tool.toolName, tool.args, "comfortable", t)
     : null;
   return summary ? `${name} ${summary}` : name;
 }
@@ -878,18 +900,28 @@ const { t } = useTranslation();
   let headerVerb: string;
   let headerSuffix: string | null = null;
   if (isActive) {
-    headerVerb = "Working";
-    if (liveElapsed) headerSuffix = `for ${liveElapsed}`;
+    headerVerb = t("components.issuechatthread.working", { defaultValue: "Working" });
+    if (liveElapsed) {
+      headerSuffix = t("components.issuechatthread.for_duration", {
+        duration: liveElapsed,
+        defaultValue: "for {{duration}}",
+      });
+    }
   } else if (segmentTiming) {
     const durationMs = segmentTiming.endMs - segmentTiming.startMs;
     const durationText = formatDurationWords(durationMs);
-    headerVerb = "Worked";
-    if (durationText) headerSuffix = `for ${durationText}`;
+    headerVerb = t("components.issuechatthread.worked", { defaultValue: "Worked" });
+    if (durationText) {
+      headerSuffix = t("components.issuechatthread.for_duration", {
+        duration: durationText,
+        defaultValue: "for {{duration}}",
+      });
+    }
   } else {
-    headerVerb = "Worked";
+    headerVerb = t("components.issuechatthread.worked", { defaultValue: "Worked" });
   }
 
-  const toolSummary = toolCountSummary(toolParts);
+  const toolSummary = toolCountSummary(toolParts, t);
   const hasContent = allReasoningText.trim().length > 0 || toolParts.length > 0;
 
   return (
@@ -1008,7 +1040,7 @@ const { t } = useTranslation();
   const latest = toolParts[toolParts.length - 1];
   if (!latest) return null;
 
-  const fullText = cleanToolDisplayText(latest);
+  const fullText = cleanToolDisplayText(latest, t);
 
   const prevRef = useRef(fullText);
   const [ticker, setTicker] = useState<{
@@ -1121,19 +1153,19 @@ const { t } = useTranslation();
       : result === undefined
         ? ""
         : formatToolPayload(result);
-  const inputDetails = describeToolInput(toolName, parsedArgs);
-  const displayName = displayToolName(toolName, parsedArgs);
+  const inputDetails = describeToolInput(toolName, parsedArgs, t);
+  const displayName = displayToolName(toolName, parsedArgs, t);
   const isCommand = isCommandTool(toolName, parsedArgs);
   const summary = isCommand
     ? null
     : result === undefined
-      ? summarizeToolInput(toolName, parsedArgs)
-      : summarizeToolResult(resultText, false);
+      ? summarizeToolInput(toolName, parsedArgs, "comfortable", t)
+      : summarizeToolResult(resultText, false, "comfortable", t);
   const ToolIcon = getToolIcon(toolName);
 
-  const intentDetail = inputDetails.find((d) => d.label === "Intent");
+  const intentDetail = inputDetails.find((d) => d.kind === "intent");
   const title = intentDetail?.value ?? displayName;
-  const nonIntentDetails = inputDetails.filter((d) => d.label !== "Intent");
+  const nonIntentDetails = inputDetails.filter((d) => d.kind !== "intent");
 
   return (
     <div className="flex gap-2 px-1">
@@ -2010,11 +2042,12 @@ const { t } = useTranslation();
     agentMap,
     currentUserId,
     userLabelMap,
+    t,
   });
   const actorIcon = actorAgentId ? agentMap?.get(actorAgentId)?.icon : undefined;
   const isCurrentUser = Boolean(actorUserId && currentUserId && actorUserId === currentUserId);
   const detailsId = anchorId ? `${anchorId}-details` : `${interaction.id}-details`;
-  const summary = buildIssueThreadInteractionSummary(interaction);
+  const summary = buildIssueThreadInteractionSummary(interaction, t);
 
   const rowContent = (
     <div className="min-w-0 flex-1">
@@ -2554,9 +2587,9 @@ const { t } = useTranslation();
           <div className={cn("flex flex-wrap items-center gap-1.5 text-xs", isCurrentUser && "justify-end")}>
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("components.issuechatthread.status.jsx-text", { defaultValue: "\n              Status\n            " })}</span>
-            <span className="text-muted-foreground">{humanizeValue(statusChange.from)}</span>
+            <span className="text-muted-foreground">{humanizeValue(statusChange.from, t)}</span>
             <ArrowRight className="h-3 w-3 text-muted-foreground" />
-            <span className="font-medium text-foreground">{humanizeValue(statusChange.to)}</span>
+            <span className="font-medium text-foreground">{humanizeValue(statusChange.to, t)}</span>
           </div>
         ) : null}
 
@@ -2565,11 +2598,11 @@ const { t } = useTranslation();
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("components.issuechatthread.assignee.jsx-text", { defaultValue: "\n              Assignee\n            " })}</span>
             <span className="text-muted-foreground">
-              {formatTimelineAssigneeLabel(assigneeChange.from, agentMap, currentUserId, userLabelMap)}
+              {formatTimelineAssigneeLabel(assigneeChange.from, agentMap, currentUserId, userLabelMap, t)}
             </span>
             <ArrowRight className="h-3 w-3 text-muted-foreground" />
             <span className="font-medium text-foreground">
-              {formatTimelineAssigneeLabel(assigneeChange.to, agentMap, currentUserId, userLabelMap)}
+              {formatTimelineAssigneeLabel(assigneeChange.to, agentMap, currentUserId, userLabelMap, t)}
             </span>
           </div>
         ) : null}
@@ -3186,7 +3219,7 @@ const { t } = useTranslation();
       </div>
       <div className="min-w-0 rounded-md border border-dashed border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
         <span className="font-medium text-foreground/80">{authorName}</span>
-        <span> {t("components.issuechatthread.deleted_this_comment.jsx-text", { defaultValue: " deleted this comment" })}</span>
+        <span>{" "}{t("components.issuechatthread.deleted_this_comment.jsx-text", { defaultValue: "deleted this comment" })}</span>
         {deletedDateLabel ? <span className="text-xs"> · {deletedDateLabel}</span> : null}
       </div>
     </div>
@@ -3362,8 +3395,8 @@ const { t } = useTranslation();
       && !unassignedConfirmed
     ) {
       toastActions?.pushToast({
-        title: "No assignee selected",
-        body: "Pick an assignee or click Send again to post without one.",
+        title: t("components.issuechatthread.no_assignee_selected.title", { defaultValue: "No assignee selected" }),
+        body: t("components.issuechatthread.pick_assignee_or_send_again.body", { defaultValue: "Pick an assignee or click Send again to post without one." }),
         tone: "warn",
         dedupeKey: `issue-chat-no-assignee:${draftKey ?? ""}`,
       });
@@ -3923,6 +3956,7 @@ const { t } = useTranslation();
         agentMap,
         currentUserId,
         userLabelMap,
+        t,
       }),
     [
       comments,
@@ -3939,6 +3973,7 @@ const { t } = useTranslation();
       agentMap,
       currentUserId,
       userLabelMap,
+      t,
     ],
   );
   const stableMessagesRef = useRef<readonly ThreadMessage[]>([]);
@@ -4376,7 +4411,8 @@ const { t } = useTranslation();
               onClick={handleJumpToLatest}
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("components.issuechatthread.jump_to_latest.jsx-text", { defaultValue: "\n              Jump to latest\n            " })}</button>
+              {t("components.issuechatthread.jump_to_latest.jsx-text", { defaultValue: "Jump to latest" })}
+            </button>
           </div>
         ) : null}
 

@@ -296,7 +296,7 @@ const { t } = useTranslation();
       invalidateIssueDocuments();
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Failed to delete document");
+      setError(err instanceof Error ? err.message : t("components.issuedocumentssection.failed_to_delete_document.error", { defaultValue: "Failed to delete document" }));
     },
   });
 
@@ -313,7 +313,7 @@ const { t } = useTranslation();
       invalidateIssueDocuments();
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Failed to restore document revision");
+      setError(err instanceof Error ? err.message : t("components.issuedocumentssection.failed_to_restore_revision.error", { defaultValue: "Failed to restore document revision" }));
     },
   });
 
@@ -329,7 +329,7 @@ const { t } = useTranslation();
       invalidateIssueDocuments();
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Failed to update document lock");
+      setError(err instanceof Error ? err.message : t("components.issuedocumentssection.failed_to_update_lock.error", { defaultValue: "Failed to update document lock" }));
     },
   });
 
@@ -437,9 +437,9 @@ const { t } = useTranslation();
 
     if (!normalizedKey || !normalizedBody) {
       if (currentDraft.isNew) {
-        setError("Document key and body are required");
+        setError(t("components.issuedocumentssection.key_and_body_required.error", { defaultValue: "Document key and body are required" }));
       } else if (!normalizedBody) {
-        setError("Document body cannot be empty");
+        setError(t("components.issuedocumentssection.body_cannot_be_empty.error", { defaultValue: "Document body cannot be empty" }));
       }
       if (options?.trackAutosave) {
         resetAutosaveState();
@@ -448,7 +448,7 @@ const { t } = useTranslation();
     }
 
     if (!DOCUMENT_KEY_PATTERN.test(normalizedKey)) {
-      setError("Document key must start with a letter or number and use only lowercase letters, numbers, -, or _.");
+      setError(t("components.issuedocumentssection.invalid_document_key.error", { defaultValue: "Document key must start with a letter or number and use only lowercase letters, numbers, -, or _." }));
       if (options?.trackAutosave) {
         resetAutosaveState();
       }
@@ -508,7 +508,7 @@ const { t } = useTranslation();
       return true;
     } catch (err) {
       if (isLockedDocumentError(err)) {
-        setError("Document is locked. Unlock it before editing.");
+        setError(t("components.issuedocumentssection.document_locked.error", { defaultValue: "Document is locked. Unlock it before editing." }));
         resetAutosaveState();
         invalidateIssueDocuments();
         return false;
@@ -533,14 +533,14 @@ const { t } = useTranslation();
           resetAutosaveState();
           return false;
         } catch {
-          setError("Document changed remotely and the latest version could not be loaded");
+          setError(t("components.issuedocumentssection.remote_changed_load_failed.error", { defaultValue: "Document changed remotely and the latest version could not be loaded" }));
           return false;
         }
       }
-      setError(err instanceof Error ? err.message : "Failed to save document");
+      setError(err instanceof Error ? err.message : t("components.issuedocumentssection.failed_to_save_document.error", { defaultValue: "Failed to save document" }));
       return false;
     }
-  }, [documentConflict, invalidateIssueDocuments, issue.id, resetAutosaveState, runSave, sortedDocuments, syncDocumentCaches, upsertDocument]);
+  }, [documentConflict, invalidateIssueDocuments, issue.id, resetAutosaveState, runSave, sortedDocuments, syncDocumentCaches, t, upsertDocument]);
 
   const reloadDocumentFromServer = useCallback((key: string) => {
     if (documentConflict?.key !== key) return;
@@ -598,9 +598,9 @@ const { t } = useTranslation();
         setCopiedDocumentKey((current) => current === key ? null : current);
       }, 1400);
     } catch {
-      setError("Could not copy document");
+      setError(t("components.issuedocumentssection.could_not_copy_document.error", { defaultValue: "Could not copy document" }));
     }
-  }, []);
+  }, [t]);
 
   const getDocumentRevisions = useCallback((key: string) => {
     const cached = queryClient.getQueryData<DocumentRevision[]>(queryKeys.issues.documentRevisions(issue.id, key));
@@ -623,7 +623,7 @@ const { t } = useTranslation();
       return;
     }
     if (documentConflict?.key === doc.key || documentHasUnsavedChanges(doc, draft)) {
-      setError("Save or cancel your local changes before viewing an older revision.");
+      setError(t("components.issuedocumentssection.save_or_cancel_before_revision.error", { defaultValue: "Save or cancel your local changes before viewing an older revision." }));
       return;
     }
     resetAutosaveState();
@@ -632,16 +632,16 @@ const { t } = useTranslation();
     setFoldedDocumentKeys((current) => current.filter((entry) => entry !== doc.key));
     setSelectedRevisionIds((current) => ({ ...current, [doc.key]: selectedRevision.id }));
     setError(null);
-  }, [documentConflict, draft, getDocumentRevisions, resetAutosaveState, returnToLatestRevision]);
+  }, [documentConflict, draft, getDocumentRevisions, resetAutosaveState, returnToLatestRevision, t]);
 
   const toggleDocumentLock = useCallback((doc: IssueDocument, locked: boolean) => {
     if (!canManageDocumentLocks || setDocumentLock.isPending) return;
     if (locked && (documentConflict?.key === doc.key || documentHasUnsavedChanges(doc, draft))) {
-      setError("Save or cancel local changes before changing the document lock.");
+      setError(t("components.issuedocumentssection.save_or_cancel_before_lock.error", { defaultValue: "Save or cancel local changes before changing the document lock." }));
       return;
     }
     setDocumentLock.mutate({ key: doc.key, locked });
-  }, [canManageDocumentLocks, documentConflict, draft, setDocumentLock]);
+  }, [canManageDocumentLocks, documentConflict, draft, setDocumentLock, t]);
 
   const handleDraftBlur = async (event: React.FocusEvent<HTMLDivElement>) => {
     if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;

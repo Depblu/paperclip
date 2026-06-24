@@ -266,11 +266,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/instance/settings/general" },
-      { label: "Adapters" },
+      { label: selectedCompany?.name ?? t("pages.adaptermanager.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.adaptermanager.settings.breadcrumb", { defaultValue: "Settings" }), href: "/instance/settings/general" },
+      { label: t("pages.adaptermanager.adapters.breadcrumb", { defaultValue: "Adapters" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const { data: adapters, isLoading } = useQuery({
     queryKey: queryKeys.adapters.all,
@@ -291,13 +291,17 @@ const { t } = useTranslation();
       setInstallVersion("");
       setIsLocalPath(false);
       pushToast({
-        title: "Adapter installed",
-        body: `Type "${result.type}" registered successfully.${result.version ? ` (v${result.version})` : ""}`,
+        title: t("pages.adaptermanager.adapter_installed.title", { defaultValue: "Adapter installed" }),
+        body: t("pages.adaptermanager.adapter_registered.body", {
+          defaultValue: "Type \"{{type}}\" registered successfully.{{version}}",
+          type: result.type,
+          version: result.version ? ` (v${result.version})` : "",
+        }),
         tone: "success",
       });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Install failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.install_failed.title", { defaultValue: "Install failed" }), body: err.message, tone: "error" });
     },
   });
 
@@ -305,10 +309,10 @@ const { t } = useTranslation();
     mutationFn: (type: string) => adaptersApi.remove(type),
     onSuccess: () => {
       invalidate();
-      pushToast({ title: "Adapter removed", tone: "success" });
+      pushToast({ title: t("pages.adaptermanager.adapter_removed.title", { defaultValue: "Adapter removed" }), tone: "success" });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Removal failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.removal_failed.title", { defaultValue: "Removal failed" }), body: err.message, tone: "error" });
     },
   });
 
@@ -319,7 +323,7 @@ const { t } = useTranslation();
       invalidate();
     },
     onError: (err: Error) => {
-      pushToast({ title: "Toggle failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.toggle_failed.title", { defaultValue: "Toggle failed" }), body: err.message, tone: "error" });
     },
   });
 
@@ -330,7 +334,7 @@ const { t } = useTranslation();
       invalidate();
     },
     onError: (err: Error) => {
-      pushToast({ title: "Override toggle failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.override_toggle_failed.title", { defaultValue: "Override toggle failed" }), body: err.message, tone: "error" });
     },
   });
 
@@ -341,13 +345,17 @@ const { t } = useTranslation();
       invalidateDynamicParser(result.type);
       invalidateConfigSchemaCache(result.type);
       pushToast({
-        title: "Adapter reloaded",
-        body: `Type "${result.type}" reloaded.${result.version ? ` (v${result.version})` : ""}`,
+        title: t("pages.adaptermanager.adapter_reloaded.title", { defaultValue: "Adapter reloaded" }),
+        body: t("pages.adaptermanager.adapter_reloaded.body", {
+          defaultValue: "Type \"{{type}}\" reloaded.{{version}}",
+          type: result.type,
+          version: result.version ? ` (v${result.version})` : "",
+        }),
         tone: "success",
       });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Reload failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.reload_failed.title", { defaultValue: "Reload failed" }), body: err.message, tone: "error" });
     },
   });
 
@@ -358,13 +366,17 @@ const { t } = useTranslation();
       invalidateDynamicParser(result.type);
       invalidateConfigSchemaCache(result.type);
       pushToast({
-        title: "Adapter reinstalled",
-        body: `Type "${result.type}" updated from npm.${result.version ? ` (v${result.version})` : ""}`,
+        title: t("pages.adaptermanager.adapter_reinstalled.title", { defaultValue: "Adapter reinstalled" }),
+        body: t("pages.adaptermanager.adapter_reinstalled.body", {
+          defaultValue: "Type \"{{type}}\" updated from npm.{{version}}",
+          type: result.type,
+          version: result.version ? ` (v${result.version})` : "",
+        }),
         tone: "success",
       });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Reinstall failed", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.adaptermanager.reinstall_failed.title", { defaultValue: "Reinstall failed" }), body: err.message, tone: "error" });
     },
   });
 

@@ -1,4 +1,5 @@
 import type { Agent } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 import type { CompanyUserProfile } from "./company-members";
 
 type ActivityDetails = Record<string, unknown> | null | undefined;
@@ -19,6 +20,7 @@ interface ActivityFormatOptions {
   agentMap?: Map<string, Agent>;
   userProfileMap?: Map<string, CompanyUserProfile>;
   currentUserId?: string | null;
+  t?: typeof translate;
 }
 
 const ACTIVITY_ROW_VERBS: Record<string, string> = {
@@ -161,12 +163,27 @@ function readIssueReferences(details: ActivityDetails, key: string): ActivityIss
   return value.filter(isActivityIssueReference);
 }
 
+function activityKey(prefix: string, action: string) {
+  return `${prefix}.${action.replace(/[^a-zA-Z0-9]+/g, "_")}`;
+}
+
+function translateActivityRowVerb(action: string, options: ActivityFormatOptions) {
+  const fallback = ACTIVITY_ROW_VERBS[action];
+  return fallback ? (options.t ?? translate)(activityKey("lib.activityformat.row", action), { defaultValue: fallback }) : null;
+}
+
+function translateIssueActivityLabel(action: string, options: ActivityFormatOptions) {
+  const fallback = ISSUE_ACTIVITY_LABELS[action];
+  return fallback ? (options.t ?? translate)(activityKey("lib.activityformat.issue", action), { defaultValue: fallback }) : null;
+}
+
 function formatUserLabel(userId: string | null | undefined, options: ActivityFormatOptions = {}): string {
-  if (!userId || userId === "local-board") return "Board";
-  if (options.currentUserId && userId === options.currentUserId) return "You";
+  const t = options.t ?? translate;
+  if (!userId || userId === "local-board") return t("lib.activityformat.board", { defaultValue: "Board" });
+  if (options.currentUserId && userId === options.currentUserId) return t("lib.activityformat.you", { defaultValue: "You" });
   const profile = options.userProfileMap?.get(userId);
   if (profile) return profile.label;
-  return `user ${userId.slice(0, 5)}`;
+  return t("lib.activityformat.user_short", { id: userId.slice(0, 5), defaultValue: "user {{id}}" });
 }
 
 function formatParticipantLabel(participant: ActivityParticipant, options: ActivityFormatOptions): string {
@@ -344,7 +361,7 @@ export function formatActivityVerb(
   });
   if (structuredChange) return structuredChange;
 
-  return ACTIVITY_ROW_VERBS[action] ?? action.replace(/[._]/g, " ");
+  return translateActivityRowVerb(action, options) ?? action.replace(/[._]/g, " ");
 }
 
 export function formatIssueActivityAction(
@@ -374,8 +391,14 @@ export function formatIssueActivityAction(
     const serviceName = typeof details.serviceName === "string" && details.serviceName.trim()
       ? details.serviceName.trim()
       : null;
-    const base = ISSUE_ACTIVITY_LABELS[action] ?? action.replace(/[._]/g, " ");
-    return serviceName ? `${base} for ${serviceName}` : base;
+    const base = translateIssueActivityLabel(action, options) ?? action.replace(/[._]/g, " ");
+    return serviceName
+      ? (options.t ?? translate)("lib.activityformat.action_for_service", {
+        action: base,
+        serviceName,
+        defaultValue: "{{action}} for {{serviceName}}",
+      })
+      : base;
   }
 
   if (
@@ -390,8 +413,8 @@ export function formatIssueActivityAction(
   ) {
     const key = typeof details.key === "string" ? details.key : "document";
     const title = typeof details.title === "string" && details.title ? ` (${details.title})` : "";
-    return `${ISSUE_ACTIVITY_LABELS[action] ?? action} ${key}${title}`;
+    return `${translateIssueActivityLabel(action, options) ?? action} ${key}${title}`;
   }
 
-  return ISSUE_ACTIVITY_LABELS[action] ?? action.replace(/[._]/g, " ");
+  return translateIssueActivityLabel(action, options) ?? action.replace(/[._]/g, " ");
 }

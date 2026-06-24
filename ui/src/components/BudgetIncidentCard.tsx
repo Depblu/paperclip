@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import type { BudgetIncident } from "@paperclipai/shared";
 import { AlertOctagon, ArrowUpRight, PauseCircle } from "lucide-react";
 import { formatCents } from "../lib/utils";
@@ -18,12 +19,12 @@ function parseDollarInput(value: string) {
   return Math.round(parsed * 100);
 }
 
-function incidentStateLabel(incident: BudgetIncident) {
-  if (incident.status === "resolved") return "Resolved";
-  if (incident.status === "dismissed") return "Dismissed";
-  if (incident.approvalStatus === "revision_requested") return "Escalated";
-  if (incident.approvalStatus === "pending") return "Pending approval";
-  return "Open";
+function incidentStateLabel(incident: BudgetIncident, t: TFunction) {
+  if (incident.status === "resolved") return t("components.budgetincidentcard.resolved.status_label", { defaultValue: "Resolved" });
+  if (incident.status === "dismissed") return t("components.budgetincidentcard.dismissed.status_label", { defaultValue: "Dismissed" });
+  if (incident.approvalStatus === "revision_requested") return t("components.budgetincidentcard.escalated.status_label", { defaultValue: "Escalated" });
+  if (incident.approvalStatus === "pending") return t("components.budgetincidentcard.pending_approval.status_label", { defaultValue: "Pending approval" });
+  return t("components.budgetincidentcard.open.status_label", { defaultValue: "Open" });
 }
 
 export function BudgetIncidentCard({
@@ -43,7 +44,7 @@ const { t } = useTranslation();
     centsInputValue(Math.max(incident.amountObserved + 1000, incident.amountLimit)),
   );
   const parsed = parseDollarInput(draftAmount);
-  const stateLabel = incidentStateLabel(incident);
+  const stateLabel = incidentStateLabel(incident, t);
 
   return (
     <Card className="overflow-hidden border-red-500/20 bg-[linear-gradient(180deg,rgba(255,70,70,0.10),rgba(255,255,255,0.02))]">

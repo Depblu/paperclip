@@ -36,10 +36,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings" },
-      { label: "Heartbeats" },
+      { label: t("pages.instancesettings.instance_settings.breadcrumb", { defaultValue: "Instance Settings" }) },
+      { label: t("pages.instancesettings.heartbeats.breadcrumb", { defaultValue: "Heartbeats" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const heartbeatsQuery = useQuery({
     queryKey: queryKeys.instance.schedulerHeartbeats,
@@ -76,7 +76,7 @@ const { t } = useTranslation();
       ]);
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to update heartbeat.");
+      setActionError(error instanceof Error ? error.message : t("pages.instancesettings.failed_to_update_heartbeat.error", { defaultValue: "Failed to update heartbeat." }));
     },
   });
 
@@ -106,11 +106,19 @@ const { t } = useTranslation();
       const failures = results.filter((result): result is PromiseRejectedResult => result.status === "rejected");
       if (failures.length > 0) {
         const firstError = failures[0]?.reason;
-        const detail = firstError instanceof Error ? firstError.message : "Unknown error";
+        const detail = firstError instanceof Error ? firstError.message : t("common.unknown_error", { defaultValue: "Unknown error" });
         throw new Error(
           failures.length === 1
-            ? `Failed to disable 1 timer heartbeat: ${detail}`
-            : `Failed to disable ${failures.length} of ${enabled.length} timer heartbeats. First error: ${detail}`,
+            ? t("pages.instancesettings.failed_to_disable_one_timer_heartbeat.error", {
+              detail,
+              defaultValue: "Failed to disable 1 timer heartbeat: {{detail}}",
+            })
+            : t("pages.instancesettings.failed_to_disable_timer_heartbeats.error", {
+              failures: failures.length,
+              total: enabled.length,
+              detail,
+              defaultValue: "Failed to disable {{failures}} of {{total}} timer heartbeats. First error: {{detail}}",
+            }),
         );
       }
       return enabled;
@@ -209,7 +217,7 @@ const { t } = useTranslation();
       {agents.length === 0 ? (
         <EmptyState
           icon={Clock3}
-          message="No scheduler heartbeats match the current criteria."
+          message={t("pages.instancesettings.no_scheduler_heartbeats_match.jsx-text", { defaultValue: "No scheduler heartbeats match the current criteria." })}
         />
       ) : (
         <div className="space-y-4">

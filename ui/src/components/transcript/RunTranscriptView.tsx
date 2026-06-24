@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import type { TranscriptEntry } from "../../adapters";
 import { MarkdownBody } from "../MarkdownBody";
 import { cn, formatTokens } from "../../lib/utils";
@@ -21,6 +21,7 @@ const RAW_VIRTUALIZATION_THRESHOLD = 300;
 const RAW_OVERSCAN_ROWS = 40;
 const RAW_ESTIMATED_ROW_HEIGHT = 36;
 const RAW_INITIAL_ROWS = 180;
+type TranslateFn = typeof translate;
 
 interface RunTranscriptViewProps {
   entries: TranscriptEntry[];
@@ -206,7 +207,7 @@ function summarizeRecord(record: Record<string, unknown>, keys: string[]): strin
   return null;
 }
 
-function summarizeToolInput(name: string, input: unknown, density: TranscriptDensity): string {
+function summarizeToolInput(name: string, input: unknown, density: TranscriptDensity, t: TranslateFn = translate): string {
   const compactMax = density === "compact" ? 72 : 120;
   if (typeof input === "string") {
     const normalized = isCommandTool(name, input) ? stripWrappedShell(input) : compactWhitespace(input);
@@ -215,7 +216,9 @@ function summarizeToolInput(name: string, input: unknown, density: TranscriptDen
   const record = asRecord(input);
   if (!record) {
     const serialized = compactWhitespace(formatUnknown(input));
-    return serialized ? truncate(serialized, compactMax) : `Inspect ${name} input`;
+    return serialized
+      ? truncate(serialized, compactMax)
+      : t("components.runtranscriptview.inspect_tool_input.summary", { name, defaultValue: "Inspect {{name}} input" });
   }
 
   const command = typeof record.command === "string"
@@ -236,14 +239,27 @@ function summarizeToolInput(name: string, input: unknown, density: TranscriptDen
   if (Array.isArray(record.paths) && record.paths.length > 0) {
     const first = record.paths.find((value): value is string => typeof value === "string" && value.trim().length > 0);
     if (first) {
-      return truncate(`${record.paths.length} paths, starting with ${first}`, compactMax);
+      return truncate(t("components.runtranscriptview.paths_starting_with.summary", {
+        count: record.paths.length,
+        first,
+        defaultValue: "{{count}} paths, starting with {{first}}",
+      }), compactMax);
     }
   }
 
   const keys = Object.keys(record);
-  if (keys.length === 0) return `No ${name} input`;
-  if (keys.length === 1) return truncate(`${keys[0]} payload`, compactMax);
-  return truncate(`${keys.length} fields: ${keys.slice(0, 3).join(", ")}`, compactMax);
+  if (keys.length === 0) return t("components.runtranscriptview.no_tool_input.summary", { name, defaultValue: "No {{name}} input" });
+  if (keys.length === 1) {
+    return truncate(t("components.runtranscriptview.single_payload.summary", {
+      key: keys[0],
+      defaultValue: "{{key}} payload",
+    }), compactMax);
+  }
+  return truncate(t("components.runtranscriptview.fields_summary.summary", {
+    count: keys.length,
+    fields: keys.slice(0, 3).join(", "),
+    defaultValue: "{{count}} fields: {{fields}}",
+  }), compactMax);
 }
 
 function parseStructuredToolResult(result: string | undefined) {
@@ -284,21 +300,30 @@ function isCommandTool(name: string, input: unknown): boolean {
   return Boolean(record && (typeof record.command === "string" || typeof record.cmd === "string"));
 }
 
-function displayToolName(name: string, input: unknown): string {
-  if (isCommandTool(name, input)) return "Executing command";
+function displayToolName(name: string, input: unknown, t: TranslateFn = translate): string {
+  if (isCommandTool(name, input)) return t("components.runtranscriptview.executing_command.tool_label", { defaultValue: "Executing command" });
   return humanizeLabel(name);
 }
 
-function summarizeToolResult(result: string | undefined, isError: boolean | undefined, density: TranscriptDensity): string {
-  if (!result) return isError ? "Tool failed" : "Waiting for result";
+function summarizeToolResult(result: string | undefined, isError: boolean | undefined, density: TranscriptDensity, t: TranslateFn = translate): string {
+  if (!result) {
+    return isError
+      ? t("components.runtranscriptview.tool_failed.summary", { defaultValue: "Tool failed" })
+      : t("components.runtranscriptview.waiting_for_result.summary", { defaultValue: "Waiting for result" });
+  }
   const structured = parseStructuredToolResult(result);
   if (structured) {
     if (structured.body) {
       return truncate(structured.body.split("\n")[0] ?? structured.body, density === "compact" ? 84 : 140);
     }
-    if (structured.status === "completed") return "Completed";
+    if (structured.status === "completed") return t("components.runtranscriptview.completed.summary", { defaultValue: "Completed" });
     if (structured.status === "failed" || structured.status === "error") {
-      return structured.exitCode ? `Failed with exit code ${structured.exitCode}` : "Failed";
+      return structured.exitCode
+        ? t("components.runtranscriptview.failed_with_exit_code.summary", {
+          defaultValue: "Failed with exit code {{code}}",
+          code: structured.exitCode,
+        })
+        : t("components.runtranscriptview.failed.summary", { defaultValue: "Failed" });
     }
   }
   const lines = result
@@ -410,7 +435,7 @@ function groupToolBlocks(blocks: TranscriptBlock[]): TranscriptBlock[] {
   return grouped;
 }
 
-export function normalizeTranscript(entries: TranscriptEntry[], streaming: boolean): TranscriptBlock[] {
+export function normalizeTranscript(entries: TranscriptEntry[], streaming: boolean, t: TranslateFn = translate): TranscriptBlock[] {
   const blocks: TranscriptBlock[] = [];
   const pendingToolBlocks = new Map<string, Extract<TranscriptBlock, { type: "tool" }>>();
   const pendingActivityBlocks = new Map<string, Extract<TranscriptBlock, { type: "activity" }>>();
@@ -513,7 +538,9 @@ export function normalizeTranscript(entries: TranscriptEntry[], streaming: boole
         ts: entry.ts,
         label: "result",
         tone: entry.isError ? "error" : "info",
-        text: entry.text.trim() || entry.errors[0] || (entry.isError ? "Run failed" : "Completed"),
+        text: entry.text.trim() || entry.errors[0] || (entry.isError
+          ? t("components.runtranscriptview.run_failed.summary", { defaultValue: "Run failed" })
+          : t("components.runtranscriptview.completed.summary", { defaultValue: "Completed" })),
         detail:
           !entry.isError && entry.text.trim().length > 0
             ? `${formatTokens(entry.inputTokens)} / ${formatTokens(entry.outputTokens)} / $${entry.costUsd.toFixed(6)}`
@@ -712,10 +739,10 @@ const { t } = useTranslation();
   const parsedResult = parseStructuredToolResult(block.result);
   const statusLabel =
     block.status === "running"
-      ? "Running"
+      ? t("components.runtranscriptview.running.status_label", { defaultValue: "Running" })
       : block.status === "error"
-        ? "Errored"
-        : "Completed";
+        ? t("components.runtranscriptview.errored.status_label", { defaultValue: "Errored" })
+        : t("components.runtranscriptview.completed.status_label", { defaultValue: "Completed" });
   const statusTone =
     block.status === "running"
       ? "text-cyan-700 dark:text-cyan-300"
@@ -735,10 +762,10 @@ const { t } = useTranslation();
         : "text-cyan-600 dark:text-cyan-300",
   );
   const summary = block.status === "running"
-    ? summarizeToolInput(block.name, block.input, density)
+    ? summarizeToolInput(block.name, block.input, density, t)
     : block.status === "completed" && parsedResult?.body
       ? truncate(parsedResult.body.split("\n")[0] ?? parsedResult.body, compact ? 84 : 140)
-      : summarizeToolResult(block.result, block.isError, density);
+      : summarizeToolResult(block.result, block.isError, density, t);
 
   return (
     <div className={cn(block.status === "error" && "rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3")}>
@@ -767,7 +794,9 @@ const { t } = useTranslation();
           type="button"
           className="mt-0.5 inline-flex h-5 w-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
           onClick={() => setOpen((value) => !value)}
-          aria-label={open ? "Collapse tool details" : "Expand tool details"}
+          aria-label={open
+            ? t("components.runtranscriptview.collapse_tool_details.attr_aria-label", { defaultValue: "Collapse tool details" })
+            : t("components.runtranscriptview.expand_tool_details.attr_aria-label", { defaultValue: "Expand tool details" })}
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -790,7 +819,9 @@ const { t } = useTranslation();
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
                   block.status === "error" ? "text-red-700 dark:text-red-300" : "text-foreground/80",
                 )}>
-                  {block.result ? formatToolPayload(block.result) : "Waiting for result..."}
+                  {block.result
+                    ? formatToolPayload(block.result)
+                    : t("components.runtranscriptview.waiting_for_result_ellipsis.summary", { defaultValue: "Waiting for result..." })}
                 </pre>
               </div>
             </div>
@@ -823,12 +854,15 @@ const { t } = useTranslation();
   const isRunning = Boolean(runningItem);
   const showExpandedErrorState = open && hasError;
   const title = isRunning
-    ? "Executing command"
+    ? t("components.runtranscriptview.executing_command.title", { defaultValue: "Executing command" })
     : block.items.length === 1
-      ? "Executed command"
-      : `Executed ${block.items.length} commands`;
+      ? t("components.runtranscriptview.executed_command.title", { defaultValue: "Executed command" })
+      : t("components.runtranscriptview.executed_commands.title", {
+        count: block.items.length,
+        defaultValue: "Executed {{count}} commands",
+      });
   const subtitle = runningItem
-    ? summarizeToolInput("command_execution", runningItem.input, density)
+    ? summarizeToolInput("command_execution", runningItem.input, density, t)
     : null;
   const statusTone = isRunning
       ? "text-cyan-700 dark:text-cyan-300"
@@ -892,7 +926,9 @@ const { t } = useTranslation();
             event.stopPropagation();
             setOpen((value) => !value);
           }}
-          aria-label={open ? "Collapse command details" : "Expand command details"}
+          aria-label={open
+            ? t("components.runtranscriptview.collapse_command_details.attr_aria-label", { defaultValue: "Collapse command details" })
+            : t("components.runtranscriptview.expand_command_details.attr_aria-label", { defaultValue: "Expand command details" })}
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -913,7 +949,7 @@ const { t } = useTranslation();
                   <TerminalSquare className="h-3 w-3" />
                 </span>
                 <span className={cn("font-mono break-all", compact ? "text-[11px]" : "text-xs")}>
-                  {summarizeToolInput("command_execution", item.input, density)}
+                  {summarizeToolInput("command_execution", item.input, density, t)}
                 </span>
               </div>
               {item.result && (
@@ -950,14 +986,21 @@ const { t } = useTranslation();
   const toolLabel =
     uniqueNames.length === 1
       ? humanizeLabel(uniqueNames[0])
-      : `${uniqueNames.length} tools`;
+      : t("components.runtranscriptview.tools_count.label", {
+        count: uniqueNames.length,
+        defaultValue: "{{count}} tools",
+      });
   const title = isRunning
-    ? `Using ${toolLabel}`
+    ? t("components.runtranscriptview.using_tool.title", { tool: toolLabel, defaultValue: "Using {{tool}}" })
     : block.items.length === 1
-      ? `Used ${toolLabel}`
-      : `Used ${toolLabel} (${block.items.length} calls)`;
+      ? t("components.runtranscriptview.used_tool.title", { tool: toolLabel, defaultValue: "Used {{tool}}" })
+      : t("components.runtranscriptview.used_tool_calls.title", {
+        tool: toolLabel,
+        count: block.items.length,
+        defaultValue: "Used {{tool}} ({{count}} calls)",
+      });
   const subtitle = runningItem
-    ? summarizeToolInput(runningItem.name, runningItem.input, density)
+    ? summarizeToolInput(runningItem.name, runningItem.input, density, t)
     : null;
   const statusTone = isRunning
     ? "text-cyan-700 dark:text-cyan-300"
@@ -1009,7 +1052,9 @@ const { t } = useTranslation();
           type="button"
           className={cn("inline-flex h-5 w-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground", subtitle && "mt-0.5")}
           onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
-          aria-label={open ? "Collapse tool details" : "Expand tool details"}
+          aria-label={open
+            ? t("components.runtranscriptview.collapse_tool_details.attr_aria-label", { defaultValue: "Collapse tool details" })
+            : t("components.runtranscriptview.expand_tool_details.attr_aria-label", { defaultValue: "Expand tool details" })}
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -1037,7 +1082,11 @@ const { t } = useTranslation();
                   : item.status === "error" ? "text-red-700 dark:text-red-300"
                   : "text-emerald-700 dark:text-emerald-300"
                 )}>
-                  {item.status === "running" ? "Running" : item.status === "error" ? "Errored" : "Completed"}
+                  {item.status === "running"
+                    ? t("components.runtranscriptview.running.status_label", { defaultValue: "Running" })
+                    : item.status === "error"
+                      ? t("components.runtranscriptview.errored.status_label", { defaultValue: "Errored" })
+                      : t("components.runtranscriptview.completed.status_label", { defaultValue: "Completed" })}
                 </span>
               </div>
               <div className={cn("grid gap-2 pl-7", compact ? "grid-cols-1" : "lg:grid-cols-2")}>
@@ -1353,7 +1402,9 @@ const { t } = useTranslation();
           type="button"
           className="inline-flex h-5 w-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
           onClick={() => setOpen((value) => !value)}
-          aria-label={open ? "Collapse stdout" : "Expand stdout"}
+          aria-label={open
+            ? t("components.runtranscriptview.collapse_stdout.attr_aria-label", { defaultValue: "Collapse stdout" })
+            : t("components.runtranscriptview.expand_stdout.attr_aria-label", { defaultValue: "Expand stdout" })}
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -1490,15 +1541,16 @@ export function RunTranscriptView({
   limit,
   streaming = false,
   collapseStdout = false,
-  emptyMessage = "No transcript yet.",
+  emptyMessage,
   className,
   thinkingClassName,
 }: RunTranscriptViewProps) {
 const { t } = useTranslation();
+  const resolvedEmptyMessage = emptyMessage ?? t("components.runtranscriptview.no_transcript_yet.empty", { defaultValue: "No transcript yet." });
 
   const blocks = useMemo(
-    () => (mode === "raw" ? [] : normalizeTranscript(entries, streaming)),
-    [entries, mode, streaming],
+    () => (mode === "raw" ? [] : normalizeTranscript(entries, streaming, t)),
+    [entries, mode, streaming, t],
   );
   const visibleBlocks = limit ? blocks.slice(-limit) : blocks;
   const visibleEntries = limit ? entries.slice(-limit) : entries;
@@ -1506,7 +1558,7 @@ const { t } = useTranslation();
   if (entries.length === 0) {
     return (
       <div className={cn("rounded-2xl border border-dashed border-border/70 bg-background/40 p-4 text-sm text-muted-foreground", className)}>
-        {emptyMessage}
+        {resolvedEmptyMessage}
       </div>
     );
   }

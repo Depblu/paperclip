@@ -127,10 +127,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings" },
-      { label: "Experimental" },
+      { label: t("pages.instanceexperimentalsettings.instance_settings.breadcrumb", { defaultValue: "Instance Settings" }) },
+      { label: t("pages.instanceexperimentalsettings.experimental.breadcrumb", { defaultValue: "Experimental" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const experimentalQuery = useQuery({
     queryKey: queryKeys.instance.experimentalSettings,
@@ -222,7 +222,7 @@ const { t } = useTranslation();
 
   function previewForEnable() {
     if (!lookbackHoursIsValid) {
-      setActionError("Lookback hours must be a whole number from 1 to 720.");
+      setActionError(t("pages.instanceexperimentalsettings.lookback_hours_invalid.error", { defaultValue: "Lookback hours must be a whole number from 1 to 720." }));
       return;
     }
     previewMutation.mutate(parsedLookbackHours);
@@ -411,7 +411,7 @@ const { t } = useTranslation();
                 variant="outline"
                 onClick={() => {
                   if (!lookbackHoursIsValid) {
-                    setActionError("Lookback hours must be a whole number from 1 to 720.");
+                    setActionError(t("pages.instanceexperimentalsettings.lookback_hours_invalid.error", { defaultValue: "Lookback hours must be a whole number from 1 to 720." }));
                     return;
                   }
                   toggleMutation.mutate({
@@ -431,7 +431,7 @@ const { t } = useTranslation();
               <Button
                 onClick={() => {
                   if (!lookbackHoursIsValid) {
-                    setActionError("Lookback hours must be a whole number from 1 to 720.");
+                    setActionError(t("pages.instanceexperimentalsettings.lookback_hours_invalid.error", { defaultValue: "Lookback hours must be a whole number from 1 to 720." }));
                     return;
                   }
                   runRecoveryMutation.mutate(parsedLookbackHours);

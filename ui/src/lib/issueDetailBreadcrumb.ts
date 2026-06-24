@@ -1,4 +1,5 @@
 import type { Issue } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 
 type IssueDetailSource = "issues" | "inbox";
 
@@ -6,6 +7,7 @@ type IssueDetailBreadcrumb = {
   label: string;
   href: string;
 };
+type TranslateFn = typeof translate;
 
 export type IssueDetailHeaderSeed = {
   id: string;
@@ -129,9 +131,11 @@ function inferIssueDetailSource(
   return null;
 }
 
-function breadcrumbForSource(source: IssueDetailSource): IssueDetailBreadcrumb {
-  if (source === "inbox") return { label: "Inbox", href: "/inbox" };
-  return { label: "Tasks", href: "/issues" };
+function breadcrumbForSource(source: IssueDetailSource, t: TranslateFn): IssueDetailBreadcrumb {
+  if (source === "inbox") {
+    return { label: t("lib.issuedetailbreadcrumb.inbox.label", { defaultValue: "Inbox" }), href: "/inbox" };
+  }
+  return { label: t("lib.issuedetailbreadcrumb.tasks.label", { defaultValue: "Tasks" }), href: "/issues" };
 }
 
 export function createIssueDetailLocationState(
@@ -186,6 +190,7 @@ function readStoredIssueDetailLocationState(issuePathId: string): IssueDetailLoc
 function normalizeIssueDetailLocationState(
   state: unknown,
   search?: string,
+  t: TranslateFn = translate,
 ): IssueDetailLocationState | null {
   if (typeof state === "object" && state !== null) {
     const candidate = (state as IssueDetailLocationState).issueDetailBreadcrumb;
@@ -208,7 +213,7 @@ function normalizeIssueDetailLocationState(
   if (!source) return null;
 
   return {
-    issueDetailBreadcrumb: href ? { ...breadcrumbForSource(source), href } : breadcrumbForSource(source),
+    issueDetailBreadcrumb: href ? { ...breadcrumbForSource(source, t), href } : breadcrumbForSource(source, t),
     issueDetailSource: source,
     issueDetailInboxQuickArchiveArmed: false,
   };
@@ -240,8 +245,9 @@ export function readIssueDetailLocationState(
   issuePathId: string | null | undefined,
   state: unknown,
   search?: string,
+  t: TranslateFn = translate,
 ): IssueDetailLocationState | null {
-  const normalized = normalizeIssueDetailLocationState(state, search);
+  const normalized = normalizeIssueDetailLocationState(state, search, t);
   if (normalized) return normalized;
   if (!issuePathId) return null;
   return readStoredIssueDetailLocationState(issuePathId);
@@ -251,8 +257,9 @@ export function readIssueDetailBreadcrumb(
   issuePathId: string | null | undefined,
   state: unknown,
   search?: string,
+  t: TranslateFn = translate,
 ): IssueDetailBreadcrumb | null {
-  return readIssueDetailLocationState(issuePathId, state, search)?.issueDetailBreadcrumb ?? null;
+  return readIssueDetailLocationState(issuePathId, state, search, t)?.issueDetailBreadcrumb ?? null;
 }
 
 export function shouldArmIssueDetailInboxQuickArchive(state: unknown): boolean {

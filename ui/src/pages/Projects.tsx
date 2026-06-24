@@ -26,12 +26,21 @@ import { ArrowUpDown, Check, Hexagon, Plus } from "lucide-react";
 type ProjectSortField = "name" | "updated" | "created" | "targetDate";
 type ProjectSortDir = "asc" | "desc";
 
-const PROJECT_SORT_OPTIONS: Array<{ field: ProjectSortField; label: string }> = [
-  { field: "name", label: "Name" },
-  { field: "updated", label: "Updated" },
-  { field: "created", label: "Created" },
-  { field: "targetDate", label: "Target date" },
+const PROJECT_SORT_OPTIONS: Array<{ field: ProjectSortField }> = [
+  { field: "name" },
+  { field: "updated" },
+  { field: "created" },
+  { field: "targetDate" },
 ];
+
+function projectSortLabel(field: ProjectSortField, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (field) {
+    case "name": return t("pages.projects.name.sort_label", { defaultValue: "Name" });
+    case "updated": return t("pages.projects.updated.sort_label", { defaultValue: "Updated" });
+    case "created": return t("pages.projects.created.sort_label", { defaultValue: "Created" });
+    case "targetDate": return t("pages.projects.target_date.sort_label", { defaultValue: "Target date" });
+  }
+}
 
 function compareProjectNames(left: Project, right: Project) {
   const nameDiff = left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
@@ -84,8 +93,8 @@ const { t } = useTranslation();
   const [sortDir, setSortDir] = useState<ProjectSortDir>("asc");
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Projects" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.projects.projects.breadcrumb", { defaultValue: "Projects" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const { data: allProjects, isLoading, error } = useQuery({
     queryKey: queryKeys.projects.list(selectedCompanyId!),
@@ -116,10 +125,10 @@ const { t } = useTranslation();
 
     return groups;
   }, [membershipsQuery.data, sortedProjects]);
-  const sortLabel = PROJECT_SORT_OPTIONS.find((option) => option.field === sortField)?.label ?? "Name";
+  const sortLabel = projectSortLabel(sortField, t);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Hexagon} message="Select a company to view projects." />;
+    return <EmptyState icon={Hexagon} message={t("pages.projects.select_a_company_to_view_proj.jsx-text", { defaultValue: "Select a company to view projects." })} />;
   }
 
   if (isLoading) {
@@ -156,7 +165,7 @@ const { t } = useTranslation();
                     setSortDir(option.field === "name" || option.field === "targetDate" ? "asc" : "desc");
                   }}
                 >
-                  <span>{option.label}</span>
+                  <span>{projectSortLabel(option.field, t)}</span>
                   {sortField === option.field ? (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Check className="h-3 w-3" />
@@ -178,8 +187,8 @@ const { t } = useTranslation();
       {!isLoading && projects.length === 0 && (
         <EmptyState
           icon={Hexagon}
-          message="No projects yet."
-          action="Add Project"
+          message={t("pages.projects.no_projects_yet.jsx-text", { defaultValue: "No projects yet." })}
+          action={t("pages.projects.add_project_action.jsx-text", { defaultValue: "Add Project" })}
           onAction={openNewProject}
         />
       )}

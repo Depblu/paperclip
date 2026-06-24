@@ -1,14 +1,15 @@
 import { PageTabBar } from "@/components/PageTabBar";
 import { Tabs } from "@/components/ui/tabs";
+import { useTranslation } from "@/i18n";
 import { useLocation, useNavigate } from "@/lib/router";
 
 const items = [
-  { value: "general", label: "General", href: "/company/settings" },
-  { value: "environments", label: "Environments", href: "/company/settings/environments" },
-  { value: "cloud-upstream", label: "Cloud upstream", href: "/company/settings/cloud-upstream" },
-  { value: "members", label: "Members", href: "/company/settings/members" },
-  { value: "invites", label: "Invites", href: "/company/settings/invites" },
-  { value: "secrets", label: "Secrets", href: "/company/settings/secrets" },
+  { value: "general", href: "/company/settings" },
+  { value: "environments", href: "/company/settings/environments" },
+  { value: "cloud-upstream", href: "/company/settings/cloud-upstream" },
+  { value: "members", href: "/company/settings/members" },
+  { value: "invites", href: "/company/settings/invites" },
+  { value: "secrets", href: "/company/settings/secrets" },
 ] as const;
 
 type CompanySettingsTab = (typeof items)[number]["value"];
@@ -38,6 +39,7 @@ export function getCompanySettingsTab(pathname: string): CompanySettingsTab {
 }
 
 export function CompanySettingsNav() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const activeTab = getCompanySettingsTab(location.pathname);
@@ -51,7 +53,22 @@ export function CompanySettingsNav() {
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
       <PageTabBar
-        items={items.map(({ value, label }) => ({ value, label }))}
+        items={items.map(({ value }) => ({
+          value,
+          label: t(`components.companysettingsnav.${value}.label`, {
+            defaultValue: value === "general"
+              ? "General"
+              : value === "environments"
+                ? "Environments"
+                : value === "cloud-upstream"
+                  ? "Cloud upstream"
+                  : value === "members"
+                    ? "Members"
+                    : value === "invites"
+                      ? "Invites"
+                      : "Secrets",
+          }),
+        }))}
         value={activeTab}
         onValueChange={handleTabChange}
         align="start"

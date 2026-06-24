@@ -128,25 +128,25 @@ const { t } = useTranslation();
         <MetricTile
           label={t("pages.costs.debits.attr_label", { defaultValue: "Debits" })}
           value={formatCents(debitCents)}
-          subtitle={`${eventCount} total event${eventCount === 1 ? "" : "s"} in range`}
+          subtitle={t("pages.costs.total_events_in_range.jsx-text", { count: eventCount, defaultValue: "{{count}} total event in range" })}
           icon={ArrowUpRight}
         />
         <MetricTile
           label={t("pages.costs.credits.attr_label", { defaultValue: "Credits" })}
           value={formatCents(creditCents)}
-          subtitle="Refunds, offsets, and credit returns"
+          subtitle={t("pages.costs.refunds_offsets_and_credit_r.jsx-text", { defaultValue: "Refunds, offsets, and credit returns" })}
           icon={ArrowDownLeft}
         />
         <MetricTile
           label={t("pages.costs.net.attr_label", { defaultValue: "Net" })}
           value={formatCents(netCents)}
-          subtitle="Debit minus credit for the selected period"
+          subtitle={t("pages.costs.debit_minus_credit_for_the_s.jsx-text", { defaultValue: "Debit minus credit for the selected period" })}
           icon={ReceiptText}
         />
         <MetricTile
           label={t("pages.costs.estimated.attr_label", { defaultValue: "Estimated" })}
           value={formatCents(estimatedDebitCents)}
-          subtitle="Estimated debits that are not yet invoice-authoritative"
+          subtitle={t("pages.costs.estimated_debits_that_are_no.jsx-text", { defaultValue: "Estimated debits that are not yet invoice-authoritative" })}
           icon={Coins}
         />
       </CardContent>
@@ -178,8 +178,8 @@ const { t } = useTranslation();
   } = useDateRange();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Costs" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.costs.costs.breadcrumb", { defaultValue: "Costs" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const [today, setToday] = useState(() => new Date().toDateString());
   const todayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -539,7 +539,7 @@ const { t } = useTranslation();
   }), [budgetPolicies]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={DollarSign} message="Select a company to view costs." />;
+    return <EmptyState icon={DollarSign} message={t("pages.costs.select_a_company_to_view_costs.jsx-text", { defaultValue: "Select a company to view costs." })} />;
   }
 
   const showCustomPrompt = preset === "custom" && !customReady;
@@ -578,7 +578,7 @@ const { t } = useTranslation();
                 onChange={(event) => setCustomFrom(event.target.value)}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
               />
-              <span className="text-sm text-muted-foreground">to</span>
+              <span className="text-sm text-muted-foreground">{t("pages.costs.to.jsx-text", { defaultValue: "to" })}</span>
               <input
                 type="date"
                 value={customTo}
@@ -592,7 +592,7 @@ const { t } = useTranslation();
             <MetricTile
               label={t("pages.costs.inference_spend.attr_label", { defaultValue: "Inference spend" })}
               value={formatCents(spendData?.summary.spendCents ?? 0)}
-              subtitle={`${formatTokens(inferenceTokenTotal)} tokens across request-scoped events`}
+              subtitle={t("pages.costs.tokens_across_request_scoped.jsx-text", { tokens: formatTokens(inferenceTokenTotal), defaultValue: "{{tokens}} tokens across request-scoped events" })}
               icon={DollarSign}
             />
             <MetricTile
@@ -600,27 +600,27 @@ const { t } = useTranslation();
               value={activeBudgetIncidents.length > 0 ? String(activeBudgetIncidents.length) : (
                 spendData?.summary.budgetCents && spendData.summary.budgetCents > 0
                   ? `${spendData.summary.utilizationPercent}%`
-                  : "Open"
+                  : t("pages.costs.open.jsx-text", { defaultValue: "Open" })
               )}
               subtitle={
                 activeBudgetIncidents.length > 0
-                  ? `${budgetData?.pausedAgentCount ?? 0} agents paused · ${budgetData?.pausedProjectCount ?? 0} projects paused`
+                  ? t("pages.costs.agents_projects_paused.jsx-text", { agents: budgetData?.pausedAgentCount ?? 0, projects: budgetData?.pausedProjectCount ?? 0, defaultValue: "{{agents}} agents paused · {{projects}} projects paused" })
                   : spendData?.summary.budgetCents && spendData.summary.budgetCents > 0
-                    ? `${formatCents(spendData.summary.spendCents)} of ${formatCents(spendData.summary.budgetCents)}`
-                    : "No monthly cap configured"
+                    ? t("pages.costs.spend_of_budget.jsx-text", { spend: formatCents(spendData.summary.spendCents), budget: formatCents(spendData.summary.budgetCents), defaultValue: "{{spend}} of {{budget}}" })
+                    : t("pages.costs.no_monthly_cap_configured.jsx-text", { defaultValue: "No monthly cap configured" })
               }
               icon={Coins}
             />
             <MetricTile
               label={t("pages.costs.finance_net.attr_label", { defaultValue: "Finance net" })}
               value={formatCents(financeData?.summary.netCents ?? 0)}
-              subtitle={`${formatCents(financeData?.summary.debitCents ?? 0)} debits · ${formatCents(financeData?.summary.creditCents ?? 0)} credits`}
+              subtitle={t("pages.costs.debits_credits.jsx-text", { debits: formatCents(financeData?.summary.debitCents ?? 0), credits: formatCents(financeData?.summary.creditCents ?? 0), defaultValue: "{{debits}} debits · {{credits}} credits" })}
               icon={ReceiptText}
             />
             <MetricTile
               label={t("pages.costs.finance_events.attr_label", { defaultValue: "Finance events" })}
               value={String(financeData?.summary.eventCount ?? 0)}
-              subtitle={`${formatCents(financeData?.summary.estimatedDebitCents ?? 0)} estimated in range`}
+              subtitle={t("pages.costs.estimated_in_range.jsx-text", { amount: formatCents(financeData?.summary.estimatedDebitCents ?? 0), defaultValue: "{{amount}} estimated in range" })}
               icon={ArrowUpRight}
             />
           </div>
@@ -678,8 +678,8 @@ const { t } = useTranslation();
                         </div>
                         <div className="mt-1 text-sm text-muted-foreground">
                           {spendData?.summary.budgetCents && spendData.summary.budgetCents > 0
-                            ? `Budget ${formatCents(spendData.summary.budgetCents)}`
-                            : "Unlimited budget"}
+                            ? t("pages.costs.budget_amount.jsx-text", { amount: formatCents(spendData.summary.budgetCents), defaultValue: "Budget {{amount}}" })
+                            : t("pages.costs.unlimited_budget.jsx-text", { defaultValue: "Unlimited budget" })}
                         </div>
                       </div>
                       <div className="border border-border px-4 py-3 text-right">
@@ -830,7 +830,7 @@ const { t } = useTranslation();
                     </CardContent>
                   </Card>
 
-                  <FinanceTimelineCard rows={topFinanceEvents.slice(0, 6)} emptyMessage="No finance events yet. Add account-level charges once biller invoices or credits land." />
+                  <FinanceTimelineCard rows={topFinanceEvents.slice(0, 6)} emptyMessage={t("pages.costs.no_finance_events_yet_add_acco.jsx-text", { defaultValue: "No finance events yet. Add account-level charges once biller invoices or credits land." })} />
                 </div>
               </div>
             </>
@@ -854,25 +854,25 @@ const { t } = useTranslation();
                   <MetricTile
                     label={t("pages.costs.active_incidents.attr_label", { defaultValue: "Active incidents" })}
                     value={String(activeBudgetIncidents.length)}
-                    subtitle="Open soft or hard threshold crossings"
+                    subtitle={t("pages.costs.open_soft_or_hard_threshold.jsx-text", { defaultValue: "Open soft or hard threshold crossings" })}
                     icon={ReceiptText}
                   />
                   <MetricTile
                     label={t("pages.costs.pending_approvals.attr_label", { defaultValue: "Pending approvals" })}
                     value={String(budgetData?.pendingApprovalCount ?? 0)}
-                    subtitle="Budget override approvals awaiting board action"
+                    subtitle={t("pages.costs.budget_override_approvals_awa.jsx-text", { defaultValue: "Budget override approvals awaiting board action" })}
                     icon={ArrowUpRight}
                   />
                   <MetricTile
                     label={t("pages.costs.paused_agents.attr_label", { defaultValue: "Paused agents" })}
                     value={String(budgetData?.pausedAgentCount ?? 0)}
-                    subtitle="Agent heartbeats blocked by budget"
+                    subtitle={t("pages.costs.agent_heartbeats_blocked_by_b.jsx-text", { defaultValue: "Agent heartbeats blocked by budget" })}
                     icon={Coins}
                   />
                   <MetricTile
                     label={t("pages.costs.paused_projects.attr_label", { defaultValue: "Paused projects" })}
                     value={String(budgetData?.pausedProjectCount ?? 0)}
-                    subtitle="Project execution blocked by budget"
+                    subtitle={t("pages.costs.project_execution_blocked_by_.jsx-text", { defaultValue: "Project execution blocked by budget" })}
                     icon={DollarSign}
                   />
                 </CardContent>

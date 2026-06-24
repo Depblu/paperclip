@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import type { DocumentRevision } from "@paperclipai/shared";
 import { issuesApi } from "../api/issues";
@@ -20,13 +20,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function getRevisionLabel(revision: DocumentRevision) {
+type TranslateFn = typeof translate;
+
+function getRevisionLabel(revision: DocumentRevision, t: TranslateFn = translate) {
   const actor = revision.createdByUserId
-    ? "board"
+    ? t("components.documentdiffmodal.actor_board", { defaultValue: "board" })
     : revision.createdByAgentId
-      ? "agent"
-      : "system";
-  return `rev ${revision.revisionNumber} — ${relativeTime(revision.createdAt)} • ${actor}`;
+      ? t("components.documentdiffmodal.actor_agent", { defaultValue: "agent" })
+      : t("components.documentdiffmodal.actor_system", { defaultValue: "system" });
+  return t("components.documentdiffmodal.revision_label", {
+    revisionNumber: revision.revisionNumber,
+    time: relativeTime(revision.createdAt),
+    actor,
+    defaultValue: "rev {{revisionNumber}} — {{time}} • {{actor}}",
+  });
 }
 
 export function DocumentDiffModal({
@@ -109,7 +116,7 @@ const { t } = useTranslation();
                 <SelectContent>
                   {sortedRevisions.map((revision) => (
                     <SelectItem key={revision.id} value={revision.id} className="text-xs">
-                      {getRevisionLabel(revision)}
+                      {getRevisionLabel(revision, t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -127,7 +134,7 @@ const { t } = useTranslation();
                 <SelectContent>
                   {sortedRevisions.map((revision) => (
                     <SelectItem key={revision.id} value={revision.id} className="text-xs">
-                      {getRevisionLabel(revision)}
+                      {getRevisionLabel(revision, t)}
                     </SelectItem>
                   ))}
                 </SelectContent>

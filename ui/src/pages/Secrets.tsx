@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -99,6 +99,8 @@ type ProviderVaultForm = {
   mountPath: string;
   secretPathPrefix: string;
 };
+
+type TranslateFn = typeof translate;
 
 const PROVIDER_ORDER: SecretProvider[] = [
   "local_encrypted",
@@ -206,14 +208,16 @@ function normalizeSecretKeyForPreview(input: string) {
 }
 
 
-function modeLabel(managedMode: SecretManagedMode) {
-  return managedMode === "paperclip_managed" ? "Paperclip-managed" : "Linked external";
+function modeLabel(managedMode: SecretManagedMode, t: TranslateFn = translate) {
+  return managedMode === "paperclip_managed"
+    ? t("pages.secrets.paperclip_managed.mode_label", { defaultValue: "Paperclip-managed" })
+    : t("pages.secrets.linked_external.mode_label", { defaultValue: "Linked external" });
 }
 
-function modeDescription(managedMode: SecretManagedMode) {
+function modeDescription(managedMode: SecretManagedMode, t: TranslateFn = translate) {
   return managedMode === "paperclip_managed"
-    ? "Paperclip owns create and rotation writes for this provider secret."
-    : "Paperclip resolves this provider reference but does not rotate the provider value.";
+    ? t("pages.secrets.paperclip_owns_create_and_rot.text", { defaultValue: "Paperclip owns create and rotation writes for this provider secret." })
+    : t("pages.secrets.paperclip_resolves_this_pro.text", { defaultValue: "Paperclip resolves this provider reference but does not rotate the provider value." });
 }
 
 function healthEntryForProvider(
@@ -227,23 +231,41 @@ export function getCreateProviderBlockReason(
   provider: SecretProviderDescriptor | null | undefined,
   mode: CreateMode,
   health: SecretProviderHealthResponse | null,
+  t: TranslateFn = translate,
 ) {
-  if (!provider) return "Select a provider.";
+  if (!provider) return t("pages.secrets.select_a_provider.block_reason", { defaultValue: "Select a provider." });
   if (mode === "managed" && provider.supportsManagedValues === false) {
-    return `${provider.label} does not support Paperclip-managed secret values.`;
+    return t("pages.secrets.provider_does_not_support_m.block_reason", {
+      defaultValue: "{{provider}} does not support Paperclip-managed secret values.",
+      provider: provider.label,
+    });
   }
   if (mode === "external" && provider.supportsExternalReferences === false) {
-    return `${provider.label} does not support linked external references.`;
+    return t("pages.secrets.provider_does_not_support_l.block_reason", {
+      defaultValue: "{{provider}} does not support linked external references.",
+      provider: provider.label,
+    });
   }
   if (provider.configured === false) {
     const healthEntry = healthEntryForProvider(health, provider.id);
     return healthEntry?.message
-      ? `${provider.label} is not configured in this deployment. ${healthEntry.message}`
-      : `${provider.label} is not configured in this deployment.`;
+      ? t("pages.secrets.provider_is_not_configured_w.block_reason", {
+        defaultValue: "{{provider}} is not configured in this deployment. {{message}}",
+        provider: provider.label,
+        message: healthEntry.message,
+      })
+      : t("pages.secrets.provider_is_not_configured.block_reason", {
+        defaultValue: "{{provider}} is not configured in this deployment.",
+        provider: provider.label,
+      });
   }
   const healthEntry = healthEntryForProvider(health, provider.id);
   if (healthEntry?.status === "error") {
-    return `${provider.label} health check failed: ${healthEntry.message}`;
+    return t("pages.secrets.provider_health_check_failed.block_reason", {
+      defaultValue: "{{provider}} health check failed: {{message}}",
+      provider: provider.label,
+      message: healthEntry.message,
+    });
   }
   return null;
 }
@@ -266,12 +288,17 @@ function detailString(details: Record<string, unknown> | undefined, key: string)
 
 export function getProviderConfigBlockReason(
   config: CompanySecretProviderConfig | null | undefined,
+  t: TranslateFn = translate,
 ) {
   if (!config) return null;
-  if (config.status === "disabled") return "This provider vault is disabled.";
-  if (config.status === "coming_soon") return "This provider vault is saved as draft metadata only.";
+  if (config.status === "disabled") {
+    return t("pages.secrets.this_provider_vault_is_dis.block_reason", { defaultValue: "This provider vault is disabled." });
+  }
+  if (config.status === "coming_soon") {
+    return t("pages.secrets.this_provider_vault_is_sav.block_reason", { defaultValue: "This provider vault is saved as draft metadata only." });
+  }
   if (config.healthStatus === "error") {
-    return config.healthMessage ?? "This provider vault health check failed.";
+    return config.healthMessage ?? t("pages.secrets.this_provider_vault_health.block_reason", { defaultValue: "This provider vault health check failed." });
   }
   return null;
 }
@@ -290,9 +317,10 @@ export function getDefaultProviderConfigId(
   );
 }
 
-function providerVaultLabel(configs: CompanySecretProviderConfig[], id: string | null | undefined) {
-  if (!id) return "Deployment default";
-  return configs.find((config) => config.id === id)?.displayName ?? "Unknown vault";
+function providerVaultLabel(configs: CompanySecretProviderConfig[], id: string | null | undefined, t: TranslateFn) {
+  if (!id) return t("pages.secrets.deployment_default.jsx-text", { defaultValue: "Deployment default" });
+  return configs.find((config) => config.id === id)?.displayName
+    ?? t("pages.secrets.unknown_vault.text", { defaultValue: "Unknown vault" });
 }
 
 function buildProviderVaultConfig(form: ProviderVaultForm): Record<string, unknown> {
@@ -353,7 +381,7 @@ export function getAwsManagedPathPreview(input: {
 }
 
 export function Secrets() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const queryClient = useQueryClient();
   const { selectedCompanyId } = useCompany();
@@ -395,8 +423,8 @@ const { t } = useTranslation();
   const [vaultDiscoveryError, setVaultDiscoveryError] = useState<string | null>(null);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Secrets" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.secrets.secrets.breadcrumb", { defaultValue: "Secrets" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const secretsQuery = useQuery({
     queryKey: selectedCompanyId
@@ -469,8 +497,9 @@ const { t } = useTranslation();
     selectedCreateProvider,
     createMode,
     providerHealthQuery.data ?? null,
-  ) ?? getProviderConfigBlockReason(selectedCreateProviderConfig);
-  const rotateProviderBlockReason = getProviderConfigBlockReason(selectedRotateProviderConfig);
+    t,
+  ) ?? getProviderConfigBlockReason(selectedCreateProviderConfig, t);
+  const rotateProviderBlockReason = getProviderConfigBlockReason(selectedRotateProviderConfig, t);
   const createProviderHealthText = providerHealthText(
     selectedCreateProvider,
     providerHealthQuery.data ?? null,
@@ -547,7 +576,7 @@ const { t } = useTranslation();
       return secretsApi.create(selectedCompanyId!, input);
     },
     onSuccess: (created) => {
-      pushToast({ title: "Secret created", body: created.name, tone: "success" });
+      pushToast({ title: t("pages.secrets.secret_created.title", { defaultValue: "Secret created" }), body: created.name, tone: "success" });
       setCreateOpen(false);
       setCreateForm({
         name: "",
@@ -569,7 +598,7 @@ const { t } = useTranslation();
 
   const rotateMutation = useMutation({
     mutationFn: () => {
-      if (!selectedSecret) throw new Error("Select a secret first");
+      if (!selectedSecret) throw new Error(t("pages.secrets.select_a_secret_first.error", { defaultValue: "Select a secret first" }));
       if (selectedSecret.managedMode === "external_reference") {
         return secretsApi.rotate(selectedSecret.id, {
           externalRef: rotateExternalRef.trim() || selectedSecret.externalRef || undefined,
@@ -582,7 +611,15 @@ const { t } = useTranslation();
       });
     },
     onSuccess: (updated) => {
-      pushToast({ title: "Rotated", body: `${updated.name} → v${updated.latestVersion}`, tone: "success" });
+      pushToast({
+        title: t("pages.secrets.rotated.title", { defaultValue: "Rotated" }),
+        body: t("pages.secrets.secret_rotated.body", {
+          defaultValue: "{{name}} → v{{version}}",
+          name: updated.name,
+          version: updated.latestVersion,
+        }),
+        tone: "success",
+      });
       setRotateOpen(false);
       setRotateValue("");
       setRotateExternalRef("");
@@ -591,7 +628,7 @@ const { t } = useTranslation();
       invalidateAll([updated.id]);
     },
     onError: (error) => {
-      setRotateError(error instanceof Error ? error.message : "Rotate failed");
+      setRotateError(error instanceof Error ? error.message : t("pages.secrets.rotate_failed.error", { defaultValue: "Rotate failed" }));
     },
   });
 
@@ -609,13 +646,20 @@ const { t } = useTranslation();
       }
     },
     onSuccess: (updated) => {
-      pushToast({ title: `Secret ${updated.status}`, body: updated.name, tone: "info" });
+      pushToast({
+        title: t("pages.secrets.secret_status_updated.title", {
+          defaultValue: "Secret {{status}}",
+          status: updated.status,
+        }),
+        body: updated.name,
+        tone: "info",
+      });
       invalidateAll([updated.id]);
     },
     onError: (error) => {
       pushToast({
-        title: "Status update failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.status_update_failed.title", { defaultValue: "Status update failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -624,15 +668,15 @@ const { t } = useTranslation();
   const deleteMutation = useMutation({
     mutationFn: (id: string) => secretsApi.remove(id),
     onSuccess: (_response, id) => {
-      pushToast({ title: "Secret deleted", tone: "info" });
+      pushToast({ title: t("pages.secrets.secret_deleted.title", { defaultValue: "Secret deleted" }), tone: "info" });
       setDeleteConfirm(null);
       if (selectedSecretId === id) setSelectedSecretId(null);
       invalidateAll([id]);
     },
     onError: (error) => {
       pushToast({
-        title: "Delete failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.delete_failed.title", { defaultValue: "Delete failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -655,7 +699,13 @@ const { t } = useTranslation();
       } as CreateSecretProviderConfigInput);
     },
     onSuccess: (saved) => {
-      pushToast({ title: editingVault ? "Provider vault updated" : "Provider vault created", body: saved.displayName, tone: "success" });
+      pushToast({
+        title: editingVault
+          ? t("pages.secrets.provider_vault_updated.title", { defaultValue: "Provider vault updated" })
+          : t("pages.secrets.provider_vault_created.title", { defaultValue: "Provider vault created" }),
+        body: saved.displayName,
+        tone: "success",
+      });
       setVaultDialogOpen(false);
       setEditingVault(null);
       setVaultForm(emptyProviderVaultForm());
@@ -688,13 +738,13 @@ const { t } = useTranslation();
   const disableVaultMutation = useMutation({
     mutationFn: (id: string) => secretsApi.disableProviderConfig(id),
     onSuccess: (updated) => {
-      pushToast({ title: "Provider vault disabled", body: updated.displayName, tone: "info" });
+      pushToast({ title: t("pages.secrets.provider_vault_disabled.title", { defaultValue: "Provider vault disabled" }), body: updated.displayName, tone: "info" });
       invalidateAll();
     },
     onError: (error) => {
       pushToast({
-        title: "Disable failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.disable_failed.title", { defaultValue: "Disable failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -704,8 +754,11 @@ const { t } = useTranslation();
     mutationFn: (id: string) => secretsApi.removeProviderConfig(id),
     onSuccess: (removed) => {
       pushToast({
-        title: "Provider vault removed",
-        body: `${removed.displayName} was removed from Paperclip only.`,
+        title: t("pages.secrets.provider_vault_removed.title", { defaultValue: "Provider vault removed" }),
+        body: t("pages.secrets.provider_vault_removed.body", {
+          defaultValue: "{{name}} was removed from Paperclip only.",
+          name: removed.displayName,
+        }),
         tone: "info",
       });
       setRemoveVaultConfirm(null);
@@ -713,8 +766,8 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Remove failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.remove_failed.title", { defaultValue: "Remove failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -723,13 +776,13 @@ const { t } = useTranslation();
   const defaultVaultMutation = useMutation({
     mutationFn: (id: string) => secretsApi.setDefaultProviderConfig(id),
     onSuccess: (updated) => {
-      pushToast({ title: "Default vault set", body: updated.displayName, tone: "success" });
+      pushToast({ title: t("pages.secrets.default_vault_set.title", { defaultValue: "Default vault set" }), body: updated.displayName, tone: "success" });
       invalidateAll();
     },
     onError: (error) => {
       pushToast({
-        title: "Default update failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.default_update_failed.title", { defaultValue: "Default update failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -738,13 +791,13 @@ const { t } = useTranslation();
   const healthVaultMutation = useMutation({
     mutationFn: (id: string) => secretsApi.checkProviderConfigHealth(id),
     onSuccess: (health) => {
-      pushToast({ title: "Health checked", body: health.message, tone: health.status === "error" ? "error" : "info" });
+      pushToast({ title: t("pages.secrets.health_checked.title", { defaultValue: "Health checked" }), body: health.message, tone: health.status === "error" ? "error" : "info" });
       invalidateAll();
     },
     onError: (error) => {
       pushToast({
-        title: "Health check failed",
-        body: error instanceof Error ? error.message : "Try again",
+        title: t("pages.secrets.health_check_failed.title", { defaultValue: "Health check failed" }),
+        body: error instanceof Error ? error.message : t("pages.secrets.try_again.error", { defaultValue: "Try again" }),
         tone: "error",
       });
     },
@@ -756,11 +809,12 @@ const { t } = useTranslation();
       providers.find((provider) => provider.id === createForm.provider) ?? null,
       createMode,
       providerHealthQuery.data ?? null,
+      t,
     );
     if (!currentBlockReason) return;
     const replacement = providers.find(
       (provider) =>
-        !getCreateProviderBlockReason(provider, createMode, providerHealthQuery.data ?? null),
+        !getCreateProviderBlockReason(provider, createMode, providerHealthQuery.data ?? null, t),
     );
     if (replacement && replacement.id !== createForm.provider) {
       setCreateForm((current) => ({
@@ -769,7 +823,7 @@ const { t } = useTranslation();
         providerConfigId: getDefaultProviderConfigId(providerConfigs, replacement.id),
       }));
     }
-  }, [createForm.provider, createMode, createOpen, providerConfigs, providerHealthQuery.data, providers]);
+  }, [createForm.provider, createMode, createOpen, providerConfigs, providerHealthQuery.data, providers, t]);
 
   useEffect(() => {
     if (!createOpen) return;
@@ -841,8 +895,8 @@ const { t } = useTranslation();
       >
         <PageTabBar
           items={[
-            { value: "secrets", label: "Secrets" },
-            { value: "vaults", label: "Provider vaults" },
+            { value: "secrets", label: t("pages.secrets.secrets.tab_label", { defaultValue: "Secrets" }) },
+            { value: "vaults", label: t("pages.secrets.provider_vaults.tab_label", { defaultValue: "Provider vaults" }) },
           ]}
           align="start"
           value={activeTab}
@@ -891,17 +945,20 @@ const { t } = useTranslation();
             ) : secrets.length === 0 && !secretsQuery.isPending ? (
               <EmptyState
                 icon={KeyRound}
-                message="No secrets yet. Create your first managed secret or link an external reference."
-                action="New secret"
+                message={t("pages.secrets.no_secrets_yet_create_first.attr_message", { defaultValue: "No secrets yet. Create your first managed secret or link an external reference." })}
+                action={t("pages.secrets.new_secret.action", { defaultValue: "New secret" })}
                 onAction={() => setCreateOpen(true)}
               />
             ) : filtered.length === 0 ? (
-              <EmptyState icon={Search} message="No secrets match your filters." />
+              <EmptyState
+                icon={Search}
+                message={t("pages.secrets.no_secrets_match_filters.attr_message", { defaultValue: "No secrets match your filters." })}
+              />
             ) : (
               <table className="w-full text-sm">
               <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium">Name</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("pages.secrets.name.table_header", { defaultValue: "Name" })}</th>
                   <th className="px-2 py-2 text-left font-medium">{t("pages.secrets.mode.jsx-text", { defaultValue: "Mode" })}</th>
                   <th className="px-2 py-2 text-left font-medium">{t("pages.secrets.provider.jsx-text", { defaultValue: "Provider" })}</th>
                   <th className="px-2 py-2 text-left font-medium">{t("pages.secrets.status.jsx-text", { defaultValue: "Status" })}</th>
@@ -927,7 +984,7 @@ const { t } = useTranslation();
                       <div className="font-medium text-foreground">{secret.name}</div>
                     </td>
                     <td className="px-2 py-2.5 text-xs text-muted-foreground">
-                      {modeLabel(secret.managedMode)}
+                      {modeLabel(secret.managedMode, t)}
                     </td>
                     <td className="px-2 py-2.5 text-xs">
                       <div>{providerLabel(providers, secret.provider)}</div>
@@ -1023,7 +1080,7 @@ const { t } = useTranslation();
                   </span>
                 </SheetTitle>
                 <SheetDescription>
-                  {providerLabel(providers, selectedSecret.provider)} {t("pages.secrets.v.jsx-text", { defaultValue: " · v" })}{selectedSecret.latestVersion} · {modeLabel(selectedSecret.managedMode)}
+                  {providerLabel(providers, selectedSecret.provider)} {t("pages.secrets.v.jsx-text", { defaultValue: " · v" })}{selectedSecret.latestVersion} · {modeLabel(selectedSecret.managedMode, t)}
                 </SheetDescription>
               </SheetHeader>
               <div className="flex flex-wrap gap-2 px-4 pb-2">
@@ -1090,9 +1147,14 @@ const { t } = useTranslation();
                 <div className="border-b border-border px-4">
                   <PageTabBar
                     items={[
-                      { value: "details", label: "Details" },
-                      { value: "usage", label: usageQuery.data ? `Usage (${usageQuery.data.bindings.length})` : "Usage" },
-                      { value: "events", label: "Access events" },
+                      { value: "details", label: t("pages.secrets.details.tab_label", { defaultValue: "Details" }) },
+                      {
+                        value: "usage",
+                        label: usageQuery.data
+                          ? t("pages.secrets.usage_count.tab_label", { defaultValue: "Usage ({{count}})", count: usageQuery.data.bindings.length })
+                          : t("pages.secrets.usage.tab_label", { defaultValue: "Usage" }),
+                      },
+                      { value: "events", label: t("pages.secrets.access_events.tab_label", { defaultValue: "Access events" }) },
                     ]}
                     align="start"
                     value={secretDetailTab}
@@ -1171,7 +1233,7 @@ const { t } = useTranslation();
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-medium" htmlFor="new-secret-name">Name</label>
+                <label className="text-xs font-medium" htmlFor="new-secret-name">{t("pages.secrets.name.attr_label", { defaultValue: "Name" })}</label>
                 <Input
                   id="new-secret-name"
                   value={createForm.name}
@@ -1218,14 +1280,14 @@ const { t } = useTranslation();
                     key={provider.id}
                     value={provider.id}
                     disabled={Boolean(
-                      getCreateProviderBlockReason(provider, createMode, providerHealthQuery.data ?? null),
+                      getCreateProviderBlockReason(provider, createMode, providerHealthQuery.data ?? null, t),
                     )}
                   >
                     {provider.label}
                     {provider.configured === false
-                      ? " (not configured)"
+                      ? t("pages.secrets.not_configured.option_suffix", { defaultValue: " (not configured)" })
                       : provider.requiresExternalRef
-                        ? " (external only)"
+                        ? t("pages.secrets.external_only.option_suffix", { defaultValue: " (external only)" })
                         : ""}
                   </option>
                 ))}
@@ -1251,11 +1313,11 @@ const { t } = useTranslation();
               >
                 <option value="">{t("pages.secrets.deployment_default.jsx-text", { defaultValue: "Deployment default" })}</option>
                 {createProviderConfigs.map((config) => {
-                  const blockReason = getProviderConfigBlockReason(config);
+                  const blockReason = getProviderConfigBlockReason(config, t);
                   return (
                     <option key={config.id} value={config.id} disabled={Boolean(blockReason)}>
                       {config.displayName}
-                      {config.isDefault ? " (default)" : ""}
+                      {config.isDefault ? t("pages.secrets.default.option_suffix", { defaultValue: " (default)" }) : ""}
                       {blockReason ? ` (${blockReason})` : ""}
                     </option>
                   );
@@ -1281,7 +1343,7 @@ const { t } = useTranslation();
                   ) : null}
                 </div>
                 <div>
-                  <label className="text-xs font-medium" htmlFor="new-secret-value">Value</label>
+                  <label className="text-xs font-medium" htmlFor="new-secret-value">{t("pages.secrets.value.attr_label", { defaultValue: "Value" })}</label>
                   <Textarea
                     id="new-secret-value"
                     value={createForm.value}
@@ -1647,10 +1709,10 @@ const { t } = useTranslation();
   };
 
   const statusOptions: Array<{ value: SecretStatus | "all"; label: string }> = [
-    { value: "active", label: "Active" },
-    { value: "all", label: "All statuses" },
-    { value: "disabled", label: "Disabled" },
-    { value: "archived", label: "Archived" },
+    { value: "active", label: t("pages.secrets.active.status_label", { defaultValue: "Active" }) },
+    { value: "all", label: t("pages.secrets.all_statuses.status_label", { defaultValue: "All statuses" }) },
+    { value: "disabled", label: t("pages.secrets.disabled.status_label", { defaultValue: "Disabled" }) },
+    { value: "archived", label: t("pages.secrets.archived.status_label", { defaultValue: "Archived" }) },
   ];
 
   return (
@@ -2303,9 +2365,9 @@ const { t } = useTranslation();
       <DetailRow label={t("pages.secrets.description.attr_label", { defaultValue: "Description" })}>
         <span>{secret.description ?? <span className="text-muted-foreground">—</span>}</span>
       </DetailRow>
-      <DetailRow label={t("pages.secrets.custody.attr_label", { defaultValue: "Custody" })}>{modeLabel(secret.managedMode)}</DetailRow>
+      <DetailRow label={t("pages.secrets.custody.attr_label", { defaultValue: "Custody" })}>{modeLabel(secret.managedMode, t)}</DetailRow>
       <DetailRow label={t("pages.secrets.provider.attr_label", { defaultValue: "Provider" })}>{secret.provider.replaceAll("_", " ")}</DetailRow>
-      <DetailRow label={t("pages.secrets.provider_vault.attr_label", { defaultValue: "Provider vault" })}>{providerVaultLabel(providerConfigs, secret.providerConfigId)}</DetailRow>
+      <DetailRow label={t("pages.secrets.provider_vault.attr_label", { defaultValue: "Provider vault" })}>{providerVaultLabel(providerConfigs, secret.providerConfigId, t)}</DetailRow>
       <DetailRow label={t("pages.secrets.latest_version.attr_label", { defaultValue: "Latest version" })}>v{secret.latestVersion}</DetailRow>
       <DetailRow label={t("pages.secrets.created.attr_label", { defaultValue: "Created" })}>{formatRelative(secret.createdAt)}</DetailRow>
       <DetailRow label={t("pages.secrets.updated.attr_label", { defaultValue: "Updated" })}>{formatRelative(secret.updatedAt)}</DetailRow>
@@ -2314,7 +2376,9 @@ const { t } = useTranslation();
       {secret.externalRef ? (
         <div className="col-span-2">
           <dt className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">
-            {secret.managedMode === "external_reference" ? "Linked provider reference" : "Provider-managed path"}
+            {secret.managedMode === "external_reference"
+              ? t("pages.secrets.linked_provider_reference.jsx-text", { defaultValue: "Linked provider reference" })
+              : t("pages.secrets.provider_managed_path.jsx-text", { defaultValue: "Provider-managed path" })}
           </dt>
           <dd className="font-mono text-xs break-all flex items-center gap-1">
             <ExternalLink className="h-3 w-3" /> {secret.externalRef}
@@ -2322,7 +2386,7 @@ const { t } = useTranslation();
         </div>
       ) : null}
       <div className="col-span-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[11px] text-amber-700 dark:text-amber-300">
-        {modeDescription(secret.managedMode)} {t("pages.secrets.paperclip_never_re_displays_stor.jsx-text", { defaultValue: " Paperclip never re-displays stored values.\n      " })}</div>
+        {modeDescription(secret.managedMode, t)} {t("pages.secrets.paperclip_never_re_displays_stor.jsx-text", { defaultValue: " Paperclip never re-displays stored values.\n      " })}</div>
     </dl>
   );
 }

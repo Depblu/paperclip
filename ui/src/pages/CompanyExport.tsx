@@ -41,7 +41,7 @@ import {
   countFiles,
   collectAllPaths,
   parseFrontmatter,
-  FRONTMATTER_FIELD_LABELS,
+  frontmatterFieldLabel,
   FileTree,
 } from "../components/FileTree";
 
@@ -360,7 +360,7 @@ const { t } = useTranslation();
         {Object.entries(data).map(([key, value]) => (
           <div key={key} className="contents">
             <dt className="text-muted-foreground whitespace-nowrap py-0.5">
-              {FRONTMATTER_FIELD_LABELS[key] ?? key}
+              {frontmatterFieldLabel(key, t)}
             </dt>
             <dd className="py-0.5">
               {Array.isArray(value) ? (
@@ -501,11 +501,14 @@ function ExportPreviewPane({
   allFiles: Record<string, CompanyPortabilityFileEntry>;
   onSkillClick?: (skill: string) => void;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   if (!selectedFile || content === null) {
     return (
-      <EmptyState icon={Package} message="Select a file to preview its contents." />
+      <EmptyState
+        icon={Package}
+        message={t("pages.companyexport.select_a_file_to_preview_its.attr_message", { defaultValue: "Select a file to preview its contents." })}
+      />
     );
   }
 
@@ -678,10 +681,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Org Chart", href: "/org" },
-      { label: "Export" },
+      { label: t("pages.companyexport.org_chart.breadcrumb", { defaultValue: "Org Chart" }), href: "/org" },
+      { label: t("pages.companyexport.export.breadcrumb", { defaultValue: "Export" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const exportPreviewMutation = useMutation({
     mutationFn: () =>
@@ -725,8 +728,8 @@ const { t } = useTranslation();
     onError: (err) => {
       pushToast({
         tone: "error",
-        title: "Export failed",
-        body: err instanceof Error ? err.message : "Failed to load export data.",
+        title: t("pages.companyexport.export_failed.title", { defaultValue: "Export failed" }),
+        body: err instanceof Error ? err.message : t("pages.companyexport.failed_to_load_export_data.error", { defaultValue: "Failed to load export data." }),
       });
     },
   });
@@ -743,15 +746,20 @@ const { t } = useTranslation();
       downloadZip(result, resultCheckedFiles, result.files);
       pushToast({
         tone: "success",
-        title: "Export downloaded",
-        body: `${resultCheckedFiles.size} file${resultCheckedFiles.size === 1 ? "" : "s"} exported as ${result.rootPath}.zip`,
+        title: t("pages.companyexport.export_downloaded.title", { defaultValue: "Export downloaded" }),
+        body: t("pages.companyexport.files_exported.body", {
+          count: resultCheckedFiles.size,
+          path: `${result.rootPath}.zip`,
+          defaultValue: "{{count}} file exported as {{path}}",
+          defaultValue_plural: "{{count}} files exported as {{path}}",
+        }),
       });
     },
     onError: (err) => {
       pushToast({
         tone: "error",
-        title: "Export failed",
-        body: err instanceof Error ? err.message : "Failed to build export package.",
+        title: t("pages.companyexport.export_failed.title", { defaultValue: "Export failed" }),
+        body: err instanceof Error ? err.message : t("pages.companyexport.failed_to_build_export_package.error", { defaultValue: "Failed to build export package." }),
       });
     },
   });
@@ -917,7 +925,12 @@ const { t } = useTranslation();
   }
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Package} message="Select a company to export." />;
+    return (
+      <EmptyState
+        icon={Package}
+        message={t("pages.companyexport.select_a_company_to_export.attr_message", { defaultValue: "Select a company to export." })}
+      />
+    );
   }
 
   if (exportPreviewMutation.isPending && !exportData) {
@@ -925,7 +938,12 @@ const { t } = useTranslation();
   }
 
   if (!exportData) {
-    return <EmptyState icon={Package} message="Loading export data..." />;
+    return (
+      <EmptyState
+        icon={Package}
+        message={t("pages.companyexport.loading_export_data.attr_message", { defaultValue: "Loading export data..." })}
+      />
+    );
   }
 
   const previewContent = selectedFile

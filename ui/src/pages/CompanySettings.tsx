@@ -150,10 +150,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings" }
+      { label: selectedCompany?.name ?? t("pages.companysettings.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.companysettings.settings.breadcrumb", { defaultValue: "Settings" }) }
     ]);
-  }, [setBreadcrumbs, selectedCompany?.name]);
+  }, [setBreadcrumbs, selectedCompany?.name, t]);
 
   if (!selectedCompany) {
     return (
@@ -183,7 +183,10 @@ const { t } = useTranslation();
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {t("pages.companysettings.general.jsx-text", { defaultValue: "\n          General\n        " })}</div>
         <div className="space-y-3 rounded-md border border-border px-4 py-4">
-          <Field label={t("pages.companysettings.company_name.attr_label", { defaultValue: "Company name" })} hint="The display name for your company.">
+          <Field
+            label={t("pages.companysettings.company_name.attr_label", { defaultValue: "Company name" })}
+            hint={t("pages.companysettings.the_display_name_for_your_comp.attr_hint", { defaultValue: "The display name for your company." })}
+          >
             <input
               className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
               type="text"
@@ -193,7 +196,7 @@ const { t } = useTranslation();
           </Field>
           <Field
             label={t("pages.companysettings.description.attr_label", { defaultValue: "Description" })}
-            hint="Optional description shown in the company profile."
+            hint={t("pages.companysettings.optional_description_shown_in_.attr_hint", { defaultValue: "Optional description shown in the company profile." })}
           >
             <input
               className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
@@ -223,7 +226,7 @@ const { t } = useTranslation();
             <div className="flex-1 space-y-3">
               <Field
                 label={t("pages.companysettings.logo.attr_label", { defaultValue: "Logo" })}
-                hint="Upload a PNG, JPEG, WEBP, GIF, or SVG logo image."
+                hint={t("pages.companysettings.upload_a_png_jpeg_webp_gif_.attr_hint", { defaultValue: "Upload a PNG, JPEG, WEBP, GIF, or SVG logo image." })}
               >
                 <div className="space-y-2">
                   <input
@@ -240,7 +243,9 @@ const { t } = useTranslation();
                         onClick={handleClearLogo}
                         disabled={clearLogoMutation.isPending}
                       >
-                        {clearLogoMutation.isPending ? "Removing..." : "Remove logo"}
+                        {clearLogoMutation.isPending
+                          ? t("pages.companysettings.removing.jsx-text", { defaultValue: "Removing..." })
+                          : t("pages.companysettings.remove_logo.jsx-text", { defaultValue: "Remove logo" })}
                       </Button>
                     </div>
                   )}
@@ -249,7 +254,7 @@ const { t } = useTranslation();
                       {logoUploadError ??
                         (logoUploadMutation.error instanceof Error
                           ? logoUploadMutation.error.message
-                          : "Logo upload failed")}
+                          : t("pages.companysettings.logo_upload_failed.jsx-text", { defaultValue: "Logo upload failed" }))}
                     </span>
                   )}
                   {clearLogoMutation.isError && (
@@ -264,7 +269,7 @@ const { t } = useTranslation();
               </Field>
               <Field
                 label={t("pages.companysettings.brand_color.attr_label", { defaultValue: "Brand color" })}
-                hint="Sets the hue for the company icon. Leave empty for auto-generated color."
+                hint={t("pages.companysettings.sets_the_hue_for_the_compan.attr_hint", { defaultValue: "Sets the hue for the company icon. Leave empty for auto-generated color." })}
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -298,7 +303,7 @@ const { t } = useTranslation();
               </Field>
               <Field
                 label={t("pages.companysettings.attachment_size_limit.attr_label", { defaultValue: "Attachment size limit" })}
-                hint={`Accepted range: 1-${MAX_COMPANY_ATTACHMENT_MAX_MIB} MiB.`}
+                hint={t("pages.companysettings.accepted_range_1_max_mib.attr_hint", { max: MAX_COMPANY_ATTACHMENT_MAX_MIB, defaultValue: "Accepted range: 1-{{max}} MiB." })}
               >
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
@@ -333,7 +338,9 @@ const { t } = useTranslation();
             onClick={handleSaveGeneral}
             disabled={generalMutation.isPending || !companyName.trim() || !attachmentMaxValid}
           >
-            {generalMutation.isPending ? "Saving..." : "Save changes"}
+            {generalMutation.isPending
+              ? t("pages.companysettings.saving.jsx-text", { defaultValue: "Saving..." })
+              : t("pages.companysettings.save_changes.jsx-text", { defaultValue: "Save changes" })}
           </Button>
           {generalMutation.isSuccess && (
             <span className="text-xs text-muted-foreground">{t("pages.companysettings.saved.jsx-text", { defaultValue: "Saved" })}</span>
@@ -342,7 +349,7 @@ const { t } = useTranslation();
             <span className="text-xs text-destructive">
               {generalMutation.error instanceof Error
                   ? generalMutation.error.message
-                  : "Failed to save"}
+                  : t("pages.companysettings.failed_to_save.jsx-text", { defaultValue: "Failed to save" })}
             </span>
           )}
         </div>
@@ -355,7 +362,7 @@ const { t } = useTranslation();
         <div className="rounded-md border border-border px-4 py-3">
           <ToggleField
             label={t("pages.companysettings.require_board_approval_for_new_h.attr_label", { defaultValue: "Require board approval for new hires" })}
-            hint="New agent hires stay pending until approved by board."
+            hint={t("pages.companysettings.new_agent_hires_stay_pending.attr_hint", { defaultValue: "New agent hires stay pending until approved by board." })}
             checked={!!selectedCompany.requireBoardApprovalForNewAgents}
             onChange={(v) => settingsMutation.mutate(v)}
             toggleTestId="company-settings-team-approval-toggle"
@@ -411,7 +418,7 @@ const { t } = useTranslation();
               onClick={() => {
                 if (!selectedCompanyId) return;
                 const confirmed = window.confirm(
-                  `Archive company "${selectedCompany.name}"? It will be hidden from the sidebar.`
+                  t("pages.companysettings.archive_company_confirm", { name: selectedCompany.name, defaultValue: "Archive company \"{{name}}\"? It will be hidden from the sidebar." })
                 );
                 if (!confirmed) return;
                 const nextCompanyId =
@@ -427,16 +434,16 @@ const { t } = useTranslation();
               }}
             >
               {archiveMutation.isPending
-                ? "Archiving..."
+                ? t("pages.companysettings.archiving.jsx-text", { defaultValue: "Archiving..." })
                 : selectedCompany.status === "archived"
-                ? "Already archived"
-                : "Archive company"}
+                ? t("pages.companysettings.already_archived.jsx-text", { defaultValue: "Already archived" })
+                : t("pages.companysettings.archive_company.jsx-text", { defaultValue: "Archive company" })}
             </Button>
             {archiveMutation.isError && (
               <span className="text-xs text-destructive">
                 {archiveMutation.error instanceof Error
                   ? archiveMutation.error.message
-                  : "Failed to archive company"}
+                  : t("pages.companysettings.failed_to_archive_company.jsx-text", { defaultValue: "Failed to archive company" })}
               </span>
             )}
           </div>

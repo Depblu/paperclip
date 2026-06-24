@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ArrowLeft, Check, Layers, Package, Search, X } from "lucide-react";
 import type { To } from "react-router-dom";
@@ -30,19 +31,19 @@ import { Button } from "@/components/ui/button";
 const ARTIFACTS_PAGE_SIZE = 30;
 const SEARCH_DEBOUNCE_MS = 250;
 
-export const ARTIFACT_KIND_FILTERS: { value: ArtifactKindFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "image", label: "Images" },
-  { value: "video", label: "Videos" },
-  { value: "document", label: "Documents" },
-  { value: "text", label: "Text" },
-  { value: "file", label: "Files" },
+export const ARTIFACT_KIND_FILTERS: { value: ArtifactKindFilter }[] = [
+  { value: "all" },
+  { value: "image" },
+  { value: "video" },
+  { value: "document" },
+  { value: "text" },
+  { value: "file" },
 ];
 
-export const ARTIFACT_GROUP_OPTIONS: { value: ArtifactGroupBy; label: string }[] = [
-  { value: "none", label: "None" },
-  { value: "task", label: "Task" },
-  { value: "parent_task", label: "Parent task" },
+export const ARTIFACT_GROUP_OPTIONS: { value: ArtifactGroupBy }[] = [
+  { value: "none" },
+  { value: "task" },
+  { value: "parent_task" },
 ];
 
 const KIND_VALUES = new Set(ARTIFACT_KIND_FILTERS.map((filter) => filter.value));
@@ -58,12 +59,27 @@ function parseKind(value: string | null): ArtifactKindFilter {
     : "all";
 }
 
-export function artifactGroupByLabel(value: ArtifactGroupBy): string {
-  return ARTIFACT_GROUP_OPTIONS.find((option) => option.value === value)?.label ?? "None";
+export function artifactKindFilterLabel(value: ArtifactKindFilter, t: TFunction): string {
+  switch (value) {
+    case "all": return t("pages.artifacts.all.filter_label", { defaultValue: "All" });
+    case "image": return t("pages.artifacts.images.filter_label", { defaultValue: "Images" });
+    case "video": return t("pages.artifacts.videos.filter_label", { defaultValue: "Videos" });
+    case "document": return t("pages.artifacts.documents.filter_label", { defaultValue: "Documents" });
+    case "text": return t("pages.artifacts.text.filter_label", { defaultValue: "Text" });
+    case "file": return t("pages.artifacts.files.filter_label", { defaultValue: "Files" });
+  }
+}
+
+export function artifactGroupByLabel(value: ArtifactGroupBy, t: TFunction): string {
+  switch (value) {
+    case "task": return t("pages.artifacts.task.group_label", { defaultValue: "Task" });
+    case "parent_task": return t("pages.artifacts.parent_task.group_label", { defaultValue: "Parent task" });
+    default: return t("pages.artifacts.none.group_label", { defaultValue: "None" });
+  }
 }
 
 export function Artifacts() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -221,16 +237,16 @@ const { t } = useTranslation();
   useEffect(() => {
     if (viewingSelectedStack && selectedGroup) {
       setBreadcrumbs([
-        { label: "Artifacts", href: "/artifacts" },
+        { label: t("pages.artifacts.artifacts.breadcrumb", { defaultValue: "Artifacts" }), href: "/artifacts" },
         { label: `${selectedGroup.issue.identifier} · ${selectedGroup.title}` },
       ]);
     } else {
-      setBreadcrumbs([{ label: "Artifacts" }]);
+      setBreadcrumbs([{ label: t("pages.artifacts.artifacts.breadcrumb", { defaultValue: "Artifacts" }) }]);
     }
-  }, [setBreadcrumbs, viewingSelectedStack, selectedGroup]);
+  }, [setBreadcrumbs, viewingSelectedStack, selectedGroup, t]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Package} message="Select a company to view artifacts." />;
+    return <EmptyState icon={Package} message={t("pages.artifacts.select_a_company_to_view_artif.jsx-text", { defaultValue: "Select a company to view artifacts." })} />;
   }
 
   const showGroupCards = viewingStackList;
@@ -238,15 +254,15 @@ const { t } = useTranslation();
 
   const emptyMessage = showGroupCards
     ? searching
-      ? "No artifact stacks match this search."
-      : "No artifact stacks yet."
+      ? t("pages.artifacts.no_artifact_stacks_match_search.empty", { defaultValue: "No artifact stacks match this search." })
+      : t("pages.artifacts.no_artifact_stacks_yet.empty", { defaultValue: "No artifact stacks yet." })
     : searching
-      ? "No artifacts match this search."
+      ? t("pages.artifacts.no_artifacts_match_search.empty", { defaultValue: "No artifacts match this search." })
       : viewingSelectedStack
-        ? "No artifacts in this stack match the current filters."
+        ? t("pages.artifacts.no_artifacts_in_stack_match_filters.empty", { defaultValue: "No artifacts in this stack match the current filters." })
         : kind === "all"
-          ? "No artifacts yet. Outputs attached to issues will appear here."
-          : "No artifacts of this type yet.";
+          ? t("pages.artifacts.no_artifacts_yet.empty", { defaultValue: "No artifacts yet. Outputs attached to issues will appear here." })
+          : t("pages.artifacts.no_artifacts_of_type_yet.empty", { defaultValue: "No artifacts of this type yet." });
 
   return (
     <div className="w-full max-w-6xl space-y-5">
@@ -279,7 +295,10 @@ const { t } = useTranslation();
                 type="button"
                 variant="outline"
                 size="icon"
-                aria-label={`Group artifacts (currently ${artifactGroupByLabel(groupBy)})`}
+                aria-label={t("pages.artifacts.group_artifacts_current.attr_aria-label", {
+                  defaultValue: "Group artifacts (currently {{group}})",
+                  group: artifactGroupByLabel(groupBy, t),
+                })}
                 title={t("pages.artifacts.group_artifacts.attr_title", { defaultValue: "Group artifacts" })}
                 data-testid="artifact-group-control"
                 data-group-by={groupBy}
@@ -298,7 +317,7 @@ const { t } = useTranslation();
                   onSelect={() => selectGroupBy(option.value)}
                   className="justify-between"
                 >
-                  {option.label}
+                  {artifactGroupByLabel(option.value, t)}
                   {groupBy === option.value ? <Check className="h-3.5 w-3.5" /> : null}
                 </DropdownMenuItem>
               ))}
@@ -320,7 +339,7 @@ const { t } = useTranslation();
                     : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
                 )}
               >
-                {filter.label}
+                {artifactKindFilterLabel(filter.value, t)}
               </button>
             ))}
           </div>
@@ -335,7 +354,8 @@ const { t } = useTranslation();
             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("pages.artifacts.all_stacks.jsx-text", { defaultValue: "\n            All stacks\n          " })}</Link>
+            {t("pages.artifacts.all_stacks.jsx-text", { defaultValue: "All stacks" })}
+          </Link>
           {selectedGroup ? (
             <span className="truncate text-muted-foreground">
               <span className="text-foreground/80">{selectedGroup.issue.identifier}</span>{" "}
@@ -364,11 +384,11 @@ const { t } = useTranslation();
           </div>
           <div ref={loadMoreRef} className="flex min-h-10 items-center justify-center pb-2 text-xs text-muted-foreground">
             {isFetchingNextPage
-              ? "Loading more artifacts..."
+              ? t("pages.artifacts.loading_more_artifacts.status", { defaultValue: "Loading more artifacts..." })
               : hasNextPage
                 ? null
                 : isFetching
-                  ? "Updating artifacts..."
+                  ? t("pages.artifacts.updating_artifacts.status", { defaultValue: "Updating artifacts..." })
                   : null}
           </div>
         </>

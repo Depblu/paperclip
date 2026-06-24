@@ -9,6 +9,9 @@ import {
   type TrustAuthorizationPolicy,
   type TrustPreset,
 } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
+
+type TranslateFn = typeof translate;
 
 export type LowTrustBoundaryTarget =
   | { type: "project"; id: string }
@@ -157,21 +160,36 @@ export function clearSingleLowTrustBoundaryTarget(
 
 export function summarizeLowTrustBoundaryTarget(
   boundary: LowTrustBoundary | null | undefined,
+  t: TranslateFn = translate,
 ) {
   const target = getSingleLowTrustBoundaryTarget(boundary);
-  if (target?.type === "project") return `Project ${target.id.slice(0, 8)}`;
-  if (target?.type === "root_issue") return `Root issue ${target.id.slice(0, 8)}`;
-  if (target?.type === "issue") return `Issue ${target.id.slice(0, 8)}`;
-  if (!boundary || countBoundaryTargets(boundary) === 0) return "No boundary selected";
-  return `${countBoundaryTargets(boundary)} boundaries`;
+  if (target?.type === "project") {
+    return t("lib.trustpolicyui.project_boundary", { id: target.id.slice(0, 8), defaultValue: "Project {{id}}" });
+  }
+  if (target?.type === "root_issue") {
+    return t("lib.trustpolicyui.root_issue_boundary", { id: target.id.slice(0, 8), defaultValue: "Root issue {{id}}" });
+  }
+  if (target?.type === "issue") {
+    return t("lib.trustpolicyui.issue_boundary", { id: target.id.slice(0, 8), defaultValue: "Issue {{id}}" });
+  }
+  if (!boundary || countBoundaryTargets(boundary) === 0) {
+    return t("lib.trustpolicyui.no_boundary_selected", { defaultValue: "No boundary selected" });
+  }
+  return t("lib.trustpolicyui.boundaries_count", {
+    count: countBoundaryTargets(boundary),
+    defaultValue: "{{count}} boundary",
+    defaultValue_plural: "{{count}} boundaries",
+  });
 }
 
 export function lowTrustBoundaryHasScope(boundary: LowTrustBoundary | null | undefined) {
   return countBoundaryTargets(boundary) > 0;
 }
 
-export function sourceTrustLabel(sourceTrust: SourceTrustMetadata | null | undefined) {
+export function sourceTrustLabel(sourceTrust: SourceTrustMetadata | null | undefined, t: TranslateFn = translate) {
   if (!sourceTrust || sourceTrust.preset !== LOW_TRUST_REVIEW_PRESET) return null;
-  if (sourceTrust.disposition === "promoted") return "Promoted from low-trust";
-  return "Low-trust source";
+  if (sourceTrust.disposition === "promoted") {
+    return t("lib.trustpolicyui.promoted_from_low_trust", { defaultValue: "Promoted from low-trust" });
+  }
+  return t("lib.trustpolicyui.low_trust_source", { defaultValue: "Low-trust source" });
 }

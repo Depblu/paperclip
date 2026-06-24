@@ -6,10 +6,10 @@ export function PackageFileTree({ wrapLabels = false, ...props }: FileTreeProps)
 }
 
 export {
-  FRONTMATTER_FIELD_LABELS,
   buildFileTree,
   collectAllPaths,
   countFiles,
+  frontmatterFieldLabel,
   parseFrontmatter,
 } from "./FileTree";
 export type {

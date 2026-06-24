@@ -218,25 +218,25 @@ const { t } = useTranslation();
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Users" }, { label: data?.user.name ?? userSlug }]);
-  }, [data?.user.name, setBreadcrumbs, userSlug]);
+    setBreadcrumbs([{ label: t("pages.userprofile.users.breadcrumb", { defaultValue: "Users" }) }, { label: data?.user.name ?? userSlug }]);
+  }, [data?.user.name, setBreadcrumbs, t, userSlug]);
 
   const allTime = data?.stats.find((entry) => entry.key === "all");
   const last7 = data?.stats.find((entry) => entry.key === "last7");
-  const displayName = data?.user.name?.trim() || data?.user.email?.split("@")[0] || "User";
+  const displayName = data?.user.name?.trim() || data?.user.email?.split("@")[0] || t("pages.userprofile.user.fallback", { defaultValue: "User" });
 
   const agentUsageRows = useMemo<UsageRow[]>(
     () =>
       (data?.topAgents ?? []).map((row) => ({
         key: row.agentId ?? "unknown",
         label: row.agentName ?? (row.agentId ? row.agentId.slice(0, 8) : "unknown"),
-        sublabel: "Task-linked usage",
+        sublabel: t("pages.userprofile.task_linked_usage.sublabel", { defaultValue: "Task-linked usage" }),
         costCents: row.costCents,
         inputTokens: row.inputTokens,
         cachedInputTokens: row.cachedInputTokens,
         outputTokens: row.outputTokens,
       })),
-    [data?.topAgents],
+    [data?.topAgents, t],
   );
 
   const providerUsageRows = useMemo<UsageRow[]>(
@@ -244,17 +244,20 @@ const { t } = useTranslation();
       (data?.topProviders ?? []).map((row) => ({
         key: `${row.provider}:${row.biller}:${row.model}`,
         label: `${providerDisplayName(row.provider)} / ${row.model}`,
-        sublabel: `Billed through ${providerDisplayName(row.biller)}`,
+        sublabel: t("pages.userprofile.billed_through.sublabel", {
+          defaultValue: "Billed through {{biller}}",
+          biller: providerDisplayName(row.biller),
+        }),
         costCents: row.costCents,
         inputTokens: row.inputTokens,
         cachedInputTokens: row.cachedInputTokens,
         outputTokens: row.outputTokens,
       })),
-    [data?.topProviders],
+    [data?.topProviders, t],
   );
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={UserRound} message="Select a company to view user profiles." />;
+    return <EmptyState icon={UserRound} message={t("pages.userprofile.select_a_company_to_view_user_.jsx-text", { defaultValue: "Select a company to view user profiles." })} />;
   }
 
   if (isLoading) {
@@ -262,7 +265,7 @@ const { t } = useTranslation();
   }
 
   if (error || !data) {
-    return <EmptyState icon={AlertCircle} message="User profile not found for this company." />;
+    return <EmptyState icon={AlertCircle} message={t("pages.userprofile.user_profile_not_found_for_t.jsx-text", { defaultValue: "User profile not found for this company." })} />;
   }
 
   const allTimeTokens = allTime ? totalTokens(allTime) : 0;

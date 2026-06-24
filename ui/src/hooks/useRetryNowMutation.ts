@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import type { IssueRetryNowOutcome, IssueRetryNowResponse } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 import { ApiError } from "../api/client";
 import { issuesApi } from "../api/issues";
 import { useToastActions } from "../context/ToastContext";
@@ -15,10 +16,15 @@ export type RetryNowError = {
 function readErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (typeof error.message === "string" && error.message.trim().length > 0) return error.message;
-    return `Request failed (${error.status})`;
+    return translate("hooks.useretrynowmutation.request_failed_with_status", {
+      status: error.status,
+      defaultValue: "Request failed ({{status}})",
+    });
   }
   if (error instanceof Error && error.message) return error.message;
-  return "The request failed. Try again in a moment.";
+  return translate("hooks.useretrynowmutation.request_failed_retry", {
+    defaultValue: "The request failed. Try again in a moment.",
+  });
 }
 
 export const RETRY_NOW_OUTCOME_HEADLINE: Record<IssueRetryNowOutcome, string> = {
@@ -27,6 +33,12 @@ export const RETRY_NOW_OUTCOME_HEADLINE: Record<IssueRetryNowOutcome, string> = 
   no_scheduled_retry: "No scheduled retry",
   gate_suppressed: "Couldn't retry now",
 };
+
+function retryNowOutcomeHeadline(outcome: IssueRetryNowOutcome): string {
+  return translate(`hooks.useretrynowmutation.outcome_${outcome}`, {
+    defaultValue: RETRY_NOW_OUTCOME_HEADLINE[outcome],
+  });
+}
 
 export function useRetryNowMutation(
   issueId: string | null | undefined,
@@ -38,7 +50,7 @@ export function useRetryNowMutation(
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (!issueId) throw new Error("Missing issue id");
+      if (!issueId) throw new Error(translate("hooks.useretrynowmutation.missing_issue_id.error", { defaultValue: "Missing issue id" }));
       return issuesApi.retryScheduledRetryNow(issueId);
     },
     onSuccess: (response) => {
@@ -51,13 +63,13 @@ export function useRetryNowMutation(
       }
       if (response.outcome === "promoted") {
         pushToast({
-          title: RETRY_NOW_OUTCOME_HEADLINE.promoted,
+          title: retryNowOutcomeHeadline("promoted"),
           body: response.message,
           tone: "success",
         });
       } else if (response.outcome === "gate_suppressed") {
         pushToast({
-          title: RETRY_NOW_OUTCOME_HEADLINE.gate_suppressed,
+          title: retryNowOutcomeHeadline("gate_suppressed"),
           body: response.message,
           tone: "error",
         });
@@ -65,7 +77,7 @@ export function useRetryNowMutation(
     },
     onError: (error) => {
       pushToast({
-        title: "Couldn't retry now",
+        title: retryNowOutcomeHeadline("gate_suppressed"),
         body: readErrorMessage(error),
         tone: "error",
       });

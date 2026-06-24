@@ -1,26 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 type SchedulePreset = "every_minute" | "every_hour" | "every_day" | "weekdays" | "weekly" | "monthly" | "custom";
+type TranslateFn = typeof translate;
 
-const PRESETS: { value: SchedulePreset; label: string }[] = [
-  { value: "every_minute", label: "Every minute" },
-  { value: "every_hour", label: "Every hour" },
-  { value: "every_day", label: "Every day" },
-  { value: "weekdays", label: "Weekdays" },
-  { value: "weekly", label: "Weekly" },
-  { value: "monthly", label: "Monthly" },
-  { value: "custom", label: "Custom (cron)" },
+const PRESETS: { value: SchedulePreset; labelKey: string; defaultValue: string }[] = [
+  { value: "every_minute", labelKey: "components.scheduleeditor.preset_every_minute.label", defaultValue: "Every minute" },
+  { value: "every_hour", labelKey: "components.scheduleeditor.preset_every_hour.label", defaultValue: "Every hour" },
+  { value: "every_day", labelKey: "components.scheduleeditor.preset_every_day.label", defaultValue: "Every day" },
+  { value: "weekdays", labelKey: "components.scheduleeditor.preset_weekdays.label", defaultValue: "Weekdays" },
+  { value: "weekly", labelKey: "components.scheduleeditor.preset_weekly.label", defaultValue: "Weekly" },
+  { value: "monthly", labelKey: "components.scheduleeditor.preset_monthly.label", defaultValue: "Monthly" },
+  { value: "custom", labelKey: "components.scheduleeditor.preset_custom.label", defaultValue: "Custom (cron)" },
 ];
 
-const HOURS = Array.from({ length: 24 }, (_, i) => ({
-  value: String(i),
-  label: i === 0 ? "12 AM" : i < 12 ? `${i} AM` : i === 12 ? "12 PM" : `${i - 12} PM`,
-}));
+const HOURS = Array.from({ length: 24 }, (_, i) => ({ value: String(i) }));
 
 const MINUTES = Array.from({ length: 12 }, (_, i) => ({
   value: String(i * 5),
@@ -28,13 +26,13 @@ const MINUTES = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 const DAYS_OF_WEEK = [
-  { value: "1", label: "Mon" },
-  { value: "2", label: "Tue" },
-  { value: "3", label: "Wed" },
-  { value: "4", label: "Thu" },
-  { value: "5", label: "Fri" },
-  { value: "6", label: "Sat" },
-  { value: "0", label: "Sun" },
+  { value: "1", labelKey: "components.scheduleeditor.day_mon.label", defaultValue: "Mon" },
+  { value: "2", labelKey: "components.scheduleeditor.day_tue.label", defaultValue: "Tue" },
+  { value: "3", labelKey: "components.scheduleeditor.day_wed.label", defaultValue: "Wed" },
+  { value: "4", labelKey: "components.scheduleeditor.day_thu.label", defaultValue: "Thu" },
+  { value: "5", labelKey: "components.scheduleeditor.day_fri.label", defaultValue: "Fri" },
+  { value: "6", labelKey: "components.scheduleeditor.day_sat.label", defaultValue: "Sat" },
+  { value: "0", labelKey: "components.scheduleeditor.day_sun.label", defaultValue: "Sun" },
 ];
 
 const DAYS_OF_MONTH = Array.from({ length: 31 }, (_, i) => ({
@@ -114,28 +112,77 @@ function buildCron(preset: SchedulePreset, hour: string, minute: string, dayOfWe
   }
 }
 
-function describeSchedule(cron: string): string {
+function formatHourLabel(value: string, t: TranslateFn = translate): string {
+  const hour = Number(value);
+  const displayHour = hour === 0 ? 12 : hour < 12 ? hour : hour === 12 ? 12 : hour - 12;
+  const period = hour < 12
+    ? t("components.scheduleeditor.am.label", { defaultValue: "AM" })
+    : t("components.scheduleeditor.pm.label", { defaultValue: "PM" });
+  return t("components.scheduleeditor.hour_label", {
+    hour: displayHour,
+    period,
+    defaultValue: "{{hour}} {{period}}",
+  });
+}
+
+function formatTimeLabel(hour: string, minute: string, t: TranslateFn = translate): string {
+  const hourNumber = Number(hour);
+  const displayHour = hourNumber === 0 ? 12 : hourNumber < 12 ? hourNumber : hourNumber === 12 ? 12 : hourNumber - 12;
+  const period = hourNumber < 12
+    ? t("components.scheduleeditor.am.label", { defaultValue: "AM" })
+    : t("components.scheduleeditor.pm.label", { defaultValue: "PM" });
+  return t("components.scheduleeditor.time_with_period", {
+    hour: displayHour,
+    minute: minute.padStart(2, "0"),
+    period,
+    defaultValue: "{{hour}}:{{minute}} {{period}}",
+  });
+}
+
+function formatDayOfWeek(value: string, t: TranslateFn = translate): string {
+  const day = DAYS_OF_WEEK.find((d) => d.value === value);
+  return day ? t(day.labelKey, { defaultValue: day.defaultValue }) : value;
+}
+
+function describeSchedule(cron: string, t: TranslateFn = translate): string {
   const { preset, hour, minute, dayOfWeek, dayOfMonth } = parseCronToPreset(cron);
-  const hourLabel = HOURS.find((h) => h.value === hour)?.label ?? `${hour}`;
-  const timeStr = `${hourLabel.replace(/ (AM|PM)$/, "")}:${minute.padStart(2, "0")} ${hourLabel.match(/(AM|PM)$/)?.[0] ?? ""}`;
+  const timeStr = formatTimeLabel(hour, minute, t);
 
   switch (preset) {
     case "every_minute":
-      return "Every minute";
+      return t("components.scheduleeditor.summary_every_minute", { defaultValue: "Every minute" });
     case "every_hour":
-      return `Every hour at :${minute.padStart(2, "0")}`;
+      return t("components.scheduleeditor.summary_every_hour", {
+        minute: minute.padStart(2, "0"),
+        defaultValue: "Every hour at :{{minute}}",
+      });
     case "every_day":
-      return `Every day at ${timeStr}`;
+      return t("components.scheduleeditor.summary_every_day", {
+        time: timeStr,
+        defaultValue: "Every day at {{time}}",
+      });
     case "weekdays":
-      return `Weekdays at ${timeStr}`;
+      return t("components.scheduleeditor.summary_weekdays", {
+        time: timeStr,
+        defaultValue: "Weekdays at {{time}}",
+      });
     case "weekly": {
-      const day = DAYS_OF_WEEK.find((d) => d.value === dayOfWeek)?.label ?? dayOfWeek;
-      return `Every ${day} at ${timeStr}`;
+      const day = formatDayOfWeek(dayOfWeek, t);
+      return t("components.scheduleeditor.summary_weekly", {
+        day,
+        time: timeStr,
+        defaultValue: "Every {{day}} at {{time}}",
+      });
     }
     case "monthly":
-      return `Monthly on the ${dayOfMonth}${ordinalSuffix(Number(dayOfMonth))} at ${timeStr}`;
+      return t("components.scheduleeditor.summary_monthly", {
+        day: dayOfMonth,
+        ordinalDay: `${dayOfMonth}${ordinalSuffix(Number(dayOfMonth))}`,
+        time: timeStr,
+        defaultValue: "Monthly on the {{ordinalDay}} at {{time}}",
+      });
     case "custom":
-      return cron || "No schedule set";
+      return cron || t("components.scheduleeditor.no_schedule_set", { defaultValue: "No schedule set" });
   }
 }
 
@@ -204,7 +251,7 @@ const { t } = useTranslation();
         <SelectContent>
           {PRESETS.map((p) => (
             <SelectItem key={p.value} value={p.value}>
-              {p.label}
+              {t(p.labelKey, { defaultValue: p.defaultValue })}
             </SelectItem>
           ))}
         </SelectContent>
@@ -242,7 +289,7 @@ const { t } = useTranslation();
                 <SelectContent>
                   {HOURS.map((h) => (
                     <SelectItem key={h.value} value={h.value}>
-                      {h.label}
+                      {formatHourLabel(h.value, t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -309,7 +356,7 @@ const { t } = useTranslation();
                       emitChange(preset, hour, minute, d.value, dayOfMonth, customCron);
                     }}
                   >
-                    {d.label}
+                    {t(d.labelKey, { defaultValue: d.defaultValue })}
                   </Button>
                 ))}
               </div>

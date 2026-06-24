@@ -38,6 +38,9 @@ import type {
   SuggestTasksInteraction,
   SuggestTasksResultCreatedTask,
 } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
+
+type TranslateFn = typeof translate;
 
 export interface SuggestedTaskTreeNode {
   task: SuggestedTaskDraft;
@@ -101,6 +104,7 @@ export function getRequestConfirmationTargetHref({
 
 export function buildIssueThreadInteractionSummary(
   interaction: IssueThreadInteraction,
+  t: TranslateFn = translate,
 ) {
   if (interaction.kind === "suggest_tasks") {
     const count = interaction.payload.tasks.length;
@@ -108,57 +112,89 @@ export function buildIssueThreadInteractionSummary(
       const createdCount = interaction.result?.createdTasks?.length ?? 0;
       const skippedCount = interaction.result?.skippedClientKeys?.length ?? 0;
       if (skippedCount > 0) {
-        return `Accepted ${createdCount} of ${count} tasks`;
+        return t("lib.issuethreadinteractions.accepted_created_of_tasks", {
+          createdCount,
+          count,
+          defaultValue: "Accepted {{createdCount}} of {{count}} tasks",
+        });
       }
-      return createdCount === 1 ? "Accepted 1 task" : `Accepted ${createdCount} tasks`;
+      return t("lib.issuethreadinteractions.accepted_tasks", {
+        count: createdCount,
+        defaultValue: "Accepted {{count}} task",
+        defaultValue_plural: "Accepted {{count}} tasks",
+      });
     }
     if (interaction.status === "rejected") {
-      return count === 1 ? "Rejected 1 task" : `Rejected ${count} tasks`;
+      return t("lib.issuethreadinteractions.rejected_tasks", {
+        count,
+        defaultValue: "Rejected {{count}} task",
+        defaultValue_plural: "Rejected {{count}} tasks",
+      });
     }
-    return count === 1 ? "Suggested 1 task" : `Suggested ${count} tasks`;
+    return t("lib.issuethreadinteractions.suggested_tasks", {
+      count,
+      defaultValue: "Suggested {{count}} task",
+      defaultValue_plural: "Suggested {{count}} tasks",
+    });
   }
 
   if (interaction.kind === "request_confirmation") {
-    if (interaction.status === "accepted") return "Confirmed request";
-    if (interaction.status === "rejected") return "Declined request";
+    if (interaction.status === "accepted") return t("lib.issuethreadinteractions.confirmed_request", { defaultValue: "Confirmed request" });
+    if (interaction.status === "rejected") return t("lib.issuethreadinteractions.declined_request", { defaultValue: "Declined request" });
     if (interaction.status === "expired") {
       const outcome = interaction.result?.outcome;
-      if (outcome === "superseded_by_comment") return "Confirmation expired after comment";
-      if (outcome === "stale_target") return "Confirmation expired after target changed";
-      return "Confirmation expired";
+      if (outcome === "superseded_by_comment") return t("lib.issuethreadinteractions.confirmation_expired_after_comment", { defaultValue: "Confirmation expired after comment" });
+      if (outcome === "stale_target") return t("lib.issuethreadinteractions.confirmation_expired_after_target_changed", { defaultValue: "Confirmation expired after target changed" });
+      return t("lib.issuethreadinteractions.confirmation_expired", { defaultValue: "Confirmation expired" });
     }
-    return "Requested confirmation";
+    return t("lib.issuethreadinteractions.requested_confirmation", { defaultValue: "Requested confirmation" });
   }
 
   if (interaction.kind === "request_checkbox_confirmation") {
     const optionCount = interaction.payload.options.length;
     if (interaction.status === "accepted") {
       const selectedCount = interaction.result?.selectedOptionIds?.length ?? 0;
-      if (selectedCount === 0) return "Confirmed with no options selected";
-      return selectedCount === 1
-        ? `Confirmed 1 of ${optionCount} options`
-        : `Confirmed ${selectedCount} of ${optionCount} options`;
+      if (selectedCount === 0) return t("lib.issuethreadinteractions.confirmed_no_options", { defaultValue: "Confirmed with no options selected" });
+      return t("lib.issuethreadinteractions.confirmed_selected_of_options", {
+        selectedCount,
+        optionCount,
+        defaultValue: "Confirmed {{selectedCount}} of {{optionCount}} options",
+      });
     }
-    if (interaction.status === "rejected") return "Declined selection";
+    if (interaction.status === "rejected") return t("lib.issuethreadinteractions.declined_selection", { defaultValue: "Declined selection" });
     if (interaction.status === "expired") {
       const outcome = interaction.result?.outcome;
-      if (outcome === "superseded_by_comment") return "Selection expired after comment";
-      if (outcome === "stale_target") return "Selection expired after target changed";
-      return "Selection expired";
+      if (outcome === "superseded_by_comment") return t("lib.issuethreadinteractions.selection_expired_after_comment", { defaultValue: "Selection expired after comment" });
+      if (outcome === "stale_target") return t("lib.issuethreadinteractions.selection_expired_after_target_changed", { defaultValue: "Selection expired after target changed" });
+      return t("lib.issuethreadinteractions.selection_expired", { defaultValue: "Selection expired" });
     }
-    return optionCount === 1
-      ? "Requested a selection from 1 option"
-      : `Requested a selection from ${optionCount} options`;
+    return t("lib.issuethreadinteractions.requested_selection_from_options", {
+      count: optionCount,
+      defaultValue: "Requested a selection from {{count}} option",
+      defaultValue_plural: "Requested a selection from {{count}} options",
+    });
   }
 
   const count = interaction.payload.questions.length;
   if (interaction.status === "answered") {
-    return count === 1 ? "Answered 1 question" : `Answered ${count} questions`;
+    return t("lib.issuethreadinteractions.answered_questions", {
+      count,
+      defaultValue: "Answered {{count}} question",
+      defaultValue_plural: "Answered {{count}} questions",
+    });
   }
   if (interaction.status === "cancelled") {
-    return count === 1 ? "Cancelled 1 question" : `Cancelled ${count} questions`;
+    return t("lib.issuethreadinteractions.cancelled_questions", {
+      count,
+      defaultValue: "Cancelled {{count}} question",
+      defaultValue_plural: "Cancelled {{count}} questions",
+    });
   }
-  return count === 1 ? "Asked 1 question" : `Asked ${count} questions`;
+  return t("lib.issuethreadinteractions.asked_questions", {
+    count,
+    defaultValue: "Asked {{count}} question",
+    defaultValue_plural: "Asked {{count}} questions",
+  });
 }
 
 export function buildSuggestedTaskTree(

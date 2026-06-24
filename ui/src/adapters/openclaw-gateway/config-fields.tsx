@@ -196,7 +196,7 @@ const { t } = useTranslation();
             placeholder={t("misc.config_fields.openclaw_gateway_token.attr_placeholder", { defaultValue: "OpenClaw gateway token" })}
           />
 
-          <Field label="Role">
+          <Field label={t("misc.config_fields.role.attr_label", { defaultValue: "Role" })}>
             <DraftInput
               value={eff("adapterConfig", "role", String(config.role ?? "operator"))}
               onCommit={(v) => mark("adapterConfig", "role", v || undefined)}

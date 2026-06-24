@@ -119,12 +119,12 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/instance/settings/heartbeats" },
-      { label: "Plugins", href: "/instance/settings/plugins" },
-      { label: plugin?.manifestJson?.displayName ?? plugin?.packageName ?? "Plugin Details" },
+      { label: selectedCompany?.name ?? t("pages.pluginsettings.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.pluginsettings.settings.breadcrumb", { defaultValue: "Settings" }), href: "/instance/settings/heartbeats" },
+      { label: t("pages.pluginsettings.plugins.breadcrumb", { defaultValue: "Plugins" }), href: "/instance/settings/plugins" },
+      { label: plugin?.manifestJson?.displayName ?? plugin?.packageName ?? t("pages.pluginsettings.plugin_details.breadcrumb", { defaultValue: "Plugin Details" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs, companyPrefix, plugin]);
+  }, [selectedCompany?.name, setBreadcrumbs, companyPrefix, plugin, t]);
 
   useEffect(() => {
     setActiveTab("configuration");
@@ -179,8 +179,8 @@ const { t } = useTranslation();
         <PageTabBar
           align="start"
           items={[
-            { value: "configuration", label: "Configuration" },
-            { value: "status", label: "Status" },
+            { value: "configuration", label: t("pages.pluginsettings.configuration.tab_label", { defaultValue: "Configuration" }) },
+            { value: "status", label: t("pages.pluginsettings.status.tab_label", { defaultValue: "Status" }) },
           ]}
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "configuration" | "status")}

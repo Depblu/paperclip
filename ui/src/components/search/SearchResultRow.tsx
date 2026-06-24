@@ -1,4 +1,5 @@
 import { memo, type ComponentType, type SVGProps } from "react";
+import { useTranslation } from "@/i18n";
 import { Bot, FileText, Hexagon, MessageSquare, Paperclip, Quote } from "lucide-react";
 import type { Agent, CompanySearchResult } from "@paperclipai/shared";
 import { Link } from "@/lib/router";
@@ -9,18 +10,19 @@ import { HighlightedText, type HighlightedTextProps } from "./HighlightedText";
 
 type SnippetStyle = {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
-  label: string;
+  labelKey: string;
+  fallbackLabel: string;
 };
 
 const SNIPPET_STYLES: Record<string, SnippetStyle> = {
-  comment: { Icon: MessageSquare, label: "Comment" },
-  document: { Icon: FileText, label: "Doc" },
-  artifact: { Icon: Paperclip, label: "Artifact" },
-  description: { Icon: Quote, label: "Description" },
+  comment: { Icon: MessageSquare, labelKey: "components.searchresultrow.comment.label", fallbackLabel: "Comment" },
+  document: { Icon: FileText, labelKey: "components.searchresultrow.doc.label", fallbackLabel: "Doc" },
+  artifact: { Icon: Paperclip, labelKey: "components.searchresultrow.artifact.label", fallbackLabel: "Artifact" },
+  description: { Icon: Quote, labelKey: "components.searchresultrow.description.label", fallbackLabel: "Description" },
 };
 
 function snippetStyle(field: string, fallbackLabel: string): SnippetStyle {
-  return SNIPPET_STYLES[field] ?? { Icon: Quote, label: fallbackLabel };
+  return SNIPPET_STYLES[field] ?? { Icon: Quote, labelKey: "", fallbackLabel };
 }
 
 function formatRelativeTime(input: string | null): string {
@@ -60,6 +62,7 @@ function SearchResultRowImpl({
   isActive,
   className,
 }: SearchResultRowProps) {
+  const { t } = useTranslation();
   if (result.type === "agent") {
     return (
       <Link
@@ -244,7 +247,9 @@ interface SnippetLineProps {
 }
 
 function SnippetLine({ text, highlights, field, fallbackLabel, multiline = false }: SnippetLineProps) {
-  const { Icon, label } = snippetStyle(field, fallbackLabel);
+  const { t } = useTranslation();
+  const { Icon, labelKey, fallbackLabel: resolvedFallback } = snippetStyle(field, fallbackLabel);
+  const label = labelKey ? t(labelKey, { defaultValue: resolvedFallback }) : resolvedFallback;
   return (
     <div
       className={cn(

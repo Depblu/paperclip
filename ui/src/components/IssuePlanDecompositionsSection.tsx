@@ -51,7 +51,11 @@ const { t } = useTranslation();
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium text-muted-foreground">{t("components.issueplandecompositionssection.plan_decomposition.jsx-text", { defaultValue: "Plan decomposition" })}</h3>
         <span className="text-[11px] text-muted-foreground/80">
-          {items.length === 1 ? "1 accepted plan revision" : `${items.length} accepted plan revisions`}
+          {t("components.issueplandecompositionssection.accepted_plan_revision_count.label", {
+            count: items.length,
+            defaultValue: "{{count}} accepted plan revision",
+            defaultValue_plural: "{{count}} accepted plan revisions",
+          })}
         </span>
       </div>
 
@@ -64,8 +68,14 @@ const { t } = useTranslation();
             : null;
           const revisionLabel =
             record.acceptedPlanRevisionNumber != null
-              ? `revision ${record.acceptedPlanRevisionNumber}`
-              : `revision ${record.acceptedPlanRevisionId.slice(0, 8)}`;
+              ? t("components.issueplandecompositionssection.revision_number.label", {
+                number: record.acceptedPlanRevisionNumber,
+                defaultValue: "revision {{number}}",
+              })
+              : t("components.issueplandecompositionssection.revision_id.label", {
+                id: record.acceptedPlanRevisionId.slice(0, 8),
+                defaultValue: "revision {{id}}",
+              });
           const completedAt =
             record.completedAt && typeof record.completedAt === "string"
               ? record.completedAt
@@ -93,12 +103,22 @@ const { t } = useTranslation();
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={record.status} />
                 <span className="text-xs text-muted-foreground">
-                  {t("components.issueplandecompositionssection.plan.jsx-text", { defaultValue: "\n                  Plan " })}{revisionLabel}
+                  {t("components.issueplandecompositionssection.plan_revision.label", {
+                    revisionLabel,
+                    defaultValue: "Plan {{revisionLabel}}",
+                  })}
                 </span>
                 <span className="text-xs text-muted-foreground/70">·</span>
                 <span className="inline-flex items-center gap-1 text-xs text-foreground">
                   <GitBranch className="h-3 w-3 text-muted-foreground" />
-                  {created} {t("components.issueplandecompositionssection.of.jsx-text", { defaultValue: " of " })}{requested} {t("components.issueplandecompositionssection.child.jsx-text", { defaultValue: " child " })}{requested === 1 ? "task" : "tasks"} {t("components.issueplandecompositionssection.created.jsx-text", { defaultValue: " created\n                " })}</span>
+                  {t("components.issueplandecompositionssection.child_tasks_created.label", {
+                    created,
+                    requested,
+                    count: requested,
+                    defaultValue: "{{created}} of {{requested}} child task created",
+                    defaultValue_plural: "{{created}} of {{requested}} child tasks created",
+                  })}
+                </span>
                 {record.status === "completed" && requested > 0 ? (
                   <span
                     className="inline-flex items-center gap-1 rounded-sm border border-sky-500/40 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-medium text-sky-900 dark:text-sky-100"

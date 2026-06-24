@@ -23,11 +23,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Inbox", href: "/inbox" },
-      { label: "Join Requests" },
+      { label: selectedCompany?.name ?? t("pages.joinrequestqueue.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.joinrequestqueue.inbox.breadcrumb", { defaultValue: "Inbox" }), href: "/inbox" },
+      { label: t("pages.joinrequestqueue.join_requests.breadcrumb", { defaultValue: "Join Requests" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const requestsQuery = useQuery({
     queryKey: queryKeys.access.joinRequests(selectedCompanyId ?? "", `${status}:${requestType}`),
@@ -46,7 +46,7 @@ const { t } = useTranslation();
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.joinRequests(selectedCompanyId!, `${status}:${requestType}`) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.companyMembers(selectedCompanyId!) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.companyUserDirectory(selectedCompanyId!) });
-      pushToast({ title: "Join request approved", tone: "success" });
+      pushToast({ title: t("pages.joinrequestqueue.join_request_approved.toast_title", { defaultValue: "Join request approved" }), tone: "success" });
     },
   });
 
@@ -54,7 +54,7 @@ const { t } = useTranslation();
     mutationFn: (requestId: string) => accessApi.rejectJoinRequest(selectedCompanyId!, requestId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.joinRequests(selectedCompanyId!, `${status}:${requestType}`) });
-      pushToast({ title: "Join request rejected", tone: "success" });
+      pushToast({ title: t("pages.joinrequestqueue.join_request_rejected.toast_title", { defaultValue: "Join request rejected" }), tone: "success" });
     },
   });
 

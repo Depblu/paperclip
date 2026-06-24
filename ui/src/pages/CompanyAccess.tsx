@@ -45,11 +45,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/company/settings" },
-      { label: "Members" },
+      { label: selectedCompany?.name ?? t("pages.companyaccess.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.companyaccess.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("pages.companyaccess.members.breadcrumb", { defaultValue: "Members" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const membersQuery = useQuery({
     queryKey: queryKeys.access.companyMembers(selectedCompanyId ?? ""),
@@ -87,14 +87,14 @@ const { t } = useTranslation();
       setEditingMemberId(null);
       await refreshAccessData();
       pushToast({
-        title: "Member updated",
+        title: t("pages.companyaccess.member_updated.title", { defaultValue: "Member updated" }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to update member",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyaccess.failed_to_update_member.title", { defaultValue: "Failed to update member" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -105,14 +105,14 @@ const { t } = useTranslation();
     onSuccess: async () => {
       await refreshAccessData();
       pushToast({
-        title: "Join request approved",
+        title: t("pages.companyaccess.join_request_approved.title", { defaultValue: "Join request approved" }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to approve join request",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyaccess.failed_to_approve_join_request.title", { defaultValue: "Failed to approve join request" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -123,14 +123,14 @@ const { t } = useTranslation();
     onSuccess: async () => {
       await refreshAccessData();
       pushToast({
-        title: "Join request rejected",
+        title: t("pages.companyaccess.join_request_rejected.title", { defaultValue: "Join request rejected" }),
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to reject join request",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyaccess.failed_to_reject_join_request.title", { defaultValue: "Failed to reject join request" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -175,18 +175,22 @@ const { t } = useTranslation();
         await queryClient.invalidateQueries({ queryKey: queryKeys.issues.listTouchedByMe(selectedCompanyId) });
       }
       pushToast({
-        title: "Member removed",
+        title: t("pages.companyaccess.member_removed.title", { defaultValue: "Member removed" }),
         body:
           result.reassignedIssueCount > 0
-            ? `${result.reassignedIssueCount} assigned task${result.reassignedIssueCount === 1 ? "" : "s"} cleaned up.`
+            ? t("pages.companyaccess.assigned_tasks_cleaned_up.body", {
+              count: result.reassignedIssueCount,
+              defaultValue: "{{count}} assigned task cleaned up.",
+              defaultValue_plural: "{{count}} assigned tasks cleaned up.",
+            })
             : undefined,
         tone: "success",
       });
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to remove member",
-        body: error instanceof Error ? error.message : "Unknown error",
+        title: t("pages.companyaccess.failed_to_remove_member.title", { defaultValue: "Failed to remove member" }),
+        body: error instanceof Error ? error.message : t("common.unknown_error", { defaultValue: "Unknown error" }),
         tone: "error",
       });
     },
@@ -282,22 +286,34 @@ const { t } = useTranslation();
                     request.requesterUser?.name ||
                     request.requestEmailSnapshot ||
                     request.requestingUserId ||
-                    "Unknown human requester"
+                    t("pages.companyaccess.unknown_human_requester.text", { defaultValue: "Unknown human requester" })
                   }
                   subtitle={
                     request.requesterUser?.email ||
                     request.requestEmailSnapshot ||
                     request.requestingUserId ||
-                    "No email available"
+                    t("pages.companyaccess.no_email_available.text", { defaultValue: "No email available" })
                   }
                   context={
                     request.invite
-                      ? `${request.invite.allowedJoinTypes} join invite${request.invite.humanRole ? ` • default role ${request.invite.humanRole}` : ""}`
-                      : "Invite metadata unavailable"
+                      ? t("pages.companyaccess.join_invite_context.text", {
+                        defaultValue: "{{joinTypes}} join invite{{role}}",
+                        joinTypes: request.invite.allowedJoinTypes,
+                        role: request.invite.humanRole
+                          ? t("pages.companyaccess.default_role_suffix.text", {
+                            defaultValue: " • default role {{role}}",
+                            role: request.invite.humanRole,
+                          })
+                          : "",
+                      })
+                      : t("pages.companyaccess.invite_metadata_unavailable.text", { defaultValue: "Invite metadata unavailable" })
                   }
-                  detail={`Submitted ${new Date(request.createdAt).toLocaleString()}`}
-                  approveLabel="Approve human"
-                  rejectLabel="Reject human"
+                  detail={t("pages.companyaccess.submitted_at.text", {
+                    defaultValue: "Submitted {{date}}",
+                    date: new Date(request.createdAt).toLocaleString(),
+                  })}
+                  approveLabel={t("pages.companyaccess.approve_human.action", { defaultValue: "Approve human" })}
+                  rejectLabel={t("pages.companyaccess.reject_human.action", { defaultValue: "Reject human" })}
                   disabled={joinRequestActionPending}
                   onApprove={() => approveJoinRequestMutation.mutate(request.id)}
                   onReject={() => rejectJoinRequestMutation.mutate(request.id)}
@@ -310,9 +326,9 @@ const { t } = useTranslation();
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="grid grid-cols-[minmax(0,1.5fr)_120px_120px_180px] gap-3 border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             <div>{t("pages.companyaccess.user_account.jsx-text", { defaultValue: "User account" })}</div>
-            <div>Role</div>
+            <div>{t("pages.companyaccess.role.jsx-text", { defaultValue: "Role" })}</div>
             <div>{t("pages.companyaccess.status.jsx-text", { defaultValue: "Status" })}</div>
-            <div className="text-right">Action</div>
+            <div className="text-right">{t("pages.companyaccess.action.jsx-text", { defaultValue: "Action" })}</div>
           </div>
           {members.length === 0 ? (
             <div className="px-4 py-8 text-sm text-muted-foreground">{t("pages.companyaccess.no_user_memberships_found_for_th.jsx-text", { defaultValue: "No user memberships found for this company yet." })}</div>
@@ -529,10 +545,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Settings", href: "/company/settings" },
-      { label: "Access" },
+      { label: t("pages.companyaccess.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("pages.companyaccess.access.breadcrumb", { defaultValue: "Access" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const permissionsSlot = slots.find((slot) => slot.routePath === "permissions");
   if (permissionsSlot) {

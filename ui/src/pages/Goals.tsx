@@ -20,8 +20,8 @@ const { t } = useTranslation();
   const { setBreadcrumbs } = useBreadcrumbs();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Goals" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.goals.goals.breadcrumb", { defaultValue: "Goals" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const { data: goals, isLoading, error } = useQuery({
     queryKey: queryKeys.goals.list(selectedCompanyId!),
@@ -30,7 +30,7 @@ const { t } = useTranslation();
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Target} message="Select a company to view goals." />;
+    return <EmptyState icon={Target} message={t("pages.goals.select_a_company_to_view_goals.jsx-text", { defaultValue: "Select a company to view goals." })} />;
   }
 
   if (isLoading) {
@@ -44,8 +44,8 @@ const { t } = useTranslation();
       {goals && goals.length === 0 && (
         <EmptyState
           icon={Target}
-          message="No goals yet."
-          action="Add Goal"
+          message={t("pages.goals.no_goals_yet.jsx-text", { defaultValue: "No goals yet." })}
+          action={t("pages.goals.add_goal_action.jsx-text", { defaultValue: "Add Goal" })}
           onAction={() => openNewGoal()}
         />
       )}

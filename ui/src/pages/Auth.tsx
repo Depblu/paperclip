@@ -59,7 +59,7 @@ const { t } = useTranslation();
       navigate(nextPath, { replace: true });
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Authentication failed");
+      setError(err instanceof Error ? err.message : t("pages.auth.authentication_failed.error", { defaultValue: "Authentication failed" }));
     },
   });
 
@@ -103,7 +103,7 @@ const { t } = useTranslation();
               event.preventDefault();
               if (mutation.isPending) return;
               if (!canSubmit) {
-                setError("Please fill in all required fields.");
+                setError(t("pages.auth.please_fill_in_all_required.feedback", { defaultValue: "Please fill in all required fields." }));
                 return;
               }
               mutation.mutate();
@@ -111,7 +111,7 @@ const { t } = useTranslation();
           >
             {mode === "sign_up" && (
               <div>
-                <label htmlFor="name" className="text-xs text-muted-foreground mb-1 block">Name</label>
+                <label htmlFor="name" className="text-xs text-muted-foreground mb-1 block">{t("pages.auth.name.attr_label", { defaultValue: "Name" })}</label>
                 <input
                   id="name"
                   name="name"

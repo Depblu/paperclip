@@ -11,6 +11,7 @@ import { Activity, ExternalLink, Loader2, Play, RotateCcw, Square } from "lucide
 import { useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { TFunction } from "i18next";
 
 export type WorkspaceRuntimeAction = "start" | "stop" | "restart" | "run";
 
@@ -221,6 +222,53 @@ function buildRequest(item: WorkspaceRuntimeControlItem, action: WorkspaceRuntim
   };
 }
 
+function actionLabel(action: WorkspaceRuntimeAction, t: TFunction): string {
+  if (action === "run") return t("components.workspaceruntimecontrols.run.jsx-text", { defaultValue: "Run" });
+  if (action === "start") return t("components.workspaceruntimecontrols.start.jsx-text", { defaultValue: "Start" });
+  if (action === "stop") return t("components.workspaceruntimecontrols.stop.jsx-text", { defaultValue: "Stop" });
+  return t("components.workspaceruntimecontrols.restart.jsx-text", { defaultValue: "Restart" });
+}
+
+function localizedKind(kind: WorkspaceRuntimeControlItem["kind"], t: TFunction): string {
+  return kind === "job"
+    ? t("components.workspaceruntimecontrols.job.jsx-text", { defaultValue: "job" })
+    : t("components.workspaceruntimecontrols.service.jsx-text", { defaultValue: "service" });
+}
+
+function localizedStatus(status: string, t: TFunction): string {
+  const labels: Record<string, string> = {
+    starting: t("components.workspaceruntimecontrols.status.starting", { defaultValue: "starting" }),
+    running: t("components.workspaceruntimecontrols.status.running", { defaultValue: "running" }),
+    stopped: t("components.workspaceruntimecontrols.status.stopped", { defaultValue: "stopped" }),
+    failed: t("components.workspaceruntimecontrols.status.failed", { defaultValue: "failed" }),
+    "run once": t("components.workspaceruntimecontrols.status.run_once", { defaultValue: "run once" }),
+  };
+  return labels[status] ?? status;
+}
+
+function localizedLifecycle(lifecycle: WorkspaceRuntimeControlItem["lifecycle"], t: TFunction): string | null {
+  if (lifecycle === "shared") return t("components.workspaceruntimecontrols.lifecycle.shared", { defaultValue: "shared" });
+  if (lifecycle === "ephemeral") return t("components.workspaceruntimecontrols.lifecycle.ephemeral", { defaultValue: "ephemeral" });
+  return null;
+}
+
+function localizedHealthStatus(status: WorkspaceRuntimeControlItem["healthStatus"], t: TFunction): string | null {
+  if (status === "healthy") return t("components.workspaceruntimecontrols.health.healthy", { defaultValue: "healthy" });
+  if (status === "unhealthy") return t("components.workspaceruntimecontrols.health.unhealthy", { defaultValue: "unhealthy" });
+  if (status === "unknown") return t("components.workspaceruntimecontrols.health.unknown", { defaultValue: "unknown" });
+  return null;
+}
+
+function localizedDisabledReason(reason: string, t: TFunction): string {
+  if (reason === "This job is missing a command.") {
+    return t("components.workspaceruntimecontrols.this_job_is_missing_a_command.jsx-text", { defaultValue: "This job is missing a command." });
+  }
+  if (reason === "This runtime service no longer matches a configured workspace command.") {
+    return t("components.workspaceruntimecontrols.this_runtime_service_no_longer.jsx-text", { defaultValue: "This runtime service no longer matches a configured workspace command." });
+  }
+  return reason;
+}
+
 function CommandActionButtons({
   item,
   isPending,
@@ -248,13 +296,7 @@ const { t } = useTranslation();
       {actions.map((action) => {
         const request = buildRequest(item, action);
         const Icon = action === "stop" ? Square : action === "restart" ? RotateCcw : Play;
-        const label = action === "run"
-          ? "Run"
-          : action === "start"
-            ? "Start"
-            : action === "stop"
-              ? "Stop"
-              : "Restart";
+        const label = actionLabel(action, t);
         const showSpinner = isPending && requestMatchesPending(pendingRequest, request);
         const disabled =
           isPending
@@ -325,8 +367,8 @@ const { t } = useTranslation();
                   <div className="space-y-1">
                     <div className="text-sm font-medium">{item.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {item.kind} · {item.statusLabel}
-                      {item.lifecycle ? ` · ${item.lifecycle}` : ""}
+                      {localizedKind(item.kind, t)} · {localizedStatus(item.statusLabel, t)}
+                      {item.lifecycle ? ` · ${localizedLifecycle(item.lifecycle, t)}` : ""}
                     </div>
                   </div>
                   <CommandActionButtons
@@ -347,7 +389,7 @@ const { t } = useTranslation();
                   {item.port ? <div>{t("components.workspaceruntimecontrols.port.jsx-text", { defaultValue: "Port " })}{item.port}</div> : null}
                   {item.command ? <div className="break-all font-mono">{item.command}</div> : null}
                   {item.cwd ? <div className="break-all font-mono">{item.cwd}</div> : null}
-                  {item.disabledReason ? <div>{item.disabledReason}</div> : null}
+                  {item.disabledReason ? <div>{localizedDisabledReason(item.disabledReason, t)}</div> : null}
                 </div>
                 {item.healthStatus && item.statusLabel !== "stopped" ? (
                   <div className="flex items-center gap-2">
@@ -359,7 +401,7 @@ const { t } = useTranslation();
                           ? "border-destructive/30 bg-destructive/10 text-destructive"
                           : "border-border text-muted-foreground",
                     )}>
-                      {item.healthStatus}
+                      {localizedHealthStatus(item.healthStatus, t)}
                     </span>
                   </div>
                 ) : null}
@@ -377,8 +419,8 @@ export function WorkspaceRuntimeControls({
   items,
   isPending = false,
   pendingRequest = null,
-  serviceEmptyMessage = "No services are configured for this workspace.",
-  jobEmptyMessage = "No one-shot jobs are configured for this workspace.",
+  serviceEmptyMessage,
+  jobEmptyMessage,
   emptyMessage,
   disabledHint = null,
   onAction,
@@ -395,7 +437,8 @@ const { t } = useTranslation();
     jobs: [],
     otherServices: [],
   };
-  const resolvedServiceEmptyMessage = emptyMessage ?? serviceEmptyMessage;
+  const resolvedServiceEmptyMessage = emptyMessage ?? serviceEmptyMessage ?? t("components.workspaceruntimecontrols.no_services_are_configured_for_t.jsx-text", { defaultValue: "No services are configured for this workspace." });
+  const resolvedJobEmptyMessage = jobEmptyMessage ?? t("components.workspaceruntimecontrols.no_one_shot_jobs_are_configured.jsx-text", { defaultValue: "No one-shot jobs are configured for this workspace." });
   const runningCount = [...resolvedSections.services, ...resolvedSections.otherServices].filter(
     (item) => item.statusLabel === "running" || item.statusLabel === "starting",
   ).length;
@@ -416,12 +459,14 @@ const { t } = useTranslation();
               )}
             >
               <Activity className="h-3.5 w-3.5" />
-              {runningCount > 0 ? `${runningCount} services running` : "No services running"}
+              {runningCount > 0
+                ? t("components.workspaceruntimecontrols.services_running.jsx-text", { count: runningCount, defaultValue: "{{count}} services running" })
+                : t("components.workspaceruntimecontrols.no_services_running.jsx-text", { defaultValue: "No services running" })}
             </span>
             <span className="text-xs text-muted-foreground">
               {resolvedSections.jobs.length > 0
-                ? `${resolvedSections.jobs.length} job${resolvedSections.jobs.length === 1 ? "" : "s"} available to run on demand.`
-                : "Each command can be controlled independently."}
+                ? t("components.workspaceruntimecontrols.jobs_available_to_run_on_demand.jsx-text", { count: resolvedSections.jobs.length, defaultValue: "{{count}} job available to run on demand." })
+                : t("components.workspaceruntimecontrols.each_command_can_be_controlled.jsx-text", { defaultValue: "Each command can be controlled independently." })}
             </span>
           </div>
           {visibleDisabledHint ? <p className="text-xs text-muted-foreground">{visibleDisabledHint}</p> : null}
@@ -430,7 +475,7 @@ const { t } = useTranslation();
 
       <CommandSection
         title={t("components.workspaceruntimecontrols.services.attr_title", { defaultValue: "Services" })}
-        description="Long-running commands that Paperclip can supervise for this workspace."
+        description={t("components.workspaceruntimecontrols.long_running_commands_that_pap.attr_description", { defaultValue: "Long-running commands that Paperclip can supervise for this workspace." })}
         items={resolvedSections.services}
         emptyMessage={resolvedServiceEmptyMessage}
         disabledHint={visibleDisabledHint}
@@ -442,9 +487,9 @@ const { t } = useTranslation();
 
       <CommandSection
         title={t("components.workspaceruntimecontrols.jobs.attr_title", { defaultValue: "Jobs" })}
-        description="One-shot commands that run now and exit when they finish."
+        description={t("components.workspaceruntimecontrols.one_shot_commands_that_run_now.attr_description", { defaultValue: "One-shot commands that run now and exit when they finish." })}
         items={resolvedSections.jobs}
-        emptyMessage={jobEmptyMessage}
+        emptyMessage={resolvedJobEmptyMessage}
         isPending={isPending}
         pendingRequest={pendingRequest}
         onAction={onAction}
@@ -454,7 +499,7 @@ const { t } = useTranslation();
       {resolvedSections.otherServices.length > 0 ? (
         <CommandSection
           title={t("components.workspaceruntimecontrols.untracked_services.attr_title", { defaultValue: "Untracked services" })}
-          description="Running services that no longer match the current workspace command config."
+          description={t("components.workspaceruntimecontrols.running_services_that_no_longe.attr_description", { defaultValue: "Running services that no longer match the current workspace command config." })}
           items={resolvedSections.otherServices}
           emptyMessage=""
           isPending={isPending}

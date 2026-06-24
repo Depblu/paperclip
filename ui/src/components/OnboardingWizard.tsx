@@ -216,13 +216,13 @@ const { t } = useTranslation();
         !disabledTypes.has(a.type) &&
         isVisualAdapterChoice(a.type)
       )
-      .map((a) => ({ ...getAdapterDisplay(a.type), type: a.type }));
+      .map((a) => ({ ...getAdapterDisplay(a.type, t), type: a.type }));
 
     return {
       recommendedAdapters: all.filter((a) => a.recommended),
       moreAdapters: all.filter((a) => !a.recommended),
     };
-  }, [disabledTypes]);
+  }, [disabledTypes, t]);
   const COMMAND_PLACEHOLDERS: Record<string, string> = {
     claude_local: "claude",
     codex_local: "codex",
@@ -418,7 +418,7 @@ const { t } = useTranslation();
 
       setStep(2);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create company");
+      setError(err instanceof Error ? err.message : t("components.onboardingwizard.failed_to_create_company.error", { defaultValue: "Failed to create company" }));
     } finally {
       setLoading(false);
     }
@@ -432,7 +432,7 @@ const { t } = useTranslation();
       if (adapterType === "opencode_local") {
         if (!isValidOpenCodeModelId(model)) {
           setError(
-            "OpenCode requires an explicit model in provider/model format."
+            t("components.onboardingwizard.opencode_requires_explicit_model.error", { defaultValue: "OpenCode requires an explicit model in provider/model format." })
           );
           return;
         }
@@ -466,7 +466,7 @@ const { t } = useTranslation();
       });
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create agent");
+      setError(err instanceof Error ? err.message : t("components.onboardingwizard.failed_to_create_agent.error", { defaultValue: "Failed to create agent" }));
     } finally {
       setLoading(false);
     }
@@ -580,7 +580,7 @@ const { t } = useTranslation();
           : `/issues/${issueRef}`
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create task");
+      setError(err instanceof Error ? err.message : t("components.onboardingwizard.failed_to_create_task.error", { defaultValue: "Failed to create task" }));
     } finally {
       setLoading(false);
     }
@@ -635,10 +635,10 @@ const { t } = useTranslation();
               <div className="flex items-center gap-0 mb-8 border-b border-border">
                 {(
                   [
-                    { step: 1 as Step, label: "Company", icon: Building2 },
-                    { step: 2 as Step, label: "Agent", icon: Bot },
-                    { step: 3 as Step, label: "Task", icon: ListTodo },
-                    { step: 4 as Step, label: "Launch", icon: Rocket }
+                    { step: 1 as Step, label: t("components.onboardingwizard.company.step_label", { defaultValue: "Company" }), icon: Building2 },
+                    { step: 2 as Step, label: t("components.onboardingwizard.agent.step_label", { defaultValue: "Agent" }), icon: Bot },
+                    { step: 3 as Step, label: t("components.onboardingwizard.task.step_label", { defaultValue: "Task" }), icon: ListTodo },
+                    { step: 4 as Step, label: t("components.onboardingwizard.launch.step_label", { defaultValue: "Launch" }), icon: Rocket }
                   ] as const
                 ).map(({ step: s, label, icon: Icon }) => (
                   <button
@@ -726,7 +726,7 @@ const { t } = useTranslation();
                       {t("components.onboardingwizard.agent_name.jsx-text", { defaultValue: "\n                      Agent name\n                    " })}</label>
                     <input
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
-                      placeholder="CEO"
+                      placeholder={t("components.onboardingwizard.ceo.attr_placeholder", { defaultValue: "CEO" })}
                       value={agentName}
                       onChange={(e) => setAgentName(e.target.value)}
                       autoFocus

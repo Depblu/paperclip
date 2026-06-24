@@ -1,5 +1,6 @@
 import { memo, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { Link, useLocation } from "react-router-dom";
 import type {
   Agent,
@@ -170,8 +171,8 @@ function shouldImplicitlyReopenComment(issueStatus: string | undefined, assignee
   return resumesToTodo && assigneeValue.startsWith("agent:");
 }
 
-function humanizeValue(value: string | null): string {
-  if (!value) return "None";
+function humanizeValue(value: string | null, t: TFunction): string {
+  if (!value) return t("components.commentthread.none.value_label", { defaultValue: "None" });
   return value.replace(/_/g, " ");
 }
 
@@ -179,14 +180,15 @@ function formatTimelineAssigneeLabel(
   assignee: IssueTimelineAssignee,
   agentMap?: Map<string, Agent>,
   currentUserId?: string | null,
+  t?: TFunction,
 ) {
   if (assignee.agentId) {
     return agentMap?.get(assignee.agentId)?.name ?? assignee.agentId.slice(0, 8);
   }
   if (assignee.userId) {
-    return formatAssigneeUserLabel(assignee.userId, currentUserId) ?? "Board";
+    return formatAssigneeUserLabel(assignee.userId, currentUserId) ?? t?.("components.commentthread.board.actor_label", { defaultValue: "Board" }) ?? "Board";
   }
-  return "Unassigned";
+  return t?.("components.commentthread.unassigned.assignee_label", { defaultValue: "Unassigned" }) ?? "Unassigned";
 }
 
 function formatTimelineActorName(
@@ -194,14 +196,15 @@ function formatTimelineActorName(
   actorId: string,
   agentMap?: Map<string, Agent>,
   currentUserId?: string | null,
+  t?: TFunction,
 ) {
   if (actorType === "agent") {
     return agentMap?.get(actorId)?.name ?? actorId.slice(0, 8);
   }
   if (actorType === "system") {
-    return "System";
+    return t?.("components.commentthread.system.actor_label", { defaultValue: "System" }) ?? "System";
   }
-  return formatAssigneeUserLabel(actorId, currentUserId) ?? "Board";
+  return formatAssigneeUserLabel(actorId, currentUserId) ?? t?.("components.commentthread.board.actor_label", { defaultValue: "Board" }) ?? "Board";
 }
 
 function initialsForName(name: string) {
@@ -497,8 +500,10 @@ function TimelineEventCard({
 }) {
 const { t } = useTranslation();
 
-  const actorName = formatTimelineActorName(event.actorType, event.actorId, agentMap, currentUserId);
-  const actionLabel = event.followUpRequested ? "requested follow-up" : "updated this task";
+  const actorName = formatTimelineActorName(event.actorType, event.actorId, agentMap, currentUserId, t);
+  const actionLabel = event.followUpRequested
+    ? t("components.commentthread.requested_follow_up.action_label", { defaultValue: "requested follow-up" })
+    : t("components.commentthread.updated_this_task.action_label", { defaultValue: "updated this task" });
 
   return (
     <div id={`activity-${event.id}`} className="flex items-start gap-2.5 py-1.5">
@@ -523,11 +528,11 @@ const { t } = useTranslation();
             <span className="w-14 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {t("components.commentthread.status.jsx-text", { defaultValue: "\n              Status\n            " })}</span>
             <span className="text-muted-foreground">
-              {humanizeValue(event.statusChange.from)}
+              {humanizeValue(event.statusChange.from, t)}
             </span>
             <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-medium text-foreground">
-              {humanizeValue(event.statusChange.to)}
+              {humanizeValue(event.statusChange.to, t)}
             </span>
           </div>
         ) : null}
@@ -537,11 +542,11 @@ const { t } = useTranslation();
             <span className="w-14 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {t("components.commentthread.assignee.jsx-text", { defaultValue: "\n              Assignee\n            " })}</span>
             <span className="text-muted-foreground">
-              {formatTimelineAssigneeLabel(event.assigneeChange.from, agentMap, currentUserId)}
+              {formatTimelineAssigneeLabel(event.assigneeChange.from, agentMap, currentUserId, t)}
             </span>
             <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-medium text-foreground">
-              {formatTimelineAssigneeLabel(event.assigneeChange.to, agentMap, currentUserId)}
+              {formatTimelineAssigneeLabel(event.assigneeChange.to, agentMap, currentUserId, t)}
             </span>
           </div>
         ) : null}

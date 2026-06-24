@@ -1349,7 +1349,13 @@ const { t } = useTranslation();
             !bordered && "inset-0 rounded-sm",
           )}
         >
-          {t("components.markdowneditor.drop.jsx-text", { defaultValue: "\n          Drop " })}{onDropFile ? "file" : "image"} {t("components.markdowneditor.to_upload.jsx-text", { defaultValue: " to upload\n        " })}</div>
+          {t("components.markdowneditor.drop_to_upload.label", {
+            kind: onDropFile
+              ? t("components.markdowneditor.file.kind", { defaultValue: "file" })
+              : t("components.markdowneditor.image.kind", { defaultValue: "image" }),
+            defaultValue: "Drop {{kind}} to upload",
+          })}
+        </div>
       )}
       {uploadError && (
         <p className="px-3 pb-2 text-xs text-destructive">{uploadError}</p>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, KeyRound, Loader2, Plus, X } from "lucide-react";
 import type { CompanySecret, SecretVersionSelector } from "@paperclipai/shared";
@@ -34,11 +34,15 @@ interface SecretBindingPickerProps {
 }
 
 const VERSION_LATEST: SecretVersionSelector = "latest";
+type TranslateFn = typeof translate;
 
-function describeSecret(secret: CompanySecret): string {
+function describeSecret(secret: CompanySecret, t: TranslateFn = translate): string {
   const provider = secret.provider.replaceAll("_", " ");
   if (secret.managedMode === "external_reference") {
-    return `External · ${provider}`;
+    return t("components.secretbindingpicker.external_provider", {
+      provider,
+      defaultValue: "External · {{provider}}",
+    });
   }
   return provider;
 }
@@ -167,7 +171,7 @@ const { t } = useTranslation();
             ) : null}
             {filteredSecrets.map((secret) => (
               <option key={secret.id} value={secret.id}>
-                {secret.name} — {describeSecret(secret)}
+                {secret.name} — {describeSecret(secret, t)}
               </option>
             ))}
           </select>
@@ -231,17 +235,17 @@ const { t } = useTranslation();
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-foreground/80" htmlFor="secret-name">Name</label>
+              <label className="text-xs font-medium text-foreground/80" htmlFor="secret-name">{t("components.secretbindingpicker.name.attr_label", { defaultValue: "Name" })}</label>
               <Input
                 id="secret-name"
                 value={createName}
                 onChange={(event) => setCreateName(event.target.value)}
-                placeholder="OPENAI_API_KEY"
+                placeholder={t("components.secretbindingpicker.openai_api_key.attr_placeholder", { defaultValue: "OPENAI_API_KEY" })}
                 autoFocus
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-foreground/80" htmlFor="secret-value">Value</label>
+              <label className="text-xs font-medium text-foreground/80" htmlFor="secret-value">{t("components.secretbindingpicker.value.attr_label", { defaultValue: "Value" })}</label>
               <Textarea
                 id="secret-value"
                 value={createValue}

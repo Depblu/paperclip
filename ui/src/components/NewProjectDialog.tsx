@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
@@ -39,13 +40,18 @@ import { MarkdownEditor, type MarkdownEditorRef, type MentionOption } from "./Ma
 import { StatusBadge } from "./StatusBadge";
 import { ChoosePathButton } from "./PathInstructionsModal";
 
-const projectStatuses = [
-  { value: "backlog", label: "Backlog" },
-  { value: "planned", label: "Planned" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-];
+const projectStatuses = ["backlog", "planned", "in_progress", "completed", "cancelled"] as const;
+
+function projectStatusLabel(status: string, t: TFunction) {
+  switch (status) {
+    case "backlog": return t("components.newprojectdialog.backlog.status_label", { defaultValue: "Backlog" });
+    case "planned": return t("components.newprojectdialog.planned.status_label", { defaultValue: "Planned" });
+    case "in_progress": return t("components.newprojectdialog.in_progress.status_label", { defaultValue: "In progress" });
+    case "completed": return t("components.newprojectdialog.completed.status_label", { defaultValue: "Completed" });
+    case "cancelled": return t("components.newprojectdialog.cancelled.status_label", { defaultValue: "Cancelled" });
+    default: return status.replace(/_/g, " ");
+  }
+}
 
 export function NewProjectDialog() {
 const { t } = useTranslation();
@@ -99,7 +105,7 @@ const { t } = useTranslation();
 
   const uploadDescriptionImage = useMutation({
     mutationFn: async (file: File) => {
-      if (!selectedCompanyId) throw new Error("No company selected");
+      if (!selectedCompanyId) throw new Error(t("components.newprojectdialog.no_company_selected.error", { defaultValue: "No company selected" }));
       return assetsApi.uploadImage(selectedCompanyId, file, "projects/drafts");
     },
   });
@@ -132,7 +138,7 @@ const { t } = useTranslation();
   const deriveWorkspaceNameFromPath = (value: string) => {
     const normalized = value.trim().replace(/[\\/]+$/, "");
     const segments = normalized.split(/[\\/]/).filter(Boolean);
-    return segments[segments.length - 1] ?? "Local folder";
+    return segments[segments.length - 1] ?? t("components.newprojectdialog.local_folder", { defaultValue: "Local folder" });
   };
 
   const deriveWorkspaceNameFromRepo = (value: string) => {
@@ -140,9 +146,9 @@ const { t } = useTranslation();
       const parsed = new URL(value);
       const segments = parsed.pathname.split("/").filter(Boolean);
       const repo = segments[segments.length - 1]?.replace(/\.git$/i, "") ?? "";
-      return repo || "GitHub repo";
+      return repo || t("components.newprojectdialog.github_repo", { defaultValue: "GitHub repo" });
     } catch {
-      return "GitHub repo";
+      return t("components.newprojectdialog.github_repo", { defaultValue: "GitHub repo" });
     }
   };
 
@@ -152,11 +158,15 @@ const { t } = useTranslation();
     const repoUrl = workspaceRepoUrl.trim();
 
     if (localPath && !isAbsolutePath(localPath)) {
-      setWorkspaceError("Local folder must be a full absolute path.");
+      setWorkspaceError(t("components.newprojectdialog.local_folder_absolute.error", {
+        defaultValue: "Local folder must be a full absolute path.",
+      }));
       return;
     }
     if (repoUrl && !looksLikeRepoUrl(repoUrl)) {
-      setWorkspaceError("Repo must use a valid GitHub or GitHub Enterprise repo URL.");
+      setWorkspaceError(t("components.newprojectdialog.repo_valid_github.error", {
+        defaultValue: "Repo must use a valid GitHub or GitHub Enterprise repo URL.",
+      }));
       return;
     }
 
@@ -343,14 +353,14 @@ const { t } = useTranslation();
             <PopoverContent className="w-40 p-1" align="start">
               {projectStatuses.map((s) => (
                 <button
-                  key={s.value}
+                  key={s}
                   className={cn(
                     "flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50",
-                    s.value === status && "bg-accent"
+                    s === status && "bg-accent"
                   )}
-                  onClick={() => { setStatus(s.value); setStatusOpen(false); }}
+                  onClick={() => { setStatus(s); setStatusOpen(false); }}
                 >
-                  {s.label}
+                  {projectStatusLabel(s, t)}
                 </button>
               ))}
             </PopoverContent>

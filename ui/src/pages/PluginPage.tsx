@@ -122,10 +122,10 @@ const { t } = useTranslation();
       return;
     }
     setBreadcrumbs([
-      { label: "Plugins", href: "/instance/settings/plugins" },
+      { label: t("pages.pluginpage.plugins.breadcrumb", { defaultValue: "Plugins" }), href: "/instance/settings/plugins" },
       { label: pageSlot.pluginDisplayName },
     ]);
-  }, [pageSlot, pluginRouteSplat, setBreadcrumbs, routeSidebarActive]);
+  }, [pageSlot, pluginRouteSplat, setBreadcrumbs, routeSidebarActive, t]);
 
   if (!resolvedCompanyId) {
     if (hasInvalidCompanyPrefix) {

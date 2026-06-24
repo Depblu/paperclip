@@ -91,10 +91,10 @@ const { t } = useTranslation();
   return (
     <div className="mt-3 space-y-1.5 text-sm">
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground w-20 sm:w-24 shrink-0 text-xs">Name</span>
+        <span className="text-muted-foreground w-20 sm:w-24 shrink-0 text-xs">{t("components.approvalpayload.name.jsx-text", { defaultValue: "Name" })}</span>
         <span className="font-medium">{String(payload.name ?? "—")}</span>
       </div>
-      <PayloadField label="Role" value={payload.role} />
+      <PayloadField label={t("components.approvalpayload.role.attr_label", { defaultValue: "Role" })} value={payload.role} />
       <PayloadField label={t("components.approvalpayload.title.attr_label", { defaultValue: "Title" })} value={payload.title} />
       <PayloadField label={t("components.approvalpayload.icon.attr_label", { defaultValue: "Icon" })} value={payload.icon} />
       {!!payload.capabilities && (

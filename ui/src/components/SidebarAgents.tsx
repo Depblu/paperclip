@@ -52,12 +52,6 @@ import type { Agent } from "@paperclipai/shared";
  */
 const RECENT_AGENT_LIMIT = 5;
 
-const AGENT_SORT_CHOICES: SidebarSectionRadioChoice[] = [
-  { value: "top", label: "Top" },
-  { value: "alphabetical", label: "Alphabetical" },
-  { value: "recent", label: "Recent" },
-];
-
 function agentTimestamp(agent: Agent, field: "lastHeartbeatAt" | "updatedAt" | "createdAt"): number {
   const raw = agent[field];
   if (!raw) return 0;
@@ -110,7 +104,7 @@ function SidebarAgentItem({
   runCount: number;
   setSidebarOpen: (open: boolean) => void;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const routeRef = agentRouteRef(agent);
   const href = activeTab ? `${agentUrl(agent)}/${activeTab}` : agentUrl(agent);
@@ -357,6 +351,11 @@ const { t } = useTranslation();
     },
     [sortModeStorageKey],
   );
+  const agentSortChoices: SidebarSectionRadioChoice[] = [
+    { value: "top", label: t("components.sidebaragents.top.sort_label", { defaultValue: "Top" }) },
+    { value: "alphabetical", label: t("components.sidebaragents.alphabetical.sort_label", { defaultValue: "Alphabetical" }) },
+    { value: "recent", label: t("components.sidebaragents.recent.sort_label", { defaultValue: "Recent" }) },
+  ];
 
   const pauseResumeAgent = useMutation({
     mutationFn: ({ agent, action }: { agent: Agent; action: "pause" | "resume" }) =>
@@ -426,18 +425,18 @@ const { t } = useTranslation();
       label={t("components.sidebaragents.agents.attr_label", { defaultValue: "Agents" })}
       collapsible={{ open, onOpenChange: setOpen }}
       headerAction={{
-        ariaLabel: "New agent",
+        ariaLabel: t("components.sidebaragents.new_agent.attr_aria-label", { defaultValue: "New agent" }),
         icon: Plus,
         onClick: openNewAgent,
       }}
       menu={{
-        ariaLabel: "Agents section actions",
+        ariaLabel: t("components.sidebaragents.agents_section_actions.attr_aria-label", { defaultValue: "Agents section actions" }),
         actions: [
-          { type: "item", label: "Browse agents", icon: Users, href: "/agents/all" },
+          { type: "item", label: t("components.sidebaragents.browse_agents.menu_item", { defaultValue: "Browse agents" }), icon: Users, href: "/agents/all" },
           { type: "separator" },
         ],
-        radioLabel: "Agent sort",
-        radioChoices: AGENT_SORT_CHOICES,
+        radioLabel: t("components.sidebaragents.agent_sort.radio_label", { defaultValue: "Agent sort" }),
+        radioChoices: agentSortChoices,
         radioValue: sortMode,
         onRadioValueChange: persistSortMode,
       }}

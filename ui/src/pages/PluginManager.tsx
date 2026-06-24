@@ -103,11 +103,11 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/instance/settings/heartbeats" },
-      { label: "Plugins" },
+      { label: selectedCompany?.name ?? t("pages.pluginmanager.company.breadcrumb", { defaultValue: "Company" }), href: "/dashboard" },
+      { label: t("pages.pluginmanager.settings.breadcrumb", { defaultValue: "Settings" }), href: "/instance/settings/heartbeats" },
+      { label: t("pages.pluginmanager.plugins.breadcrumb", { defaultValue: "Plugins" }) },
     ]);
-  }, [selectedCompany?.name, setBreadcrumbs]);
+  }, [selectedCompany?.name, setBreadcrumbs, t]);
 
   const { data: plugins, isLoading, error } = useQuery({
     queryKey: queryKeys.plugins.all,
@@ -132,10 +132,10 @@ const { t } = useTranslation();
       invalidatePluginQueries();
       setInstallDialogOpen(false);
       setInstallPackage("");
-      pushToast({ title: "Plugin installed successfully", tone: "success" });
+      pushToast({ title: t("pages.pluginmanager.plugin_installed_success.title", { defaultValue: "Plugin installed successfully" }), tone: "success" });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Failed to install plugin", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.pluginmanager.failed_to_install_plugin.title", { defaultValue: "Failed to install plugin" }), body: err.message, tone: "error" });
     },
   });
 
@@ -143,10 +143,10 @@ const { t } = useTranslation();
     mutationFn: (pluginId: string) => pluginsApi.uninstall(pluginId),
     onSuccess: () => {
       invalidatePluginQueries();
-      pushToast({ title: "Plugin uninstalled successfully", tone: "success" });
+      pushToast({ title: t("pages.pluginmanager.plugin_uninstalled_success.title", { defaultValue: "Plugin uninstalled successfully" }), tone: "success" });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Failed to uninstall plugin", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.pluginmanager.failed_to_uninstall_plugin.title", { defaultValue: "Failed to uninstall plugin" }), body: err.message, tone: "error" });
     },
   });
 
@@ -154,10 +154,10 @@ const { t } = useTranslation();
     mutationFn: (pluginId: string) => pluginsApi.enable(pluginId),
     onSuccess: () => {
       invalidatePluginQueries();
-      pushToast({ title: "Plugin enabled", tone: "success" });
+      pushToast({ title: t("pages.pluginmanager.plugin_enabled.title", { defaultValue: "Plugin enabled" }), tone: "success" });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Failed to enable plugin", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.pluginmanager.failed_to_enable_plugin.title", { defaultValue: "Failed to enable plugin" }), body: err.message, tone: "error" });
     },
   });
 
@@ -165,10 +165,10 @@ const { t } = useTranslation();
     mutationFn: (pluginId: string) => pluginsApi.disable(pluginId),
     onSuccess: () => {
       invalidatePluginQueries();
-      pushToast({ title: "Plugin disabled", tone: "info" });
+      pushToast({ title: t("pages.pluginmanager.plugin_disabled.title", { defaultValue: "Plugin disabled" }), tone: "info" });
     },
     onError: (err: Error) => {
-      pushToast({ title: "Failed to disable plugin", body: err.message, tone: "error" });
+      pushToast({ title: t("pages.pluginmanager.failed_to_disable_plugin.title", { defaultValue: "Failed to disable plugin" }), body: err.message, tone: "error" });
     },
   });
 

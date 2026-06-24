@@ -124,10 +124,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Agents", href: "/agents" },
-      { label: "New Agent" },
+      { label: t("pages.newagent.agents.breadcrumb", { defaultValue: "Agents" }), href: "/agents" },
+      { label: t("pages.newagent.new_agent.breadcrumb", { defaultValue: "New Agent" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     if (isFirstAgent) {

@@ -52,8 +52,8 @@ const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Activity" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.activity.activity.breadcrumb", { defaultValue: "Activity" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: [...queryKeys.activity(selectedCompanyId!), { limit: ACTIVITY_PAGE_LIMIT }],
@@ -104,7 +104,7 @@ const { t } = useTranslation();
   }, [data]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={History} message="Select a company to view activity." />;
+    return <EmptyState icon={History} message={t("pages.activity.select_a_company_to_view_activ.jsx-text", { defaultValue: "Select a company to view activity." })} />;
   }
 
   if (isLoading) {
@@ -141,7 +141,7 @@ const { t } = useTranslation();
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 
       {filtered && filtered.length === 0 && (
-        <EmptyState icon={History} message="No activity yet." />
+        <EmptyState icon={History} message={t("pages.activity.no_activity_yet.jsx-text", { defaultValue: "No activity yet." })} />
       )}
 
       {filtered && filtered.length > 0 && (

@@ -11,43 +11,6 @@ interface ShortcutSection {
   shortcuts: ShortcutEntry[];
 }
 
-const sections: ShortcutSection[] = [
-  {
-    title: "Inbox",
-    shortcuts: [
-      { keys: ["j"], label: "Move down" },
-      { keys: ["↓"], label: "Move down" },
-      { keys: ["k"], label: "Move up" },
-      { keys: ["↑"], label: "Move up" },
-      { keys: ["←"], label: "Collapse selected group" },
-      { keys: ["→"], label: "Expand selected group" },
-      { keys: ["Enter"], label: "Open selected item" },
-      { keys: ["a"], label: "Archive item" },
-      { keys: ["y"], label: "Archive item" },
-      { keys: ["r"], label: "Mark as read" },
-      { keys: ["U"], label: "Mark as unread" },
-    ],
-  },
-  {
-    title: "Task detail",
-    shortcuts: [
-      { keys: ["y"], label: "Quick-archive back to inbox" },
-      { keys: ["g", "i"], label: "Go to inbox" },
-      { keys: ["g", "c"], label: "Focus comment composer" },
-    ],
-  },
-  {
-    title: "Global",
-    shortcuts: [
-      { keys: ["/"], label: "Search current page or quick search" },
-      { keys: ["c"], label: "New task" },
-      { keys: ["["], label: "Toggle sidebar" },
-      { keys: ["]"], label: "Toggle panel" },
-      { keys: ["?"], label: "Show keyboard shortcuts" },
-    ],
-  },
-];
-
 function KeyCap({ children }: { children: string }) {
 const { t } = useTranslation();
 
@@ -60,6 +23,42 @@ const { t } = useTranslation();
 
 export function KeyboardShortcutsCheatsheetContent() {
 const { t } = useTranslation();
+  const sections: ShortcutSection[] = [
+    {
+      title: t("components.keyboardshortcutscheatsheet.inbox.section", { defaultValue: "Inbox" }),
+      shortcuts: [
+        { keys: ["j"], label: t("components.keyboardshortcutscheatsheet.move_down.shortcut", { defaultValue: "Move down" }) },
+        { keys: ["↓"], label: t("components.keyboardshortcutscheatsheet.move_down.shortcut", { defaultValue: "Move down" }) },
+        { keys: ["k"], label: t("components.keyboardshortcutscheatsheet.move_up.shortcut", { defaultValue: "Move up" }) },
+        { keys: ["↑"], label: t("components.keyboardshortcutscheatsheet.move_up.shortcut", { defaultValue: "Move up" }) },
+        { keys: ["←"], label: t("components.keyboardshortcutscheatsheet.collapse_selected_group.shortcut", { defaultValue: "Collapse selected group" }) },
+        { keys: ["→"], label: t("components.keyboardshortcutscheatsheet.expand_selected_group.shortcut", { defaultValue: "Expand selected group" }) },
+        { keys: ["Enter"], label: t("components.keyboardshortcutscheatsheet.open_selected_item.shortcut", { defaultValue: "Open selected item" }) },
+        { keys: ["a"], label: t("components.keyboardshortcutscheatsheet.archive_item.shortcut", { defaultValue: "Archive item" }) },
+        { keys: ["y"], label: t("components.keyboardshortcutscheatsheet.archive_item.shortcut", { defaultValue: "Archive item" }) },
+        { keys: ["r"], label: t("components.keyboardshortcutscheatsheet.mark_as_read.shortcut", { defaultValue: "Mark as read" }) },
+        { keys: ["U"], label: t("components.keyboardshortcutscheatsheet.mark_as_unread.shortcut", { defaultValue: "Mark as unread" }) },
+      ],
+    },
+    {
+      title: t("components.keyboardshortcutscheatsheet.task_detail.section", { defaultValue: "Task detail" }),
+      shortcuts: [
+        { keys: ["y"], label: t("components.keyboardshortcutscheatsheet.quick_archive_back_to_inbox.shortcut", { defaultValue: "Quick-archive back to inbox" }) },
+        { keys: ["g", "i"], label: t("components.keyboardshortcutscheatsheet.go_to_inbox.shortcut", { defaultValue: "Go to inbox" }) },
+        { keys: ["g", "c"], label: t("components.keyboardshortcutscheatsheet.focus_comment_composer.shortcut", { defaultValue: "Focus comment composer" }) },
+      ],
+    },
+    {
+      title: t("components.keyboardshortcutscheatsheet.global.section", { defaultValue: "Global" }),
+      shortcuts: [
+        { keys: ["/"], label: t("components.keyboardshortcutscheatsheet.search_current_page.shortcut", { defaultValue: "Search current page or quick search" }) },
+        { keys: ["c"], label: t("components.keyboardshortcutscheatsheet.new_task.shortcut", { defaultValue: "New task" }) },
+        { keys: ["["], label: t("components.keyboardshortcutscheatsheet.toggle_sidebar.shortcut", { defaultValue: "Toggle sidebar" }) },
+        { keys: ["]"], label: t("components.keyboardshortcutscheatsheet.toggle_panel.shortcut", { defaultValue: "Toggle panel" }) },
+        { keys: ["?"], label: t("components.keyboardshortcutscheatsheet.show_keyboard_shortcuts.shortcut", { defaultValue: "Show keyboard shortcuts" }) },
+      ],
+    },
+  ];
 
   return (
     <>

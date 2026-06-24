@@ -56,9 +56,9 @@ const { t } = useTranslation();
   const sourceLabel = fold.sourceIssueIdentifier ?? fold.sourceIssueId.slice(0, 8);
   const evidenceShort = shortenEvidenceId(fold.sameRunEvidenceId);
   const evidenceAt = isoOrLocaleString(fold.sameRunEvidenceAt);
-  const silenceAgeLabel = formatSilenceAgeMs(fold.silenceAgeMs);
+  const silenceAgeLabel = formatSilenceAgeMs(fold.silenceAgeMs, t);
   const silenceStartedLabel = isoOrLocaleString(fold.silenceStartedAt);
-  const cleanupLabel = formatCleanupOutcome(fold.cleanup.outcome);
+  const cleanupLabel = formatCleanupOutcome(fold.cleanup.outcome, t);
   const finalizedRelative = finalizedAt ? relativeTime(finalizedAt) : null;
   const evaluationLabel = fold.evaluationIssueIdentifier ?? fold.evaluationIssueId?.slice(0, 8);
 

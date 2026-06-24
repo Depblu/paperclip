@@ -44,10 +44,10 @@ const { t } = useTranslation();
   useEffect(() => {
     if (!pageSlot) return;
     setBreadcrumbs([
-      { label: "Settings", href: "/company/settings" },
+      { label: t("pages.companysettingspluginpage.settings.breadcrumb", { defaultValue: "Settings" }), href: "/company/settings" },
       { label: pageSlot.displayName },
     ]);
-  }, [pageSlot, setBreadcrumbs]);
+  }, [pageSlot, setBreadcrumbs, t]);
 
   if (!resolvedCompanyId) {
     if (hasInvalidCompanyPrefix) {

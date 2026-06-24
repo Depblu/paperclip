@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import type { Issue } from "@paperclipai/shared";
 import { Columns3 } from "lucide-react";
 import { pickTextColorForPillBg } from "@/lib/color-contrast";
@@ -18,6 +18,7 @@ import { formatAssigneeUserLabel } from "../lib/assignees";
 import type { InboxIssueColumn } from "../lib/inbox";
 import { cn } from "../lib/utils";
 import { timeAgo } from "../lib/timeAgo";
+type TranslateFn = typeof translate;
 import { Identity } from "./Identity";
 import { StatusIcon } from "./StatusIcon";
 
@@ -45,8 +46,11 @@ const issueColumnDescriptions: Record<InboxIssueColumn, string> = {
   updated: "Latest visible activity time.",
 };
 
-export function issueActivityText(issue: Issue): string {
-  return `Updated ${timeAgo(issue.lastActivityAt ?? issue.lastExternalCommentAt ?? issue.updatedAt)}`;
+export function issueActivityText(issue: Issue, t: TranslateFn = translate): string {
+  return t("components.issuecolumns.updated_time_ago", {
+    time: timeAgo(issue.lastActivityAt ?? issue.lastExternalCommentAt ?? issue.updatedAt),
+    defaultValue: "Updated {{time}}",
+  });
 }
 
 function issueTrailingGridTemplate(columns: InboxIssueColumn[]): string {

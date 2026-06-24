@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import type { ActivityEvent, Issue, Agent } from "@paperclipai/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router";
@@ -72,60 +73,79 @@ type LivenessCopy = {
   description: string;
 };
 
-const LIVENESS_COPY: Record<RunLivenessState, LivenessCopy> = {
+const LIVENESS_COPY: Record<RunLivenessState, Omit<LivenessCopy, "label" | "description"> & {
+  labelKey: string;
+  labelDefault: string;
+  descriptionKey: string;
+  descriptionDefault: string;
+}> = {
   completed: {
-    label: "Completed",
+    labelKey: "completed",
+    labelDefault: "Completed",
     tone: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    description: "Task reached a terminal state.",
+    descriptionKey: "task_reached_terminal",
+    descriptionDefault: "Task reached a terminal state.",
   },
   advanced: {
-    label: "Advanced",
+    labelKey: "advanced",
+    labelDefault: "Advanced",
     tone: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
-    description: "Run produced concrete evidence of progress.",
+    descriptionKey: "run_produced_progress",
+    descriptionDefault: "Run produced concrete evidence of progress.",
   },
   plan_only: {
-    label: "Plan only",
+    labelKey: "plan_only",
+    labelDefault: "Plan only",
     tone: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-    description: "Run described future work without concrete action evidence.",
+    descriptionKey: "future_work_without_action",
+    descriptionDefault: "Run described future work without concrete action evidence.",
   },
   empty_response: {
-    label: "Empty response",
+    labelKey: "empty_response",
+    labelDefault: "Empty response",
     tone: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
-    description: "Run finished without useful output.",
+    descriptionKey: "finished_without_output",
+    descriptionDefault: "Run finished without useful output.",
   },
   blocked: {
-    label: "Blocked",
+    labelKey: "blocked",
+    labelDefault: "Blocked",
     tone: "border-yellow-500/30 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300",
-    description: "Run or task declared a blocker.",
+    descriptionKey: "declared_blocker",
+    descriptionDefault: "Run or task declared a blocker.",
   },
   failed: {
-    label: "Failed",
+    labelKey: "failed",
+    labelDefault: "Failed",
     tone: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
-    description: "Run ended unsuccessfully.",
+    descriptionKey: "ended_unsuccessfully",
+    descriptionDefault: "Run ended unsuccessfully.",
   },
   needs_followup: {
-    label: "Needs follow-up",
+    labelKey: "needs_followup",
+    labelDefault: "Needs follow-up",
     tone: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-    description: "Run produced useful output but did not prove concrete progress.",
+    descriptionKey: "useful_without_progress",
+    descriptionDefault: "Run produced useful output but did not prove concrete progress.",
   },
 };
 
-const PENDING_LIVENESS_COPY: LivenessCopy = {
-  label: "Checks after finish",
+const PENDING_LIVENESS_COPY = {
+  labelDefault: "Checks after finish",
   tone: "border-border bg-background text-muted-foreground",
-  description: "Liveness is evaluated after the run finishes.",
+  descriptionDefault: "Liveness is evaluated after the run finishes.",
 };
 
-const RETRY_PENDING_LIVENESS_COPY: LivenessCopy = {
-  label: "Retry pending",
+const RETRY_PENDING_LIVENESS_COPY = {
+  labelDefault: "Retry pending",
   tone: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
-  description: "Paperclip queued an automatic retry that has not started yet.",
+  descriptionDefault: "Paperclip queued an automatic retry that has not started yet.",
 };
 
-const MISSING_LIVENESS_COPY: LivenessCopy = {
-  label: "No liveness data",
+const MISSING_LIVENESS_COPY = {
+  labelDefault: "No liveness data",
   tone: "border-border bg-background text-muted-foreground",
-  description: "This run has no persisted liveness classification.",
+  descriptionDefault: "This run has no persisted liveness classification.",
 };
 
 const TERMINAL_CHILD_STATUSES = new Set<Issue["status"]>(["done", "cancelled"]);
@@ -134,21 +154,25 @@ const ACTIVE_RUN_STATUSES = new Set(["queued", "running"]);
 type RunOutputSilenceLevel = NonNullable<ActiveRunForIssue["outputSilence"]>["level"];
 
 type RunOutputSilenceCopy = {
-  label: string;
+  labelKey: string;
+  labelDefault: string;
   tone: string;
 };
 
 const RUN_OUTPUT_SILENCE_COPY: Partial<Record<RunOutputSilenceLevel, RunOutputSilenceCopy>> = {
   suspicious: {
-    label: "Silence watch",
+    labelKey: "silence_watch",
+    labelDefault: "Silence watch",
     tone: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
   },
   critical: {
-    label: "Stale run",
+    labelKey: "stale_run",
+    labelDefault: "Stale run",
     tone: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
   },
   snoozed: {
-    label: "Silence snoozed",
+    labelKey: "silence_snoozed",
+    labelDefault: "Silence snoozed",
     tone: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
   },
 };
@@ -281,29 +305,92 @@ function mergeRuns(
   });
 }
 
-function statusLabel(status: string) {
-  return status.replace(/_/g, " ");
+function statusLabel(status: string, t: TFunction) {
+  switch (status) {
+    case "running":
+      return t("components.issuerunledger.status_running", { defaultValue: "running" });
+    case "queued":
+      return t("components.issuerunledger.status_queued", { defaultValue: "queued" });
+    case "scheduled_retry":
+      return t("components.issuerunledger.status_scheduled_retry", { defaultValue: "scheduled retry" });
+    case "succeeded":
+      return t("components.issuerunledger.status_succeeded", { defaultValue: "succeeded" });
+    case "failed":
+      return t("components.issuerunledger.status_failed", { defaultValue: "failed" });
+    case "cancelled":
+      return t("components.issuerunledger.status_cancelled", { defaultValue: "cancelled" });
+    case "timed_out":
+      return t("components.issuerunledger.status_timed_out", { defaultValue: "timed out" });
+    default:
+      return status.replace(/_/g, " ");
+  }
 }
 
 function isActiveRun(run: Pick<LedgerRun, "status" | "isLive">) {
   return run.isLive || ACTIVE_RUN_STATUSES.has(run.status);
 }
 
-function runSummary(run: LedgerRun, agentMap: ReadonlyMap<string, Pick<Agent, "name">>) {
+function runSummary(run: LedgerRun, agentMap: ReadonlyMap<string, Pick<Agent, "name">>, t: TFunction) {
   const agentName = compactAgentName(run, agentMap);
-  if (run.status === "running") return `Running now by ${agentName}`;
-  if (run.status === "queued") return `Queued for ${agentName}`;
-  if (run.status === "scheduled_retry") return `Automatic retry scheduled for ${agentName}`;
-  return `${statusLabel(run.status)} by ${agentName}`;
+  if (run.status === "running") {
+    return t("components.issuerunledger.running_now_by", { agentName, defaultValue: "Running now by {{agentName}}" });
+  }
+  if (run.status === "queued") {
+    return t("components.issuerunledger.queued_for", { agentName, defaultValue: "Queued for {{agentName}}" });
+  }
+  if (run.status === "scheduled_retry") {
+    return t("components.issuerunledger.automatic_retry_scheduled_for", {
+      agentName,
+      defaultValue: "Automatic retry scheduled for {{agentName}}",
+    });
+  }
+  return t("components.issuerunledger.status_by_agent", {
+    status: statusLabel(run.status, t),
+    agentName,
+    defaultValue: "{{status}} by {{agentName}}",
+  });
 }
 
-function livenessCopyForRun(run: LedgerRun) {
-  if (run.status === "scheduled_retry") return RETRY_PENDING_LIVENESS_COPY;
-  if (run.livenessState) return LIVENESS_COPY[run.livenessState];
-  return isActiveRun(run) ? PENDING_LIVENESS_COPY : MISSING_LIVENESS_COPY;
+function localizeLivenessCopy(
+  copy: {
+    labelKey: string;
+    labelDefault: string;
+    descriptionKey: string;
+    descriptionDefault: string;
+    tone: string;
+  },
+  t: TFunction,
+): LivenessCopy {
+  return {
+    label: t(`components.issuerunledger.${copy.labelKey}.liveness_label`, { defaultValue: copy.labelDefault }),
+    tone: copy.tone,
+    description: t(`components.issuerunledger.${copy.descriptionKey}.liveness_description`, { defaultValue: copy.descriptionDefault }),
+  };
 }
 
-function stopReasonLabel(run: RunForIssue) {
+function livenessCopyForRun(run: LedgerRun, t: TFunction) {
+  if (run.status === "scheduled_retry") {
+    return localizeLivenessCopy({
+      labelKey: "retry_pending",
+      descriptionKey: "queued_automatic_retry",
+      ...RETRY_PENDING_LIVENESS_COPY,
+    }, t);
+  }
+  if (run.livenessState) return localizeLivenessCopy(LIVENESS_COPY[run.livenessState], t);
+  return localizeLivenessCopy(isActiveRun(run)
+    ? {
+      labelKey: "checks_after_finish",
+      descriptionKey: "evaluated_after_finish",
+      ...PENDING_LIVENESS_COPY,
+    }
+    : {
+      labelKey: "no_liveness_data",
+      descriptionKey: "no_persisted_liveness",
+      ...MISSING_LIVENESS_COPY,
+    }, t);
+}
+
+function stopReasonLabel(run: RunForIssue, t: TFunction) {
   const result = asRecord(run.resultJson);
   const stopReason = readString(result?.stopReason);
   const timeoutFired = result?.timeoutFired === true;
@@ -312,42 +399,51 @@ function stopReasonLabel(run: RunForIssue) {
     effectiveTimeoutSec && effectiveTimeoutSec > 0 ? `${effectiveTimeoutSec}s timeout` : null;
 
   if (timeoutFired || stopReason === "timeout") {
-    return timeoutText ? `timeout (${timeoutText})` : "timeout";
+    return timeoutText
+      ? t("components.issuerunledger.timeout_with_detail.stop_reason", { defaultValue: "timeout ({{detail}})", detail: timeoutText })
+      : t("components.issuerunledger.timeout.stop_reason", { defaultValue: "timeout" });
   }
-  if (stopReason === "max_turns_exhausted" || stopReason === "turn_limit_exhausted") return "max turns exhausted";
-  if (stopReason === "budget_paused") return "budget paused";
-  if (stopReason === "cancelled") return "cancelled";
-  if (stopReason === "paused") return "paused by board";
-  if (stopReason === "process_lost") return "process lost";
-  if (stopReason === "adapter_failed") return "adapter failed";
-  if (stopReason === "completed") return timeoutText ? `completed (${timeoutText})` : "completed";
+  if (stopReason === "max_turns_exhausted" || stopReason === "turn_limit_exhausted") return t("components.issuerunledger.max_turns_exhausted.stop_reason", { defaultValue: "max turns exhausted" });
+  if (stopReason === "budget_paused") return t("components.issuerunledger.budget_paused.stop_reason", { defaultValue: "budget paused" });
+  if (stopReason === "cancelled") return t("components.issuerunledger.cancelled.stop_reason", { defaultValue: "cancelled" });
+  if (stopReason === "paused") return t("components.issuerunledger.paused_by_board.stop_reason", { defaultValue: "paused by board" });
+  if (stopReason === "process_lost") return t("components.issuerunledger.process_lost.stop_reason", { defaultValue: "process lost" });
+  if (stopReason === "adapter_failed") return t("components.issuerunledger.adapter_failed.stop_reason", { defaultValue: "adapter failed" });
+  if (stopReason === "completed") {
+    return timeoutText
+      ? t("components.issuerunledger.completed_with_detail.stop_reason", { defaultValue: "completed ({{detail}})", detail: timeoutText })
+      : t("components.issuerunledger.completed.stop_reason", { defaultValue: "completed" });
+  }
   return timeoutText;
 }
 
-function stopStatusLabel(run: LedgerRun, stopReason: string | null) {
+function stopStatusLabel(run: LedgerRun, stopReason: string | null, t: TFunction) {
   if (stopReason) return stopReason;
-  if (run.status === "scheduled_retry") return "Retry pending";
-  if (run.status === "queued") return "Waiting to start";
-  if (run.status === "running") return "Still running";
-  if (!run.livenessState) return "Unavailable";
-  return "No stop reason";
+  if (run.status === "scheduled_retry") return t("components.issuerunledger.retry_pending.stop_status", { defaultValue: "Retry pending" });
+  if (run.status === "queued") return t("components.issuerunledger.waiting_to_start.stop_status", { defaultValue: "Waiting to start" });
+  if (run.status === "running") return t("components.issuerunledger.still_running.stop_status", { defaultValue: "Still running" });
+  if (!run.livenessState) return t("components.issuerunledger.unavailable.stop_status", { defaultValue: "Unavailable" });
+  return t("components.issuerunledger.no_stop_reason.stop_status", { defaultValue: "No stop reason" });
 }
 
-function lastUsefulActionLabel(run: LedgerRun) {
-  if (run.status === "scheduled_retry") return "Waiting for next attempt";
+function lastUsefulActionLabel(run: LedgerRun, t: TFunction) {
+  if (run.status === "scheduled_retry") return t("components.issuerunledger.waiting_for_next_attempt.action_label", { defaultValue: "Waiting for next attempt" });
   if (run.lastUsefulActionAt) return relativeTime(run.lastUsefulActionAt);
-  if (isActiveRun(run)) return "No action recorded yet";
+  if (isActiveRun(run)) return t("components.issuerunledger.no_action_recorded_yet.action_label", { defaultValue: "No action recorded yet" });
   if (run.livenessState === "plan_only" || run.livenessState === "needs_followup") {
-    return "No concrete action";
+    return t("components.issuerunledger.no_concrete_action.action_label", { defaultValue: "No concrete action" });
   }
-  if (run.livenessState === "empty_response") return "No useful output";
-  if (!run.livenessState) return "Unavailable";
-  return "None recorded";
+  if (run.livenessState === "empty_response") return t("components.issuerunledger.no_useful_output.action_label", { defaultValue: "No useful output" });
+  if (!run.livenessState) return t("components.issuerunledger.unavailable.action_label", { defaultValue: "Unavailable" });
+  return t("components.issuerunledger.none_recorded.action_label", { defaultValue: "None recorded" });
 }
 
-function continuationLabel(run: LedgerRun) {
+function continuationLabel(run: LedgerRun, t: TFunction) {
   if (!run.continuationAttempt || run.continuationAttempt <= 0) return null;
-  return `Continuation attempt ${run.continuationAttempt}`;
+  return t("components.issuerunledger.continuation_attempt.label", {
+    defaultValue: "Continuation attempt {{attempt}}",
+    attempt: run.continuationAttempt,
+  });
 }
 
 function hasExhaustedContinuation(run: RunForIssue) {
@@ -365,15 +461,31 @@ function compactAgentName(run: LedgerRun, agentMap: ReadonlyMap<string, Pick<Age
   return run.agentName ?? agentMap.get(run.agentId)?.name ?? run.agentId.slice(0, 8);
 }
 
-function formatSilenceAge(ms: number | null | undefined) {
+function formatSilenceAge(ms: number | null | undefined, t: TFunction) {
   if (!ms || ms <= 0) return null;
   const totalMinutes = Math.floor(ms / 60_000);
-  if (totalMinutes < 1) return "under 1 minute";
-  if (totalMinutes < 60) return `${totalMinutes} minute${totalMinutes === 1 ? "" : "s"}`;
+  if (totalMinutes < 1) return t("components.issuerunledger.under_1_minute", { defaultValue: "under 1 minute" });
+  if (totalMinutes < 60) {
+    return t("components.issuerunledger.minutes_count", {
+      count: totalMinutes,
+      defaultValue: "{{count}} minute",
+      defaultValue_plural: "{{count}} minutes",
+    });
+  }
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (minutes === 0) return `${hours} hour${hours === 1 ? "" : "s"}`;
-  return `${hours}h ${minutes}m`;
+  if (minutes === 0) {
+    return t("components.issuerunledger.hours_count", {
+      count: hours,
+      defaultValue: "{{count}} hour",
+      defaultValue_plural: "{{count}} hours",
+    });
+  }
+  return t("components.issuerunledger.hours_minutes_short", {
+    hours,
+    minutes,
+    defaultValue: "{{hours}}h {{minutes}}m",
+  });
 }
 
 function canBoardRecordWatchdogDecision(
@@ -390,13 +502,13 @@ function canBoardRecordWatchdogDecision(
   return membership.membershipRole !== "viewer" && membership.membershipRole !== null;
 }
 
-function watchdogDecisionErrorMessage(error: unknown) {
+function watchdogDecisionErrorMessage(error: unknown, t: TFunction) {
   if (error instanceof ApiError && error.status === 403) {
-    return "Only the board or the assigned recovery owner can record watchdog decisions";
+    return t("components.issuerunledger.only_board_or_recovery_owner.error", { defaultValue: "Only the board or the assigned recovery owner can record watchdog decisions" });
   }
   return error instanceof Error && error.message.trim().length > 0
     ? error.message
-    : "Paperclip could not record the watchdog decision.";
+    : t("components.issuerunledger.could_not_record_watchdog.error", { defaultValue: "Paperclip could not record the watchdog decision." });
 }
 
 export function IssueRunLedger({
@@ -450,11 +562,11 @@ const { t } = useTranslation();
       queryClient.invalidateQueries({ queryKey: queryKeys.issues.liveRuns(issueId) });
     },
     onError: (error) => {
-      const message = watchdogDecisionErrorMessage(error);
+      const message = watchdogDecisionErrorMessage(error, t);
       const dedupeSuffix = error instanceof ApiError ? String(error.status) : "error";
       setWatchdogDecisionError(message);
       pushToast({
-        title: "Watchdog decision not recorded",
+        title: t("components.issuerunledger.watchdog_decision_not_recorded.title", { defaultValue: "Watchdog decision not recorded" }),
         body: message,
         tone: "error",
         dedupeKey: `watchdog-decision:${issueId}:${dedupeSuffix}`,
@@ -546,10 +658,10 @@ const { t } = useTranslation();
           <h3 className="text-sm font-medium text-muted-foreground">{t("components.issuerunledger.run_ledger.jsx-text", { defaultValue: "Run ledger" })}</h3>
           <p className="text-xs text-muted-foreground">
             {latestRun
-              ? runSummary(latestRun, agentMap)
+              ? runSummary(latestRun, agentMap, t)
               : issueStatus === "in_progress"
-                ? "Waiting for the first run record."
-                : "No runs linked yet."}
+                ? t("components.issuerunledger.waiting_for_first_run_record", { defaultValue: "Waiting for the first run record." })
+                : t("components.issuerunledger.no_runs_linked_yet", { defaultValue: "No runs linked yet." })}
           </p>
         </div>
         {latestRun ? (
@@ -567,8 +679,18 @@ const { t } = useTranslation();
             <span className="font-medium text-foreground">{t("components.issuerunledger.child_work.jsx-text", { defaultValue: "Child work" })}</span>
             <span className="text-muted-foreground">
               {children.active.length > 0
-                ? `${children.active.length} active, ${children.done} done, ${children.cancelled} cancelled`
-                : `all ${children.total} terminal (${children.done} done, ${children.cancelled} cancelled)`}
+                ? t("components.issuerunledger.child_work_active_summary", {
+                  active: children.active.length,
+                  done: children.done,
+                  cancelled: children.cancelled,
+                  defaultValue: "{{active}} active, {{done}} done, {{cancelled}} cancelled",
+                })
+                : t("components.issuerunledger.child_work_terminal_summary", {
+                  total: children.total,
+                  done: children.done,
+                  cancelled: children.cancelled,
+                  defaultValue: "all {{total}} terminal ({{done}} done, {{cancelled}} cancelled)",
+                })}
             </span>
           </div>
           {children.active.length > 0 ? (
@@ -581,7 +703,7 @@ const { t } = useTranslation();
                 >
                   <span className="shrink-0 font-mono text-muted-foreground">{child.identifier ?? child.id.slice(0, 8)}</span>
                   <span className="truncate">{child.title}</span>
-                  <span className="shrink-0 text-muted-foreground">{statusLabel(child.status)}</span>
+                  <span className="shrink-0 text-muted-foreground">{statusLabel(child.status, t)}</span>
                 </Link>
               ))}
               {children.active.length > 4 ? (
@@ -604,12 +726,13 @@ const { t } = useTranslation();
         >
           <p className="font-medium">
             {latestSilentRun.outputSilence.level === "critical"
-              ? "Stale-run watchdog alert"
-              : "Output silence watchdog warning"}
+              ? t("components.issuerunledger.stale_run_watchdog_alert", { defaultValue: "Stale-run watchdog alert" })
+              : t("components.issuerunledger.output_silence_watchdog_warning", { defaultValue: "Output silence watchdog warning" })}
           </p>
           <p className="mt-1">
             {t("components.issuerunledger.latest_active_run_has_been_silen.jsx-text", { defaultValue: "\n            Latest active run has been silent for" })}{" "}
-            {formatSilenceAge(latestSilentRun.outputSilence.silenceAgeMs) ?? "an extended period"}.
+            {formatSilenceAge(latestSilentRun.outputSilence.silenceAgeMs, t)
+              ?? t("components.issuerunledger.an_extended_period", { defaultValue: "an extended period" })}.
             {latestSilentRun.outputSilence.evaluationIssueIdentifier ? (
               <>
                 {" "}
@@ -677,8 +800,8 @@ const { t } = useTranslation();
       {feedItems.length === 0 ? (
         <div className="rounded-md border border-dashed border-border px-3 py-3 text-sm text-muted-foreground">
           {renderActivityEvent
-            ? "Runs and activity will appear here once this task has history."
-            : "Historical runs without liveness metadata will appear here once linked to this task."}
+            ? t("components.issuerunledger.runs_and_activity_will_appea.empty", { defaultValue: "Runs and activity will appear here once this task has history." })
+            : t("components.issuerunledger.historical_runs_without_live.empty", { defaultValue: "Historical runs without liveness metadata will appear here once linked to this task." })}
         </div>
       ) : (
         <div className="space-y-1.5">
@@ -687,11 +810,11 @@ const { t } = useTranslation();
               return <div key={`activity:${item.id}`}>{renderActivityEvent?.(item.event)}</div>;
             }
             const run = item.run;
-            const liveness = livenessCopyForRun(run);
-            const stopReason = stopReasonLabel(run);
+            const liveness = livenessCopyForRun(run, t);
+            const stopReason = stopReasonLabel(run, t);
             const duration = formatDuration(run.startedAt, run.finishedAt);
             const exhausted = hasExhaustedContinuation(run);
-            const continuation = continuationLabel(run);
+            const continuation = continuationLabel(run, t);
             const retryState = describeRunRetryState(run);
             const agentName = compactAgentName(run, agentMap);
             const sourceResolvedFold = readSourceResolvedWatchdogFold(run.resultJson);
@@ -710,7 +833,7 @@ const { t } = useTranslation();
                   </Link>
                   <span>{t("components.issuerunledger.by.jsx-text", { defaultValue: "by " })}{agentName}</span>
                   <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] capitalize text-muted-foreground">
-                    {statusLabel(run.status)}
+                    {statusLabel(run.status, t)}
                   </span>
                   {run.isLive ? (
                     <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[11px] text-cyan-700 dark:text-cyan-300">
@@ -750,7 +873,9 @@ const { t } = useTranslation();
                         RUN_OUTPUT_SILENCE_COPY[run.outputSilence.level]?.tone,
                       )}
                     >
-                      {RUN_OUTPUT_SILENCE_COPY[run.outputSilence.level]?.label}
+                      {t(`components.issuerunledger.${RUN_OUTPUT_SILENCE_COPY[run.outputSilence.level]?.labelKey}.silence_label`, {
+                        defaultValue: RUN_OUTPUT_SILENCE_COPY[run.outputSilence.level]?.labelDefault,
+                      })}
                     </span>
                   ) : null}
                   {(() => {
@@ -784,11 +909,11 @@ const { t } = useTranslation();
                   </div>
                   <div className="min-w-0">
                     <span className="text-foreground">{t("components.issuerunledger.last_useful_action.jsx-text", { defaultValue: "Last useful action" })}</span>{" "}
-                    {lastUsefulActionLabel(run)}
+                    {lastUsefulActionLabel(run, t)}
                   </div>
                   <div className="min-w-0">
                     <span className="text-foreground">{t("components.issuerunledger.stop.jsx-text", { defaultValue: "Stop" })}</span>{" "}
-                    {stopStatusLabel(run, stopReason)}
+                    {stopStatusLabel(run, stopReason, t)}
                   </div>
                 </div>
 

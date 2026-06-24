@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { Link } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Project } from "@paperclipai/shared";
@@ -24,13 +25,18 @@ import { DraftInput } from "./agent-config-primitives";
 import { InlineEditor } from "./InlineEditor";
 import { EnvVarEditor } from "./EnvVarEditor";
 
-const PROJECT_STATUSES = [
-  { value: "backlog", label: "Backlog" },
-  { value: "planned", label: "Planned" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-];
+const PROJECT_STATUSES = ["backlog", "planned", "in_progress", "completed", "cancelled"] as const;
+
+function projectStatusLabel(status: string, t: TFunction) {
+  switch (status) {
+    case "backlog": return t("components.projectproperties.backlog.status_label", { defaultValue: "Backlog" });
+    case "planned": return t("components.projectproperties.planned.status_label", { defaultValue: "Planned" });
+    case "in_progress": return t("components.projectproperties.in_progress.status_label", { defaultValue: "In progress" });
+    case "completed": return t("components.projectproperties.completed.status_label", { defaultValue: "Completed" });
+    case "cancelled": return t("components.projectproperties.cancelled.status_label", { defaultValue: "Cancelled" });
+    default: return status.replace(/_/g, " ");
+  }
+}
 
 interface ProjectPropertiesProps {
   project: Project;
@@ -139,22 +145,22 @@ const { t } = useTranslation();
             colorClass,
           )}
         >
-          {status.replace("_", " ")}
+          {projectStatusLabel(status, t)}
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-40 p-1" align="start">
         {PROJECT_STATUSES.map((s) => (
           <Button
-            key={s.value}
+            key={s}
             variant="ghost"
             size="sm"
-            className={cn("w-full justify-start gap-2 text-xs", s.value === status && "bg-accent")}
+            className={cn("w-full justify-start gap-2 text-xs", s === status && "bg-accent")}
             onClick={() => {
-              onChange(s.value);
+              onChange(s);
               setOpen(false);
             }}
           >
-            {s.label}
+            {projectStatusLabel(s, t)}
           </Button>
         ))}
       </PopoverContent>
@@ -265,7 +271,7 @@ const { t } = useTranslation();
   });
   const createSecret = useMutation({
     mutationFn: (input: { name: string; value: string }) => {
-      if (!selectedCompanyId) throw new Error("Select a company to create secrets");
+      if (!selectedCompanyId) throw new Error(t("components.projectproperties.select_company_to_create_secrets.error", { defaultValue: "Select a company to create secrets" }));
       return secretsApi.create(selectedCompanyId, input);
     },
     onSuccess: () => {
@@ -484,8 +490,8 @@ const { t } = useTranslation();
   const clearLocalWorkspace = () => {
     const confirmed = window.confirm(
       codebase.repoUrl
-        ? "Clear local folder from this workspace?"
-        : "Delete this workspace local folder?",
+        ? t("components.projectproperties.clear_local_folder_from_this.jsx-text", { defaultValue: "Clear local folder from this workspace?" })
+        : t("components.projectproperties.delete_this_workspace_local_.jsx-text", { defaultValue: "Delete this workspace local folder?" }),
     );
     if (!confirmed) return;
     persistCodebase({ cwd: null });
@@ -495,8 +501,8 @@ const { t } = useTranslation();
     const hasLocalFolder = Boolean(codebase.localFolder);
     const confirmed = window.confirm(
       hasLocalFolder
-        ? "Clear repo from this workspace?"
-        : "Delete this workspace repo?",
+        ? t("components.projectproperties.clear_repo_from_this_workspac.jsx-text", { defaultValue: "Clear repo from this workspace?" })
+        : t("components.projectproperties.delete_this_workspace_repo.jsx-text", { defaultValue: "Delete this workspace repo?" }),
     );
     if (!confirmed) return;
     if (primaryCodebaseWorkspace && hasLocalFolder) {
@@ -512,7 +518,7 @@ const { t } = useTranslation();
   return (
     <div>
       <div className="space-y-1 pb-4">
-        <PropertyRow label={<FieldLabel label="Name" state={fieldState("name")} />}>
+        <PropertyRow label={<FieldLabel label={t("components.projectproperties.name.attr_label", { defaultValue: "Name" })} state={fieldState("name")} />}>
           {onUpdate || onFieldUpdate ? (
             <DraftInput
               value={project.name}
@@ -526,7 +532,7 @@ const { t } = useTranslation();
           )}
         </PropertyRow>
         <PropertyRow
-          label={<FieldLabel label="Description" state={fieldState("description")} />}
+          label={<FieldLabel label={t("components.projectproperties.description.attr_label", { defaultValue: "Description" })} state={fieldState("description")} />}
           alignStart
           valueClassName="space-y-0.5"
         >
@@ -542,11 +548,11 @@ const { t } = useTranslation();
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              {project.description?.trim() || "No description"}
+              {project.description?.trim() || t("components.projectproperties.no_description.jsx-text", { defaultValue: "No description" })}
             </p>
           )}
         </PropertyRow>
-        <PropertyRow label={<FieldLabel label="Status" state={fieldState("status")} />}>
+        <PropertyRow label={<FieldLabel label={t("components.projectproperties.status.attr_label", { defaultValue: "Status" })} state={fieldState("status")} />}>
           {onUpdate || onFieldUpdate ? (
             <ProjectStatusPicker
               status={project.status}
@@ -562,7 +568,7 @@ const { t } = useTranslation();
           </PropertyRow>
         )}
         <PropertyRow
-          label={<FieldLabel label="Goals" state={fieldState("goals")} />}
+          label={<FieldLabel label={t("components.projectproperties.goals.attr_label", { defaultValue: "Goals" })} state={fieldState("goals")} />}
           alignStart
           valueClassName="space-y-2"
         >
@@ -581,7 +587,7 @@ const { t } = useTranslation();
                       className="text-muted-foreground hover:text-foreground"
                       type="button"
                       onClick={() => removeGoal(goal.id)}
-                      aria-label={`Remove goal ${goal.title}`}
+                      aria-label={t("components.projectproperties.remove_goal.attr_aria-label", { title: goal.title, defaultValue: "Remove goal {{title}}" })}
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -622,7 +628,7 @@ const { t } = useTranslation();
           )}
         </PropertyRow>
         <PropertyRow
-          label={<FieldLabel label="Env" state={fieldState("env")} />}
+          label={<FieldLabel label={t("components.projectproperties.env.attr_label", { defaultValue: "Env" })} state={fieldState("env")} />}
           alignStart
           valueClassName="space-y-2"
         >
@@ -640,14 +646,14 @@ const { t } = useTranslation();
               {t("components.projectproperties.applied_to_all_runs_for_tasks_in.jsx-text", { defaultValue: "\n              Applied to all runs for tasks in this project. Project values override agent env on key conflicts.\n            " })}</p>
           </div>
         </PropertyRow>
-        <PropertyRow label={<FieldLabel label="Created" state="idle" />}>
+        <PropertyRow label={<FieldLabel label={t("components.projectproperties.created.attr_label", { defaultValue: "Created" })} state="idle" />}>
           <span className="text-sm">{formatDate(project.createdAt)}</span>
         </PropertyRow>
-        <PropertyRow label={<FieldLabel label="Updated" state="idle" />}>
+        <PropertyRow label={<FieldLabel label={t("components.projectproperties.updated.attr_label", { defaultValue: "Updated" })} state="idle" />}>
           <span className="text-sm">{formatDate(project.updatedAt)}</span>
         </PropertyRow>
         {project.targetDate && (
-          <PropertyRow label={<FieldLabel label="Target Date" state="idle" />}>
+          <PropertyRow label={<FieldLabel label={t("components.projectproperties.target_date.attr_label", { defaultValue: "Target Date" })} state="idle" />}>
             <span className="text-sm">{formatDate(project.targetDate)}</span>
           </PropertyRow>
         )}

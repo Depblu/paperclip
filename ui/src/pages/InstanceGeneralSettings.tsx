@@ -34,16 +34,16 @@ const { t } = useTranslation();
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.session });
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to sign out.");
+      setActionError(error instanceof Error ? error.message : t("pages.instancegeneralsettings.failed_to_sign_out.error", { defaultValue: "Failed to sign out." }));
     },
   });
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings" },
-      { label: "General" },
+      { label: t("pages.instancegeneralsettings.instance_settings.breadcrumb", { defaultValue: "Instance Settings" }) },
+      { label: t("pages.instancegeneralsettings.general.breadcrumb", { defaultValue: "General" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const generalQuery = useQuery({
     queryKey: queryKeys.instance.generalSettings,
@@ -288,16 +288,16 @@ const { t } = useTranslation();
           ) : null}
           <div className="flex flex-wrap gap-2">
             {[
-              {
-                value: "allowed",
-                label: "Always allow",
-                description: "Share voted AI outputs automatically.",
-              },
-              {
-                value: "not_allowed",
-                label: "Don't allow",
-                description: "Keep voted AI outputs local only.",
-              },
+            {
+              value: "allowed",
+              label: t("pages.instancegeneralsettings.always_allow.option_label", { defaultValue: "Always allow" }),
+              description: t("pages.instancegeneralsettings.share_voted_outputs.option_description", { defaultValue: "Share voted AI outputs automatically." }),
+            },
+            {
+              value: "not_allowed",
+              label: t("pages.instancegeneralsettings.dont_allow.option_label", { defaultValue: "Don't allow" }),
+              description: t("pages.instancegeneralsettings.keep_voted_outputs_local.option_description", { defaultValue: "Keep voted AI outputs local only." }),
+            },
             ].map((option) => {
               const active = feedbackDataSharingPreference === option.value;
               return (

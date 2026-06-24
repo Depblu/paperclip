@@ -1,4 +1,7 @@
 import type { HeartbeatRun } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
+
+type TranslateFn = typeof translate;
 
 export type SourceResolvedFoldCleanupOutcome =
   | "terminated"
@@ -104,27 +107,45 @@ export function readSourceResolvedWatchdogFold(
   return parseSourceResolvedWatchdogFold(record.sourceResolvedWatchdogFold);
 }
 
-const CLEANUP_OUTCOME_LABELS: Record<string, string> = {
-  terminated: "terminated",
-  termination_sent_still_running: "termination sent (still running)",
-  failed: "failed",
-  not_running: "not running",
-  no_process_metadata: "no process metadata",
-  skipped_non_local_adapter: "skipped (non-local adapter)",
-};
-
-export function formatCleanupOutcome(outcome: string): string {
-  return CLEANUP_OUTCOME_LABELS[outcome] ?? outcome.replace(/_/g, " ");
+export function formatCleanupOutcome(outcome: string, t: TranslateFn = translate): string {
+  switch (outcome) {
+    case "terminated":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_terminated", { defaultValue: "terminated" });
+    case "termination_sent_still_running":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_termination_sent_still_running", { defaultValue: "termination sent (still running)" });
+    case "failed":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_failed", { defaultValue: "failed" });
+    case "not_running":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_not_running", { defaultValue: "not running" });
+    case "no_process_metadata":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_no_process_metadata", { defaultValue: "no process metadata" });
+    case "skipped_non_local_adapter":
+      return t("lib.sourceresolvedwatchdogfold.cleanup_skipped_non_local_adapter", { defaultValue: "skipped (non-local adapter)" });
+    default:
+      return outcome.replace(/_/g, " ");
+  }
 }
 
-export function formatSilenceAgeMs(ms: number | null | undefined): string | null {
+export function formatSilenceAgeMs(ms: number | null | undefined, t: TranslateFn = translate): string | null {
   if (!ms || ms <= 0) return null;
   const totalMinutes = Math.floor(ms / 60_000);
-  if (totalMinutes < 1) return "under 1 minute";
-  if (totalMinutes < 60) return `${totalMinutes} minute${totalMinutes === 1 ? "" : "s"}`;
+  if (totalMinutes < 1) return t("lib.sourceresolvedwatchdogfold.under_one_minute", { defaultValue: "under 1 minute" });
+  if (totalMinutes < 60) {
+    return t("lib.sourceresolvedwatchdogfold.minutes_count", {
+      count: totalMinutes,
+      defaultValue: "{{count}} minute",
+      defaultValue_plural: "{{count}} minutes",
+    });
+  }
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (minutes === 0) return `${hours} hour${hours === 1 ? "" : "s"}`;
+  if (minutes === 0) {
+    return t("lib.sourceresolvedwatchdogfold.hours_count", {
+      count: hours,
+      defaultValue: "{{count}} hour",
+      defaultValue_plural: "{{count}} hours",
+    });
+  }
   return `${hours}h ${minutes}m`;
 }
 

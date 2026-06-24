@@ -110,32 +110,33 @@ import {
   ISSUE_OVERRIDE_ADAPTER_TYPES,
   type IssueModelLane,
 } from "../lib/issue-assignee-overrides";
+import type { TFunction } from "i18next";
 
 const STAGED_FILE_ACCEPT = "image/*,application/pdf,text/plain,text/markdown,application/json,text/csv,text/html,.md,.markdown";
 
 const ISSUE_THINKING_EFFORT_OPTIONS = {
   claude_local: [
-    { value: "", label: "Default" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
+    { value: "" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
   ],
   codex_local: [
-    { value: "", label: "Default" },
-    { value: "minimal", label: "Minimal" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "xhigh", label: "X-High" },
+    { value: "" },
+    { value: "minimal" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
+    { value: "xhigh" },
   ],
   opencode_local: [
-    { value: "", label: "Default" },
-    { value: "minimal", label: "Minimal" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "xhigh", label: "X-High" },
-    { value: "max", label: "Max" },
+    { value: "" },
+    { value: "minimal" },
+    { value: "low" },
+    { value: "medium" },
+    { value: "high" },
+    { value: "xhigh" },
+    { value: "max" },
   ],
 } as const;
 
@@ -145,12 +146,68 @@ function isIssueWorkMode(value: unknown): value is IssueWorkMode {
 
 const ISSUE_WORK_MODE_OPTIONS: ReadonlyArray<{
   value: IssueWorkMode;
-  label: string;
   icon: typeof Hammer;
 }> = [
-  { value: "standard", label: "Standard", icon: Hammer },
-  { value: "planning", label: "Planning", icon: ClipboardList },
+  { value: "standard", icon: Hammer },
+  { value: "planning", icon: ClipboardList },
 ];
+
+function thinkingEffortLabel(value: string, t: TFunction) {
+  switch (value) {
+    case "": return t("components.newissuedialog.default.option_label", { defaultValue: "Default" });
+    case "minimal": return t("components.newissuedialog.minimal.option_label", { defaultValue: "Minimal" });
+    case "low": return t("components.newissuedialog.low.option_label", { defaultValue: "Low" });
+    case "medium": return t("components.newissuedialog.medium.option_label", { defaultValue: "Medium" });
+    case "high": return t("components.newissuedialog.high.option_label", { defaultValue: "High" });
+    case "xhigh": return t("components.newissuedialog.xhigh.option_label", { defaultValue: "X-High" });
+    case "max": return t("components.newissuedialog.max.option_label", { defaultValue: "Max" });
+    default: return value;
+  }
+}
+
+function issueWorkModeLabel(value: IssueWorkMode, t: TFunction) {
+  return value === "planning"
+    ? t("components.newissuedialog.planning.option_label", { defaultValue: "Planning" })
+    : t("components.newissuedialog.standard.option_label", { defaultValue: "Standard" });
+}
+
+function executionWorkspaceModeLabel(value: string, t: TFunction) {
+  switch (value) {
+    case "shared_workspace": return t("components.newissuedialog.project_default.option_label", { defaultValue: "Project default" });
+    case "isolated_workspace": return t("components.newissuedialog.new_isolated_workspace.option_label", { defaultValue: "New isolated workspace" });
+    case "reuse_existing": return t("components.newissuedialog.reuse_existing_workspace.option_label", { defaultValue: "Reuse existing workspace" });
+    default: return value;
+  }
+}
+
+function issueStatusOptionLabel(value: string, t: TFunction) {
+  switch (value) {
+    case "backlog": return t("components.newissuedialog.backlog.status_label", { defaultValue: "Backlog" });
+    case "todo": return t("components.newissuedialog.todo.status_label", { defaultValue: "Todo" });
+    case "in_progress": return t("components.newissuedialog.in_progress.status_label", { defaultValue: "In progress" });
+    case "in_review": return t("components.newissuedialog.in_review.status_label", { defaultValue: "In review" });
+    case "done": return t("components.newissuedialog.done.status_label", { defaultValue: "Done" });
+    default: return value.replace(/_/g, " ");
+  }
+}
+
+function issueStatusOptionDescription(value: string, t: TFunction) {
+  switch (value) {
+    case "backlog": return t("components.newissuedialog.backlog.description", { defaultValue: "Parked - assignee will not be woken" });
+    case "todo": return t("components.newissuedialog.todo.description", { defaultValue: "Executable - assignee will be woken" });
+    default: return null;
+  }
+}
+
+function priorityOptionLabel(value: string, t: TFunction) {
+  switch (value) {
+    case "critical": return t("components.newissuedialog.critical.priority_label", { defaultValue: "Critical" });
+    case "high": return t("components.newissuedialog.high.priority_label", { defaultValue: "High" });
+    case "medium": return t("components.newissuedialog.medium.priority_label", { defaultValue: "Medium" });
+    case "low": return t("components.newissuedialog.low.priority_label", { defaultValue: "Low" });
+    default: return value;
+  }
+}
 
 function loadDraft(): IssueDraft | null {
   try {
@@ -223,35 +280,31 @@ function formatFileSize(file: File) {
   return `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const statuses: ReadonlyArray<{ value: string; label: string; color: string; description?: string }> = [
+const statuses: ReadonlyArray<{ value: string; color: string }> = [
   {
     value: "backlog",
-    label: "Backlog",
     color: issueStatusText.backlog ?? issueStatusTextDefault,
-    description: "Parked — assignee will not be woken",
   },
   {
     value: "todo",
-    label: "Todo",
     color: issueStatusText.todo ?? issueStatusTextDefault,
-    description: "Executable — assignee will be woken",
   },
-  { value: "in_progress", label: "In Progress", color: issueStatusText.in_progress ?? issueStatusTextDefault },
-  { value: "in_review", label: "In Review", color: issueStatusText.in_review ?? issueStatusTextDefault },
-  { value: "done", label: "Done", color: issueStatusText.done ?? issueStatusTextDefault },
+  { value: "in_progress", color: issueStatusText.in_progress ?? issueStatusTextDefault },
+  { value: "in_review", color: issueStatusText.in_review ?? issueStatusTextDefault },
+  { value: "done", color: issueStatusText.done ?? issueStatusTextDefault },
 ];
 
 const priorities = [
-  { value: "critical", label: "Critical", icon: AlertTriangle, color: priorityColor.critical ?? priorityColorDefault },
-  { value: "high", label: "High", icon: ArrowUp, color: priorityColor.high ?? priorityColorDefault },
-  { value: "medium", label: "Medium", icon: Minus, color: priorityColor.medium ?? priorityColorDefault },
-  { value: "low", label: "Low", icon: ArrowDown, color: priorityColor.low ?? priorityColorDefault },
+  { value: "critical", icon: AlertTriangle, color: priorityColor.critical ?? priorityColorDefault },
+  { value: "high", icon: ArrowUp, color: priorityColor.high ?? priorityColorDefault },
+  { value: "medium", icon: Minus, color: priorityColor.medium ?? priorityColorDefault },
+  { value: "low", icon: ArrowDown, color: priorityColor.low ?? priorityColorDefault },
 ];
 
 const EXECUTION_WORKSPACE_MODES = [
-  { value: "shared_workspace", label: "Project default" },
-  { value: "isolated_workspace", label: "New isolated workspace" },
-  { value: "reuse_existing", label: "Reuse existing workspace" },
+  { value: "shared_workspace" },
+  { value: "isolated_workspace" },
+  { value: "reuse_existing" },
 ] as const;
 
 function defaultProjectWorkspaceIdForProject(project: { workspaces?: Array<{ id: string; isPrimary: boolean }>; executionWorkspacePolicy?: { defaultProjectWorkspaceId?: string | null } | null } | null | undefined) {
@@ -601,11 +654,14 @@ const { t } = useTranslation();
         const prefix = (companies.find((company) => company.id === companyId)?.issuePrefix ?? "").trim();
         const issueRef = issue.identifier ?? issue.id;
         pushToast({
-          title: `Created ${issueRef} with upload warnings`,
-          body: `${failures.length} staged ${failures.length === 1 ? "file" : "files"} could not be added.`,
+          title: t("components.newissuedialog.created_with_upload_warnings.title", { defaultValue: "Created {{issueRef}} with upload warnings", issueRef }),
+          body: t("components.newissuedialog.staged_files_could_not_be_added", {
+            defaultValue: "{{count}} staged file could not be added.",
+            count: failures.length,
+          }),
           tone: "warn",
           action: prefix
-            ? { label: `Open ${issueRef}`, href: `/${prefix}/issues/${issueRef}` }
+            ? { label: t("components.newissuedialog.open_issue.action", { defaultValue: "Open {{issueRef}}", issueRef }), href: `/${prefix}/issues/${issueRef}` }
             : undefined,
         });
       }
@@ -617,7 +673,7 @@ const { t } = useTranslation();
 
   const uploadDescriptionImage = useMutation({
     mutationFn: async (file: File) => {
-      if (!effectiveCompanyId) throw new Error("No company selected");
+      if (!effectiveCompanyId) throw new Error(t("components.newissuedialog.no_company_selected.error", { defaultValue: "No company selected" }));
       return assetsApi.uploadImage(effectiveCompanyId, file, "issues/drafts");
     },
   });
@@ -1301,7 +1357,9 @@ const { t } = useTranslation();
               </PopoverContent>
             </Popover>
             <span className="text-muted-foreground/60">{t("components.newissuedialog.rsaquo.jsx-text", { defaultValue: "&rsaquo;" })}</span>
-            <span>{isSubIssueMode ? "New sub-task" : "New task"}</span>
+            <span>{isSubIssueMode
+              ? t("components.newissuedialog.new_sub_task.title", { defaultValue: "New sub-task" })
+              : t("components.newissuedialog.new_task.title", { defaultValue: "New task" })}</span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -1351,9 +1409,9 @@ const { t } = useTranslation();
                 recentOptionIds={recentAssigneeOptionIds}
                 placeholder={t("components.newissuedialog.assignee.attr_placeholder", { defaultValue: "Assignee" })}
                 disablePortal
-                noneLabel="No assignee"
-                searchPlaceholder="Search assignees..."
-                emptyMessage="No assignees found."
+                noneLabel={t("components.newissuedialog.no_assignee.option_label", { defaultValue: "No assignee" })}
+                searchPlaceholder={t("components.newissuedialog.search_assignees.placeholder", { defaultValue: "Search assignees..." })}
+                emptyMessage={t("components.newissuedialog.no_assignees_found.empty", { defaultValue: "No assignees found." })}
                 onChange={(value) => {
                   const nextAssignee = parseAssigneeValue(value);
                   if (nextAssignee.assigneeAgentId) {
@@ -1410,9 +1468,9 @@ const { t } = useTranslation();
                 recentOptionIds={recentProjectIds}
                 placeholder={t("components.newissuedialog.project.attr_placeholder", { defaultValue: "Project" })}
                 disablePortal
-                noneLabel="No project"
-                searchPlaceholder="Search projects..."
-                emptyMessage="No projects found."
+                noneLabel={t("components.newissuedialog.no_project.option_label", { defaultValue: "No project" })}
+                searchPlaceholder={t("components.newissuedialog.search_projects.placeholder", { defaultValue: "Search projects..." })}
+                emptyMessage={t("components.newissuedialog.no_projects_found.empty", { defaultValue: "No projects found." })}
                 onChange={handleProjectChange}
                 onConfirm={() => {
                   descriptionEditorRef.current?.focus();
@@ -1498,9 +1556,9 @@ const { t } = useTranslation();
                 recentOptionIds={recentAssigneeOptionIds}
                 placeholder={t("components.newissuedialog.reviewer.attr_placeholder", { defaultValue: "Reviewer" })}
                 disablePortal
-                noneLabel="No reviewer"
-                searchPlaceholder="Search reviewers..."
-                emptyMessage="No reviewers found."
+                noneLabel={t("components.newissuedialog.no_reviewer.option_label", { defaultValue: "No reviewer" })}
+                searchPlaceholder={t("components.newissuedialog.search_reviewers.placeholder", { defaultValue: "Search reviewers..." })}
+                emptyMessage={t("components.newissuedialog.no_reviewers_found.empty", { defaultValue: "No reviewers found." })}
                 onChange={setReviewerValue}
                 renderTriggerValue={(option) =>
                   option ? (
@@ -1543,9 +1601,9 @@ const { t } = useTranslation();
                 recentOptionIds={recentAssigneeOptionIds}
                 placeholder={t("components.newissuedialog.approver.attr_placeholder", { defaultValue: "Approver" })}
                 disablePortal
-                noneLabel="No approver"
-                searchPlaceholder="Search approvers..."
-                emptyMessage="No approvers found."
+                noneLabel={t("components.newissuedialog.no_approver.option_label", { defaultValue: "No approver" })}
+                searchPlaceholder={t("components.newissuedialog.search_approvers.placeholder", { defaultValue: "Search approvers..." })}
+                emptyMessage={t("components.newissuedialog.no_approvers_found.empty", { defaultValue: "No approvers found." })}
                 onChange={setApproverValue}
                 renderTriggerValue={(option) =>
                   option ? (
@@ -1614,7 +1672,7 @@ const { t } = useTranslation();
               >
                 {EXECUTION_WORKSPACE_MODES.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {executionWorkspaceModeLabel(option.value, t)}
                   </option>
                 ))}
               </select>
@@ -1729,7 +1787,7 @@ const { t } = useTranslation();
                           )}
                           onClick={() => setAssigneeThinkingEffort(option.value)}
                         >
-                          {option.label}
+                          {thinkingEffortLabel(option.value, t)}
                         </button>
                       ))}
                     </div>
@@ -1852,7 +1910,7 @@ const { t } = useTranslation();
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
                 <CircleDot className={cn("h-3 w-3", currentStatus.color)} />
-                {currentStatus.label}
+                {issueStatusOptionLabel(currentStatus.value, t)}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-1" align="start">
@@ -1867,9 +1925,9 @@ const { t } = useTranslation();
                 >
                   <CircleDot className={cn("h-3 w-3 mt-0.5 shrink-0", s.color)} />
                   <span className="flex flex-col text-left leading-tight">
-                    <span>{s.label}</span>
-                    {s.description ? (
-                      <span className="text-[10px] text-muted-foreground">{s.description}</span>
+                    <span>{issueStatusOptionLabel(s.value, t)}</span>
+                    {issueStatusOptionDescription(s.value, t) ? (
+                      <span className="text-[10px] text-muted-foreground">{issueStatusOptionDescription(s.value, t)}</span>
                     ) : null}
                   </span>
                 </button>
@@ -1888,7 +1946,7 @@ const { t } = useTranslation();
                 {currentPriority ? (
                   <>
                     <currentPriority.icon className={cn("h-3 w-3", currentPriority.color)} />
-                    {currentPriority.label}
+                    {priorityOptionLabel(currentPriority.value, t)}
                   </>
                 ) : (
                   <>
@@ -1908,7 +1966,7 @@ const { t } = useTranslation();
                   onClick={() => { setPriority(p.value); setPriorityOpen(false); }}
                 >
                   <p.icon className={cn("h-3 w-3", p.color)} />
-                  {p.label}
+                  {priorityOptionLabel(p.value, t)}
                 </button>
               ))}
             </PopoverContent>
@@ -1950,7 +2008,7 @@ const { t } = useTranslation();
                 )}
               >
                 <CurrentWorkModeIcon className="h-3 w-3" />
-                {currentWorkMode.label}
+                {issueWorkModeLabel(currentWorkMode.value, t)}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-36 p-1" align="start">
@@ -1971,7 +2029,7 @@ const { t } = useTranslation();
                     }}
                   >
                     <Icon className="h-3 w-3" />
-                    {option.label}
+                    {issueWorkModeLabel(option.value, t)}
                   </button>
                 );
               })}
@@ -2008,7 +2066,7 @@ const { t } = useTranslation();
                     }}
                   >
                     <p.icon className={cn("h-3 w-3", p.color)} />
-                    {p.label}
+                    {priorityOptionLabel(p.value, t)}
                   </button>
                 ))}
                 <div className="my-1 border-t border-border" />

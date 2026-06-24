@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useNavigate, useParams, useSearchParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
@@ -210,33 +211,43 @@ export function teamRoute(catalogRef: string, filePath?: string | null): string 
 
 const TRUST_META: Record<
   CatalogTeamTrustLevel,
-  { label: string; tip: string; tone: string; Icon: typeof ShieldCheck }
+  { tone: string; Icon: typeof ShieldCheck }
 > = {
   markdown_only: {
-    label: "Markdown only",
-    tip: "Contains only markdown and references. No executable content.",
     tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30",
     Icon: ShieldCheck,
   },
   assets: {
-    label: "Assets",
-    tip: "Includes static assets (images, fixtures). No executable content.",
     tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30",
     Icon: ShieldCheck,
   },
   scripts_executables: {
-    label: "Scripts",
-    tip: "Includes executable scripts that were security-reviewed before bundling.",
     tone: "text-amber-600 dark:text-amber-300 border-amber-500/30",
     Icon: AlertTriangle,
   },
   external_sources: {
-    label: "External sources",
-    tip: "References external sources resolved at install time.",
     tone: "text-amber-600 dark:text-amber-300 border-amber-500/30",
     Icon: AlertTriangle,
   },
 };
+
+function trustLabel(level: CatalogTeamTrustLevel, t: TFunction) {
+  switch (level) {
+    case "markdown_only": return t("pages.teamcatalog.markdown_only.trust_label", { defaultValue: "Markdown only" });
+    case "assets": return t("pages.teamcatalog.assets.trust_label", { defaultValue: "Assets" });
+    case "scripts_executables": return t("pages.teamcatalog.scripts.trust_label", { defaultValue: "Scripts" });
+    case "external_sources": return t("pages.teamcatalog.external_sources.trust_label", { defaultValue: "External sources" });
+  }
+}
+
+function trustTip(level: CatalogTeamTrustLevel, t: TFunction) {
+  switch (level) {
+    case "markdown_only": return t("pages.teamcatalog.markdown_only.trust_tip", { defaultValue: "Contains only markdown and references. No executable content." });
+    case "assets": return t("pages.teamcatalog.assets.trust_tip", { defaultValue: "Includes static assets (images, fixtures). No executable content." });
+    case "scripts_executables": return t("pages.teamcatalog.scripts.trust_tip", { defaultValue: "Includes executable scripts that were security-reviewed before bundling." });
+    case "external_sources": return t("pages.teamcatalog.external_sources.trust_tip", { defaultValue: "References external sources resolved at install time." });
+  }
+}
 
 function TrustChip({ level, iconOnly = false }: { level: CatalogTeamTrustLevel; iconOnly?: boolean }) {
 const { t } = useTranslation();
@@ -253,22 +264,30 @@ const { t } = useTranslation();
           )}
         >
           <Icon className="h-3 w-3" />
-          {!iconOnly && meta.label}
+          {!iconOnly && trustLabel(level, t)}
         </span>
       </TooltipTrigger>
-      <TooltipContent>{meta.tip}</TooltipContent>
+      <TooltipContent>{trustTip(level, t)}</TooltipContent>
     </Tooltip>
   );
 }
 
 const COMPAT_META: Record<
   CatalogTeamCompatibility,
-  { label: string; tone: string }
+  { tone: string }
 > = {
-  compatible: { label: "Compatible", tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
-  unknown: { label: "Unknown compat", tone: "text-muted-foreground border-border" },
-  invalid: { label: "Invalid", tone: "text-rose-600 dark:text-rose-300 border-rose-500/30" },
+  compatible: { tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
+  unknown: { tone: "text-muted-foreground border-border" },
+  invalid: { tone: "text-rose-600 dark:text-rose-300 border-rose-500/30" },
 };
+
+function compatibilityLabel(compatibility: CatalogTeamCompatibility, t: TFunction) {
+  switch (compatibility) {
+    case "compatible": return t("pages.teamcatalog.compatible.compat_label", { defaultValue: "Compatible" });
+    case "unknown": return t("pages.teamcatalog.unknown_compat.compat_label", { defaultValue: "Unknown compat" });
+    case "invalid": return t("pages.teamcatalog.invalid.compat_label", { defaultValue: "Invalid" });
+  }
+}
 
 function CompatChip({ compatibility }: { compatibility: CatalogTeamCompatibility }) {
 const { t } = useTranslation();
@@ -281,7 +300,7 @@ const { t } = useTranslation();
         meta.tone,
       )}
     >
-      {meta.label}
+      {compatibilityLabel(compatibility, t)}
     </span>
   );
 }
@@ -1542,19 +1561,19 @@ const { t } = useTranslation();
       <div className="space-y-2.5 rounded-md border border-border p-3">
         <PolicyToggle
           label={t("pages.teamcatalog.allow_external_sources.attr_label", { defaultValue: "Allow external sources" })}
-          description="Resolve github/url skill and team sources at install time."
+          description={t("pages.teamcatalog.resolve_github_url_skill_and.attr_description", { defaultValue: "Resolve github/url skill and team sources at install time." })}
           checked={allowExternalSources}
           onChange={(v) => onChange("external", v)}
         />
         <PolicyToggle
           label={t("pages.teamcatalog.allow_unpinned_optional_sources.attr_label", { defaultValue: "Allow unpinned optional sources" })}
-          description="Permit optional sources that are not pinned to a ref or checksum."
+          description={t("pages.teamcatalog.permit_optional_sources_that.attr_description", { defaultValue: "Permit optional sources that are not pinned to a ref or checksum." })}
           checked={allowUnpinnedOptionalSources}
           onChange={(v) => onChange("unpinned", v)}
         />
         <PolicyToggle
           label={t("pages.teamcatalog.allow_local_path_sources.attr_label", { defaultValue: "Allow local-path sources" })}
-          description="Required for local_path / agent_package sources. Development use only."
+          description={t("pages.teamcatalog.required_for_local_path_age.attr_description", { defaultValue: "Required for local_path / agent_package sources. Development use only." })}
           checked={allowLocalPathSources}
           onChange={(v) => onChange("localPath", v)}
         />
@@ -1594,13 +1613,22 @@ const { t } = useTranslation();
 
 const SKILL_ACTION_META: Record<
   CatalogTeamSkillPreparation["action"],
-  { label: string; tone: string }
+  { tone: string }
 > = {
-  already_in_package: { label: "Bundled in package", tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
-  catalog_install_required: { label: "Will install from catalog", tone: "text-blue-600 dark:text-blue-300 border-blue-500/30" },
-  external_import_required: { label: "Will import from source", tone: "text-amber-600 dark:text-amber-300 border-amber-500/30" },
-  blocked: { label: "Blocked", tone: "text-rose-600 dark:text-rose-300 border-rose-500/30" },
+  already_in_package: { tone: "text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
+  catalog_install_required: { tone: "text-blue-600 dark:text-blue-300 border-blue-500/30" },
+  external_import_required: { tone: "text-amber-600 dark:text-amber-300 border-amber-500/30" },
+  blocked: { tone: "text-rose-600 dark:text-rose-300 border-rose-500/30" },
 };
+
+function skillActionLabel(action: CatalogTeamSkillPreparation["action"], t: TFunction) {
+  switch (action) {
+    case "already_in_package": return t("pages.teamcatalog.bundled_in_package.skill_action_label", { defaultValue: "Bundled in package" });
+    case "catalog_install_required": return t("pages.teamcatalog.will_install_from_catalog.skill_action_label", { defaultValue: "Will install from catalog" });
+    case "external_import_required": return t("pages.teamcatalog.will_import_from_source.skill_action_label", { defaultValue: "Will import from source" });
+    case "blocked": return t("pages.teamcatalog.blocked.skill_action_label", { defaultValue: "Blocked" });
+  }
+}
 
 export function StepSkillPlan({
   team,
@@ -1629,7 +1657,7 @@ const { t } = useTranslation();
                 {prep.reason && <p className="text-[11px] text-muted-foreground">{prep.reason}</p>}
               </div>
               <Badge variant="outline" className={cn("ml-auto text-[10px]", meta.tone)}>
-                {meta.label}
+                {skillActionLabel(prep.action, t)}
               </Badge>
             </li>
           );
@@ -2152,9 +2180,21 @@ const { t } = useTranslation();
       <div className="space-y-0.5">
         <h3 className="text-sm font-semibold leading-snug">{team.name}</h3>
         <p className="text-xs text-muted-foreground">
-          {team.counts.agents} {t("pages.teamcatalog.agent.jsx-text", { defaultValue: " agent" })}{team.counts.agents === 1 ? "" : "s"} ·{" "}
-          {team.counts.projects} {t("pages.teamcatalog.project.jsx-text", { defaultValue: " project" })}{team.counts.projects === 1 ? "" : "s"} ·{" "}
-          {team.counts.routines} {t("pages.teamcatalog.routine.jsx-text", { defaultValue: " routine" })}{team.counts.routines === 1 ? "" : "s"}
+          {t("pages.teamcatalog.agent_count.label", {
+            count: team.counts.agents,
+            defaultValue: "{{count}} agent",
+            defaultValue_plural: "{{count}} agents",
+          })} ·{" "}
+          {t("pages.teamcatalog.project_count.label", {
+            count: team.counts.projects,
+            defaultValue: "{{count}} project",
+            defaultValue_plural: "{{count}} projects",
+          })} ·{" "}
+          {t("pages.teamcatalog.routine_count.label", {
+            count: team.counts.routines,
+            defaultValue: "{{count}} routine",
+            defaultValue_plural: "{{count}} routines",
+          })}
         </p>
       </div>
 
@@ -2229,10 +2269,10 @@ const { t } = useTranslation();
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Org Chart", href: "/org" },
-      { label: "Teams", href: TEAM_CATALOG_ROUTE_ROOT },
+      { label: t("pages.teamcatalog.org_chart.breadcrumb", { defaultValue: "Org Chart" }), href: "/org" },
+      { label: t("pages.teamcatalog.teams.breadcrumb", { defaultValue: "Teams" }), href: TEAM_CATALOG_ROUTE_ROOT },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const catalogQuery = useQuery({
     queryKey: queryKeys.teamCatalog.catalog({ kind: kindFilter === "all" ? undefined : kindFilter }),
@@ -2326,7 +2366,10 @@ const { t } = useTranslation();
   if (!selectedCompanyId) {
     return (
       <div className="p-8">
-        <EmptyState icon={Users2} message="Select a company to browse the team catalog." />
+        <EmptyState
+          icon={Users2}
+          message={t("pages.teamcatalog.select_a_company_to_browse.attr_message", { defaultValue: "Select a company to browse the team catalog." })}
+        />
       </div>
     );
   }
@@ -2350,7 +2393,11 @@ const { t } = useTranslation();
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8">
               <Filter className="h-3.5 w-3.5" />
-              {kindFilter === "all" ? "All kinds" : kindFilter === "bundled" ? "Bundled" : "Optional"}
+              {kindFilter === "all"
+                ? t("pages.teamcatalog.all_kinds.jsx-text", { defaultValue: "All kinds" })
+                : kindFilter === "bundled"
+                  ? t("pages.teamcatalog.bundled.jsx-text", { defaultValue: "Bundled" })
+                  : t("pages.teamcatalog.optional.jsx-text", { defaultValue: "Optional" })}
               <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
@@ -2368,7 +2415,12 @@ const { t } = useTranslation();
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8">
-                {categoryFilter ? `Category · ${titleCase(categoryFilter)}` : "All categories"}
+                {categoryFilter
+                  ? t("pages.teamcatalog.category_filter_value.jsx-text", {
+                    defaultValue: "Category · {{category}}",
+                    category: titleCase(categoryFilter),
+                  })
+                  : t("pages.teamcatalog.all_categories.jsx-text", { defaultValue: "All categories" })}
                 <ChevronDown className="h-3.5 w-3.5" />
               </Button>
             </DropdownMenuTrigger>
@@ -2387,7 +2439,13 @@ const { t } = useTranslation();
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8">
-              {riskFilter === "any" ? "Any risk" : riskFilter === "safe" ? "Safe only" : riskFilter === "has_warnings" ? "Has warnings" : "Blocked"}
+              {riskFilter === "any"
+                ? t("pages.teamcatalog.any_risk.jsx-text", { defaultValue: "Any risk" })
+                : riskFilter === "safe"
+                  ? t("pages.teamcatalog.safe_only.jsx-text", { defaultValue: "Safe only" })
+                  : riskFilter === "has_warnings"
+                    ? t("pages.teamcatalog.has_warnings.jsx-text", { defaultValue: "Has warnings" })
+                    : t("pages.teamcatalog.blocked.jsx-text", { defaultValue: "Blocked" })}
               <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
@@ -2441,12 +2499,15 @@ const { t } = useTranslation();
                 <RotateCcw className="h-3.5 w-3.5" /> {t("pages.teamcatalog.retry.jsx-text", { defaultValue: " Retry\n              " })}</Button>
             </div>
           ) : teams.length === 0 ? (
-            <EmptyState icon={Users2} message="No team catalog configured." />
+            <EmptyState
+              icon={Users2}
+              message={t("pages.teamcatalog.no_team_catalog_configured.attr_message", { defaultValue: "No team catalog configured." })}
+            />
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={Search}
-              message="No teams match this filter."
-              action="Reset filters"
+              message={t("pages.teamcatalog.no_teams_match_this_filter.attr_message", { defaultValue: "No teams match this filter." })}
+              action={t("pages.teamcatalog.reset_filters.action", { defaultValue: "Reset filters" })}
               onAction={() => setSearchParams(new URLSearchParams())}
             />
           ) : (
@@ -2484,7 +2545,10 @@ const { t } = useTranslation();
               {grouped.installed.length > 0 && (
                 <>
                   <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {t("pages.teamcatalog.installed.jsx-text", { defaultValue: "\n                    Installed · " })}{grouped.installed.length}
+                    {t("pages.teamcatalog.installed_count.label", {
+                      count: grouped.installed.length,
+                      defaultValue: "Installed · {{count}}",
+                    })}
                   </div>
                   {grouped.installed.map((team) => (
                     <TeamRow
@@ -2545,7 +2609,14 @@ const { t } = useTranslation();
           open={installOpen}
           onClose={() => setInstallOpen(false)}
           onInstalled={() => {
-            pushToast({ tone: "success", title: "Team installed", body: `${selectedTeam.name} was imported.` });
+            pushToast({
+              tone: "success",
+              title: t("pages.teamcatalog.team_installed.title", { defaultValue: "Team installed" }),
+              body: t("pages.teamcatalog.team_imported.body", {
+                defaultValue: "{{team}} was imported.",
+                team: selectedTeam.name,
+              }),
+            });
             // Provenance now lives on the new agents — refresh installed/out-of-date state.
             void queryClient.invalidateQueries({
               queryKey: queryKeys.teamCatalog.installed(selectedCompanyId),

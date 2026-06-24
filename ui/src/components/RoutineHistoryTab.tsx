@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { History as HistoryIcon, RotateCcw, Search } from "lucide-react";
 import type {
@@ -40,6 +40,7 @@ import { MarkdownBody } from "./MarkdownBody";
 type AgentLookup = Map<string, { id: string; name: string }>;
 type ProjectLookup = Map<string, { id: string; name: string }>;
 type SecretLookup = Map<string, CompanySecret>;
+type TranslateFn = typeof translate;
 
 type DirtyFieldDescriptor = {
   key: string;
@@ -126,10 +127,18 @@ const { t } = useTranslation();
       const restoredFromNumber = data.restoredFromRevisionNumber;
       const newNumber = data.revision.revisionNumber;
       pushToast({
-        title: `Restored revision ${restoredFromNumber} as revision ${newNumber}`,
+        title: t("components.routinehistorytab.restored_revision_as_revision.toast_title", {
+          restoredFromNumber,
+          newNumber,
+          defaultValue: "Restored revision {{restoredFromNumber}} as revision {{newNumber}}",
+        }),
         body: data.secretMaterials.length > 0
-          ? "Trigger enabled state was restored from the snapshot. New webhook secrets are available in the banner above."
-          : "Trigger enabled state was restored from the snapshot.",
+          ? t("components.routinehistorytab.trigger_state_restored_with_secrets.toast_body", {
+            defaultValue: "Trigger enabled state was restored from the snapshot. New webhook secrets are available in the banner above.",
+          })
+          : t("components.routinehistorytab.trigger_state_restored.toast_body", {
+            defaultValue: "Trigger enabled state was restored from the snapshot.",
+          }),
         tone: "success",
       });
       onRestoreSecretMaterials(data);
@@ -155,8 +164,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to restore revision",
-        body: error instanceof Error ? error.message : "Paperclip could not restore the revision.",
+        title: t("components.routinehistorytab.failed_to_restore_revision.toast_title", { defaultValue: "Failed to restore revision" }),
+        body: error instanceof Error
+          ? error.message
+          : t("components.routinehistorytab.could_not_restore_revision.toast_body", { defaultValue: "Paperclip could not restore the revision." }),
         tone: "error",
       });
     },
@@ -206,7 +217,7 @@ const { t } = useTranslation();
           <p className="text-xs text-muted-foreground">
             {revisionsQuery.error instanceof Error
               ? revisionsQuery.error.message
-              : "Unknown error loading revisions."}
+              : t("components.routinehistorytab.unknown_error_loading_revisions", { defaultValue: "Unknown error loading revisions." })}
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => revisionsQuery.refetch()}>
@@ -242,7 +253,7 @@ const { t } = useTranslation();
           <div className="space-y-2">
             <EmptyState
               icon={HistoryIcon}
-              message="No edits yet"
+              message={t("components.routinehistorytab.no_edits_yet.jsx-text", { defaultValue: "No edits yet" })}
             />
             <p className="text-center text-xs text-muted-foreground">
               {t("components.routinehistorytab.revision_1_is_the_only_history_t.jsx-text", { defaultValue: "\n              Revision 1 is the only history this routine has. Saving an edit creates the first additional revision.\n            " })}</p>
@@ -338,9 +349,17 @@ const { t } = useTranslation();
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-amber-200">
-            {t("components.routinehistorytab.viewing_revision.jsx-text", { defaultValue: "\n            Viewing revision " })}{revisionNumber} {t("components.routinehistorytab.read_only.jsx-text", { defaultValue: " (read-only)\n          " })}</p>
+            {t("components.routinehistorytab.viewing_revision_read_only.label", {
+              revisionNumber,
+              defaultValue: "Viewing revision {{revisionNumber}} (read-only)",
+            })}
+          </p>
           <p className="text-xs text-muted-foreground">
-            {t("components.routinehistorytab.restoring_this_revision_creates_.jsx-text", { defaultValue: "\n            Restoring this revision creates a new revision " })}{nextRevisionNumber} {t("components.routinehistorytab.with_the_same_content_history_st.jsx-text", { defaultValue: " with the same content. History stays append-only.\n          " })}</p>
+            {t("components.routinehistorytab.restoring_revision_creates_new_revision.message", {
+              nextRevisionNumber,
+              defaultValue: "Restoring this revision creates a new revision {{nextRevisionNumber}} with the same content. History stays append-only.",
+            })}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={onReturn} disabled={pending}>
@@ -367,8 +386,8 @@ const { t } = useTranslation();
 
   const labels = dirtyFields.length > 0
     ? dirtyFields.map((field) => field.label)
-    : ["the routine"];
-  const fieldsText = formatDirtyFieldList(labels);
+    : [t("components.routinehistorytab.the_routine", { defaultValue: "the routine" })];
+  const fieldsText = formatDirtyFieldList(labels, t);
   return (
     <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-4 py-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -465,7 +484,7 @@ const { t } = useTranslation();
               )}
             </div>
             <div className="text-xs text-muted-foreground truncate">
-              {relativeTime(revision.createdAt)} • {getActorLabel(revision)}
+              {relativeTime(revision.createdAt)} • {getActorLabel(revision, t)}
               {revision.changeSummary ? ` • ${revision.changeSummary}` : ""}
             </div>
           </button>
@@ -473,7 +492,11 @@ const { t } = useTranslation();
       })}
       {totalRevisions > revisions.length && !showOlder && (
         <Button variant="ghost" size="sm" className="w-full" onClick={onShowOlder}>
-          {t("components.routinehistorytab.show.jsx-text", { defaultValue: "\n          Show " })}{totalRevisions - revisions.length} {t("components.routinehistorytab.older.jsx-text", { defaultValue: " older…\n        " })}</Button>
+          {t("components.routinehistorytab.show_older.action", {
+            count: totalRevisions - revisions.length,
+            defaultValue: "Show {{count}} older…",
+          })}
+        </Button>
       )}
     </aside>
   );
@@ -505,61 +528,61 @@ const { t } = useTranslation();
   const snapshot = revision.snapshot.routine;
   const triggers = revision.snapshot.triggers;
   const currentSnapshot = currentRevision?.snapshot.routine ?? null;
-  const restoreLabel = isHistorical ? "Restore this revision" : "Restore this revision";
+  const restoreLabel = t("components.routinehistorytab.restore_this_revision.attr_aria-label", { defaultValue: "Restore this revision" });
   const cardWrapper = `rounded-md border transition-colors duration-1000 ${
     highlighted ? "border-emerald-500/40 bg-emerald-500/10" : "border-border"
   }`;
 
-  const envSummary = summarizeEnv(snapshot.env ?? null);
+  const envSummary = summarizeEnv(snapshot.env ?? null, t);
   const envDiffers = !!currentSnapshot
     && JSON.stringify(normalizeEnv(currentSnapshot.env ?? null))
       !== JSON.stringify(normalizeEnv(snapshot.env ?? null));
   const fieldRows: Array<{ key: string; label: string; value: string; differs: boolean }> = [
     {
       key: "title",
-      label: "Title",
+      label: t("components.routinehistorytab.field_title", { defaultValue: "Title" }),
       value: snapshot.title,
       differs: !!currentSnapshot && currentSnapshot.title !== snapshot.title,
     },
     {
       key: "priority",
-      label: "Priority",
+      label: t("components.routinehistorytab.field_priority", { defaultValue: "Priority" }),
       value: snapshot.priority,
       differs: !!currentSnapshot && currentSnapshot.priority !== snapshot.priority,
     },
     {
       key: "status",
-      label: "Status",
+      label: t("components.routinehistorytab.field_status", { defaultValue: "Status" }),
       value: snapshot.status,
       differs: !!currentSnapshot && currentSnapshot.status !== snapshot.status,
     },
     {
       key: "assigneeAgentId",
-      label: "Default agent",
-      value: resolveAgentName(snapshot.assigneeAgentId, agents),
+      label: t("components.routinehistorytab.field_default_agent", { defaultValue: "Default agent" }),
+      value: resolveAgentName(snapshot.assigneeAgentId, agents, t),
       differs: !!currentSnapshot && currentSnapshot.assigneeAgentId !== snapshot.assigneeAgentId,
     },
     {
       key: "projectId",
-      label: "Project",
-      value: resolveProjectName(snapshot.projectId, projects),
+      label: t("components.routinehistorytab.field_project", { defaultValue: "Project" }),
+      value: resolveProjectName(snapshot.projectId, projects, t),
       differs: !!currentSnapshot && currentSnapshot.projectId !== snapshot.projectId,
     },
     {
       key: "concurrencyPolicy",
-      label: "Concurrency",
+      label: t("components.routinehistorytab.field_concurrency", { defaultValue: "Concurrency" }),
       value: snapshot.concurrencyPolicy.replaceAll("_", " "),
       differs: !!currentSnapshot && currentSnapshot.concurrencyPolicy !== snapshot.concurrencyPolicy,
     },
     {
       key: "catchUpPolicy",
-      label: "Catch-up",
+      label: t("components.routinehistorytab.field_catch_up", { defaultValue: "Catch-up" }),
       value: snapshot.catchUpPolicy.replaceAll("_", " "),
       differs: !!currentSnapshot && currentSnapshot.catchUpPolicy !== snapshot.catchUpPolicy,
     },
     {
       key: "env",
-      label: "Env",
+      label: t("components.routinehistorytab.field_env", { defaultValue: "Env" }),
       value: envSummary,
       differs: envDiffers,
     },
@@ -572,7 +595,7 @@ const { t } = useTranslation();
           <div className="space-y-1 min-w-0">
             <p className="text-sm font-medium">{t("components.routinehistorytab.rev.jsx-text", { defaultValue: "rev " })}{revision.revisionNumber}</p>
             <p className="text-xs text-muted-foreground truncate">
-              {t("components.routinehistorytab.saved.jsx-text", { defaultValue: "\n              Saved " })}{relativeTime(revision.createdAt)} {t("components.routinehistorytab.by.jsx-text", { defaultValue: " by " })}{getActorLabel(revision)}
+              {t("components.routinehistorytab.saved.jsx-text", { defaultValue: "\n              Saved " })}{relativeTime(revision.createdAt)} {t("components.routinehistorytab.by.jsx-text", { defaultValue: " by " })}{getActorLabel(revision, t)}
               {revision.changeSummary ? ` · ${revision.changeSummary}` : ""}
             </p>
           </div>
@@ -640,12 +663,14 @@ const { t } = useTranslation();
                 </span>
                 <span className="font-medium">{trigger.label ?? trigger.kind}</span>
                 <span className="text-xs text-muted-foreground">
-                  {summarizeTriggerSnapshot(trigger)}
+                  {summarizeTriggerSnapshot(trigger, t)}
                 </span>
                 <span
                   className={`ml-auto text-xs ${trigger.enabled ? "text-emerald-400" : "text-muted-foreground"}`}
                 >
-                  {trigger.enabled ? "enabled" : "disabled"}
+                  {trigger.enabled
+                    ? t("components.routinehistorytab.enabled.status", { defaultValue: "enabled" })
+                    : t("components.routinehistorytab.disabled.status", { defaultValue: "disabled" })}
                 </span>
               </li>
             ))}
@@ -718,7 +743,7 @@ const { t } = useTranslation();
           {envDiffCounts.total > 0 && (
             <li className="flex items-start gap-2">
               <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {t("components.routinehistorytab.routine_secrets_will_revert.jsx-text", { defaultValue: "\n              Routine secrets will revert: " })}{formatEnvDiffCounts(envDiffCounts)}.
+              {t("components.routinehistorytab.routine_secrets_will_revert.jsx-text", { defaultValue: "\n              Routine secrets will revert: " })}{formatEnvDiffCounts(envDiffCounts, t)}.
             </li>
           )}
           <li className="flex items-start gap-2">
@@ -745,7 +770,12 @@ const { t } = useTranslation();
             {t("components.routinehistorytab.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button onClick={onConfirm} disabled={pending}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-            {pending ? "Restoring…" : `Restore as revision ${newRevisionNumber}`}
+            {pending
+              ? t("components.routinehistorytab.restoring.action", { defaultValue: "Restoring…" })
+              : t("components.routinehistorytab.restore_as_revision.action", {
+                newRevisionNumber,
+                defaultValue: "Restore as revision {{newRevisionNumber}}",
+              })}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -789,8 +819,8 @@ const { t } = useTranslation();
   const left = revisions.find((r) => r.id === leftId) ?? null;
   const right = revisions.find((r) => r.id === rightId) ?? null;
   const fieldChanges = useMemo(
-    () => (left && right ? computeFieldChanges(left, right, agents, projects, secrets) : []),
-    [left, right, agents, projects, secrets],
+    () => (left && right ? computeFieldChanges(left, right, agents, projects, secrets, t) : []),
+    [left, right, agents, projects, secrets, t],
   );
   const descriptionDiff = useMemo<DiffRow[]>(
     () => (left && right
@@ -866,7 +896,11 @@ const { t } = useTranslation();
           {leftIsHistorical && left && (
             <Button onClick={() => onRestore(left)}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-              {t("components.routinehistorytab.restore_rev.jsx-text", { defaultValue: "\n              Restore rev " })}{left.revisionNumber} {t("components.routinehistorytab.as_new_revision.jsx-text", { defaultValue: " as new revision\n            " })}</Button>
+              {t("components.routinehistorytab.restore_rev_as_new_revision.action", {
+                revisionNumber: left.revisionNumber,
+                defaultValue: "Restore rev {{revisionNumber}} as new revision",
+              })}
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
@@ -965,31 +999,36 @@ const { t } = useTranslation();
   );
 }
 
-function getActorLabel(revision: RoutineRevision): string {
-  if (revision.createdByUserId) return "board";
-  if (revision.createdByAgentId) return "agent";
-  return "system";
+function getActorLabel(revision: RoutineRevision, t: TranslateFn = translate): string {
+  if (revision.createdByUserId) return t("components.routinehistorytab.actor_board", { defaultValue: "board" });
+  if (revision.createdByAgentId) return t("components.routinehistorytab.actor_agent", { defaultValue: "agent" });
+  return t("components.routinehistorytab.actor_system", { defaultValue: "system" });
 }
 
-function resolveAgentName(agentId: string | null, lookup: AgentLookup) {
-  if (!agentId) return "Unassigned";
+function resolveAgentName(agentId: string | null, lookup: AgentLookup, t: TranslateFn = translate) {
+  if (!agentId) return t("components.routinehistorytab.unassigned", { defaultValue: "Unassigned" });
   return lookup.get(agentId)?.name ?? agentId;
 }
 
-function resolveProjectName(projectId: string | null, lookup: ProjectLookup) {
-  if (!projectId) return "No project";
+function resolveProjectName(projectId: string | null, lookup: ProjectLookup, t: TranslateFn = translate) {
+  if (!projectId) return t("components.routinehistorytab.no_project", { defaultValue: "No project" });
   return lookup.get(projectId)?.name ?? projectId;
 }
 
-function summarizeTriggerSnapshot(trigger: RoutineRevisionSnapshotTriggerV1): string {
+function summarizeTriggerSnapshot(trigger: RoutineRevisionSnapshotTriggerV1, t: TranslateFn = translate): string {
   if (trigger.kind === "schedule") {
     return [trigger.cronExpression, trigger.timezone].filter(Boolean).join(" · ");
   }
   if (trigger.kind === "webhook") {
-    const replay = trigger.replayWindowSec != null ? `replay ${trigger.replayWindowSec}s` : "";
+    const replay = trigger.replayWindowSec != null
+      ? t("components.routinehistorytab.replay_seconds", {
+        seconds: trigger.replayWindowSec,
+        defaultValue: "replay {{seconds}}s",
+      })
+      : "";
     return [trigger.signingMode, replay].filter(Boolean).join(" · ");
   }
-  return "API";
+  return t("components.routinehistorytab.api", { defaultValue: "API" });
 }
 
 function formatVariableDefault(variable: RoutineVariable): string {
@@ -997,11 +1036,21 @@ function formatVariableDefault(variable: RoutineVariable): string {
   return String(variable.defaultValue);
 }
 
-function formatDirtyFieldList(labels: string[]): string {
-  if (labels.length === 0) return "the routine";
+function formatDirtyFieldList(labels: string[], t: TranslateFn = translate): string {
+  if (labels.length === 0) return t("components.routinehistorytab.the_routine", { defaultValue: "the routine" });
   if (labels.length === 1) return labels[0];
-  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
-  return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}`;
+  if (labels.length === 2) {
+    return t("components.routinehistorytab.two_field_list", {
+      first: labels[0],
+      second: labels[1],
+      defaultValue: "{{first}} and {{second}}",
+    });
+  }
+  return t("components.routinehistorytab.many_field_list", {
+    rest: labels.slice(0, -1).join(", "),
+    last: labels[labels.length - 1],
+    defaultValue: "{{rest}}, and {{last}}",
+  });
 }
 
 function collectWebhookTriggerDifferences(
@@ -1026,6 +1075,7 @@ function computeFieldChanges(
   agents: AgentLookup,
   projects: ProjectLookup,
   secrets: SecretLookup,
+  t: TranslateFn = translate,
 ): Array<{ field: string; oldValue: string | null; newValue: string | null }> {
   const oldRoutine = left.snapshot.routine;
   const newRoutine = right.snapshot.routine;
@@ -1041,32 +1091,32 @@ function computeFieldChanges(
       changes.push({ field: label, oldValue: transform(oldVal), newValue: transform(newVal) });
     }
   };
-  compareScalar("title", "Title", oldRoutine.title, newRoutine.title);
-  compareScalar("priority", "Priority", oldRoutine.priority, newRoutine.priority);
+  compareScalar("title", t("components.routinehistorytab.field_title", { defaultValue: "Title" }), oldRoutine.title, newRoutine.title);
+  compareScalar("priority", t("components.routinehistorytab.field_priority", { defaultValue: "Priority" }), oldRoutine.priority, newRoutine.priority);
   compareScalar(
     "assigneeAgentId",
-    "Default agent",
-    resolveAgentName(oldRoutine.assigneeAgentId, agents),
-    resolveAgentName(newRoutine.assigneeAgentId, agents),
+    t("components.routinehistorytab.field_default_agent", { defaultValue: "Default agent" }),
+    resolveAgentName(oldRoutine.assigneeAgentId, agents, t),
+    resolveAgentName(newRoutine.assigneeAgentId, agents, t),
   );
   compareScalar(
     "projectId",
-    "Project",
-    resolveProjectName(oldRoutine.projectId, projects),
-    resolveProjectName(newRoutine.projectId, projects),
+    t("components.routinehistorytab.field_project", { defaultValue: "Project" }),
+    resolveProjectName(oldRoutine.projectId, projects, t),
+    resolveProjectName(newRoutine.projectId, projects, t),
   );
-  compareScalar("concurrencyPolicy", "Concurrency", oldRoutine.concurrencyPolicy, newRoutine.concurrencyPolicy);
-  compareScalar("catchUpPolicy", "Catch-up", oldRoutine.catchUpPolicy, newRoutine.catchUpPolicy);
-  compareScalar("status", "Status", oldRoutine.status, newRoutine.status);
+  compareScalar("concurrencyPolicy", t("components.routinehistorytab.field_concurrency", { defaultValue: "Concurrency" }), oldRoutine.concurrencyPolicy, newRoutine.concurrencyPolicy);
+  compareScalar("catchUpPolicy", t("components.routinehistorytab.field_catch_up", { defaultValue: "Catch-up" }), oldRoutine.catchUpPolicy, newRoutine.catchUpPolicy);
+  compareScalar("status", t("components.routinehistorytab.field_status", { defaultValue: "Status" }), oldRoutine.status, newRoutine.status);
   if (JSON.stringify(oldRoutine.variables) !== JSON.stringify(newRoutine.variables)) {
     changes.push({
-      field: "Variables",
-      oldValue: summarizeVariables(oldRoutine.variables),
-      newValue: summarizeVariables(newRoutine.variables),
+      field: t("components.routinehistorytab.field_variables", { defaultValue: "Variables" }),
+      oldValue: summarizeVariables(oldRoutine.variables, t),
+      newValue: summarizeVariables(newRoutine.variables, t),
     });
   }
-  compareEnv(oldRoutine.env ?? null, newRoutine.env ?? null, secrets, changes);
-  compareTriggers(left.snapshot.triggers, right.snapshot.triggers, changes);
+  compareEnv(oldRoutine.env ?? null, newRoutine.env ?? null, secrets, changes, t);
+  compareTriggers(left.snapshot.triggers, right.snapshot.triggers, changes, t);
   return changes;
 }
 
@@ -1102,20 +1152,31 @@ function describeSecretRef(ref: EnvSecretRefBinding, secrets: SecretLookup): str
   return `${name} ${formatVersionSelector(ref.version)}`;
 }
 
-function describeEnvBinding(binding: EnvBinding | undefined, secrets: SecretLookup): string {
+function describeEnvBinding(binding: EnvBinding | undefined, secrets: SecretLookup, t: TranslateFn = translate): string {
   if (binding === undefined) return "—";
   const ref = asSecretRef(binding);
   if (ref) return `secret_ref → ${describeSecretRef(ref, secrets)}`;
-  return "plain (set)";
+  return t("components.routinehistorytab.plain_set", { defaultValue: "plain (set)" });
 }
 
-function summarizeEnv(env: RoutineEnvConfig | null): string {
+function summarizeEnv(env: RoutineEnvConfig | null, t: TranslateFn = translate): string {
   const entries = Object.entries(normalizeEnv(env));
   if (entries.length === 0) return "";
   const secretCount = entries.filter(([, binding]) => envBindingKind(binding) === "secret_ref").length;
-  const keyLabel = entries.length === 1 ? "key" : "keys";
+  const keyLabel = entries.length === 1
+    ? t("components.routinehistorytab.key_singular", { defaultValue: "key" })
+    : t("components.routinehistorytab.key_plural", { defaultValue: "keys" });
   if (secretCount === 0) return `${entries.length} ${keyLabel}`;
-  return `${entries.length} ${keyLabel} (${secretCount} secret ${secretCount === 1 ? "ref" : "refs"})`;
+  const refLabel = secretCount === 1
+    ? t("components.routinehistorytab.secret_ref_singular", { defaultValue: "secret ref" })
+    : t("components.routinehistorytab.secret_ref_plural", { defaultValue: "secret refs" });
+  return t("components.routinehistorytab.env_summary_with_secret_refs", {
+    keyCount: entries.length,
+    keyLabel,
+    secretCount,
+    refLabel,
+    defaultValue: "{{keyCount}} {{keyLabel}} ({{secretCount}} {{refLabel}})",
+  });
 }
 
 type EnvDiffCounts = {
@@ -1153,11 +1214,29 @@ function summarizeEnvDiffCounts(
   return { added, removed, changed, total: added + removed + changed };
 }
 
-function formatEnvDiffCounts(counts: EnvDiffCounts): string {
+function formatEnvDiffCounts(counts: EnvDiffCounts, t: TranslateFn = translate): string {
   const parts: string[] = [];
-  if (counts.added > 0) parts.push(`${counts.added} ${counts.added === 1 ? "key" : "keys"} added`);
-  if (counts.removed > 0) parts.push(`${counts.removed} ${counts.removed === 1 ? "key" : "keys"} removed`);
-  if (counts.changed > 0) parts.push(`${counts.changed} ${counts.changed === 1 ? "key" : "keys"} changed`);
+  if (counts.added > 0) {
+    parts.push(t("components.routinehistorytab.env_keys_added", {
+      count: counts.added,
+      defaultValue: "{{count}} key added",
+      defaultValue_plural: "{{count}} keys added",
+    }));
+  }
+  if (counts.removed > 0) {
+    parts.push(t("components.routinehistorytab.env_keys_removed", {
+      count: counts.removed,
+      defaultValue: "{{count}} key removed",
+      defaultValue_plural: "{{count}} keys removed",
+    }));
+  }
+  if (counts.changed > 0) {
+    parts.push(t("components.routinehistorytab.env_keys_changed", {
+      count: counts.changed,
+      defaultValue: "{{count}} key changed",
+      defaultValue_plural: "{{count}} keys changed",
+    }));
+  }
   return parts.join(", ");
 }
 
@@ -1166,6 +1245,7 @@ function compareEnv(
   newEnv: RoutineEnvConfig | null,
   secrets: SecretLookup,
   changes: Array<{ field: string; oldValue: string | null; newValue: string | null }>,
+  t: TranslateFn = translate,
 ) {
   const oldRec = normalizeEnv(oldEnv);
   const newRec = normalizeEnv(newEnv);
@@ -1178,16 +1258,16 @@ function compareEnv(
     const inNew = key in newRec;
     if (inNew && !inOld) {
       changes.push({
-        field: `Env added (${key})`,
+        field: t("components.routinehistorytab.env_added_field", { key, defaultValue: "Env added ({{key}})" }),
         oldValue: "—",
-        newValue: describeEnvBinding(newBinding, secrets),
+        newValue: describeEnvBinding(newBinding, secrets, t),
       });
       continue;
     }
     if (!inNew && inOld) {
       changes.push({
-        field: `Env removed (${key})`,
-        oldValue: describeEnvBinding(oldBinding, secrets),
+        field: t("components.routinehistorytab.env_removed_field", { key, defaultValue: "Env removed ({{key}})" }),
+        oldValue: describeEnvBinding(oldBinding, secrets, t),
         newValue: "—",
       });
       continue;
@@ -1197,9 +1277,9 @@ function compareEnv(
     const newKind = envBindingKind(newBinding);
     if (oldKind !== newKind) {
       changes.push({
-        field: `Env ${key} binding kind`,
-        oldValue: describeEnvBinding(oldBinding, secrets),
-        newValue: describeEnvBinding(newBinding, secrets),
+        field: t("components.routinehistorytab.env_binding_kind_field", { key, defaultValue: "Env {{key}} binding kind" }),
+        oldValue: describeEnvBinding(oldBinding, secrets, t),
+        newValue: describeEnvBinding(newBinding, secrets, t),
       });
       continue;
     }
@@ -1208,29 +1288,29 @@ function compareEnv(
       const newRef = asSecretRef(newBinding)!;
       if (oldRef.secretId !== newRef.secretId) {
         changes.push({
-          field: `Env ${key} secret`,
-          oldValue: describeEnvBinding(oldBinding, secrets),
-          newValue: describeEnvBinding(newBinding, secrets),
+          field: t("components.routinehistorytab.env_secret_field", { key, defaultValue: "Env {{key}} secret" }),
+          oldValue: describeEnvBinding(oldBinding, secrets, t),
+          newValue: describeEnvBinding(newBinding, secrets, t),
         });
         continue;
       }
       changes.push({
-        field: `Env ${key} version`,
+        field: t("components.routinehistorytab.env_version_field", { key, defaultValue: "Env {{key}} version" }),
         oldValue: describeSecretRef(oldRef, secrets),
         newValue: describeSecretRef(newRef, secrets),
       });
       continue;
     }
     changes.push({
-      field: `Env ${key} value`,
-      oldValue: "plain (set)",
-      newValue: "plain (changed)",
+      field: t("components.routinehistorytab.env_value_field", { key, defaultValue: "Env {{key}} value" }),
+      oldValue: t("components.routinehistorytab.plain_set", { defaultValue: "plain (set)" }),
+      newValue: t("components.routinehistorytab.plain_changed", { defaultValue: "plain (changed)" }),
     });
   }
 }
 
-function summarizeVariables(variables: RoutineVariable[]): string {
-  if (variables.length === 0) return "(none)";
+function summarizeVariables(variables: RoutineVariable[], t: TranslateFn = translate): string {
+  if (variables.length === 0) return t("components.routinehistorytab.none_parenthetical", { defaultValue: "(none)" });
   return variables
     .map((variable) => `${variable.name}=${formatVariableDefault(variable)}`)
     .join(", ");
@@ -1240,6 +1320,7 @@ function compareTriggers(
   oldTriggers: RoutineRevisionSnapshotTriggerV1[],
   newTriggers: RoutineRevisionSnapshotTriggerV1[],
   changes: Array<{ field: string; oldValue: string | null; newValue: string | null }>,
+  t: TranslateFn = translate,
 ) {
   const byId = new Map<string, { old?: RoutineRevisionSnapshotTriggerV1; next?: RoutineRevisionSnapshotTriggerV1 }>();
   for (const trigger of oldTriggers) byId.set(trigger.id, { old: trigger });
@@ -1250,24 +1331,37 @@ function compareTriggers(
   for (const [, pair] of byId) {
     if (pair.old && !pair.next) {
       changes.push({
-        field: `Trigger removed (${pair.old.label ?? pair.old.kind})`,
-        oldValue: summarizeTriggerSnapshot(pair.old),
+        field: t("components.routinehistorytab.trigger_removed_field", {
+          label: pair.old.label ?? pair.old.kind,
+          defaultValue: "Trigger removed ({{label}})",
+        }),
+        oldValue: summarizeTriggerSnapshot(pair.old, t),
         newValue: null,
       });
     } else if (!pair.old && pair.next) {
       changes.push({
-        field: `Trigger added (${pair.next.label ?? pair.next.kind})`,
+        field: t("components.routinehistorytab.trigger_added_field", {
+          label: pair.next.label ?? pair.next.kind,
+          defaultValue: "Trigger added ({{label}})",
+        }),
         oldValue: null,
-        newValue: summarizeTriggerSnapshot(pair.next),
+        newValue: summarizeTriggerSnapshot(pair.next, t),
       });
     } else if (pair.old && pair.next) {
-      const oldSummary = summarizeTriggerSnapshot(pair.old);
-      const newSummary = summarizeTriggerSnapshot(pair.next);
+      const oldSummary = summarizeTriggerSnapshot(pair.old, t);
+      const newSummary = summarizeTriggerSnapshot(pair.next, t);
       if (oldSummary !== newSummary || pair.old.enabled !== pair.next.enabled) {
         changes.push({
-          field: `Trigger ${pair.next.label ?? pair.next.kind}`,
-          oldValue: `${oldSummary} (${pair.old.enabled ? "enabled" : "disabled"})`,
-          newValue: `${newSummary} (${pair.next.enabled ? "enabled" : "disabled"})`,
+          field: t("components.routinehistorytab.trigger_field", {
+            label: pair.next.label ?? pair.next.kind,
+            defaultValue: "Trigger {{label}}",
+          }),
+          oldValue: `${oldSummary} (${pair.old.enabled
+            ? t("components.routinehistorytab.enabled.status", { defaultValue: "enabled" })
+            : t("components.routinehistorytab.disabled.status", { defaultValue: "disabled" })})`,
+          newValue: `${newSummary} (${pair.next.enabled
+            ? t("components.routinehistorytab.enabled.status", { defaultValue: "enabled" })
+            : t("components.routinehistorytab.disabled.status", { defaultValue: "disabled" })})`,
         });
       }
     }

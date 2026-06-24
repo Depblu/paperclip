@@ -1,33 +1,53 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { AlertTriangle, RotateCcw, TimerReset } from "lucide-react";
 import { healthApi, type DevServerHealthStatus } from "../api/health";
 
 const RESTART_PENDING_RESET_MS = 30_000;
+type TranslateFn = typeof translate;
 
-function formatRelativeTimestamp(value: string | null): string | null {
+function formatRelativeTimestamp(value: string | null, t: TranslateFn = translate): string | null {
   if (!value) return null;
   const timestamp = new Date(value).getTime();
   if (Number.isNaN(timestamp)) return null;
 
   const deltaMs = Date.now() - timestamp;
-  if (deltaMs < 60_000) return "just now";
+  if (deltaMs < 60_000) return t("components.devrestartbanner.just_now", { defaultValue: "just now" });
   const deltaMinutes = Math.round(deltaMs / 60_000);
-  if (deltaMinutes < 60) return `${deltaMinutes}m ago`;
+  if (deltaMinutes < 60) {
+    return t("components.devrestartbanner.minutes_ago", {
+      count: deltaMinutes,
+      defaultValue: "{{count}}m ago",
+    });
+  }
   const deltaHours = Math.round(deltaMinutes / 60);
-  if (deltaHours < 24) return `${deltaHours}h ago`;
+  if (deltaHours < 24) {
+    return t("components.devrestartbanner.hours_ago", {
+      count: deltaHours,
+      defaultValue: "{{count}}h ago",
+    });
+  }
   const deltaDays = Math.round(deltaHours / 24);
-  return `${deltaDays}d ago`;
+  return t("components.devrestartbanner.days_ago", {
+    count: deltaDays,
+    defaultValue: "{{count}}d ago",
+  });
 }
 
-function describeReason(devServer: DevServerHealthStatus): string {
+function describeReason(devServer: DevServerHealthStatus, t: TranslateFn = translate): string {
   if (devServer.reason === "backend_changes_and_pending_migrations") {
-    return "backend files changed and migrations are pending";
+    return t("components.devrestartbanner.reason_backend_changes_and_pending_migrations", {
+      defaultValue: "backend files changed and migrations are pending",
+    });
   }
   if (devServer.reason === "pending_migrations") {
-    return "pending migrations need a fresh boot";
+    return t("components.devrestartbanner.reason_pending_migrations", {
+      defaultValue: "pending migrations need a fresh boot",
+    });
   }
-  return "backend files changed since this server booted";
+  return t("components.devrestartbanner.reason_backend_changes", {
+    defaultValue: "backend files changed since this server booted",
+  });
 }
 
 export function DevRestartBanner({ devServer }: { devServer?: DevServerHealthStatus }) {
@@ -45,17 +65,22 @@ const { t } = useTranslation();
   if (!devServer?.enabled || !devServer.restartRequired) return null;
 
   const currentDevServer = devServer;
-  const changedAt = formatRelativeTimestamp(devServer.lastChangedAt);
+  const changedAt = formatRelativeTimestamp(devServer.lastChangedAt, t);
   const sample = devServer.changedPathsSample.slice(0, 3);
-  const activeRunLabel = `${devServer.activeRunCount} live run${
-    devServer.activeRunCount === 1 ? "" : "s"
-  }`;
+  const activeRunLabel = t("components.devrestartbanner.live_run_count", {
+    count: devServer.activeRunCount,
+    defaultValue: "{{count}} live run",
+    defaultValue_plural: "{{count}} live runs",
+  });
 
   async function requestRestartNow() {
     const warning =
       currentDevServer.activeRunCount > 0
-        ? `Restart Paperclip now? This may interrupt ${activeRunLabel}.`
-        : "Restart Paperclip now?";
+        ? t("components.devrestartbanner.restart_interrupt_confirm", {
+          activeRunLabel,
+          defaultValue: "Restart Paperclip now? This may interrupt {{activeRunLabel}}.",
+        })
+        : t("components.devrestartbanner.restart_confirm", { defaultValue: "Restart Paperclip now?" });
     if (!window.confirm(warning)) return;
 
     setRestartPending(true);
@@ -63,7 +88,9 @@ const { t } = useTranslation();
       await healthApi.requestDevServerRestart();
     } catch (error) {
       setRestartPending(false);
-      window.alert(error instanceof Error ? error.message : "Failed to request restart");
+      window.alert(error instanceof Error
+        ? error.message
+        : t("components.devrestartbanner.failed_to_request_restart", { defaultValue: "Failed to request restart" }));
     }
   }
 
@@ -80,20 +107,35 @@ const { t } = useTranslation();
             ) : null}
           </div>
           <p className="mt-1 text-sm">
-            {describeReason(devServer)}
-            {changedAt ? ` · updated ${changedAt}` : ""}
+            {describeReason(devServer, t)}
+            {changedAt
+              ? t("components.devrestartbanner.updated_at", {
+                changedAt,
+                defaultValue: " · updated {{changedAt}}",
+              })
+              : ""}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-amber-900/80 dark:text-amber-100/75">
             {sample.length > 0 ? (
               <span>
                 {t("components.devrestartbanner.changed.jsx-text", { defaultValue: "\n                Changed: " })}{sample.join(", ")}
-                {devServer.changedPathCount > sample.length ? ` +${devServer.changedPathCount - sample.length} more` : ""}
+                {devServer.changedPathCount > sample.length
+                  ? t("components.devrestartbanner.more_count", {
+                    count: devServer.changedPathCount - sample.length,
+                    defaultValue: " +{{count}} more",
+                  })
+                  : ""}
               </span>
             ) : null}
             {devServer.pendingMigrations.length > 0 ? (
               <span>
                 {t("components.devrestartbanner.pending_migrations.jsx-text", { defaultValue: "\n                Pending migrations: " })}{devServer.pendingMigrations.slice(0, 2).join(", ")}
-                {devServer.pendingMigrations.length > 2 ? ` +${devServer.pendingMigrations.length - 2} more` : ""}
+                {devServer.pendingMigrations.length > 2
+                  ? t("components.devrestartbanner.more_count", {
+                    count: devServer.pendingMigrations.length - 2,
+                    defaultValue: " +{{count}} more",
+                  })
+                  : ""}
               </span>
             ) : null}
           </div>
@@ -103,7 +145,12 @@ const { t } = useTranslation();
           {devServer.waitingForIdle ? (
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-900/10 px-3 py-1.5 dark:bg-amber-100/10">
               <TimerReset className="h-3.5 w-3.5" />
-              <span>{t("components.devrestartbanner.waiting_for.jsx-text", { defaultValue: "Waiting for " })}{activeRunLabel} {t("components.devrestartbanner.to_finish.jsx-text", { defaultValue: " to finish" })}</span>
+              <span>
+                {t("components.devrestartbanner.waiting_for_runs_to_finish.label", {
+                  activeRunLabel,
+                  defaultValue: "Waiting for {{activeRunLabel}} to finish",
+                })}
+              </span>
             </div>
           ) : devServer.autoRestartEnabled ? (
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-900/10 px-3 py-1.5 dark:bg-amber-100/10">

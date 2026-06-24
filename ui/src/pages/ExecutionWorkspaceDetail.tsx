@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ExecutionWorkspace, Issue, Project, ProjectWorkspace, RoutineListItem } from "@paperclipai/shared";
@@ -56,24 +56,34 @@ type WorkspaceFormState = {
   inheritRuntime: boolean;
   workspaceRuntime: string;
 };
+type TranslateFn = typeof translate;
 
 type ExecutionWorkspaceBaseTab = "services" | "configuration" | "runtime_logs" | "issues" | "routines";
 type ExecutionWorkspacePluginTab = `plugin:${string}`;
 type ExecutionWorkspaceTab = ExecutionWorkspaceBaseTab | ExecutionWorkspacePluginTab;
 type OrderedExecutionWorkspaceTabItem = {
   value: ExecutionWorkspaceTab;
-  label: string;
   order: number;
 };
 
 const DEFAULT_PLUGIN_DETAIL_TAB_ORDER = 100;
 const EXECUTION_WORKSPACE_BASE_TAB_ITEMS: OrderedExecutionWorkspaceTabItem[] = [
-  { value: "issues", label: "Tasks", order: 10 },
-  { value: "services", label: "Services", order: 20 },
-  { value: "configuration", label: "Configuration", order: 30 },
-  { value: "runtime_logs", label: "Runtime logs", order: 40 },
-  { value: "routines", label: "Routines", order: 60 },
+  { value: "issues", order: 10 },
+  { value: "services", order: 20 },
+  { value: "configuration", order: 30 },
+  { value: "runtime_logs", order: 40 },
+  { value: "routines", order: 60 },
 ];
+
+function executionWorkspaceTabLabel(value: ExecutionWorkspaceBaseTab, t: TranslateFn) {
+  switch (value) {
+    case "issues": return t("pages.executionworkspacedetail.tasks.tab_label", { defaultValue: "Tasks" });
+    case "services": return t("pages.executionworkspacedetail.services.tab_label", { defaultValue: "Services" });
+    case "configuration": return t("pages.executionworkspacedetail.configuration.tab_label", { defaultValue: "Configuration" });
+    case "runtime_logs": return t("pages.executionworkspacedetail.runtime_logs.tab_label", { defaultValue: "Runtime logs" });
+    case "routines": return t("pages.executionworkspacedetail.routines.tab_label", { defaultValue: "Routines" });
+  }
+}
 
 function isExecutionWorkspacePluginTab(value: string | null): value is ExecutionWorkspacePluginTab {
   return typeof value === "string" && value.startsWith("plugin:");
@@ -221,13 +231,15 @@ function buildWorkspacePatch(initialState: WorkspaceFormState, nextState: Worksp
   return patch;
 }
 
-function validateForm(form: WorkspaceFormState) {
+function validateForm(form: WorkspaceFormState, t: TranslateFn = translate) {
   const repoUrl = normalizeText(form.repoUrl);
   if (repoUrl) {
     try {
       new URL(repoUrl);
     } catch {
-      return "Repo URL must be a valid URL.";
+      return t("pages.executionworkspacedetail.repo_url_valid.error", {
+        defaultValue: "Repo URL must be a valid URL.",
+      });
     }
   }
 
@@ -291,7 +303,11 @@ const { t } = useTranslation();
     <div className="inline-flex max-w-full items-start gap-2">
       <span className="break-all font-mono text-xs">{value}</span>
       {copy ? (
-        <CopyText text={value} className="shrink-0 text-muted-foreground hover:text-foreground" copiedLabel="Copied">
+        <CopyText
+          text={value}
+          className="shrink-0 text-muted-foreground hover:text-foreground"
+          copiedLabel={t("pages.executionworkspacedetail.copied.copy_label", { defaultValue: "Copied" })}
+        >
           <Copy className="h-3.5 w-3.5" />
         </CopyText>
       ) : null}
@@ -493,8 +509,8 @@ const { t } = useTranslation();
         queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(workspace.companyId) }),
       ]);
       pushToast({
-        title: "Routine started",
-        body: "Paperclip created a run using this execution workspace.",
+        title: t("pages.executionworkspacedetail.routine_started.title", { defaultValue: "Routine started" }),
+        body: t("pages.executionworkspacedetail.routine_started.body", { defaultValue: "Paperclip created a run using this execution workspace." }),
         tone: "success",
       });
     },
@@ -503,8 +519,8 @@ const { t } = useTranslation();
     },
     onError: (mutationError) => {
       pushToast({
-        title: "Routine run failed",
-        body: mutationError instanceof Error ? mutationError.message : "Paperclip could not start the routine run.",
+        title: t("pages.executionworkspacedetail.routine_run_failed.title", { defaultValue: "Routine run failed" }),
+        body: mutationError instanceof Error ? mutationError.message : t("pages.executionworkspacedetail.could_not_start_routine_run.error", { defaultValue: "Paperclip could not start the routine run." }),
         tone: "error",
       });
     },
@@ -685,13 +701,13 @@ const { t } = useTranslation();
   useEffect(() => {
     if (!workspace) return;
     const crumbs = [
-      { label: "Projects", href: "/projects" },
+      { label: t("pages.executionworkspacedetail.projects.breadcrumb", { defaultValue: "Projects" }), href: "/projects" },
       ...(project ? [{ label: project.name, href: `/projects/${projectRef}` }] : []),
-      ...(project ? [{ label: "Workspaces", href: `/projects/${projectRef}/workspaces` }] : []),
+      ...(project ? [{ label: t("pages.executionworkspacedetail.workspaces.breadcrumb", { defaultValue: "Workspaces" }), href: `/projects/${projectRef}/workspaces` }] : []),
       { label: workspace.name },
     ];
     setBreadcrumbs(crumbs);
-  }, [setBreadcrumbs, workspace, project, projectRef]);
+  }, [setBreadcrumbs, workspace, project, projectRef, t]);
 
   const updateWorkspace = useMutation({
     mutationFn: (patch: Record<string, unknown>) => executionWorkspacesApi.update(workspace!.id, patch),
@@ -782,7 +798,7 @@ const { t } = useTranslation();
   };
 
   const saveChanges = () => {
-    const validationError = validateForm(form);
+    const validationError = validateForm(form, t);
     if (validationError) {
       setErrorMessage(validationError);
       return;
@@ -792,7 +808,9 @@ const { t } = useTranslation();
     try {
       patch = buildWorkspacePatch(initialState, form);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to build workspace update.");
+      setErrorMessage(error instanceof Error ? error.message : t("pages.executionworkspacedetail.failed_to_build_workspace_update.error", {
+        defaultValue: "Failed to build workspace update.",
+      }));
       return;
     }
 
@@ -830,7 +848,12 @@ const { t } = useTranslation();
 
         <Tabs value={activeTab ?? "issues"} onValueChange={(value) => handleTabChange(value as ExecutionWorkspaceTab)}>
           <PageTabBar
-            items={workspaceTabItems.map((item) => ({ value: item.value, label: item.label }))}
+            items={workspaceTabItems.map((item) => ({
+              value: item.value,
+              label: item.value.startsWith("plugin:")
+                ? workspacePluginTabItems.find((pluginItem) => pluginItem.value === item.value)?.label ?? item.value
+                : executionWorkspaceTabLabel(item.value as ExecutionWorkspaceBaseTab, t),
+            }))}
             align="start"
             value={activeTab ?? "issues"}
             onValueChange={(value) => handleTabChange(value as ExecutionWorkspaceTab)}
@@ -894,7 +917,7 @@ const { t } = useTranslation();
                 <div className="space-y-4">
                   <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{t("pages.executionworkspacedetail.source_control.jsx-text", { defaultValue: "Source control" })}</div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label={t("pages.executionworkspacedetail.branch_name.attr_label", { defaultValue: "Branch name" })} hint="Useful for isolated worktrees">
+                    <Field label={t("pages.executionworkspacedetail.branch_name.attr_label", { defaultValue: "Branch name" })} hint={t("pages.executionworkspacedetail.useful_for_isolated_worktrees.attr_hint", { defaultValue: "Useful for isolated worktrees" })}>
                       <Input
                         className="font-mono"
                         value={form.branchName}
@@ -949,7 +972,7 @@ const { t } = useTranslation();
 
                 <div className="space-y-4">
                   <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{t("pages.executionworkspacedetail.lifecycle_commands.jsx-text", { defaultValue: "Lifecycle commands" })}</div>
-                  <Field label={t("pages.executionworkspacedetail.provision_command.attr_label", { defaultValue: "Provision command" })} hint="Runs when Paperclip prepares this execution workspace">
+                  <Field label={t("pages.executionworkspacedetail.provision_command.attr_label", { defaultValue: "Provision command" })} hint={t("pages.executionworkspacedetail.runs_when_paperclip_prepares.attr_hint", { defaultValue: "Runs when Paperclip prepares this execution workspace" })}>
                     <Textarea
                       className="min-h-20 font-mono"
                       value={form.provisionCommand}
@@ -958,7 +981,7 @@ const { t } = useTranslation();
                     />
                   </Field>
 
-                  <Field label={t("pages.executionworkspacedetail.teardown_command.attr_label", { defaultValue: "Teardown command" })} hint="Runs when the execution workspace is archived or cleaned up">
+                  <Field label={t("pages.executionworkspacedetail.teardown_command.attr_label", { defaultValue: "Teardown command" })} hint={t("pages.executionworkspacedetail.runs_when_the_execution_wo.attr_hint", { defaultValue: "Runs when the execution workspace is archived or cleaned up" })}>
                     <Textarea
                       className="min-h-20 font-mono"
                       value={form.teardownCommand}
@@ -967,7 +990,7 @@ const { t } = useTranslation();
                     />
                   </Field>
 
-                  <Field label={t("pages.executionworkspacedetail.cleanup_command.attr_label", { defaultValue: "Cleanup command" })} hint="Workspace-specific cleanup before teardown">
+                  <Field label={t("pages.executionworkspacedetail.cleanup_command.attr_label", { defaultValue: "Cleanup command" })} hint={t("pages.executionworkspacedetail.workspace_specific_cleanup_b.attr_hint", { defaultValue: "Workspace-specific cleanup before teardown" })}>
                     <Textarea
                       className="min-h-16 font-mono"
                       value={form.cleanupCommand}
@@ -988,10 +1011,10 @@ const { t } = useTranslation();
                           {t("pages.executionworkspacedetail.runtime_config_source.jsx-text", { defaultValue: "\n                          Runtime config source\n                        " })}</div>
                         <p className="text-sm text-muted-foreground">
                           {runtimeConfigSource === "execution_workspace"
-                            ? "This execution workspace currently overrides the project workspace runtime config."
+                            ? t("pages.executionworkspacedetail.this_execution_workspace_cur.jsx-text", { defaultValue: "This execution workspace currently overrides the project workspace runtime config." })
                             : runtimeConfigSource === "project_workspace"
-                              ? "This execution workspace is inheriting the project workspace runtime config."
-                              : "No runtime config is currently defined on this execution workspace or its project workspace."}
+                              ? t("pages.executionworkspacedetail.this_execution_workspace_is_.jsx-text", { defaultValue: "This execution workspace is inheriting the project workspace runtime config." })
+                              : t("pages.executionworkspacedetail.no_runtime_config_is_current.jsx-text", { defaultValue: "No runtime config is currently defined on this execution workspace or its project workspace." })}
                         </p>
                       </div>
                       <Button
@@ -1016,7 +1039,7 @@ const { t } = useTranslation();
                     <p className="mt-2 text-sm text-muted-foreground">
                       {t("pages.executionworkspacedetail.override_the_inherited_workspace.jsx-text", { defaultValue: "\n                      Override the inherited workspace command model only when this execution workspace truly needs different service or job behavior.\n                    " })}</p>
                     <div className="mt-3">
-                      <Field label={t("pages.executionworkspacedetail.workspace_commands_json.attr_label", { defaultValue: "Workspace commands JSON" })} hint="Legacy `services` arrays still work, but `commands` supports both services and jobs.">
+                      <Field label={t("pages.executionworkspacedetail.workspace_commands_json.attr_label", { defaultValue: "Workspace commands JSON" })} hint={t("pages.executionworkspacedetail.legacy_services_arrays_stil.attr_hint", { defaultValue: "Legacy `services` arrays still work, but `commands` supports both services and jobs." })}>
                         <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
                           <input
                             id="inherit-runtime-config"
@@ -1136,7 +1159,11 @@ const { t } = useTranslation();
                       {workspace.repoUrl}
                       <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                     </a>
-                    <CopyText text={workspace.repoUrl} className="shrink-0 text-muted-foreground hover:text-foreground" copiedLabel="Copied">
+                    <CopyText
+                      text={workspace.repoUrl}
+                      className="shrink-0 text-muted-foreground hover:text-foreground"
+                      copiedLabel={t("pages.executionworkspacedetail.copied.copy_label", { defaultValue: "Copied" })}
+                    >
                       <Copy className="h-3.5 w-3.5" />
                     </CopyText>
                   </div>

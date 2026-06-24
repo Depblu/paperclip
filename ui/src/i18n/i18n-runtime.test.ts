@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { i18n, setLocale, t } from ".";
-import en from "./locales/en.json";
+import zhCN from "./locales/zh-CN.json";
 import { LOCALE_STORAGE_KEY, localeDisplayName, normalizeNavigatorLanguage, supportedLocales } from "./locales";
 
 describe("i18n runtime", () => {
@@ -21,9 +21,10 @@ describe("i18n runtime", () => {
     document.documentElement.lang = "en";
   });
 
-  it("ships English by default", () => {
-    expect(t("app.noCompanies.title")).toBe(en.app.noCompanies.title);
-    expect(t("common.cancel")).toBe(en.common.cancel);
+  it("ships Simplified Chinese by default", async () => {
+    await i18n.changeLanguage("zh-CN");
+    expect(t("app.noCompanies.title")).toBe(zhCN.app.noCompanies.title);
+    expect(t("common.cancel")).toBe(zhCN.common.cancel);
   });
 
   it("switches to Simplified Chinese and syncs <html lang>", async () => {

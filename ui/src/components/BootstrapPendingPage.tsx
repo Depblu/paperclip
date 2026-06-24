@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "@/i18n";
+import { t as translate, useTranslation } from "@/i18n";
 import { Loader2, ShieldCheck, Terminal, TriangleAlert } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
@@ -50,21 +50,21 @@ function displayIdentity(session: AuthSession) {
   return session.user.email || session.user.name || session.user.id;
 }
 
-function claimErrorCopy(error: BootstrapPendingPageProps["claimError"]) {
+function claimErrorCopy(error: BootstrapPendingPageProps["claimError"], t: typeof translate) {
   if (error?.status === 409) {
     return {
-      title: "Someone else has already claimed this instance.",
-      body: "Refresh to sign in, or ask the existing admin to invite you from Instance settings -> Access.",
+      title: t("components.bootstrappendingpage.already_claimed.title", { defaultValue: "Someone else has already claimed this instance." }),
+      body: t("components.bootstrappendingpage.refresh_or_ask_admin.body", { defaultValue: "Refresh to sign in, or ask the existing admin to invite you from Instance settings -> Access." }),
     };
   }
   if (error?.status === 401) {
     return {
-      title: "Your session expired. Sign in again to claim this instance.",
+      title: t("components.bootstrappendingpage.session_expired.title", { defaultValue: "Your session expired. Sign in again to claim this instance." }),
       body: "",
     };
   }
   return {
-    title: "We couldn't reach the server. Try again in a moment.",
+    title: t("components.bootstrappendingpage.server_unreachable.title", { defaultValue: "We couldn't reach the server. Try again in a moment." }),
     body: "",
   };
 }
@@ -134,7 +134,7 @@ const { t } = useTranslation();
     );
   }
 
-  const errorCopy = claimErrorCopy(claimError);
+  const errorCopy = claimErrorCopy(claimError, t);
   const isClaiming = claimState === "claiming";
   return (
     <StateChrome>

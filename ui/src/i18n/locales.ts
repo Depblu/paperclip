@@ -2,7 +2,7 @@ import type { Resource } from "i18next";
 
 import { assertValidLocaleMessages } from "./locale-validation";
 
-export const DEFAULT_LOCALE = "en" as const;
+export const DEFAULT_LOCALE = "zh-CN" as const;
 export const LOCALE_STORAGE_KEY = "paperclip.locale";
 
 const localeModules = import.meta.glob("./locales/*.json", {

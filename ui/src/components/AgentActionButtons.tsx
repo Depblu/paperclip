@@ -175,7 +175,7 @@ const { t } = useTranslation();
       if (onActionError) {
         onActionError(message);
       } else {
-        pushToast({ title: "Action failed", body: message, tone: "error" });
+        pushToast({ title: t("components.agentactionbuttons.action_failed.title", { defaultValue: "Action failed" }), body: message, tone: "error" });
       }
     },
     [onActionError, pushToast],
@@ -211,14 +211,14 @@ const { t } = useTranslation();
       }
     },
     onError: (err) => {
-      reportError(err instanceof Error ? err.message : "Action failed");
+      reportError(err instanceof Error ? err.message : t("components.agentactionbuttons.action_failed.error", { defaultValue: "Action failed" }));
     },
   });
 
   const duplicateAgent = useMutation({
     mutationFn: async () => {
       if (!resolvedCompanyId) {
-        throw new Error("Agent is not ready to duplicate");
+        throw new Error(t("components.agentactionbuttons.agent_not_ready_to_duplicate.error", { defaultValue: "Agent is not ready to duplicate" }));
       }
       const instructionsBundle = await loadDuplicateInstructionsBundle(agent.id, resolvedCompanyId);
       const payload = buildDuplicateAgentPayload(agent, instructionsBundle);
@@ -237,13 +237,13 @@ const { t } = useTranslation();
       if (resolvedCompanyId) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(resolvedCompanyId) });
       }
-      pushToast({ title: "Agent duplicated", body: createdAgent.name, tone: "success" });
+      pushToast({ title: t("components.agentactionbuttons.agent_duplicated.title", { defaultValue: "Agent duplicated" }), body: createdAgent.name, tone: "success" });
       navigate(`/agents/${agentRouteRef(createdAgent)}/dashboard`);
     },
     onError: (err) => {
-      const message = err instanceof Error ? err.message : "Failed to duplicate agent";
+      const message = err instanceof Error ? err.message : t("components.agentactionbuttons.failed_to_duplicate_agent.error", { defaultValue: "Failed to duplicate agent" });
       onActionError?.(message);
-      pushToast({ title: "Could not duplicate agent", body: message, tone: "error" });
+      pushToast({ title: t("components.agentactionbuttons.could_not_duplicate_agent.title", { defaultValue: "Could not duplicate agent" }), body: message, tone: "error" });
     },
   });
 

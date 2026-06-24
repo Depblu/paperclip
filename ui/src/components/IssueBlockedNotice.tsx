@@ -28,7 +28,7 @@ const { t } = useTranslation();
   if (!state) return null;
   const tone = RECOVERY_CHIP_DEFAULT_TONE[state];
   const Icon = tone.icon;
-  const label = recoveryChipLabel(state, action.kind);
+  const label = recoveryChipLabel(state, action.kind, t);
   return (
     <span
       data-testid="issue-blocked-notice-recovery-indicator"
@@ -36,7 +36,10 @@ const { t } = useTranslation();
       data-recovery-kind={action.kind}
       role="status"
       aria-label={label}
-      title={`${label} — open the source task to act.`}
+      title={t("components.issueblockednotice.recovery_indicator_title", {
+        label,
+        defaultValue: "{{label}} — open the source task to act.",
+      })}
       className={`inline-flex shrink-0 items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${tone.className}`}
     >
       <Icon className="h-2.5 w-2.5" aria-hidden />

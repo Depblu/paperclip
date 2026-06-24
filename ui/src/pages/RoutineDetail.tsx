@@ -389,7 +389,7 @@ const { t } = useTranslation();
   });
   const createSecret = useMutation({
     mutationFn: (input: { name: string; value: string }) => {
-      if (!selectedCompanyId) throw new Error("Select a company to create secrets");
+      if (!selectedCompanyId) throw new Error(t("pages.routinedetail.select_company_to_create_secrets.error", { defaultValue: "Select a company to create secrets" }));
       return secretsApi.create(selectedCompanyId, input);
     },
     onSuccess: () => {
@@ -449,7 +449,7 @@ const { t } = useTranslation();
 
   useEffect(() => {
     if (!routine) return;
-    setBreadcrumbs([{ label: "Routines", href: "/routines" }, { label: routine.title }]);
+    setBreadcrumbs([{ label: t("pages.routinedetail.routines.breadcrumb", { defaultValue: "Routines" }), href: "/routines" }, { label: routine.title }]);
     if (!routineDefaults) return;
 
     const changedRoutine = hydratedRoutineIdRef.current !== routine.id;
@@ -457,7 +457,7 @@ const { t } = useTranslation();
       setEditDraft(routineDefaults);
       hydratedRoutineIdRef.current = routine.id;
     }
-  }, [routine, routineDefaults, isEditDirty, setBreadcrumbs]);
+  }, [routine, routineDefaults, isEditDirty, setBreadcrumbs, t]);
 
   useEffect(() => {
     autoResizeTextarea(titleInputRef.current);
@@ -466,11 +466,22 @@ const { t } = useTranslation();
   const copySecretValue = async (label: string, value: string) => {
     try {
       await navigator.clipboard.writeText(value);
-      pushToast({ title: `${label} copied`, tone: "success" });
+      pushToast({
+        title: t("pages.routinedetail.secret_value_copied.toast_title", {
+          label,
+          defaultValue: "{{label}} copied",
+        }),
+        tone: "success",
+      });
     } catch (error) {
       pushToast({
-        title: `Failed to copy ${label.toLowerCase()}`,
-        body: error instanceof Error ? error.message : "Clipboard access was denied.",
+        title: t("pages.routinedetail.failed_to_copy_secret_value.toast_title", {
+          label: label.toLowerCase(),
+          defaultValue: "Failed to copy {{label}}",
+        }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.clipboard_access_denied.toast_body", { defaultValue: "Clipboard access was denied." }),
         tone: "error",
       });
     }
@@ -516,15 +527,19 @@ const { t } = useTranslation();
       if (error instanceof ApiError && error.status === 409) {
         setSaveConflict(true);
         pushToast({
-          title: "Routine changed",
-          body: "Someone else updated this routine. Reload to see the latest revision.",
+          title: t("pages.routinedetail.routine_changed.toast_title", { defaultValue: "Routine changed" }),
+          body: t("pages.routinedetail.routine_changed_reload.toast_body", {
+            defaultValue: "Someone else updated this routine. Reload to see the latest revision.",
+          }),
           tone: "warn",
         });
         return;
       }
       pushToast({
-        title: "Failed to save routine",
-        body: error instanceof Error ? error.message : "Paperclip could not save the routine.",
+        title: t("pages.routinedetail.failed_to_save_routine.toast_title", { defaultValue: "Failed to save routine" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_save_routine.toast_body", { defaultValue: "Paperclip could not save the routine." }),
         tone: "error",
       });
     },
@@ -545,7 +560,7 @@ const { t } = useTranslation();
           : {}),
       }),
     onSuccess: async () => {
-      pushToast({ title: "Routine run started", tone: "success" });
+      pushToast({ title: t("pages.routinedetail.routine_run_started.toast_title", { defaultValue: "Routine run started" }), tone: "success" });
       setRunVariablesOpen(false);
       setActiveTab("runs");
       await Promise.all([
@@ -557,8 +572,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Routine run failed",
-        body: error instanceof Error ? error.message : "Paperclip could not start the routine run.",
+        title: t("pages.routinedetail.routine_run_failed.toast_title", { defaultValue: "Routine run failed" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_start_routine_run.toast_body", { defaultValue: "Paperclip could not start the routine run." }),
         tone: "error",
       });
     },
@@ -568,8 +585,10 @@ const { t } = useTranslation();
     mutationFn: (status: string) => routinesApi.update(routineId!, { status }),
     onSuccess: async (_data, status) => {
       pushToast({
-        title: "Routine saved",
-        body: status === "paused" ? "Automation paused." : "Automation enabled.",
+        title: t("pages.routinedetail.routine_saved.toast_title", { defaultValue: "Routine saved" }),
+        body: status === "paused"
+          ? t("pages.routinedetail.automation_paused.toast_body", { defaultValue: "Automation paused." })
+          : t("pages.routinedetail.automation_enabled.toast_body", { defaultValue: "Automation enabled." }),
         tone: "success",
       });
       await Promise.all([
@@ -579,8 +598,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to update routine",
-        body: error instanceof Error ? error.message : "Paperclip could not update the routine.",
+        title: t("pages.routinedetail.failed_to_update_routine.toast_title", { defaultValue: "Failed to update routine" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_update_routine.toast_body", { defaultValue: "Paperclip could not update the routine." }),
         tone: "error",
       });
     },
@@ -607,7 +628,7 @@ const { t } = useTranslation();
     onSuccess: async (result) => {
       if (result.secretMaterial) {
         setSecretMessage({
-          title: "Webhook trigger created",
+          title: t("pages.routinedetail.webhook_trigger_created.secret_title", { defaultValue: "Webhook trigger created" }),
           entries: [{
             webhookUrl: result.secretMaterial.webhookUrl,
             webhookSecret: result.secretMaterial.webhookSecret,
@@ -615,8 +636,8 @@ const { t } = useTranslation();
         });
       } else {
         pushToast({
-          title: "Trigger added",
-          body: "The routine schedule was saved.",
+          title: t("pages.routinedetail.trigger_added.toast_title", { defaultValue: "Trigger added" }),
+          body: t("pages.routinedetail.routine_schedule_saved.toast_body", { defaultValue: "The routine schedule was saved." }),
           tone: "success",
         });
       }
@@ -628,8 +649,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to add trigger",
-        body: error instanceof Error ? error.message : "Paperclip could not create the trigger.",
+        title: t("pages.routinedetail.failed_to_add_trigger.toast_title", { defaultValue: "Failed to add trigger" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_create_trigger.toast_body", { defaultValue: "Paperclip could not create the trigger." }),
         tone: "error",
       });
     },
@@ -639,8 +662,8 @@ const { t } = useTranslation();
     mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) => routinesApi.updateTrigger(id, patch),
     onSuccess: async () => {
       pushToast({
-        title: "Trigger saved",
-        body: "The routine cadence update was saved.",
+        title: t("pages.routinedetail.trigger_saved.toast_title", { defaultValue: "Trigger saved" }),
+        body: t("pages.routinedetail.routine_cadence_saved.toast_body", { defaultValue: "The routine cadence update was saved." }),
         tone: "success",
       });
       await Promise.all([
@@ -651,8 +674,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to update trigger",
-        body: error instanceof Error ? error.message : "Paperclip could not update the trigger.",
+        title: t("pages.routinedetail.failed_to_update_trigger.toast_title", { defaultValue: "Failed to update trigger" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_update_trigger.toast_body", { defaultValue: "Paperclip could not update the trigger." }),
         tone: "error",
       });
     },
@@ -662,7 +687,7 @@ const { t } = useTranslation();
     mutationFn: (id: string) => routinesApi.deleteTrigger(id),
     onSuccess: async () => {
       pushToast({
-        title: "Trigger deleted",
+        title: t("pages.routinedetail.trigger_deleted.toast_title", { defaultValue: "Trigger deleted" }),
         tone: "success",
       });
       await Promise.all([
@@ -673,8 +698,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to delete trigger",
-        body: error instanceof Error ? error.message : "Paperclip could not delete the trigger.",
+        title: t("pages.routinedetail.failed_to_delete_trigger.toast_title", { defaultValue: "Failed to delete trigger" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_delete_trigger.toast_body", { defaultValue: "Paperclip could not delete the trigger." }),
         tone: "error",
       });
     },
@@ -684,7 +711,7 @@ const { t } = useTranslation();
     mutationFn: (id: string): Promise<RotateRoutineTriggerResponse> => routinesApi.rotateTriggerSecret(id),
     onSuccess: async (result) => {
       setSecretMessage({
-        title: "Webhook secret rotated",
+        title: t("pages.routinedetail.webhook_secret_rotated.secret_title", { defaultValue: "Webhook secret rotated" }),
         entries: [{
           webhookUrl: result.secretMaterial.webhookUrl,
           webhookSecret: result.secretMaterial.webhookSecret,
@@ -697,8 +724,10 @@ const { t } = useTranslation();
     },
     onError: (error) => {
       pushToast({
-        title: "Failed to rotate webhook secret",
-        body: error instanceof Error ? error.message : "Paperclip could not rotate the webhook secret.",
+        title: t("pages.routinedetail.failed_to_rotate_webhook_secret.toast_title", { defaultValue: "Failed to rotate webhook secret" }),
+        body: error instanceof Error
+          ? error.message
+          : t("pages.routinedetail.could_not_rotate_webhook_secret.toast_body", { defaultValue: "Paperclip could not rotate the webhook secret." }),
         tone: "error",
       });
     },
@@ -746,7 +775,7 @@ const { t } = useTranslation();
   const currentProject = editDraft.projectId ? projectById.get(editDraft.projectId) ?? null : null;
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Repeat} message="Select a company to view routines." />;
+    return <EmptyState icon={Repeat} message={t("pages.routinedetail.select_a_company_to_view_rout.jsx-text", { defaultValue: "Select a company to view routines." })} />;
   }
 
   if (isLoading) {
@@ -832,8 +861,8 @@ const { t } = useTranslation();
             onCheckedChange={() => {
               if (!automationEnabled && !routine.assigneeAgentId) {
                 pushToast({
-                  title: "Default agent required",
-                  body: "Set a default agent before enabling routine automation.",
+                  title: t("pages.routinedetail.default_agent_required.title", { defaultValue: "Default agent required" }),
+                  body: t("pages.routinedetail.set_default_agent_before_enabling.body", { defaultValue: "Set a default agent before enabling routine automation." }),
                   tone: "warn",
                 });
                 return;

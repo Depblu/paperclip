@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   Agent,
@@ -151,36 +152,51 @@ function formatArgList(value: unknown): string {
 }
 
 const codexThinkingEffortOptions = [
-  { id: "", label: "Auto" },
-  { id: "minimal", label: "Minimal" },
-  { id: "low", label: "Low" },
-  { id: "medium", label: "Medium" },
-  { id: "high", label: "High" },
-  { id: "xhigh", label: "X-High" },
+  { id: "" },
+  { id: "minimal" },
+  { id: "low" },
+  { id: "medium" },
+  { id: "high" },
+  { id: "xhigh" },
 ] as const;
 
 const openCodeThinkingEffortOptions = [
-  { id: "", label: "Auto" },
-  { id: "minimal", label: "Minimal" },
-  { id: "low", label: "Low" },
-  { id: "medium", label: "Medium" },
-  { id: "high", label: "High" },
-  { id: "xhigh", label: "X-High" },
-  { id: "max", label: "Max" },
+  { id: "" },
+  { id: "minimal" },
+  { id: "low" },
+  { id: "medium" },
+  { id: "high" },
+  { id: "xhigh" },
+  { id: "max" },
 ] as const;
 
 const cursorModeOptions = [
-  { id: "", label: "Auto" },
-  { id: "plan", label: "Plan" },
-  { id: "ask", label: "Ask" },
+  { id: "" },
+  { id: "plan" },
+  { id: "ask" },
 ] as const;
 
 const claudeThinkingEffortOptions = [
-  { id: "", label: "Auto" },
-  { id: "low", label: "Low" },
-  { id: "medium", label: "Medium" },
-  { id: "high", label: "High" },
+  { id: "" },
+  { id: "low" },
+  { id: "medium" },
+  { id: "high" },
 ] as const;
+
+function optionLabel(id: string, t: TFunction) {
+  switch (id) {
+    case "": return t("components.agentconfigform.auto.option_label", { defaultValue: "Auto" });
+    case "minimal": return t("components.agentconfigform.minimal.option_label", { defaultValue: "Minimal" });
+    case "low": return t("components.agentconfigform.low.option_label", { defaultValue: "Low" });
+    case "medium": return t("components.agentconfigform.medium.option_label", { defaultValue: "Medium" });
+    case "high": return t("components.agentconfigform.high.option_label", { defaultValue: "High" });
+    case "xhigh": return t("components.agentconfigform.xhigh.option_label", { defaultValue: "X-High" });
+    case "max": return t("components.agentconfigform.max.option_label", { defaultValue: "Max" });
+    case "plan": return t("components.agentconfigform.plan.option_label", { defaultValue: "Plan" });
+    case "ask": return t("components.agentconfigform.ask.option_label", { defaultValue: "Ask" });
+    default: return id;
+  }
+}
 
 const MAX_TURN_CONTINUATION_DEFAULT_MAX_ATTEMPTS = 2;
 const MAX_TURN_CONTINUATION_MAX_ATTEMPTS_CAP = 10;
@@ -236,7 +252,7 @@ const { t } = useTranslation();
   });
   const createSecret = useMutation({
     mutationFn: (input: { name: string; value: string }) => {
-      if (!selectedCompanyId) throw new Error("Select a company to create secrets");
+      if (!selectedCompanyId) throw new Error(t("components.agentconfigform.select_company_to_create_secrets.error", { defaultValue: "Select a company to create secrets" }));
       return secretsApi.create(selectedCompanyId, input);
     },
     onSuccess: () => {
@@ -247,7 +263,7 @@ const { t } = useTranslation();
 
   const uploadMarkdownImage = useMutation({
     mutationFn: async ({ file, namespace }: { file: File; namespace: string }) => {
-      if (!selectedCompanyId) throw new Error("Select a company to upload images");
+      if (!selectedCompanyId) throw new Error(t("components.agentconfigform.select_company_to_upload_images.error", { defaultValue: "Select a company to upload images" }));
       return assetsApi.uploadImage(selectedCompanyId, file, namespace);
     },
   });
@@ -392,7 +408,7 @@ const { t } = useTranslation();
       : ["agents", "none", "detect-model", adapterType],
     queryFn: () => {
       if (!selectedCompanyId) {
-        throw new Error("Select a company to detect the model");
+        throw new Error(t("components.agentconfigform.select_company_to_detect_model.error", { defaultValue: "Select a company to detect the model" }));
       }
       return agentsApi.detectModel(selectedCompanyId, adapterType);
     },
@@ -472,7 +488,7 @@ const { t } = useTranslation();
   const testEnvironment = useMutation({
     mutationFn: async () => {
       if (!selectedCompanyId) {
-        throw new Error("Select a company to test adapter environment");
+        throw new Error(t("components.agentconfigform.select_company_to_test_adapter_environment.error", { defaultValue: "Select a company to test adapter environment" }));
       }
       return agentsApi.testEnvironment(selectedCompanyId, adapterType, {
         adapterConfig: buildAdapterConfigForTest(),
@@ -717,7 +733,7 @@ const { t } = useTranslation();
             : <div className="px-4 py-2 text-xs font-medium text-muted-foreground">{t("components.agentconfigform.identity.jsx-text", { defaultValue: "Identity" })}</div>
           }
           <div className={cn(cards ? "border border-border rounded-lg p-4 space-y-3" : "px-4 pb-3 space-y-3")}>
-            <Field label="Name" hint={help.name}>
+            <Field label={t("components.agentconfigform.name.attr_label", { defaultValue: "Name" })} hint={help.name}>
               <DraftInput
                 value={eff("identity", "name", props.agent.name)}
                 onCommit={(v) => mark("identity", "name", v)}
@@ -741,7 +757,7 @@ const { t } = useTranslation();
                 value={eff("identity", "reportsTo", props.agent.reportsTo ?? null)}
                 onChange={(id) => mark("identity", "reportsTo", id)}
                 excludeAgentIds={[props.agent.id]}
-                chooseLabel="Choose manager…"
+                chooseLabel={t("components.agentconfigform.choose_manager.choose_label", { defaultValue: "Choose manager…" })}
               />
             </Field>
             <Field label={t("components.agentconfigform.capabilities.attr_label", { defaultValue: "Capabilities" })} hint={help.capabilities}>
@@ -796,7 +812,7 @@ const { t } = useTranslation();
           <div className={cn(cards ? "border border-border rounded-lg p-4 space-y-3" : "px-4 pb-3 space-y-3")}>
             <Field
               label={t("components.agentconfigform.default_environment.attr_label", { defaultValue: "Default environment" })}
-              hint="Agent-level default execution target. Project and task settings can still override this."
+              hint={t("components.agentconfigform.agent_level_default_executi.attr_hint", { defaultValue: "Agent-level default execution target. Project and task settings can still override this." })}
             >
               <select
                 className={inputClass}
@@ -931,7 +947,7 @@ const { t } = useTranslation();
                   }
                   immediate
                   className="w-full bg-transparent outline-none text-sm font-mono placeholder:text-muted-foreground/40"
-                  placeholder="/path/to/project"
+                  placeholder={t("components.agentconfigform.path_to_project.attr_placeholder", { defaultValue: "/path/to/project" })}
                 />
                 <ChoosePathButton />
               </div>
@@ -1305,7 +1321,11 @@ export function AdapterEnvironmentResult({ result }: { result: AdapterEnvironmen
 const { t } = useTranslation();
 
   const statusLabel =
-    result.status === "pass" ? "Passed" : result.status === "warn" ? "Warnings" : "Failed";
+    result.status === "pass"
+      ? t("components.agentconfigform.passed.status_label", { defaultValue: "Passed" })
+      : result.status === "warn"
+        ? t("components.agentconfigform.warnings.status_label", { defaultValue: "Warnings" })
+        : t("components.agentconfigform.failed.status_label", { defaultValue: "Failed" });
   const statusClass =
     result.status === "pass"
       ? "text-green-700 dark:text-green-300 border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-green-500/10"
@@ -1352,7 +1372,7 @@ function AdapterTypeDropdown({
 const { t } = useTranslation();
 
   const [open, setOpen] = useState(false);
-  const selectedDisplay = getAdapterDisplay(value);
+  const selectedDisplay = getAdapterDisplay(value, t);
   const adapterList = useMemo(
     () =>
       listAdapterOptions((type) => adapterLabels[type] ?? getAdapterLabel(type)).filter(
@@ -1807,7 +1827,7 @@ function ThinkingEffortDropdown({
   onOpenChange,
 }: {
   value: string;
-  options: ReadonlyArray<{ id: string; label: string }>;
+  options: ReadonlyArray<{ id: string }>;
   onChange: (id: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -1821,7 +1841,7 @@ const { t } = useTranslation();
       <Popover open={open} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-accent/50 transition-colors w-full justify-between">
-            <span className={cn(!value && "text-muted-foreground")}>{selected?.label ?? "Auto"}</span>
+            <span className={cn(!value && "text-muted-foreground")}>{optionLabel(selected?.id ?? "", t)}</span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>
         </PopoverTrigger>
@@ -1838,7 +1858,7 @@ const { t } = useTranslation();
                 onOpenChange(false);
               }}
             >
-              <span>{option.label}</span>
+              <span>{optionLabel(option.id, t)}</span>
               {option.id ? <span className="text-xs text-muted-foreground font-mono">{option.id}</span> : null}
             </button>
           ))}

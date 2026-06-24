@@ -53,8 +53,8 @@ const { t } = useTranslation();
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("pages.dashboard.dashboard.breadcrumb", { defaultValue: "Dashboard" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.dashboard(selectedCompanyId!),
@@ -179,14 +179,14 @@ const { t } = useTranslation();
       return (
         <EmptyState
           icon={LayoutDashboard}
-          message="Welcome to Paperclip. Set up your first company and agent to get started."
-          action="Get Started"
+          message={t("pages.dashboard.welcome_to_paperclip_set_up.jsx-text", { defaultValue: "Welcome to Paperclip. Set up your first company and agent to get started." })}
+          action={t("pages.dashboard.get_started.jsx-text", { defaultValue: "Get Started" })}
           onAction={openOnboarding}
         />
       );
     }
     return (
-      <EmptyState icon={LayoutDashboard} message="Create or select a company to view the dashboard." />
+      <EmptyState icon={LayoutDashboard} message={t("pages.dashboard.create_or_select_a_company_t.jsx-text", { defaultValue: "Create or select a company to view the dashboard." })} />
     );
   }
 
@@ -269,8 +269,8 @@ const { t } = useTranslation();
               description={
                 <span>
                   {data.costs.monthBudgetCents > 0
-                    ? `${data.costs.monthUtilizationPercent}% of ${formatCents(data.costs.monthBudgetCents)} budget`
-                    : "Unlimited budget"}
+                    ? t("pages.dashboard.percent_of_budget.jsx-text", { percent: data.costs.monthUtilizationPercent, budget: formatCents(data.costs.monthBudgetCents), defaultValue: "{{percent}}% of {{budget}} budget" })
+                    : t("pages.dashboard.unlimited_budget.jsx-text", { defaultValue: "Unlimited budget" })}
                 </span>
               }
             />
@@ -282,24 +282,24 @@ const { t } = useTranslation();
               description={
                 <span>
                   {data.budgets.pendingApprovals > 0
-                    ? `${data.budgets.pendingApprovals} budget overrides awaiting board review`
-                    : "Awaiting board review"}
+                    ? t("pages.dashboard.budget_overrides_awaiting_boar.jsx-text", { count: data.budgets.pendingApprovals, defaultValue: "{{count}} budget overrides awaiting board review" })
+                    : t("pages.dashboard.awaiting_board_review.jsx-text", { defaultValue: "Awaiting board review" })}
                 </span>
               }
             />
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <ChartCard title={t("pages.dashboard.run_activity.attr_title", { defaultValue: "Run Activity" })} subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.run_activity.attr_title", { defaultValue: "Run Activity" })} subtitle={t("pages.dashboard.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
               <RunActivityChart activity={data.runActivity} />
             </ChartCard>
-            <ChartCard title={t("pages.dashboard.tasks_by_priority.attr_title", { defaultValue: "Tasks by Priority" })} subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.tasks_by_priority.attr_title", { defaultValue: "Tasks by Priority" })} subtitle={t("pages.dashboard.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
               <PriorityChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title={t("pages.dashboard.tasks_by_status.attr_title", { defaultValue: "Tasks by Status" })} subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.tasks_by_status.attr_title", { defaultValue: "Tasks by Status" })} subtitle={t("pages.dashboard.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
               <IssueStatusChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title={t("pages.dashboard.success_rate.attr_title", { defaultValue: "Success Rate" })} subtitle="Last 14 days">
+            <ChartCard title={t("pages.dashboard.success_rate.attr_title", { defaultValue: "Success Rate" })} subtitle={t("pages.dashboard.last_14_days.attr_subtitle", { defaultValue: "Last 14 days" })}>
               <SuccessRateChart activity={data.runActivity} />
             </ChartCard>
           </div>

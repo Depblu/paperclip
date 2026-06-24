@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { Link } from "@/lib/router";
 import type { Issue, ExecutionWorkspace } from "@paperclipai/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -18,9 +19,9 @@ import { Check, Copy, GitBranch, FolderOpen, Pencil, X } from "lucide-react";
 /* -------------------------------------------------------------------------- */
 
 const EXECUTION_WORKSPACE_OPTIONS = [
-  { value: "shared_workspace", label: "Project default" },
-  { value: "isolated_workspace", label: "New isolated workspace" },
-  { value: "reuse_existing", label: "Reuse existing workspace" },
+  { value: "shared_workspace", labelKey: "project_default", defaultValue: "Project default" },
+  { value: "isolated_workspace", labelKey: "new_isolated_workspace", defaultValue: "New isolated workspace" },
+  { value: "reuse_existing", labelKey: "reuse_existing_workspace", defaultValue: "Reuse existing workspace" },
 ] as const;
 
 function issueModeForExistingWorkspace(mode: string | null | undefined) {
@@ -92,7 +93,9 @@ const { t } = useTranslation();
         type="button"
         className="shrink-0 p-0.5 rounded hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground opacity-0 group-hover/copy:opacity-100 focus:opacity-100"
         onClick={handleCopy}
-        title={copied ? "Copied!" : "Copy"}
+        title={copied
+          ? t("components.issueworkspacecard.copied.attr_title", { defaultValue: "Copied!" })
+          : t("components.issueworkspacecard.copy.attr_title", { defaultValue: "Copy" })}
       >
         {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
       </button>
@@ -100,29 +103,30 @@ const { t } = useTranslation();
   );
 }
 
-function workspaceModeLabel(mode: string | null | undefined) {
+function workspaceModeLabel(mode: string | null | undefined, t: TFunction) {
   switch (mode) {
-    case "isolated_workspace": return "Isolated workspace";
-    case "operator_branch": return "Operator branch";
-    case "cloud_sandbox": return "Cloud sandbox";
-    case "adapter_managed": return "Adapter managed";
-    default: return "Workspace";
+    case "isolated_workspace": return t("components.issueworkspacecard.isolated_workspace.mode_label", { defaultValue: "Isolated workspace" });
+    case "operator_branch": return t("components.issueworkspacecard.operator_branch.mode_label", { defaultValue: "Operator branch" });
+    case "cloud_sandbox": return t("components.issueworkspacecard.cloud_sandbox.mode_label", { defaultValue: "Cloud sandbox" });
+    case "adapter_managed": return t("components.issueworkspacecard.adapter_managed.mode_label", { defaultValue: "Adapter managed" });
+    default: return t("components.issueworkspacecard.workspace.mode_label", { defaultValue: "Workspace" });
   }
 }
 
 function configuredWorkspaceLabel(
   selection: string | null | undefined,
   reusableWorkspace: ExecutionWorkspace | null,
+  t: TFunction,
 ) {
   switch (selection) {
     case "isolated_workspace":
-      return "New isolated workspace";
+      return t("components.issueworkspacecard.new_isolated_workspace.selection_label", { defaultValue: "New isolated workspace" });
     case "reuse_existing":
       return reusableWorkspace?.mode === "isolated_workspace"
-        ? "Existing isolated workspace"
-        : "Reuse existing workspace";
+        ? t("components.issueworkspacecard.existing_isolated_workspace.selection_label", { defaultValue: "Existing isolated workspace" })
+        : t("components.issueworkspacecard.reuse_existing_workspace.selection_label", { defaultValue: "Reuse existing workspace" });
     default:
-      return "Project default";
+      return t("components.issueworkspacecard.project_default.selection_label", { defaultValue: "Project default" });
   }
 }
 
@@ -374,8 +378,8 @@ const { t } = useTranslation();
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
           {activeNonDefaultWorkspace && workspace
-            ? workspaceModeLabel(workspace.mode)
-            : configuredWorkspaceLabel(currentSelection, selectedReusableExecutionWorkspace)}
+            ? workspaceModeLabel(workspace.mode, t)
+            : configuredWorkspaceLabel(currentSelection, selectedReusableExecutionWorkspace, t)}
           {workspace ? statusBadge(workspace.status) : statusBadge("idle")}
         </div>
         <div className="flex items-center gap-1">
@@ -494,8 +498,8 @@ const { t } = useTranslation();
             {EXECUTION_WORKSPACE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.value === "reuse_existing" && configuredReusableWorkspace?.mode === "isolated_workspace"
-                  ? "Existing isolated workspace"
-                  : option.label}
+                  ? t("components.issueworkspacecard.existing_isolated_workspace.selection_label", { defaultValue: "Existing isolated workspace" })
+                  : t(`components.issueworkspacecard.${option.labelKey}.selection_label`, { defaultValue: option.defaultValue })}
               </option>
             ))}
           </select>

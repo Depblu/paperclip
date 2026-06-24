@@ -46,11 +46,6 @@ import type { Project } from "@paperclipai/shared";
 
 type ProjectSidebarSlot = ReturnType<typeof usePluginSlots>["slots"][number];
 
-const PROJECT_SORT_CHOICES: SidebarSectionRadioChoice[] = [
-  { value: "top", label: "Top" },
-  { value: "alphabetical", label: "Alphabetical" },
-  { value: "recent", label: "Recent" },
-];
 const REORDER_POINTER_MEDIA = "(hover: hover) and (pointer: fine)";
 
 type ProjectItemProps = {
@@ -119,7 +114,7 @@ function ProjectItem({
   leaving = false,
   isDragging = false,
 }: ProjectItemProps) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const routeRef = projectRouteRef(project);
 
@@ -337,6 +332,11 @@ const { t } = useTranslation();
     },
     [sortModeStorageKey],
   );
+  const projectSortChoices: SidebarSectionRadioChoice[] = [
+    { value: "top", label: t("components.sidebarprojects.top.sort_label", { defaultValue: "Top" }) },
+    { value: "alphabetical", label: t("components.sidebarprojects.alphabetical.sort_label", { defaultValue: "Alphabetical" }) },
+    { value: "recent", label: t("components.sidebarprojects.recent.sort_label", { defaultValue: "Recent" }) },
+  ];
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -391,18 +391,18 @@ const { t } = useTranslation();
       label={t("components.sidebarprojects.projects.attr_label", { defaultValue: "Projects" })}
       collapsible={{ open, onOpenChange: setOpen }}
       headerAction={{
-        ariaLabel: "New project",
+        ariaLabel: t("components.sidebarprojects.new_project.attr_aria-label", { defaultValue: "New project" }),
         icon: Plus,
         onClick: openNewProject,
       }}
       menu={{
-        ariaLabel: "Projects section actions",
+        ariaLabel: t("components.sidebarprojects.projects_section_actions.attr_aria-label", { defaultValue: "Projects section actions" }),
         actions: [
-          { type: "item", label: "Browse projects", icon: FolderOpen, href: "/projects" },
+          { type: "item", label: t("components.sidebarprojects.browse_projects.menu_item", { defaultValue: "Browse projects" }), icon: FolderOpen, href: "/projects" },
           { type: "separator" },
         ],
-        radioLabel: "Project sort",
-        radioChoices: PROJECT_SORT_CHOICES,
+        radioLabel: t("components.sidebarprojects.project_sort.radio_label", { defaultValue: "Project sort" }),
+        radioChoices: projectSortChoices,
         radioValue: sortMode,
         onRadioValueChange: persistSortMode,
       }}

@@ -8,6 +8,7 @@ import type {
   ThreadUserMessage,
 } from "@assistant-ui/react";
 import type { Agent, IssueComment } from "@paperclipai/shared";
+import { t as translate } from "@/i18n";
 import type { ActiveRunForIssue, LiveRunForIssue } from "../api/heartbeats";
 import { formatAssigneeUserLabel } from "./assignees";
 import {
@@ -21,6 +22,7 @@ import {
 
 type JsonValue = null | string | number | boolean | JsonValue[] | { [key: string]: JsonValue };
 type JsonObject = { [key: string]: JsonValue };
+type TranslateFn = typeof translate;
 
 export interface IssueChatComment extends IssueComment {
   runId?: string | null;
@@ -358,6 +360,7 @@ function authorNameForComment(
   agentMap?: Map<string, Agent>,
   currentUserId?: string | null,
   userLabelMap?: ReadonlyMap<string, string> | null,
+  t: TranslateFn = translate,
   options?: { isSystemNotice?: boolean },
 ) {
   const authorAgentId = effectiveCommentAuthorAgentId(comment);
@@ -365,10 +368,10 @@ function authorNameForComment(
     return agentMap?.get(authorAgentId)?.name ?? (options?.isSystemNotice ? "Paperclip" : authorAgentId.slice(0, 8));
   }
   const authorUserId = comment.authorUserId ?? null;
-  if (!authorUserId) return "You";
+  if (!authorUserId) return t("lib.assignees.you.label", { defaultValue: "You" });
   const userLabel = userLabelMap?.get(authorUserId)?.trim();
   if (userLabel) return userLabel;
-  return formatAssigneeUserLabel(authorUserId, currentUserId, userLabelMap) ?? "You";
+  return formatAssigneeUserLabel(authorUserId, currentUserId, userLabelMap, t) ?? t("lib.assignees.you.label", { defaultValue: "You" });
 }
 
 function formatStatusLabel(status: string) {
@@ -382,12 +385,13 @@ function createCommentMessage(args: {
   userLabelMap?: ReadonlyMap<string, string> | null;
   companyId?: string | null;
   projectId?: string | null;
+  t?: TranslateFn;
 }): ThreadMessage {
-  const { comment, agentMap, currentUserId, userLabelMap, companyId, projectId } = args;
+  const { comment, agentMap, currentUserId, userLabelMap, companyId, projectId, t = translate } = args;
   const createdAt = toDate(comment.createdAt);
   const isSystemNotice = comment.authorType === "system";
   const authorAgentId = effectiveCommentAuthorAgentId(comment);
-  const authorName = authorNameForComment(comment, agentMap, currentUserId, userLabelMap, { isSystemNotice });
+  const authorName = authorNameForComment(comment, agentMap, currentUserId, userLabelMap, t, { isSystemNotice });
   const custom = {
     kind: isSystemNotice ? "system_notice" : "comment",
     commentId: comment.id,
@@ -456,34 +460,49 @@ function createTimelineEventMessage(args: {
   agentMap?: Map<string, Agent>;
   currentUserId?: string | null;
   userLabelMap?: ReadonlyMap<string, string> | null;
+  t?: TranslateFn;
 }) {
-  const { event, agentMap, currentUserId, userLabelMap } = args;
+  const { event, agentMap, currentUserId, userLabelMap, t = translate } = args;
   const actorName = event.actorType === "agent"
     ? (agentMap?.get(event.actorId)?.name ?? event.actorId.slice(0, 8))
     : event.actorType === "system"
-      ? "System"
-      : (formatAssigneeUserLabel(event.actorId, currentUserId, userLabelMap) ?? "Board");
+      ? t("lib.issuechatmessages.system", { defaultValue: "System" })
+      : (formatAssigneeUserLabel(event.actorId, currentUserId, userLabelMap, t) ?? t("lib.assignees.board.label", { defaultValue: "Board" }));
 
   const lines: string[] = [
-    event.followUpRequested ? `${actorName} requested follow-up` : `${actorName} updated this issue`,
+    event.followUpRequested
+      ? t("lib.issuechatmessages.actor_requested_follow_up", { actor: actorName, defaultValue: "{{actor}} requested follow-up" })
+      : t("lib.issuechatmessages.actor_updated_issue", { actor: actorName, defaultValue: "{{actor}} updated this issue" }),
   ];
   if (event.statusChange) {
     lines.push(
-      `Status: ${event.statusChange.from ?? "none"} -> ${event.statusChange.to ?? "none"}`,
+      t("lib.issuechatmessages.status_changed", {
+        from: event.statusChange.from ?? t("lib.issuechatmessages.none", { defaultValue: "none" }),
+        to: event.statusChange.to ?? t("lib.issuechatmessages.none", { defaultValue: "none" }),
+        defaultValue: "Status: {{from}} -> {{to}}",
+      }),
     );
   }
   if (event.assigneeChange) {
     const from = event.assigneeChange.from.agentId
       ? (agentMap?.get(event.assigneeChange.from.agentId)?.name ?? event.assigneeChange.from.agentId.slice(0, 8))
-      : (formatAssigneeUserLabel(event.assigneeChange.from.userId, currentUserId, userLabelMap) ?? "Unassigned");
+      : (formatAssigneeUserLabel(event.assigneeChange.from.userId, currentUserId, userLabelMap, t) ?? t("lib.issuechatmessages.unassigned", { defaultValue: "Unassigned" }));
     const to = event.assigneeChange.to.agentId
       ? (agentMap?.get(event.assigneeChange.to.agentId)?.name ?? event.assigneeChange.to.agentId.slice(0, 8))
-      : (formatAssigneeUserLabel(event.assigneeChange.to.userId, currentUserId, userLabelMap) ?? "Unassigned");
-    lines.push(`Assignee: ${from} -> ${to}`);
+      : (formatAssigneeUserLabel(event.assigneeChange.to.userId, currentUserId, userLabelMap, t) ?? t("lib.issuechatmessages.unassigned", { defaultValue: "Unassigned" }));
+    lines.push(t("lib.issuechatmessages.assignee_changed", {
+      from,
+      to,
+      defaultValue: "Assignee: {{from}} -> {{to}}",
+    }));
   }
   if (event.workspaceChange) {
     lines.push(
-      `Workspace: ${event.workspaceChange.from.label ?? "none"} -> ${event.workspaceChange.to.label ?? "none"}`,
+      t("lib.issuechatmessages.workspace_changed", {
+        from: event.workspaceChange.from.label ?? t("lib.issuechatmessages.none", { defaultValue: "none" }),
+        to: event.workspaceChange.to.label ?? t("lib.issuechatmessages.none", { defaultValue: "none" }),
+        defaultValue: "Workspace: {{from}} -> {{to}}",
+      }),
     );
   }
 
@@ -510,12 +529,12 @@ function createTimelineEventMessage(args: {
   return message;
 }
 
-function createInteractionMessage(interaction: IssueThreadInteraction) {
+function createInteractionMessage(interaction: IssueThreadInteraction, t: TranslateFn = translate) {
   const message: ThreadSystemMessage = {
     id: `interaction:${interaction.id}`,
     role: "system",
     createdAt: toDate(interaction.createdAt),
-    content: [{ type: "text", text: buildIssueThreadInteractionSummary(interaction) }],
+    content: [{ type: "text", text: buildIssueThreadInteractionSummary(interaction, t) }],
     metadata: {
       custom: {
         kind: "interaction",
@@ -572,22 +591,39 @@ function computeSegmentTimings(entries: readonly IssueChatTranscriptEntry[]): Se
   return timings;
 }
 
-export function formatDurationWords(ms: number | null) {
+export function formatDurationWords(ms: number | null, t: TranslateFn = translate) {
   if (ms === null || !Number.isFinite(ms) || ms <= 0) return null;
   const totalSeconds = Math.max(1, Math.round(ms / 1000));
   if (totalSeconds < 60) {
-    return `${totalSeconds} second${totalSeconds === 1 ? "" : "s"}`;
+    return t("lib.issuechatmessages.seconds_count", {
+      count: totalSeconds,
+      defaultValue: "{{count}} second",
+      defaultValue_plural: "{{count}} seconds",
+    });
   }
   const totalMinutes = Math.round(totalSeconds / 60);
   if (totalMinutes < 60) {
-    return `${totalMinutes} minute${totalMinutes === 1 ? "" : "s"}`;
+    return t("lib.issuechatmessages.minutes_count", {
+      count: totalMinutes,
+      defaultValue: "{{count}} minute",
+      defaultValue_plural: "{{count}} minutes",
+    });
   }
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (minutes === 0) {
-    return `${hours} hour${hours === 1 ? "" : "s"}`;
+    return t("lib.issuechatmessages.hours_count", {
+      count: hours,
+      defaultValue: "{{count}} hour",
+      defaultValue_plural: "{{count}} hours",
+    });
   }
-  return `${hours} hour${hours === 1 ? "" : "s"} ${minutes} minute${minutes === 1 ? "" : "s"}`;
+  return t("lib.issuechatmessages.hours_minutes_count", {
+    hours,
+    minutes,
+    defaultValue: "{{hours}} hour {{minutes}} minute",
+    defaultValue_plural: "{{hours}} hours {{minutes}} minutes",
+  });
 }
 
 function runDurationLabel(run: {
@@ -596,41 +632,59 @@ function runDurationLabel(run: {
   startedAt: Date | string | null;
   finishedAt?: Date | string | null;
   resultJson?: Record<string, unknown> | null;
-}) {
+}, t: TranslateFn = translate) {
   const start = run.startedAt ?? run.createdAt;
   const end = run.finishedAt ?? null;
   const durationMs = end ? Math.max(0, toTimestamp(end) - toTimestamp(start)) : null;
-  const durationText = formatDurationWords(durationMs);
+  const durationText = formatDurationWords(durationMs, t);
   const stopReason = typeof run.resultJson?.stopReason === "string" ? run.resultJson.stopReason : null;
   switch (run.status) {
     case "succeeded":
-      return durationText ? `Worked for ${durationText}` : "Finished work";
+      return durationText
+        ? t("lib.issuechatmessages.worked_for", { duration: durationText, defaultValue: "Worked for {{duration}}" })
+        : t("lib.issuechatmessages.finished_work", { defaultValue: "Finished work" });
     case "failed":
     case "error":
-      return durationText ? `Failed after ${durationText}` : "Run failed";
+      return durationText
+        ? t("lib.issuechatmessages.failed_after", { duration: durationText, defaultValue: "Failed after {{duration}}" })
+        : t("lib.issuechatmessages.run_failed", { defaultValue: "Run failed" });
     case "timed_out":
-      return durationText ? `Timed out after ${durationText}` : "Run timed out";
+      return durationText
+        ? t("lib.issuechatmessages.timed_out_after", { duration: durationText, defaultValue: "Timed out after {{duration}}" })
+        : t("lib.issuechatmessages.run_timed_out", { defaultValue: "Run timed out" });
     case "cancelled":
       if (stopReason === "paused") {
-        return durationText ? `Paused by board after ${durationText}` : "Paused by board";
+        return durationText
+          ? t("lib.issuechatmessages.paused_by_board_after", { duration: durationText, defaultValue: "Paused by board after {{duration}}" })
+          : t("lib.issuechatmessages.paused_by_board", { defaultValue: "Paused by board" });
       }
-      return durationText ? `Cancelled after ${durationText}` : "Run cancelled";
+      return durationText
+        ? t("lib.issuechatmessages.cancelled_after", { duration: durationText, defaultValue: "Cancelled after {{duration}}" })
+        : t("lib.issuechatmessages.run_cancelled", { defaultValue: "Run cancelled" });
     case "queued":
-      return "Queued";
+      return t("lib.issuechatmessages.queued", { defaultValue: "Queued" });
     case "running":
-      return "Working...";
+      return t("lib.issuechatmessages.working", { defaultValue: "Working..." });
     default:
       return formatStatusLabel(run.status);
   }
 }
 
-function createHistoricalRunMessage(run: IssueChatLinkedRun, agentMap?: Map<string, Agent>) {
+function createHistoricalRunMessage(run: IssueChatLinkedRun, agentMap?: Map<string, Agent>, t: TranslateFn = translate) {
   const agentName = run.agentName ?? agentMap?.get(run.agentId)?.name ?? run.agentId.slice(0, 8);
   const message: ThreadSystemMessage = {
     id: `run:${run.runId}`,
     role: "system",
     createdAt: toDate(runTimestamp(run)),
-    content: [{ type: "text", text: `${agentName} run ${run.runId.slice(0, 8)} ${formatStatusLabel(run.status)}` }],
+    content: [{
+      type: "text",
+      text: t("lib.issuechatmessages.run_status_line", {
+        agent: agentName,
+        runId: run.runId.slice(0, 8),
+        status: formatStatusLabel(run.status),
+        defaultValue: "{{agent}} run {{runId}} {{status}}",
+      }),
+    }],
     metadata: {
       custom: {
         kind: "run",
@@ -650,12 +704,13 @@ function createHistoricalTranscriptMessage(args: {
   transcript: readonly IssueChatTranscriptEntry[];
   hasOutput: boolean;
   agentMap?: Map<string, Agent>;
+  t?: TranslateFn;
 }) {
-  const { run, transcript, hasOutput, agentMap } = args;
+  const { run, transcript, hasOutput, agentMap, t = translate } = args;
   const agentName = run.agentName ?? agentMap?.get(run.agentId)?.name ?? run.agentId.slice(0, 8);
   const compactedTranscript = compactIssueChatTranscript(transcript);
-  const { parts, notices, segments } = buildAssistantPartsFromTranscript(compactedTranscript);
-  const waitingText = hasOutput ? "" : "Run finished";
+  const { parts, notices, segments } = buildAssistantPartsFromTranscript(compactedTranscript, t);
+  const waitingText = hasOutput ? "" : t("lib.issuechatmessages.run_finished", { defaultValue: "Run finished" });
   const content = parts.length > 0
     ? parts
     : waitingText
@@ -677,14 +732,14 @@ function createHistoricalTranscriptMessage(args: {
       runStatus: run.status,
       notices,
       waitingText,
-      chainOfThoughtLabel: runDurationLabel(run),
+      chainOfThoughtLabel: runDurationLabel(run, t),
       chainOfThoughtSegments: segments,
     }),
   };
   return message;
 }
 
-export function buildAssistantPartsFromTranscript(entries: readonly IssueChatTranscriptEntry[]): {
+export function buildAssistantPartsFromTranscript(entries: readonly IssueChatTranscriptEntry[], t: TranslateFn = translate): {
   parts: Array<TextMessagePart | ReasoningMessagePart | ToolCallMessagePart<JsonObject, unknown>>;
   notices: string[];
   segments: SegmentTiming[];
@@ -776,13 +831,22 @@ export function buildAssistantPartsFromTranscript(entries: readonly IssueChatTra
     if (entry.kind === "result") {
       if (entry.isError && entry.errors?.length) {
         for (const error of entry.errors) {
-          orderedParts.push({ type: "reasoning", text: `Run error: ${summarizeNotice(error)}` });
+          orderedParts.push({
+            type: "reasoning",
+            text: t("lib.issuechatmessages.run_error", {
+              error: summarizeNotice(error),
+              defaultValue: "Run error: {{error}}",
+            }),
+          });
         }
       } else if (entry.text) {
         orderedParts.push({
           type: "reasoning",
           text: entry.isError
-            ? `Run error: ${summarizeNotice(entry.text)}`
+            ? t("lib.issuechatmessages.run_error", {
+              error: summarizeNotice(entry.text),
+              defaultValue: "Run error: {{error}}",
+            })
             : summarizeNotice(entry.text),
         });
       }
@@ -846,16 +910,17 @@ function normalizeLiveRuns(
 function createLiveRunMessage(args: {
   run: LiveRunForIssue;
   transcript: readonly IssueChatTranscriptEntry[];
+  t?: TranslateFn;
 }) {
-  const { run, transcript } = args;
+  const { run, transcript, t = translate } = args;
   const compactedTranscript = compactIssueChatTranscript(transcript);
-  const { parts, notices, segments } = buildAssistantPartsFromTranscript(compactedTranscript);
+  const { parts, notices, segments } = buildAssistantPartsFromTranscript(compactedTranscript, t);
   const waitingText =
     run.status === "queued"
-      ? "Queued..."
+      ? t("lib.issuechatmessages.queued_ellipsis", { defaultValue: "Queued..." })
       : parts.length > 0
         ? ""
-        : "Working...";
+        : t("lib.issuechatmessages.working", { defaultValue: "Working..." });
 
   const content = parts;
 
@@ -874,7 +939,7 @@ function createLiveRunMessage(args: {
       adapterType: run.adapterType,
       notices,
       waitingText,
-      chainOfThoughtLabel: runDurationLabel(run),
+      chainOfThoughtLabel: runDurationLabel(run, t),
       chainOfThoughtSegments: segments,
     }),
   };
@@ -897,6 +962,7 @@ export function buildIssueChatMessages(args: {
   agentMap?: Map<string, Agent>;
   currentUserId?: string | null;
   userLabelMap?: ReadonlyMap<string, string> | null;
+  t?: TranslateFn;
 }) {
   const {
     comments,
@@ -914,6 +980,7 @@ export function buildIssueChatMessages(args: {
     agentMap,
     currentUserId,
     userLabelMap,
+    t = translate,
   } = args;
 
   const orderedMessages: MessageWithOrder[] = [];
@@ -922,7 +989,7 @@ export function buildIssueChatMessages(args: {
     orderedMessages.push({
       createdAtMs: toTimestamp(comment.createdAt),
       order: 1,
-      message: createCommentMessage({ comment, agentMap, currentUserId, userLabelMap, companyId, projectId }),
+      message: createCommentMessage({ comment, agentMap, currentUserId, userLabelMap, companyId, projectId, t }),
     });
   }
 
@@ -941,7 +1008,7 @@ export function buildIssueChatMessages(args: {
     orderedMessages.push({
       createdAtMs: handoffAtMs ?? createdAtMs,
       order: 2,
-      message: createInteractionMessage(interaction),
+      message: createInteractionMessage(interaction, t),
     });
   }
 
@@ -949,7 +1016,7 @@ export function buildIssueChatMessages(args: {
     orderedMessages.push({
       createdAtMs: toTimestamp(event.createdAt),
       order: 0,
-      message: createTimelineEventMessage({ event, agentMap, currentUserId, userLabelMap }),
+      message: createTimelineEventMessage({ event, agentMap, currentUserId, userLabelMap, t }),
     });
   }
 
@@ -968,6 +1035,7 @@ export function buildIssueChatMessages(args: {
           transcript,
           hasOutput: hasRunOutput,
           agentMap,
+          t,
         }),
       });
       continue;
@@ -976,7 +1044,7 @@ export function buildIssueChatMessages(args: {
     orderedMessages.push({
       createdAtMs: toTimestamp(runTimestamp(run)),
       order: 2,
-      message: createHistoricalRunMessage(run, agentMap),
+      message: createHistoricalRunMessage(run, agentMap, t),
     });
   }
 
@@ -987,6 +1055,7 @@ export function buildIssueChatMessages(args: {
       message: createLiveRunMessage({
         run,
         transcript: transcriptsByRunId?.get(run.id) ?? [],
+        t,
       }),
     });
   }
