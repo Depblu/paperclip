@@ -187,15 +187,12 @@ function formatEnvForDisplay(envValue: unknown, censorUsernameInLogs: boolean): 
     .join("\n");
 }
 
-const sourceLabels: Record<string, string> = {
-  timer: "Timer",
-  assignment: "Assignment",
-  on_demand: "On-demand",
-  automation: "Automation",
-};
-
 const LIVE_SCROLL_BOTTOM_TOLERANCE_PX = 32;
 type ScrollContainer = Window | HTMLElement;
+
+function formatRunInvocationSource(source: string, t: TFunction) {
+  return t(`pages.agentdetail.invocation_source.${source}`, { defaultValue: source.replace(/_/g, " ") });
+}
 
 function isWindowContainer(container: ScrollContainer): container is Window {
   return container === window;
@@ -1018,11 +1015,11 @@ const { t } = useTranslation();
         <AgentActionButtons
           agent={agent}
           companyId={resolvedCompanyId}
-          assignLabel="Assign Task"
-          runLabel="Run Heartbeat"
+          assignLabel={t("components.agentactionbuttons.assign_task.jsx-text", { defaultValue: "Assign Task" })}
+          runLabel={t("components.agentactionbuttons.run_heartbeat.jsx-text", { defaultValue: "Run Heartbeat" })}
           actionsDisabled={agentAction.isPending}
           workActionsDisabled={hasInvalidOrgChain}
-          workActionsDisabledReason="Repair this agent's reporting chain before assigning tasks or starting runs"
+          workActionsDisabledReason={t("pages.agentdetail.repair_reporting_chain_before_work.attr_title", { defaultValue: "Repair this agent's reporting chain before assigning tasks or starting runs" })}
           onActionError={setActionError}
         >
           {mobileLiveRun && (
@@ -1251,7 +1248,9 @@ const { t } = useTranslation();
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
           )}
-          {isLive ? "Live Run" : "Latest Run"}
+          {isLive
+            ? t("pages.agentdetail.live_run.jsx-text", { defaultValue: "Live Run" })
+            : t("pages.agentdetail.latest_run.jsx-text", { defaultValue: "Latest Run" })}
         </h3>
         <Link
           to={`/agents/${agentId}/runs/${run.id}`}
@@ -1278,7 +1277,7 @@ const { t } = useTranslation();
               : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300"
               : "bg-muted text-muted-foreground"
           )}>
-            {sourceLabels[run.invocationSource] ?? run.invocationSource}
+            {formatRunInvocationSource(run.invocationSource, t)}
           </span>
           <span className="ml-auto text-xs text-muted-foreground">{relativeTime(run.createdAt)}</span>
         </div>
@@ -3011,7 +3010,7 @@ const { t } = useTranslation();
             : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300"
             : "bg-muted text-muted-foreground"
         )}>
-          {sourceLabels[run.invocationSource] ?? run.invocationSource}
+          {formatRunInvocationSource(run.invocationSource, t)}
         </span>
         {sourceResolvedFold ? <SourceResolvedFoldBadge showIcon={false} className="shrink-0 text-[10px] py-0" /> : null}
         <span className="ml-auto text-[11px] text-muted-foreground shrink-0">

@@ -276,7 +276,7 @@ const { t } = useTranslation();
                       <AgentActionButtons
                         agent={agent}
                         companyId={selectedCompanyId}
-                        runLabel="Run Heartbeat"
+                        runLabel={t("components.agentactionbuttons.run_heartbeat.jsx-text", { defaultValue: "Run Heartbeat" })}
                         showStatus={false}
                       />
                     </div>

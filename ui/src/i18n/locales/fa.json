@@ -88,7 +88,15 @@
     "showMore": "Show more",
     "showLess": "Show less",
     "unknown_error": "Unknown error",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "agentStatus": {
+      "idle": "Idle",
+      "running": "Running",
+      "paused": "Paused",
+      "error": "Error",
+      "pending_approval": "Pending approval",
+      "terminated": "Terminated"
+    }
   },
   "account": {
     "openMenu": "Open account menu",
@@ -386,6 +394,18 @@
       },
       "could_not_duplicate_agent": {
         "title": "Could not duplicate agent"
+      },
+      "assign_task": {
+        "jsx-text": "Assign Task"
+      },
+      "run_heartbeat": {
+        "jsx-text": "Run Heartbeat"
+      },
+      "run_now": {
+        "jsx-text": "Run now"
+      },
+      "open_actions_for_agent": {
+        "attr_aria-label": "Open actions for {{name}}"
       }
     },
     "agentconfigform": {
@@ -7119,6 +7139,21 @@
       },
       "action_failed": {
         "error": "Action failed"
+      },
+      "live_run": {
+        "jsx-text": "Live Run"
+      },
+      "latest_run": {
+        "jsx-text": "Latest Run"
+      },
+      "repair_reporting_chain_before_work": {
+        "attr_title": "Repair this agent's reporting chain before assigning tasks or starting runs"
+      },
+      "invocation_source": {
+        "timer": "Timer",
+        "assignment": "Assignment",
+        "on_demand": "On-demand",
+        "automation": "Automation"
       }
     },
     "agents": {

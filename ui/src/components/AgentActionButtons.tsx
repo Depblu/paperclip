@@ -40,7 +40,7 @@ import type {
 export function RunButton({
   onClick,
   disabled,
-  label = "Run now",
+  label,
   size = "sm",
 }: {
   onClick: () => void;
@@ -49,11 +49,12 @@ export function RunButton({
   size?: "sm" | "default";
 }) {
 const { t } = useTranslation();
+  const resolvedLabel = label ?? t("components.agentactionbuttons.run_now.jsx-text", { defaultValue: "Run now" });
 
   return (
     <Button variant="outline" size={size} onClick={onClick} disabled={disabled}>
       <Play className="h-3.5 w-3.5 sm:mr-1" />
-      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden sm:inline">{resolvedLabel}</span>
     </Button>
   );
 }
@@ -127,8 +128,8 @@ export function AgentActionButtons({
   agent,
   companyId,
   size = "sm",
-  assignLabel = "Assign Task",
-  runLabel = "Run now",
+  assignLabel,
+  runLabel,
   showStatus = true,
   actionsDisabled = false,
   workActionsDisabled = false,
@@ -272,6 +273,8 @@ const { t } = useTranslation();
   const disabled = actionsDisabled || agentAction.isPending;
   const assignAndRunDisabled = disabled || isPendingApproval || workActionsDisabled;
   const pauseResumeDisabled = disabled || isPendingApproval || (isPaused && workActionsDisabled);
+  const resolvedAssignLabel = assignLabel ?? t("components.agentactionbuttons.assign_task.jsx-text", { defaultValue: "Assign Task" });
+  const resolvedRunLabel = runLabel ?? t("components.agentactionbuttons.run_now.jsx-text", { defaultValue: "Run now" });
 
   return (
     <div className={className ?? "flex items-center gap-1 sm:gap-2 shrink-0"}>
@@ -283,12 +286,12 @@ const { t } = useTranslation();
         title={workActionsDisabled ? workActionsDisabledReason : undefined}
       >
         <Plus className="h-3.5 w-3.5 sm:mr-1" />
-        <span className="hidden sm:inline">{assignLabel}</span>
+        <span className="hidden sm:inline">{resolvedAssignLabel}</span>
       </Button>
       <RunButton
         onClick={() => agentAction.mutate("invoke")}
         disabled={assignAndRunDisabled}
-        label={runLabel}
+        label={resolvedRunLabel}
         size={size}
       />
       <PauseResumeButton
@@ -306,7 +309,7 @@ const { t } = useTranslation();
       {children}
       <Popover open={moreOpen} onOpenChange={setMoreOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon-xs" aria-label={`Open actions for ${agent.name}`}>
+          <Button variant="ghost" size="icon-xs" aria-label={t("components.agentactionbuttons.open_actions_for_agent.attr_aria-label", { defaultValue: "Open actions for {{name}}", name: agent.name })}>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </PopoverTrigger>

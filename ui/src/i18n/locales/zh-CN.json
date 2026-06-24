@@ -88,7 +88,15 @@
     "showMore": "展开更多",
     "showLess": "收起",
     "unknown_error": "未知错误",
-    "unknown": "未知"
+    "unknown": "未知",
+    "agentStatus": {
+      "idle": "空闲",
+      "running": "运行中",
+      "paused": "已暂停",
+      "error": "错误",
+      "pending_approval": "待审批",
+      "terminated": "已终止"
+    }
   },
   "account": {
     "openMenu": "打开账号菜单",
@@ -386,6 +394,18 @@
       },
       "could_not_duplicate_agent": {
         "title": "无法复制 agent"
+      },
+      "assign_task": {
+        "jsx-text": "分配任务"
+      },
+      "run_heartbeat": {
+        "jsx-text": "运行心跳"
+      },
+      "run_now": {
+        "jsx-text": "立即运行"
+      },
+      "open_actions_for_agent": {
+        "attr_aria-label": "打开 {{name}} 的操作菜单"
       }
     },
     "agentconfigform": {
@@ -7011,7 +7031,7 @@
         "jsx-text": "\n         查看 company skills library\n        "
       },
       "view_details_rarr": {
-        "jsx-text": "\n         查看 details →\n        "
+        "jsx-text": "\n          查看详情 →\n        "
       },
       "view": {
         "jsx-text": "\n                        View\n                      "
@@ -7086,14 +7106,14 @@
         "error": "权限更新失败"
       },
       "agents": {
-        "breadcrumb": "Agents"
+        "breadcrumb": "智能体"
       },
       "agent": {
-        "breadcrumb": "Agent"
+        "breadcrumb": "智能体"
       },
       "runs": {
-        "breadcrumb": "Runs",
-        "tab_label": "Runs"
+        "breadcrumb": "运行",
+        "tab_label": "运行"
       },
       "instructions": {
         "breadcrumb": "指令",
@@ -7119,6 +7139,21 @@
       },
       "action_failed": {
         "error": "操作失败"
+      },
+      "live_run": {
+        "jsx-text": "实时运行"
+      },
+      "latest_run": {
+        "jsx-text": "最近运行"
+      },
+      "repair_reporting_chain_before_work": {
+        "attr_title": "先修复此智能体的汇报链，再分配任务或启动运行"
+      },
+      "invocation_source": {
+        "timer": "定时",
+        "assignment": "分配",
+        "on_demand": "按需",
+        "automation": "自动化"
       }
     },
     "agents": {

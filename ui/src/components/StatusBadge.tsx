@@ -1,4 +1,5 @@
 import { cn } from "../lib/utils";
+import { useTranslation } from "@/i18n";
 import {
   statusBadge,
   statusBadgeDefault,
@@ -9,7 +10,22 @@ import {
   agentStatusMotion,
 } from "../lib/status-colors";
 
+function fallbackStatusLabel(status: string) {
+  return status.replace(/_/g, " ");
+}
+
+function statusLabel(status: string, t: ReturnType<typeof useTranslation>["t"]) {
+  const issueStatus = t(`components.statusicon.${status}.status_label`, { defaultValue: "" });
+  if (issueStatus) return issueStatus;
+  const runStatus = t(`components.issuerunledger.status_${status}`, { defaultValue: "" });
+  if (runStatus) return runStatus;
+  return fallbackStatusLabel(status);
+}
+
 export function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
+  const label = statusLabel(status, t);
+
   return (
     <span
       className={cn(
@@ -17,7 +33,7 @@ export function StatusBadge({ status }: { status: string }) {
         statusBadge[status] ?? statusBadgeDefault
       )}
     >
-      {status.replace(/_/g, " ")}
+      {label}
     </span>
   );
 }
@@ -29,8 +45,11 @@ export function StatusBadge({ status }: { status: string }) {
  * renders as "idle" (alias for dead code).
  */
 export function AgentStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const color = agentStatusColor[status] ?? agentStatusColorDefault;
   const label = status === "active" ? "idle" : status;
+  const displayLabel = t(`common.agentStatus.${label}`, { defaultValue: fallbackStatusLabel(label) });
+
   return (
     <span
       className={cn(
@@ -38,7 +57,7 @@ export function AgentStatusBadge({ status }: { status: string }) {
         agentStatusBadge[color]
       )}
     >
-      {label.replace(/_/g, " ")}
+      {displayLabel}
     </span>
   );
 }
