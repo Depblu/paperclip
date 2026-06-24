@@ -72,7 +72,7 @@ export function normalizeNavigatorLanguage(raw: string | null | undefined): stri
   for (const candidate of lower.split("-")) {
     if (isSupportedLocale(candidate)) return candidate;
   }
-  // Handle composite region tags: pt-BR, zh-CN, zh-TW
+  // Handle composite region tags like zh-CN.
   const parts = lower.split("-");
   if (parts.length >= 2) {
     const lang = parts[0] ?? "";

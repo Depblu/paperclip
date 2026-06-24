@@ -59,6 +59,7 @@ describe("i18n runtime", () => {
   it("exposes supported locales for the switcher", () => {
     expect(supportedLocales).toContain("en");
     expect(supportedLocales).toContain("zh-CN");
+    expect(supportedLocales).toHaveLength(2);
   });
 
   it("renders a human-readable label for each supported locale", () => {
@@ -76,7 +77,7 @@ describe("i18n runtime", () => {
   it("normalizes navigator language values to supported locales", () => {
     expect(normalizeNavigatorLanguage("zh-Hans-CN")).toBe("zh-CN");
     expect(normalizeNavigatorLanguage("en-US")).toBe("en");
-    expect(normalizeNavigatorLanguage("pt-BR")).toBe("pt-BR");
+    expect(normalizeNavigatorLanguage("pt-BR")).toBeNull();
     expect(normalizeNavigatorLanguage(null)).toBeNull();
     expect(normalizeNavigatorLanguage("xx-YY")).toBeNull();
   });

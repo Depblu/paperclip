@@ -46,9 +46,7 @@
         // ui/src/i18n/locales.ts.
         const key = "paperclip.locale";
         const migrationKey = "paperclip.locale.default.zh-CN.v1";
-        const supported = [
-          "ar","bn","cs","da","de","el","en","es","fa","fi","fil","fr","he","hi","hu","id","it","ja","ko","mr","ms","nb","nl","pa","pl","pt-BR","pt-PT","ro","ru","sv","sw","ta","te","th","tr","uk","ur","vi","zh-CN","zh-TW"
-        ];
+        const supported = ["en", "zh-CN"];
         const isSupported = (v) => v && supported.indexOf(v) !== -1;
         const base = (raw) => {
           if (!raw) return null;
