@@ -1,8 +1,8 @@
 # Generated Artifacts and Work Products
 
-When work produces a user-inspectable file, upload it to the current issue before final disposition. Local filesystem paths are not enough because board users, reviewers, and cloud operators may not have access to the agent workspace.
+工作产出用户可检查文件时，最终处置前先上传到当前 issue。只给本地文件系统路径不够，因为 board users、reviewers 和 cloud operators 可能无法访问 agent workspace。
 
-Use the helper bundled with this skill. From an installed `paperclip` skill directory, the helper lives at `scripts/paperclip-upload-artifact.sh`:
+使用本 skill 自带 helper。在已安装的 `paperclip` skill 目录中，helper 位于 `scripts/paperclip-upload-artifact.sh`：
 
 ```bash
 scripts/paperclip-upload-artifact.sh path/to/output.webm \
@@ -10,9 +10,9 @@ scripts/paperclip-upload-artifact.sh path/to/output.webm \
   --summary "Rendered walkthrough for review"
 ```
 
-The helper uses `PAPERCLIP_API_URL`, `PAPERCLIP_API_KEY`, `PAPERCLIP_COMPANY_ID`, `PAPERCLIP_TASK_ID`, and `PAPERCLIP_RUN_ID`. It uploads the file as an issue attachment, creates an attachment-backed artifact work product by default, and prints issue-safe markdown links for your final comment.
+helper 使用 `PAPERCLIP_API_URL`、`PAPERCLIP_API_KEY`、`PAPERCLIP_COMPANY_ID`、`PAPERCLIP_TASK_ID` 和 `PAPERCLIP_RUN_ID`。它会把文件上传为 issue attachment，默认创建由 attachment 支撑的 artifact work product，并打印可直接放进最终评论的 issue-safe markdown links。
 
-If the helper is unavailable, use the Paperclip API directly:
+如果 helper 不可用，直接使用 Paperclip API：
 
 ```bash
 curl -sS -X POST \
@@ -22,7 +22,7 @@ curl -sS -X POST \
   -F 'file=@"path/to/output.webm";type=video/webm'
 ```
 
-Then create a work product when the file is the deliverable. The server canonicalizes attachment-backed artifact metadata from the `attachmentId`:
+当该文件本身就是交付物时，继续创建 work product。服务器会从 `attachmentId` 规范化 attachment-backed artifact metadata：
 
 ```bash
 curl -sS -X POST \
@@ -41,4 +41,4 @@ curl -sS -X POST \
   }'
 ```
 
-In your final issue comment, link the uploaded attachment or work product and describe what it contains. Do not leave artifact-producing work `in_progress` with only a local path or a `Remaining` note.
+最终 issue 评论中链接已上传的 attachment 或 work product，并说明内容。不要让产出 artifact 的工作只带本地路径或 `Remaining` note 就停在 `in_progress`。

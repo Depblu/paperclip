@@ -1,12 +1,12 @@
 ---
 name: content-calendar
-description: Plan a weekly editorial calendar by mapping company goals to publishable topics, owners, status, and verification notes.
+description: 通过把公司目标映射到可发布选题、owner、状态和验证说明，规划每周 editorial calendar。
 slug: content-calendar
 tags:
   - content
   - planning
 ---
 
-# Content Calendar
+# 内容日历
 
-Use this skill when creating or maintaining a lightweight content calendar from company priorities.
+当你需要从公司优先级创建或维护轻量内容日历时使用此 skill。

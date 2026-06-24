@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-06-04T19:57:14.020Z",
+  "generatedAt": "2026-06-24T04:16:19.257Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -11,7 +11,7 @@
       "category": "docs",
       "slug": "doc-maintenance",
       "name": "doc-maintenance",
-      "description": "Keep project docs aligned with recent code and feature changes — detect drift, update affected pages, and add release-relevant notes without rewriting unchanged sections.",
+      "description": "让项目文档与近期代码和功能变更保持一致；发现漂移、更新受影响页面，并补充发布相关说明，避免重写未变更内容。",
       "path": "catalog/bundled/docs/doc-maintenance",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -32,11 +32,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 4478,
-          "sha256": "fb0353386c5e5e5e13bcbb3233f044e3dccecf371f429d6328f26c26d7cb6169"
+          "sizeBytes": 4086,
+          "sha256": "37f0d698ff64e865e6fadb083b21ce98365c2ffb4a1595666c12bdbd8da6300f"
         }
       ],
-      "contentHash": "sha256:2e02299210fd17c1fe1867b4ee8c144a11b6fe1fe481f83b8268cfbaaf10f9aa"
+      "contentHash": "sha256:29d312f8ba1c9f6af6c7849314fe3e76d7e8c06af911e6509529d4b328cd9ad1"
     },
     {
       "id": "paperclipai:bundled:paperclip-operations:issue-triage",
@@ -45,7 +45,7 @@
       "category": "paperclip-operations",
       "slug": "issue-triage",
       "name": "issue-triage",
-      "description": "Triage Paperclip inbox issues that are stale, blocked, in-review, or assigned-but-not-progressing, and decide a single next action per issue (resume, reassign, unblock, escalate, or close).",
+      "description": "分诊 Paperclip inbox 中陈旧、阻塞、待审或已分配但无进展的 issue，并为每个 issue 决定唯一下一步（resume、reassign、unblock、escalate 或 close）。",
       "path": "catalog/bundled/paperclip-operations/issue-triage",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -67,11 +67,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 4042,
-          "sha256": "df5bdc8bf5e017b7ba5f70a4b5323fad51d0c323278f386580f26cf43ad09160"
+          "sizeBytes": 3987,
+          "sha256": "99eef0a01330d30e9a96edb588afc7b66c1739f357266f8b4ff2ade15b7ffeda"
         }
       ],
-      "contentHash": "sha256:88dc13560371fb364963782cb4f6eeb4090fcde92ee3774479428ed6b90e11c1"
+      "contentHash": "sha256:292e3d308d6fcb3dcbce81bb79a0cb7fd707fd9bd484dcd0bc70f0670d8b647d"
     },
     {
       "id": "paperclipai:bundled:paperclip-operations:task-planning",
@@ -80,7 +80,7 @@
       "category": "paperclip-operations",
       "slug": "task-planning",
       "name": "task-planning",
-      "description": "Turn a Paperclip issue or request into a structured implementation plan with child task graph, blockers, owners, and acceptance criteria, then save it as the issue `plan` document.",
+      "description": "将 Paperclip issue 或请求转成结构化实施计划，包含 child task 图、blocker、owner 和 acceptance criteria，并保存为 issue 的 `plan` document。",
       "path": "catalog/bundled/paperclip-operations/task-planning",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -102,11 +102,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 4649,
-          "sha256": "2ff61e12dfaa4cf8cc548529fd176f55f1b1f5292ff9dd3eb2cb331417ab5e4e"
+          "sizeBytes": 4432,
+          "sha256": "9beb1d8be4416183d09fcaef0b268c0588b9dc54f7c0f4478f285c0f8cde8ff1"
         }
       ],
-      "contentHash": "sha256:4fb46a4bcefad4fd46fae48c433ee497112509a8e19fb8a7745ead44d219b498"
+      "contentHash": "sha256:285bfc574f40882369c13d25293457ec58d4159d52297918f4706ed36060fd65"
     },
     {
       "id": "paperclipai:bundled:product:wireframe",
@@ -115,7 +115,7 @@
       "category": "product",
       "slug": "wireframe",
       "name": "wireframe",
-      "description": "Produce low-fidelity black-and-white UI wireframes as standalone SVG files, optionally bundled into a single-page HTML viewer and published via the here-now skill. Use when the user asks to \"wireframe X\", \"sketch a screen for\", \"draft a layout\", \"low-fi mockup\", \"rough mock\", \"make a page to view the wireframes\", \"build a viewer for these screens\", or to \"deploy / publish / host the wireframes\". Do NOT use when the user wants production UI code, branded designs, hi-fi mockups, or animated/interactive prototypes — use frontend-design or similar instead.",
+      "description": "生成低保真黑白 UI wireframe，输出为独立 SVG 文件；可选打包成单页 HTML viewer，并通过 here-now skill 发布。用户要求 “wireframe X”、“sketch a screen for”、“draft a layout”、“low-fi mockup”、“rough mock”、“make a page to view the wireframes”、“build a viewer for these screens” 或 “deploy / publish / host the wireframes” 时使用。若用户要生产 UI code、品牌化设计、hi-fi mockup 或动画/交互 prototype，不要使用本 skill；改用 frontend-design 或类似 skill。",
       "path": "catalog/bundled/product/wireframe",
       "entrypoint": "SKILL.md",
       "trustLevel": "assets",
@@ -138,8 +138,8 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 11887,
-          "sha256": "a910d038d8cdd13615b82f44a2195b781ebccf01c49f9c58babd43b0701fe644"
+          "sizeBytes": 11577,
+          "sha256": "d8afc3891604fd0de72080afa2f7439e35921bbf3e293876bd7611d867221eac"
         },
         {
           "path": "assets/site-template.html",
@@ -162,23 +162,23 @@
         {
           "path": "references/components.md",
           "kind": "reference",
-          "sizeBytes": 14806,
-          "sha256": "4ce18f418d78b13cdfa6fe8070173044a631576cd2b999571e6703f58894496c"
+          "sizeBytes": 14815,
+          "sha256": "792836520250e7f3290fbb749b3f005884a77df88ba884370a3ea81475f9c22c"
         },
         {
           "path": "references/examples.md",
           "kind": "reference",
-          "sizeBytes": 16108,
-          "sha256": "18f486e95a578a50cf6c9f93394b82534392771320692e4876edf17054bfae55"
+          "sizeBytes": 16184,
+          "sha256": "81e1f4d0051c956a39baab0868261e63837bbbea4f707dfb7115e84bde5d6fd1"
         },
         {
           "path": "references/grid-system.md",
           "kind": "reference",
-          "sizeBytes": 4581,
-          "sha256": "017260d2216859d57e5fa869e0efc6b88c7ed4d8a8a4f5af04fe89a3ef2445bd"
+          "sizeBytes": 4119,
+          "sha256": "44d0bd26822b422749876aa2f1262079f0f91520c37137c5df6e57e62dd6fe9f"
         }
       ],
-      "contentHash": "sha256:0bd9a9fdc656d529e3f97c00cd504dcf72d3a4fecb8b0504ca2fe3e00d63287f"
+      "contentHash": "sha256:6050c7c711bf2f4b2649d9c761d480ef66cccff8e3e24a2c59027049dedae8fe"
     },
     {
       "id": "paperclipai:bundled:quality:qa-acceptance",
@@ -187,7 +187,7 @@
       "category": "quality",
       "slug": "qa-acceptance",
       "name": "qa-acceptance",
-      "description": "Produce QA acceptance criteria and a manual validation plan for a feature change — golden path, edge cases, error states, performance limits, and explicit pass/fail evidence.",
+      "description": "为功能变更产出 QA acceptance criteria 和手工验证计划，覆盖 golden path、边界情况、错误状态、性能限制，以及明确的 pass/fail 证据。",
       "path": "catalog/bundled/quality/qa-acceptance",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -209,11 +209,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 3861,
-          "sha256": "c631b437ab26d104af6cdb963d8f679a9341439041b3cb3ec8835f4ff551b378"
+          "sizeBytes": 3576,
+          "sha256": "439f101f7d354cf4bf76f136c83282ab1fa7ccb14df7b663f1a091a900a99b6e"
         }
       ],
-      "contentHash": "sha256:32372dacaf62e93454b9855968c4eec96456ba78b509f450b3dfaa48e31ef356"
+      "contentHash": "sha256:6143a05f82836476bac1d761d4d99b76d40d5b2b9be8292108b9db0c49dbe8c2"
     },
     {
       "id": "paperclipai:bundled:software-development:github-pr-workflow",
@@ -222,7 +222,7 @@
       "category": "software-development",
       "slug": "github-pr-workflow",
       "name": "github-pr-workflow",
-      "description": "Prepare a GitHub pull request from a feature branch — branch hygiene, commit shape, title/body, verification notes, screenshots for UI work, and replies to review comments.",
+      "description": "从 feature branch 准备 GitHub pull request：分支卫生、commit 形状、标题/正文、验证说明、UI 截图，以及 review comment 回复。",
       "path": "catalog/bundled/software-development/github-pr-workflow",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -242,11 +242,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 3970,
-          "sha256": "f498ec4ebb1779dea37adeb1db8a8b22316282798e35ee02e2fc5ff627d7e261"
+          "sizeBytes": 3697,
+          "sha256": "12ac64fd10ba727ea611e628d2ae0f6527a82e75d45abd9acf23e6089eec79eb"
         }
       ],
-      "contentHash": "sha256:90f278c89aa0711be150c1cd2456ca25620d02f36995b113ca9837d756a37f6c"
+      "contentHash": "sha256:d2b7abf175d488fa70259f895e82edd94c4cd6fbd35e5214cb6e19e217ba39ce"
     },
     {
       "id": "paperclipai:optional:browser:agent-browser",
@@ -255,7 +255,7 @@
       "category": "browser",
       "slug": "agent-browser",
       "name": "agent-browser",
-      "description": "Drive a real browser to inspect or interact with a web page or app — navigate, take screenshots, read console and network, fill simple forms — for verification tasks, not unattended automation.",
+      "description": "驱动真实浏览器检查或交互网页/app：导航、截图、读取 console 和 network、填写简单表单；用于验证任务，不用于无人值守自动化。",
       "path": "catalog/optional/browser/agent-browser",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -277,11 +277,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 5133,
-          "sha256": "362f7b9d02297782bc6f0c093f495b8a0304a75bcf4b42e5c280a42b1f757b7d"
+          "sizeBytes": 4722,
+          "sha256": "94c05e6c141aa601c232b6725797a8adca91aa9d98ad1977e38879cb464e7708"
         }
       ],
-      "contentHash": "sha256:eabb2c9f7b5e1a27ebb1e05a711d61433a266478154cd671a685e99e67aadea2"
+      "contentHash": "sha256:b4322978031844b6cea63e06dddf9af4075afcdf2024663ace4a0f0834ac6aaf"
     },
     {
       "id": "paperclipai:optional:content:release-announcement",
@@ -290,7 +290,7 @@
       "category": "content",
       "slug": "release-announcement",
       "name": "release-announcement",
-      "description": "Write a release announcement — changelog, blog post, in-app note, or social post — that leads with user impact, names the audience, and includes upgrade/migration steps without filler.",
+      "description": "撰写 release announcement、changelog、blog post、in-app note 或 social post；以用户影响开头，明确受众，并包含 upgrade/migration 步骤，避免 filler。",
       "path": "catalog/optional/content/release-announcement",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -312,11 +312,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 4416,
-          "sha256": "062810ac34e9edc89efa701fec2eee60f16949d1944cc2cae49803cb91e8cbf4"
+          "sizeBytes": 4336,
+          "sha256": "528a5d0c337d197f8004da8b5c0acd3d67f56a7b57a37071d23f1ce118bcb8e3"
         }
       ],
-      "contentHash": "sha256:f22a9ed696e6614c6db2757a149f48b3295e81f78c27d065d9cb164cf4f8a9bd"
+      "contentHash": "sha256:1c6c82e9ea699279e8992f6e74b3f704613ec5b59bfaf789e1d2c0daacb83670"
     },
     {
       "id": "paperclipai:optional:product:design-critique",
@@ -325,7 +325,7 @@
       "category": "product",
       "slug": "design-critique",
       "name": "design-critique",
-      "description": "Give a structured product design critique — user job clarity, hierarchy, affordance, error states, accessibility, and consistency — focused on what to change, in what order, and why.",
+      "description": "进行结构化产品设计评审：用户任务清晰度、层级、affordance、错误状态、可访问性和一致性；重点说明改什么、按什么顺序改、为什么。",
       "path": "catalog/optional/product/design-critique",
       "entrypoint": "SKILL.md",
       "trustLevel": "markdown_only",
@@ -347,11 +347,11 @@
         {
           "path": "SKILL.md",
           "kind": "skill",
-          "sizeBytes": 4851,
-          "sha256": "022e619baf6cc25725946279cb8052d22af090dd6cd6dc8c20f17867f71a5d8e"
+          "sizeBytes": 4745,
+          "sha256": "1589a24c1ca80d99c304278a4705a1ced4d8f68367fc54f37b1fca74153a29f1"
         }
       ],
-      "contentHash": "sha256:429f94df398a0697042b5bbe4755b1ff1a230aa5f41d99118ad37493ac65d21c"
+      "contentHash": "sha256:7e5599082ce095604efe367d7eae7d542b3b32db751cdde2e30be7c9a5e2acd5"
     },
     {
       "id": "paperclipai:optional:research:last30days",

@@ -1,32 +1,32 @@
 ---
 name: wiki-ingest
-description: Use when an operation issue asks you to ingest a captured source from `raw/` into the LLM Wiki, or when the user explicitly says "ingest <slug>". The issue body will name a file under `raw/` (e.g. `raw/karpathy-llm-wiki.md`) and ask for durable wiki pages. Do not invoke this skill for Paperclip activity bundles — those use `paperclip-distill` instead.
+description: 当 operation issue 要求你把 `raw/` 中捕获的 source 摄取进 LLM Wiki，或用户明确说“ingest <slug>”时使用。issue body 会指向 `raw/` 下的文件（例如 `raw/karpathy-llm-wiki.md`）并要求生成持久 wiki 页面。不要将此 skill 用于 Paperclip activity bundle；这些使用 `paperclip-distill`。
 ---
 
 # Wiki Ingest
 
-Turn one source document into durable, interlinked wiki knowledge.
+将一个 source document 转换成持久、互相链接的 wiki knowledge。
 
-## Inputs
+## 输入
 
-- An operation issue with `operationType: "ingest"` assigned to you.
-- A `raw/` path mentioned in the issue body (always treat `raw/` as immutable).
-- The operation issue's target `wikiId`, `spaceSlug`, and space root (otherwise stop and surface the missing config to the requester).
+- 分配给你的、带 `operationType: "ingest"` 的 operation issue。
+- issue body 中提到的 `raw/` 路径（始终将 `raw/` 视为 immutable）。
+- operation issue 的目标 `wikiId`、`spaceSlug` 和 space root（否则停止，并把缺失配置反馈给请求者）。
 
-## Workflow
+## 工作流
 
-1. **Read context first.**
-   - Read the target space's `AGENTS.md` for page conventions (filenames, frontmatter, voice, citation style).
-   - Read the target space's `wiki/index.md` to see what already exists.
-   - Read the target space's last ~20 entries of `wiki/log.md` to avoid re-ingesting a source or re-resolving a contradiction someone else already filed.
-2. **Read the source end to end** with `wiki_read_source`, passing the operation issue's `wikiId` and `spaceSlug`. Do not skim. Note the source's structure, claims, dates, and anything that contradicts existing pages.
-3. **Plan, then confirm — but only if the user is in the loop.** If the operation came from a routine (no live user), proceed. If a user is asking interactively, summarise the 3–5 takeaways you intend to file and ask which to emphasise before writing.
-4. **Write the source page** at `wiki/sources/<slug>.md` — ~300–800 words, frontmatter per the wiki schema, neutral voice, key claims with quoted excerpts where they carry weight. The source page is the canonical citation target for everything else this skill writes.
-5. **Update or create downstream pages** in `entities/`, `concepts/`, and `synthesis/`. A typical ingest touches 5–15 pages; resist creating pages for ideas that only appear once.
-6. **Wire the cross-links.** Every claim that comes from the source cites it as `(see [[wiki/sources/<slug>]])`. Every entity / concept mentioned by name on more than one page links to its dedicated page.
-7. **Flag contradictions; do not silently overwrite.** When new material disagrees with an existing page, append a `> ⚠ contradicted by [[wiki/sources/<slug>]] (YYYY-MM-DD)` callout to the older page and note the conflict in the log.
-8. **Refresh `wiki/index.md`** with one-line summaries for any new pages.
-9. **Append a log entry** in `wiki/log.md`:
+1. **先读取上下文。**
+   - 读取目标 space 的 `AGENTS.md`，了解页面约定（文件名、frontmatter、voice、citation style）。
+   - 读取目标 space 的 `wiki/index.md`，了解已有内容。
+   - 读取目标 space 的 `wiki/log.md` 最近约 20 条，避免重复摄取 source 或重复处理他人已记录的矛盾。
+2. **端到端读取 source**，使用 `wiki_read_source` 并传入 operation issue 的 `wikiId` 与 `spaceSlug`。不要略读。记录 source 的结构、主张、日期，以及任何与现有页面冲突的内容。
+3. **先计划，再确认，但仅当用户在线参与时。** 如果 operation 来自 routine（没有实时用户），继续执行。如果用户在交互式请求，先总结你准备归档的 3-5 个 takeaway，并询问要强调哪些内容，再写入。
+4. **写 source page** 到 `wiki/sources/<slug>.md`：约 300-800 词，frontmatter 遵循 wiki schema，voice 保持中立，关键主张在有分量时附原文摘录。source page 是此 skill 写入的所有其他内容的 canonical citation target。
+5. **更新或创建下游页面**，位置包括 `entities/`、`concepts/` 和 `synthesis/`。一次典型 ingest 会触碰 5-15 个页面；不要为只出现一次的想法创建页面。
+6. **连好交叉链接。** 每条来自该 source 的主张都以 `(see [[wiki/sources/<slug>]])` 引用它。任何在多个页面按名称出现的 entity / concept 都链接到专属页面。
+7. **标记矛盾；不要静默覆盖。** 当新材料与现有页面不一致时，在旧页面追加 `> ⚠ contradicted by [[wiki/sources/<slug>]] (YYYY-MM-DD)` callout，并在 log 中记录冲突。
+8. **刷新 `wiki/index.md`**，为任何新页面添加一行摘要。
+9. **追加 log entry** 到 `wiki/log.md`：
    ```
    ## [YYYY-MM-DD] ingest | <source title>
    - source: raw/<filename>
@@ -35,23 +35,23 @@ Turn one source document into durable, interlinked wiki knowledge.
    - notes: <one-line synthesis or open question>
    ```
 
-## Voice
+## 语气
 
-- Terse, factual, neutral. Reference material, not narrative.
-- No "Today I learned" or "This is interesting because" framing.
-- Quote the source verbatim when paraphrasing would lose precision.
+- 简短、事实、中立。写 reference material，而不是叙事。
+- 不使用 “Today I learned” 或 “This is interesting because” 这类框架。
+- 当转述会损失精度时，直接引用 source 原文。
 
-## Verification
+## 验证
 
-Before closing the operation issue:
+关闭 operation issue 前：
 
-- [ ] Source page exists at `wiki/sources/<slug>.md` with valid frontmatter and a `sources:` field pointing to the raw path.
-- [ ] Every new or updated page links back to the source page or a downstream page that does.
-- [ ] `wiki/index.md` lists every new page under the right category with a one-line summary.
-- [ ] `wiki/log.md` has the ingest entry with the exact filename heading format (so `grep "^## \[" wiki/log.md` keeps working).
-- [ ] Any contradiction between the new source and an older page is annotated, not silently overwritten.
-- [ ] No file under `raw/` was modified.
+- [ ] Source page 存在于 `wiki/sources/<slug>.md`，frontmatter 有效，且 `sources:` 字段指向 raw path。
+- [ ] 每个新增或更新页面都链接回 source page，或链接到会回链 source page 的下游页面。
+- [ ] `wiki/index.md` 在正确分类下列出每个新页面，并附一行摘要。
+- [ ] `wiki/log.md` 有 ingest entry，heading 格式包含精确文件名（这样 `grep "^## \[" wiki/log.md` 仍可工作）。
+- [ ] 新 source 与旧页面的任何矛盾都被标注，而不是静默覆盖。
+- [ ] 没有修改 `raw/` 下的任何文件。
 
-## Tools
+## 工具
 
-`wiki_list_sources`, `wiki_read_source`, `wiki_search`, `wiki_read_page`, `wiki_write_page`. Always include the operation issue's `wikiId` and `spaceSlug`.
+`wiki_list_sources`、`wiki_read_source`、`wiki_search`、`wiki_read_page`、`wiki_write_page`。始终包含 operation issue 的 `wikiId` 和 `spaceSlug`。

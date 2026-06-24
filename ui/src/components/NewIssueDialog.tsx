@@ -171,6 +171,15 @@ function issueWorkModeLabel(value: IssueWorkMode, t: TFunction) {
     : t("components.newissuedialog.standard.option_label", { defaultValue: "Standard" });
 }
 
+function modelLaneLabel(value: IssueModelLane, t: TFunction) {
+  switch (value) {
+    case "primary": return t("components.newissuedialog.primary.option_label", { defaultValue: "Primary" });
+    case "cheap": return t("components.newissuedialog.cheap.option_label", { defaultValue: "Cheap" });
+    case "custom": return t("components.newissuedialog.custom.option_label", { defaultValue: "Custom" });
+    default: return value;
+  }
+}
+
 function executionWorkspaceModeLabel(value: string, t: TFunction) {
   switch (value) {
     case "shared_workspace": return t("components.newissuedialog.project_default.option_label", { defaultValue: "Project default" });
@@ -1162,12 +1171,12 @@ const { t } = useTranslation();
     && !isUsingParentExecutionWorkspace;
   const assigneeOptionsTitle =
     assigneeAdapterType === "claude_local"
-      ? "Claude options"
+      ? t("components.newissuedialog.claude_options.title", { defaultValue: "Claude options" })
       : assigneeAdapterType === "codex_local"
-        ? "Codex options"
+        ? t("components.newissuedialog.codex_options.title", { defaultValue: "Codex options" })
         : assigneeAdapterType === "opencode_local"
-          ? "OpenCode options"
-        : "Agent options";
+          ? t("components.newissuedialog.opencode_options.title", { defaultValue: "OpenCode options" })
+        : t("components.newissuedialog.agent_options.title", { defaultValue: "Agent options" });
   const thinkingEffortOptions =
     assigneeAdapterType === "codex_local"
       ? ISSUE_THINKING_EFFORT_OPTIONS.codex_local
@@ -1208,7 +1217,9 @@ const { t } = useTranslation();
   const hasSavedDraft = Boolean(savedDraft?.title.trim() || savedDraft?.description.trim());
   const canDiscardDraft = hasDraft || hasSavedDraft;
   const createIssueErrorMessage =
-    createIssue.error instanceof Error ? createIssue.error.message : "Failed to create task. Try again.";
+    createIssue.error instanceof Error
+      ? createIssue.error.message
+      : t("components.newissuedialog.failed_to_create_task_try_again.error", { defaultValue: "Failed to create task. Try again." });
   const stagedDocuments = stagedFiles.filter((file) => file.kind === "document");
   const stagedAttachments = stagedFiles.filter((file) => file.kind === "attachment");
 
@@ -1734,11 +1745,7 @@ const { t } = useTranslation();
                         )}
                         onClick={() => setAssigneeModelLane(lane)}
                       >
-                        {lane === "primary"
-                          ? "Primary"
-                          : lane === "cheap"
-                            ? "Cheap"
-                            : "Custom"}
+                        {modelLaneLabel(lane, t)}
                       </button>
                     ))}
                   </div>
@@ -1767,9 +1774,9 @@ const { t } = useTranslation();
                       options={modelOverrideOptions}
                       placeholder={t("components.newissuedialog.default_model.attr_placeholder", { defaultValue: "Default model" })}
                       disablePortal
-                      noneLabel="Default model"
-                      searchPlaceholder="Search models..."
-                      emptyMessage="No models found."
+                      noneLabel={t("components.newissuedialog.default_model.option_label", { defaultValue: "Default model" })}
+                      searchPlaceholder={t("components.newissuedialog.search_models.placeholder", { defaultValue: "Search models..." })}
+                      emptyMessage={t("components.newissuedialog.no_models_found.empty", { defaultValue: "No models found." })}
                       onChange={setAssigneeModelOverride}
                     />
                   </div>
@@ -2133,7 +2140,13 @@ const { t } = useTranslation();
             >
               <span className="inline-flex items-center justify-center gap-1.5">
                 {createIssue.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                <span>{createIssue.isPending ? "Creating..." : isSubIssueMode ? "Create Sub-Task" : "Create Task"}</span>
+                <span>
+                  {createIssue.isPending
+                    ? t("components.newissuedialog.creating.action", { defaultValue: "Creating..." })
+                    : isSubIssueMode
+                      ? t("components.newissuedialog.create_sub_task.action", { defaultValue: "Create Sub-Task" })
+                      : t("components.newissuedialog.create_task.action", { defaultValue: "Create Task" })}
+                </span>
               </span>
             </Button>
           </div>

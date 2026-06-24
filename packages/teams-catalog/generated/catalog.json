@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/teams-catalog",
   "packageVersion": "0.1.0",
-  "generatedAt": "2026-06-04T18:03:41.262Z",
+  "generatedAt": "2026-06-24T04:14:29.320Z",
   "teams": [
     {
       "id": "paperclipai:bundled:company-defaults:core-exec-team",
@@ -10,8 +10,8 @@
       "kind": "bundled",
       "category": "company-defaults",
       "slug": "core-exec-team",
-      "name": "Core Exec Team",
-      "description": "Default leadership and engineering team for bootstrapping a Paperclip company with a CEO, CTO, QA Engineer, starter project, and a recurring CEO heartbeat review task.",
+      "name": "核心执行团队",
+      "description": "用于启动 Paperclip 公司的默认领导与工程团队，包含 CEO、CTO、QA 工程师、起始项目，以及周期性 CEO heartbeat 复盘任务。",
       "path": "catalog/bundled/company-defaults/core-exec-team",
       "entrypoint": "TEAM.md",
       "schema": "agentcompanies/v1",
@@ -96,43 +96,43 @@
         {
           "path": "TEAM.md",
           "kind": "team",
-          "sizeBytes": 2144,
-          "sha256": "4ab4f57f147e89a56a6753755d7ef142d91741b3c0159f2e53fb333cd2779eaf"
+          "sizeBytes": 2061,
+          "sha256": "1a57e2a87faf4433c7fdefc3917eb4a9be29d82d07320e00592fccd09422ce1b"
         },
         {
           "path": "agents/ceo/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 2492,
-          "sha256": "50f580c51807762265f09c6fe7bf32d7701d64caeb30595bfd577b2f5087c21b"
+          "sizeBytes": 2237,
+          "sha256": "9dbdc379e4b214291ca0ba984d52b6af8d1b104177dccc6062225531ec2c0a20"
         },
         {
           "path": "agents/cto/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1449,
-          "sha256": "596e2e9fe08d7368b3b0cfe72c2635ea80444d92a2c0414157bfb0a17773fcaf"
+          "sizeBytes": 1314,
+          "sha256": "72f7e4733d4da4a6d4c8a06de067bce6fd64911cb691a06a63f3352126f452a4"
         },
         {
           "path": "agents/qa/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1307,
-          "sha256": "2a139b88b4b98516048395c569c1bc74fd31cdc2da65db410e9779b8d92c0343"
+          "sizeBytes": 1200,
+          "sha256": "33e6fdd96a0bfcd020f5b6d3f10b992d965a99e030e91dfeaa64d172d7babf54"
         },
         {
           "path": "projects/first-project/PROJECT.md",
           "kind": "project",
-          "sizeBytes": 364,
-          "sha256": "1f457ae956da52ff83adc1cf63a3fb84337a4afb25bd43f0d123902d75e871cc"
+          "sizeBytes": 298,
+          "sha256": "e93cca437fc95eaa12c2db74ae811c77b0a92a9b2402eccdc31e273367fdf44b"
         },
         {
           "path": "projects/first-project/tasks/first-heartbeat/TASK.md",
           "kind": "task",
-          "sizeBytes": 292,
-          "sha256": "bdc979cafa43fc9b8f0d6f0e4120c01cecfb899082781a5da88e26fa262f18e4"
+          "sizeBytes": 291,
+          "sha256": "5e669f50a50809c14e25c8b53aafebd5576943ef3a213b77048139a96943525f"
         }
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:0f20e9d56124c1dc90a1e4b128fabd863538bcc935117220f719d9620f7c89f1"
+      "contentHash": "sha256:cef7c0f60f2db6dd347d234fa035f2ff14f87d7268998bbaa2e0892d4195381d"
     },
     {
       "id": "paperclipai:bundled:product:product-design",
@@ -140,8 +140,8 @@
       "kind": "bundled",
       "category": "product",
       "slug": "product-design",
-      "name": "Product Design",
-      "description": "Bundled product design team with a Principal Product Designer who owns wireframes, design critiques, and UX quality reviews for a product company.",
+      "name": "产品设计",
+      "description": "内置产品设计团队，包含一名首席产品设计师，负责产品公司的 wireframe、设计评审和 UX 质量审查。",
       "path": "catalog/bundled/product/product-design",
       "entrypoint": "TEAM.md",
       "schema": "agentcompanies/v1",
@@ -212,31 +212,31 @@
         {
           "path": "TEAM.md",
           "kind": "team",
-          "sizeBytes": 2074,
-          "sha256": "205be8d3ef6c1f5e73729207913c387eee4cc9379191c3ce6d943fcf9ca2545d"
+          "sizeBytes": 1965,
+          "sha256": "b659de68b532d67e57bb6f1d1cd8dc9245b680533456c3c23bd5294685583375"
         },
         {
           "path": "agents/ux-designer/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 2136,
-          "sha256": "f5a4b5696d8249e9f9d808a4373c2a1e6b07faa463e72f83fd9d5bed98d2022f"
+          "sizeBytes": 2015,
+          "sha256": "5a55c5728e07cdbfca00197ba6f0e27f9610522f192f36eddfe4157238a2b1d8"
         },
         {
           "path": "projects/product-design/PROJECT.md",
           "kind": "project",
-          "sizeBytes": 353,
-          "sha256": "4afe346bc5d5958216542d60a06be12983e1e018960cf2709c85c7d578f28420"
+          "sizeBytes": 321,
+          "sha256": "64851d2aedf554debe058a6fe20ee261185dc9c30cb5e7f98b2c929de5d1990d"
         },
         {
           "path": "projects/product-design/tasks/weekly-design-review/TASK.md",
           "kind": "task",
-          "sizeBytes": 313,
-          "sha256": "d255115eccc5c8b9f576c34fc2fb46a1cbb86ab36a56b980bdab35a952482d8a"
+          "sizeBytes": 287,
+          "sha256": "805ebc714f406c117ee3c4c79bce11ea0921c40a378451a3aadb359dc7838a43"
         }
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:15a04b36f31d4c9a391bb499c92e91fedfcc237cfa6c3d41ea3ddb441bc85c5b"
+      "contentHash": "sha256:ddfbbdc6bb8faa5e42b29e0313401193df8afdd22a63adf99caacda00ece76f4"
     },
     {
       "id": "paperclipai:bundled:software-development:product-engineering",
@@ -244,8 +244,8 @@
       "kind": "bundled",
       "category": "software-development",
       "slug": "product-engineering",
-      "name": "Product Engineering",
-      "description": "Bundled engineering team that pairs a CTO with a senior coder and a QA engineer to deliver, review, and verify product changes.",
+      "name": "产品工程",
+      "description": "内置工程团队，由 CTO 搭配一名高级工程师和一名 QA 工程师，用于交付、审查并验证产品变更。",
       "path": "catalog/bundled/software-development/product-engineering",
       "entrypoint": "TEAM.md",
       "schema": "agentcompanies/v1",
@@ -331,8 +331,8 @@
         {
           "path": "TEAM.md",
           "kind": "team",
-          "sizeBytes": 2583,
-          "sha256": "7204eeef78a48714dd3f82b82e171a4039adc6325e91a6bdf51a442105ee33b0"
+          "sizeBytes": 2475,
+          "sha256": "1ed5a2e848ad6c89dcb551e79c9f8e12457e5e8aa875ae248c459c459746631f"
         },
         {
           "path": ".paperclip.yaml",
@@ -343,37 +343,37 @@
         {
           "path": "agents/cto/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1499,
-          "sha256": "0a1a73ec9e5008056bca0a26325131ded2fcf4c4680a5014ba1e13400b32c173"
+          "sizeBytes": 1393,
+          "sha256": "4f7e27dbd241a9cf04f1ea44e84e5d3e50792e695a906f334408c7421ddde214"
         },
         {
           "path": "agents/qa/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1223,
-          "sha256": "2d5738f831aa772befa3471c844a0c9e611584be668e3ec82580ca9e92dc13fc"
+          "sizeBytes": 1100,
+          "sha256": "a46f3654364b28eecc4def3dd0192bdd1eb468c356ed88bd11ba69d985d68a59"
         },
         {
           "path": "agents/senior-coder/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1413,
-          "sha256": "b61071518755d9e584c099ae2082c7a78448d09586093ee91393082fe10872b5"
+          "sizeBytes": 1336,
+          "sha256": "adacd48442531823bce10da17f81aa6352f642aa4c637fee35e786ded79853e4"
         },
         {
           "path": "projects/product-engineering/PROJECT.md",
           "kind": "project",
-          "sizeBytes": 358,
-          "sha256": "225d01c5b5b77f5d4dafedc083899c9368c9b079db1d3b7b67cfebd4677fc527"
+          "sizeBytes": 321,
+          "sha256": "453fdef79aa6a62d40bbd0c4655ab4da676da2442407a1597d78ec7ae5ba1502"
         },
         {
           "path": "projects/product-engineering/tasks/weekly-engineering-sync/TASK.md",
           "kind": "task",
-          "sizeBytes": 322,
-          "sha256": "6acf3ed2da3dfa48de163810b4bc9d385dad537fd34037ca881eec713986a2a8"
+          "sizeBytes": 294,
+          "sha256": "c94b3243de77cd0cdc7a4509de230fff13b83e094bea3b8a08b1383c521c6896"
         }
       ],
       "trustLevel": "assets",
       "compatibility": "compatible",
-      "contentHash": "sha256:74ddeaeb11805835a4a67fc4530b048ab7f8aa1dc7d2b80acea139a933d158d3"
+      "contentHash": "sha256:630bd418b2249d453b77ad6eb9d0aa1e255325bdc87c6a5139cd441832e2164b"
     },
     {
       "id": "paperclipai:optional:content:content-machine",
@@ -381,8 +381,8 @@
       "kind": "optional",
       "category": "content",
       "slug": "content-machine",
-      "name": "Content Machine",
-      "description": "Optional content operations team with a lead agent, a recurring review task, and a vendored local content planning skill.",
+      "name": "内容机器",
+      "description": "可选内容运营团队，包含负责人 agent、周期性复盘任务，以及随包提供的本地内容规划 skill。",
       "path": "catalog/optional/content/content-machine",
       "entrypoint": "TEAM.md",
       "schema": "agentcompanies/v1",
@@ -431,37 +431,37 @@
         {
           "path": "TEAM.md",
           "kind": "team",
-          "sizeBytes": 1032,
-          "sha256": "f7c272c8b0c183fc840d49eb4851b7cdd1a30a5aa8d6415d215110f3238f6f13"
+          "sizeBytes": 985,
+          "sha256": "f7caac3c1ae8769470160636094d8e5cc17753ecee766656aab1408b1e26b777"
         },
         {
           "path": "agents/content-lead/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 251,
-          "sha256": "6fc2071ff463b6981780d5b40b2c0784cb119900062f8dc40ed372e7b8415bf7"
+          "sizeBytes": 243,
+          "sha256": "3205c656903ce76aee610a49bab4628e5d5b8dd70c9bd25f4127041b98bf9665"
         },
         {
           "path": "projects/content-operations/PROJECT.md",
           "kind": "project",
-          "sizeBytes": 338,
-          "sha256": "1471f61cb0b3ffbb9c639a99d2d370f08217a0c63f97b3e24dbbd47861110206"
+          "sizeBytes": 292,
+          "sha256": "8309f96ead9b03a87c481a259b5298249e0ed7a453478ef94be45623bf3ab28c"
         },
         {
           "path": "projects/content-operations/tasks/weekly-content-review/TASK.md",
           "kind": "task",
-          "sizeBytes": 236,
-          "sha256": "3777de716334f2c3f24176f0fe121584ce9c53a7f59e1fca942a2f57995cef77"
+          "sizeBytes": 229,
+          "sha256": "f25ab7165f9b5465e193f00d248f02e9e4b8f53ad6cbde682216cd042382c6f8"
         },
         {
           "path": "skills/content-calendar/SKILL.md",
           "kind": "skill",
-          "sizeBytes": 340,
-          "sha256": "aa62a332fc3149d6c0d58ca589c6b3910a373d542f16f749ec68ef2f3d7f29e9"
+          "sizeBytes": 315,
+          "sha256": "fa3271ccb24e4856890d8faf1a780dc1a0a7cd6a459815c382879b5b419c458e"
         }
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:06822cec5f2b6910cb37ba0ebd5e04ed5c7e34f77225564ddddc2470779cdaa6"
+      "contentHash": "sha256:2923c83e41de8b4fbfc25c07c0e2313b9384ce65e4bc88610ea6fb4b16466545"
     }
   ]
 }

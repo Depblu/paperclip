@@ -232,7 +232,14 @@ const { t } = useTranslation();
         <Button
           variant="ghost"
           className="h-9 flex-1 justify-start gap-2 px-2 text-left"
-          aria-label={selectedCompany ? `Open ${selectedCompany.name} workspace switcher` : "Open workspace switcher"}
+          aria-label={
+            selectedCompany
+              ? t("components.sidebarcompanymenu.open_workspace_switcher_for.attr_aria-label", {
+                companyName: selectedCompany.name,
+                defaultValue: "Open {{companyName}} workspace switcher",
+              })
+              : t("components.sidebarcompanymenu.open_workspace_switcher.attr_aria-label", { defaultValue: "Open workspace switcher" })
+          }
         >
           <span className="flex min-w-0 flex-1 items-center gap-2">
             {selectedCompany ? <WorkspaceIcon company={selectedCompany} /> : null}
@@ -256,7 +263,9 @@ const { t } = useTranslation();
             }}
             className="rounded px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            {isEditingOrder ? "Done" : "Edit"}
+            {isEditingOrder
+              ? t("components.sidebarcompanymenu.done.action", { defaultValue: "Done" })
+              : t("components.sidebarcompanymenu.edit.action", { defaultValue: "Edit" })}
           </button>
         </div>
         <div className="max-h-96 overflow-y-auto">
@@ -307,7 +316,12 @@ const { t } = useTranslation();
           >
             <UserPlus className="size-4" />
             <span className="truncate">
-              {selectedCompany ? `Invite people to ${selectedCompany.name}` : "Invite people"}
+              {selectedCompany
+                ? t("components.sidebarcompanymenu.invite_people_to_company.jsx-text", {
+                  companyName: selectedCompany.name,
+                  defaultValue: "Invite people to {{companyName}}",
+                })
+                : t("components.sidebarcompanymenu.invite_people.jsx-text", { defaultValue: "Invite people" })}
             </span>
           </Link>
         </DropdownMenuItem>
@@ -335,7 +349,11 @@ const { t } = useTranslation();
               disabled={isEditingOrder || signOutMutation.isPending}
             >
               <LogOut className="size-4" />
-              <span>{signOutMutation.isPending ? "Signing out..." : "Sign out"}</span>
+              <span>
+                {signOutMutation.isPending
+                  ? t("components.sidebarcompanymenu.signing_out.action", { defaultValue: "Signing out..." })
+                  : t("components.sidebarcompanymenu.sign_out.action", { defaultValue: "Sign out" })}
+              </span>
             </DropdownMenuItem>
           </>
         ) : null}

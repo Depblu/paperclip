@@ -1,65 +1,65 @@
 ---
 name: index-refresh
-description: Use when an operation issue is an index refresh — typically the hourly index-refresh routine. Rebuild `wiki/index.md` so each entry has a tight, scannable one-line summary and the catalog tracks the actual contents of `wiki/`. Resolve drift between the index and recent log activity, but do not edit page content.
+description: 当 operation issue 是 index refresh 时使用，通常来自 hourly index-refresh routine。重建 `wiki/index.md`，让每条 entry 都有紧凑、可扫描的一行摘要，并让 catalog 反映 `wiki/` 的实际内容。解决 index 与近期 log 活动之间的漂移，但不要编辑页面正文。
 ---
 
 # Index Refresh
 
-Keep `wiki/index.md` accurate and scannable. The index is the maintainer's first stop for navigation — its quality determines how cheap every subsequent operation becomes.
+保持 `wiki/index.md` 准确且可扫描。index 是 maintainer 导航的第一入口；它的质量决定后续每个 operation 的成本。
 
-## Inputs
+## 输入
 
-- An operation issue with `operationType: "index"` (or the `index-refresh` routine title).
-- The operation issue's target `wikiId`, `spaceSlug`, and space root. Refresh only that space unless the issue explicitly says this is a multi-space sweep.
+- 带 `operationType: "index"` 的 operation issue（或 `index-refresh` routine title）。
+- operation issue 的目标 `wikiId`、`spaceSlug` 和 space root。除非 issue 明确说明这是 multi-space sweep，否则只刷新该 space。
 
-## Workflow
+## 工作流
 
-1. **Read the target space's `wiki/index.md`** as it currently stands.
-2. **Walk the target space's `wiki/`.** `wiki/projects/<slug>/standup.md` entries are current-state companions for durable `wiki/projects/<slug>/index.md` pages; index them only as links attached to the matching project entry. Walk `wiki/` by category (`sources/`, `projects/`, `entities/`, `concepts/`, `synthesis/`, plus any custom subdirectories the wiki schema added).
-3. **Read the target space's last ~50 entries of `wiki/log.md`** to spot pages that were created or substantially changed but never made it to the index.
-4. **Per category, produce sorted entries** of the form:
+1. **读取目标 space 当前的 `wiki/index.md`。**
+2. **遍历目标 space 的 `wiki/`。** `wiki/projects/<slug>/standup.md` entry 是持久 `wiki/projects/<slug>/index.md` 页面旁的当前状态 companion；只把它们作为匹配 project entry 的附加链接来索引。按分类遍历 `wiki/`（`sources/`、`projects/`、`entities/`、`concepts/`、`synthesis/`，以及 wiki schema 新增的任何自定义子目录）。
+3. **读取目标 space 的 `wiki/log.md` 最近约 50 条**，找出已创建或大量修改但未进入 index 的页面。
+4. **按分类产出排序后的 entry**，格式如下：
    ```
    - [[<path>]] — <one-line summary>
    ```
-   The summary is one factual sentence pulled from the page's first paragraph or its title. **No status, no datestamps in the index** — those belong in the page itself or in the log.
-5. **Drop entries whose page no longer exists.** Note the deletion in the log:
+   摘要是从页面首段或标题提取的一句事实。**index 中不要状态，不要日期戳**；这些属于页面本身或 log。
+5. **删除页面已不存在的 entry。** 在 log 中记录删除：
    ```
    ## [YYYY-MM-DD] index-refresh | reconciled
    - removed: [[wiki/old-page]] (page deleted)
    - added: [[wiki/new-page]] — <summary>
    ```
-6. **Add entries for pages that exist on disk but were missing from the index.** Skip `wiki/log.md` and `wiki/index.md` themselves. For standalone `wiki/projects/<slug>/standup.md` without a matching durable project page, add it under Projects and flag it for later durable-page distillation.
-7. **Write project entries editorially.** The Projects section should group work by the project's concept and purpose, not by issue ids, dates, statuses, UUIDs, or source metadata. Link task identifiers only as supporting evidence.
-8. **Preserve custom categories.** If the wiki has added e.g. `wiki/papers/` or `wiki/runbooks/`, keep its index section. Do not collapse to the default five categories.
-9. **Append a log entry** with counts:
+6. **为磁盘存在但 index 缺失的页面添加 entry。** 跳过 `wiki/log.md` 和 `wiki/index.md` 自身。对于没有匹配持久 project page 的独立 `wiki/projects/<slug>/standup.md`，加到 Projects 下，并标记为后续需要 durable-page distillation。
+7. **以编辑视角书写 project entry。** Projects section 应按 project 的概念和目的组织，而不是按 issue id、日期、状态、UUID 或 source metadata。task identifier 只作为支持证据链接。
+8. **保留自定义分类。** 如果 wiki 增加了如 `wiki/papers/` 或 `wiki/runbooks/`，保留对应 index section。不要折叠到默认五类。
+9. **追加带计数的 log entry**：
    ```
    ## [YYYY-MM-DD] index-refresh | added=N removed=M
    - operation issue: <issue identifier>
    ```
-   If the index was already accurate, the log entry says `added=0 removed=0` — still write it so future audits can see the run happened.
+   如果 index 已准确，log entry 写 `added=0 removed=0`；仍然写入，方便未来审计看到此 run 已发生。
 
-## What this skill does NOT do
+## 此 skill 不做什么
 
-- Does not change page content.
-- Does not resolve contradictions, fix broken links, or fill concept gaps. Those go to the next `wiki-lint` run.
-- Does not write summaries that are not already supported by the page itself. If a page lacks a clear first paragraph to summarise, flag it for `wiki-lint`.
+- 不修改页面正文。
+- 不解决矛盾、不修 broken link、不补 concept gap。这些交给下一次 `wiki-lint`。
+- 不写页面本身不支持的摘要。如果页面缺少可总结的清晰首段，标记给 `wiki-lint`。
 
-## Voice
+## 语气
 
-- Index entries are one factual line per page, present tense.
-- No emojis, no statuses, no dates in `wiki/index.md`. Dates live in the log.
+- Index entry 每个页面一条事实行，使用现在时。
+- `wiki/index.md` 中不要 emoji、状态或日期。日期属于 log。
 
-## Verification
+## 验证
 
-Before closing the operation issue:
+关闭 operation issue 前：
 
-- [ ] `wiki/index.md` matches the actual contents of `wiki/` — no missing pages, no dangling entries.
-- [ ] Project entries include current `wiki/projects/<slug>/standup.md` links when standups exist.
-- [ ] Each index line has the form `- [[path]] — <summary>`.
-- [ ] Custom category sections are preserved.
-- [ ] `wiki/log.md` has the index-refresh entry with counts (even if the counts are zero).
-- [ ] No page bodies were modified. No file under `raw/` was modified.
+- [ ] `wiki/index.md` 与 `wiki/` 实际内容一致：没有缺失页面，也没有悬空 entry。
+- [ ] 当 standup 存在时，project entry 包含当前 `wiki/projects/<slug>/standup.md` 链接。
+- [ ] 每行 index 都符合 `- [[path]] — <summary>` 格式。
+- [ ] 自定义 category section 已保留。
+- [ ] `wiki/log.md` 有包含计数的 index-refresh entry（即使计数为零）。
+- [ ] 没有修改页面正文。没有修改 `raw/` 下任何文件。
 
-## Tools
+## 工具
 
-`wiki_search`, `wiki_read_page`, `wiki_write_page` (for `wiki/index.md` and `wiki/log.md` only). Always include the operation issue's `wikiId` and `spaceSlug`.
+`wiki_search`、`wiki_read_page`、`wiki_write_page`（仅用于 `wiki/index.md` 和 `wiki/log.md`）。始终包含 operation issue 的 `wikiId` 和 `spaceSlug`。

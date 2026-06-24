@@ -355,7 +355,9 @@ const { t } = useTranslation();
                   onClick={() => createAgentInviteMutation.mutate()}
                   disabled={!selectedCompanyId || createAgentInviteMutation.isPending}
                 >
-                  {createAgentInviteMutation.isPending ? "Generating…" : "Generate onboarding prompt"}
+                  {createAgentInviteMutation.isPending
+                    ? t("components.newagentdialog.generating_onboarding_prompt.action", { defaultValue: "Generating..." })
+                    : t("components.newagentdialog.generate_onboarding_prompt.action", { defaultValue: "Generate onboarding prompt" })}
                 </Button>
               </div>
             </div>

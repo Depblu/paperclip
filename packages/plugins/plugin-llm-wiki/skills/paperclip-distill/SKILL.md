@@ -1,87 +1,82 @@
 ---
 name: paperclip-distill
-description: Use when an operation issue is a Paperclip cursor-window, distill, or backfill — `operationType: "distill"` or `"backfill"` and the body references a Paperclip source bundle for a project or root issue. Turn raw Paperclip activity into a wiki-insightful project page, decisions log, and history note. This skill exists specifically to replace the stiff, datestamp-heavy templated output that the deterministic distiller produces.
+description: 当 operation issue 是 Paperclip cursor-window、distill 或 backfill 时使用：`operationType: "distill"` 或 `"backfill"`，且 body 引用了某个 project 或 root issue 的 Paperclip source bundle。将原始 Paperclip activity 转换成有 wiki 洞察力的 project page、decision log 和 history note。此 skill 专门用于替代 deterministic distiller 生成的僵硬、日期戳过重的模板化输出。
 ---
 
 # Paperclip Distill
 
-Distill Paperclip project, issue, comment, and document activity into durable wiki pages. The success criterion is **wiki-insightful, not procedural**: a reader who has never seen Paperclip should learn what the project is, what was decided, what is at risk, and what the current state is — without scanning a list of `## [YYYY-MM-DD]` headers.
+将 Paperclip project、issue、comment 和 document activity 提炼为持久 wiki 页面。成功标准是 **有 wiki 洞察力，而不是流程化**：从未见过 Paperclip 的读者应能理解项目是什么、做过哪些决定、哪里有风险、当前状态如何，而不需要扫一串 `## [YYYY-MM-DD]` heading。
 
-## When this skill is needed
+## 何时需要此 skill
 
-- Cursor-window distillation: the routine fed you a bounded source bundle of recent Paperclip activity for one project or root issue.
-- Backfill: the user asked to seed the wiki with the historical activity of a project or root issue. Source window may be wide.
-- Manual `distill-paperclip-now` request from the UI.
+- Cursor-window distillation：routine 给你一个有边界的 source bundle，包含某个 project 或 root issue 的近期 Paperclip activity。
+- Backfill：用户要求用某个 project 或 root issue 的历史 activity 初始化 wiki。source window 可能很宽。
+- UI 中的手动 `distill-paperclip-now` 请求。
 
-If the operation issue is `operationType: "ingest"` (raw file) or `operationType: "query"`, this is the wrong skill — use `wiki-ingest` or `wiki-query`.
+如果 operation issue 是 `operationType: "ingest"`（raw file）或 `operationType: "query"`，这不是正确 skill；使用 `wiki-ingest` 或 `wiki-query`。
 
-## Destination space
+## 目标 space
 
-In Phase 1, every Paperclip distill, backfill, and cursor-window operation writes into the
-default wiki space. The operation issue should always carry `spaceSlug: "default"`. If an
-operation issue passes any other slug, stop and surface the mismatch in a comment — do not
-write Paperclip-derived pages into a non-default space.
+Phase 1 中，每个 Paperclip distill、backfill 和 cursor-window operation 都写入 default wiki space。operation issue 应始终携带 `spaceSlug: "default"`。如果 operation issue 传入其他 slug，停止并在评论中说明不匹配；不要把 Paperclip 派生页面写入非 default space。
 
-This rule is destination-only. The Paperclip source scope (which projects, root issues,
-comments, documents are read) is set elsewhere in the operation issue and is independent of
-the destination.
+此规则只约束 destination。Paperclip source scope（读取哪些 project、root issue、comment、document）由 operation issue 其他字段设置，与 destination 独立。
 
-## Inputs
+## 输入
 
-- A Paperclip source bundle (issue list, comment refs, document refs, source hash, cursor window).
-- An existing or planned `wiki/projects/<slug>/standup.md` page path.
-- An existing or planned `wiki/projects/<slug>/index.md` page path.
-- The operation issue's target `wikiId`, `spaceSlug`, space root, and the target space's `AGENTS.md` for page conventions.
-- The current `wiki/projects/<slug>/standup.md`, `wiki/projects/<slug>/index.md`, `decisions.md`, and `history.md` if they already exist (so you write a *patch*, not a rewrite).
+- Paperclip source bundle（issue list、comment ref、document ref、source hash、cursor window）。
+- 现有或计划中的 `wiki/projects/<slug>/standup.md` 页面路径。
+- 现有或计划中的 `wiki/projects/<slug>/index.md` 页面路径。
+- operation issue 的目标 `wikiId`、`spaceSlug`、space root，以及目标 space 的 `AGENTS.md` 页面约定。
+- 当前 `wiki/projects/<slug>/standup.md`、`wiki/projects/<slug>/index.md`、`decisions.md` 和 `history.md`（如果已存在），这样你写的是 *patch*，不是重写。
 
 ## Paperclip Asset Gate
 
-Do not treat Paperclip assets/attachments or issue work products as source text for this skill.
+不要将 Paperclip asset/attachment 或 issue work product 当成此 skill 的 source text。
 
-- Allowed Paperclip body text: issue descriptions, comment bodies, document bodies.
-- Assets/attachments are metadata-only until a separate approved extraction policy exists.
-- Work products are metadata-only until a separate approved extraction policy exists.
-- Never fetch `/api/assets/:id/content`.
-- Never dereference a work-product `url`, preview URL, artifact URL, or other linked destination from this skill.
-- If an operator asks for attachment/work-product content distillation, stop and point them at the Phase 5 asset/work-product security gate policy instead of improvising.
+- 允许的 Paperclip body text：issue description、comment body、document body。
+- 在单独批准的 extraction policy 存在前，asset/attachment 只作为 metadata。
+- 在单独批准的 extraction policy 存在前，work product 只作为 metadata。
+- 永远不要 fetch `/api/assets/:id/content`。
+- 永远不要从此 skill 中 dereference work-product `url`、preview URL、artifact URL 或其他 linked destination。
+- 如果 operator 要求 distill attachment/work-product content，停止，并让他们查看 Phase 5 asset/work-product security gate policy，而不是临场发挥。
 
-## Anti-patterns to avoid
+## 避免的反模式
 
-The deterministic templating this skill replaces produced these failure modes — do not reproduce them:
+此 skill 替代的 deterministic templating 曾产生以下失败模式；不要重现：
 
-1. **Datestamp-as-section-header.** Lines like `## [2026-04-15] paperclip-distill | proposed` belong in `wiki/log.md`, not in the project page. The project page is durable knowledge; the log is the audit trail.
-2. **Procedural status lists.** `Issue mix: 3 todo, 5 in_progress, 2 done` tells the reader nothing they could not read off Paperclip directly. State *what is happening and why it matters*, then cite the issues that constitute the evidence.
-3. **One-line-per-issue dumps.** A page that is mostly `- PAP-1234: title (in_progress, updated 2026-...)` is an issue list, not a wiki page. Group issues by what they are *about* (a decision, a risk, a workstream) and cite multiple issues per bullet when they share a story.
-4. **Mechanical "Current as of" timestamps everywhere.** One `current_as_of` in frontmatter is enough.
-5. **No interpretation.** "Active issues: PAP-A, PAP-B, PAP-C" is bookkeeping. "The team is concentrating on the schema migration ([PAP-A], [PAP-B]) and has parked the index work pending capacity ([PAP-C])." is wiki-insightful.
-6. **Opaque identifiers in prose.** UUIDs, cursor ids, source hashes, run ids, and raw metadata belong in logs or frontmatter when needed, not in executive-facing project narrative.
+1. **把日期戳当 section header。** `## [2026-04-15] paperclip-distill | proposed` 这类行属于 `wiki/log.md`，不属于 project page。project page 是持久知识；log 是审计轨迹。
+2. **流程化状态列表。** `Issue mix: 3 todo, 5 in_progress, 2 done` 对读者没有 Paperclip 直接列表以外的信息。说明 *发生了什么以及为什么重要*，再引用构成证据的 issue。
+3. **一 issue 一行的 dump。** 页面如果主要是 `- PAP-1234: title (in_progress, updated 2026-...)`，它是 issue list，不是 wiki page。按它们 *关于什么* 来分组（decision、risk、workstream），当多个 issue 讲同一件事时每条 bullet 引用多个 issue。
+4. **机械的到处写 "Current as of"。** frontmatter 中一个 `current_as_of` 就够。
+5. **没有解释。** “Active issues: PAP-A, PAP-B, PAP-C” 是记账。“The team is concentrating on the schema migration ([PAP-A], [PAP-B]) and has parked the index work pending capacity ([PAP-C]).” 才是 wiki-insightful。
+6. **正文中出现不透明 identifier。** UUID、cursor id、source hash、run id 和 raw metadata 需要时放 log 或 frontmatter，不要放进面向 executive 的 project narrative。
 
-## Workflow
+## 工作流
 
-1. **Read the bundle in full.** Don't sample. Read every issue title, every comment, every document key the bundle includes. Note: which issues are decisions, which are risks/blockers, which are recently completed, which are inflight.
-2. **Read the existing project page** (if any) so you write a patch, not a rewrite. The "Decisions" section in particular accumulates over time — never wipe accepted decisions; supersede them with `> ⚠ reversed by ...` callouts when something later overrides them.
-3. **Read the target space's `AGENTS.md`** for page conventions: filename style, YAML frontmatter shape, link style, voice. Always pass the operation issue's `wikiId` and `spaceSlug` to LLM Wiki tools.
-4. **Write `wiki/projects/<slug>/standup.md` first.** Every Paperclip project represented in the wiki must have this file. It is the executive standup: where the project stands today, what changed recently, what is blocked or risky, and what happens next. Use stable sections, in this order:
-   - Frontmatter (`type: project-standup`, `project: <slug>`, `current_as_of: YYYY-MM-DD`, `sources`).
-   - **Executive Readout** — one short paragraph that explains the current project posture in plain language.
-   - **What Changed** — the meaningful work completed or advanced since the last window. Group by concept; cite issues/comments/documents only as evidence.
-   - **Decisions** — accepted/rejected/reversed decisions that changed the project direction. Omit when none exist.
-   - **Blockers / Risks** — current blockers and risks with named owner or next action when the source provides one.
-   - **Next Actions** — concrete next actions and owners inferred from Paperclip issues, not vague aspirations.
-   - **Links** — durable wiki project page and relevant Paperclip project/issues/documents.
-   Rewrite the standup to today's state. Do not append endless dated sections; the audit trail belongs in `wiki/log.md` and Paperclip comments.
-5. **Write `wiki/projects/<slug>/index.md`** with these stable sections, in this order:
-   - Frontmatter (`type: project`, `current_as_of: YYYY-MM-DD`, `tags`, `sources`).
-   - **Overview** — 2–4 sentences saying what the project is and why it exists. Use the project description if it exists; otherwise synthesise it from the root issue.
-   - **Current Direction** — narrative paragraph naming the active workstreams, the immediate next concrete deliverable, and the stance on risks. Cite 2–4 issues, do not list 20.
-   - **Workstreams** — a short, grouped list. Each line is a workstream or idea, not an issue.
-   - **Decisions** — accepted and reversed decisions with one paragraph each. Each decision cites the issue / approval / comment that ratified it. Format: `### Decision — short title` then a paragraph; never a bare bullet list.
-   - **Open Risks / Blockers** — what could derail the project, with the issue ref that surfaces it. Skip this section when the bundle has no risk signal — do not pad with `_(none)_`.
-   - **References** — readable links to the current standup and supporting Paperclip tasks/documents. Keep hashes and cursor ids out of the narrative.
-6. **Optionally write `wiki/projects/<slug>/decisions.md`** when the project has accumulated more decisions than the project page can carry without becoming a wall of text. Each decision is a `## ` section with: short title, accepted/reversed/superseded status, one-paragraph rationale, citing the source. *Do not* duplicate decisions already on the project page — link instead.
-7. **Optionally write `wiki/projects/<slug>/history.md`** for a compact narrative timeline of meaningful project changes. **Not** an issue dump — group by phase ("Discovery", "Architecture", "Build", "Stabilisation"), not by date. Each phase is a paragraph that cites the 2–4 issues that defined it.
-8. **Refresh `wiki/index.md`** under the `## Projects` section — one line per durable project page with a one-sentence summary of the project's purpose, plus a link to the current `wiki/projects/<slug>/standup.md` when present.
-9. **Append `wiki/log.md`** entry — this is where the datestamp belongs:
+1. **完整读取 bundle。** 不要抽样。读取 bundle 中的每个 issue title、每条 comment、每个 document key。记录：哪些 issue 是 decision，哪些是 risk/blocker，哪些最近完成，哪些正在进行。
+2. **读取现有 project page**（如有），以便写 patch 而不是重写。特别是 “Decisions” section 会随时间累积；永远不要擦掉已接受 decision。当后续内容覆盖它们时，用 `> ⚠ reversed by ...` callout 标记 supersede。
+3. **读取目标 space 的 `AGENTS.md`**，了解页面约定：filename style、YAML frontmatter shape、link style、voice。调用 LLM Wiki 工具时始终传入 operation issue 的 `wikiId` 和 `spaceSlug`。
+4. **先写 `wiki/projects/<slug>/standup.md`。** wiki 中出现的每个 Paperclip project 都必须有此文件。它是 executive standup：项目今天处于什么状态、最近有什么变化、什么被阻塞或有风险、下一步是什么。使用稳定 section，顺序如下：
+   - Frontmatter（`type: project-standup`、`project: <slug>`、`current_as_of: YYYY-MM-DD`、`sources`）。
+   - **Executive Readout** — 一个短段落，用 plain language 说明当前 project posture。
+   - **What Changed** — 上个 window 以来完成或推进的有意义工作。按概念分组；issue/comment/document 只作为证据引用。
+   - **Decisions** — 改变项目方向的 accepted/rejected/reversed decision。没有时省略。
+   - **Blockers / Risks** — 当前 blocker 和 risk；source 提供时写明 owner 或 next action。
+   - **Next Actions** — 从 Paperclip issue 推断出的具体 next action 和 owner，不写空泛愿望。
+   - **Links** — 持久 wiki project page 和相关 Paperclip project/issue/document。
+   将 standup 重写为今天的状态。不要追加无限 dated section；审计轨迹属于 `wiki/log.md` 和 Paperclip comment。
+5. **写 `wiki/projects/<slug>/index.md`**，使用以下稳定 section，顺序如下：
+   - Frontmatter（`type: project`、`current_as_of: YYYY-MM-DD`、`tags`、`sources`）。
+   - **Overview** — 2-4 句说明项目是什么、为什么存在。如有 project description 则使用；否则从 root issue 综合。
+   - **Current Direction** — 叙述性段落，点名 active workstream、最近的具体下一交付物，以及风险 stance。引用 2-4 个 issue，不要列 20 个。
+   - **Workstreams** — 简短分组列表。每行是 workstream 或 idea，不是 issue。
+   - **Decisions** — accepted 和 reversed decision，每个一段。每个 decision 引用 ratify 它的 issue / approval / comment。格式：`### Decision — short title` 后接段落；不要裸 bullet list。
+   - **Open Risks / Blockers** — 可能 derail 项目的事项，以及暴露它的 issue ref。bundle 没有风险信号时跳过此 section，不要填 `_(none)_`。
+   - **References** — 指向当前 standup 和支持性 Paperclip task/document 的可读链接。hash 和 cursor id 不要进 narrative。
+6. **必要时写 `wiki/projects/<slug>/decisions.md`**：当 project 累积的 decision 多到会让 project page 变成文本墙时使用。每个 decision 是一个 `## ` section，包含短标题、accepted/reversed/superseded 状态、一段 rationale，并引用 source。*不要* 复制 project page 上已有的 decision；改为链接。
+7. **必要时写 `wiki/projects/<slug>/history.md`**：用于有意义项目变化的紧凑叙事时间线。**不是** issue dump；按 phase 分组（“Discovery”、“Architecture”、“Build”、“Stabilisation”），不要按日期分组。每个 phase 是一段话，引用定义该阶段的 2-4 个 issue。
+8. **刷新 `wiki/index.md`** 的 `## Projects` section：每个持久 project page 一行，附一句说明 project purpose；存在当前 `wiki/projects/<slug>/standup.md` 时附链接。
+9. **追加 `wiki/log.md` entry**，日期戳属于这里：
    ```
    ## [YYYY-MM-DD] paperclip-distill | <project name>
    - standup: wiki/projects/<slug>/standup.md
@@ -90,36 +85,36 @@ The deterministic templating this skill replaces produced these failure modes �
    - cursor window: <start> → <end>
    - notes: <one line on what changed in this distill, e.g. "decisions section grew with PAP-X reversal", "low-signal window, no page changes">
    ```
-10. **Surface bundle warnings** (clipped sources, low signal, stale hash). Bundle warnings → `human_review_required: true` on the patch. Do not paper over them.
+10. **暴露 bundle warning**（clipped source、low signal、stale hash）。bundle warning -> patch 上设置 `human_review_required: true`。不要粉饰。
 
-## Voice
+## 语气
 
-- Past-tense for completed work, present-tense for current state, future-tense only with citation ("the team plans to … per [[…]]").
-- Cite Paperclip source refs inline using their issue identifier (e.g. `PAP-3179`), not opaque UUIDs.
-- Use issue links as evidence, not as the shape of the page. Headings and paragraphs should be organized by concepts, workstreams, decisions, and blockers.
-- Wiki voice: terse, factual, neutral. No "the team is excited to" or "this initiative aims to".
-- Headings are about *content*, not metadata. `## Schema migration` not `## Active Issues`.
+- 已完成工作用过去时，当前状态用现在时，未来时只在有引用时使用（“the team plans to … per [[…]]”）。
+- 内联引用 Paperclip source ref 时使用 issue identifier（例如 `PAP-3179`），不要使用不透明 UUID。
+- 使用 issue link 作为证据，而不是让它决定页面结构。heading 和段落应按 concept、workstream、decision、blocker 组织。
+- Wiki voice：简短、事实、中立。不要写 “the team is excited to” 或 “this initiative aims to”。
+- Heading 描述 *内容*，不是 metadata。写 `## Schema migration`，不要写 `## Active Issues`。
 
-## When the bundle has no signal
+## 当 bundle 没有信号时
 
-If the bundle has no durable signal — no decisions, no risk, no completed work, only routine status churn — do **not** write a project page. Instead:
+如果 bundle 没有持久信号：没有 decision、没有 risk、没有 completed work，只有 routine status churn，则 **不要** 写 project page。改为：
 
-- Append a `paperclip-distill | low-signal skip` log entry naming the cursor window.
-- Close the operation issue with a one-line "no durable change in this window" comment.
-- Do not bump the source hash on a binding that has no proposed page.
+- 追加 `paperclip-distill | low-signal skip` log entry，并写明 cursor window。
+- 用一行 “no durable change in this window” 评论关闭 operation issue。
+- 不要在没有 proposed page 的 binding 上 bump source hash。
 
-## Verification
+## 验证
 
-Before closing the operation issue:
+关闭 operation issue 前：
 
-- [ ] The project page reads as wiki content, not as a Paperclip status report. A reader new to the company should understand what the project is.
-- [ ] `wiki/projects/<slug>/standup.md` exists for the represented project and reads as an executive current-state update, not a raw issue dump.
-- [ ] Decisions section names decisions, not issues — every decision has a one-paragraph rationale and a citation.
-- [ ] The page contains exactly one `current_as_of` (in frontmatter), zero `## [YYYY-MM-DD]` headings (those go to the log).
-- [ ] Bundle warnings (clipped, low signal, stale hash) are surfaced; the patch carries `human_review_required: true` when the deployment is authenticated/public.
-- [ ] `wiki/index.md` and `wiki/log.md` are updated.
-- [ ] No file under `raw/` was modified.
+- [ ] Project page 读起来像 wiki content，而不是 Paperclip status report。新读者应能理解项目是什么。
+- [ ] 所代表 project 存在 `wiki/projects/<slug>/standup.md`，且读起来是 executive current-state update，而不是 raw issue dump。
+- [ ] Decisions section 命名 decision，而不是 issue；每个 decision 都有一段 rationale 和引用。
+- [ ] 页面正好包含一个 `current_as_of`（在 frontmatter 中），没有任何 `## [YYYY-MM-DD]` heading（这些属于 log）。
+- [ ] Bundle warning（clipped、low signal、stale hash）已暴露；当 deployment 是 authenticated/public 时，patch 携带 `human_review_required: true`。
+- [ ] `wiki/index.md` 和 `wiki/log.md` 已更新。
+- [ ] 没有修改 `raw/` 下任何文件。
 
-## Tools
+## 工具
 
-`wiki_search`, `wiki_read_page`, `wiki_write_page`, `wiki_list_sources`, `wiki_read_source`. Always include the operation issue's `wikiId` and `spaceSlug`. The Paperclip source bundle arrives as part of the operation context — you do not need to assemble it.
+`wiki_search`、`wiki_read_page`、`wiki_write_page`、`wiki_list_sources`、`wiki_read_source`。始终包含 operation issue 的 `wikiId` 和 `spaceSlug`。Paperclip source bundle 会作为 operation context 到达；不需要你组装。

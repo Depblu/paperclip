@@ -1,6 +1,6 @@
-# Paperclip Create Agent API Reference
+# Paperclip Create Agent API 参考
 
-## Core Endpoints
+## 核心端点
 
 - `GET /llms/agent-configuration.txt`
 - `GET /llms/agent-configuration/:adapterType.txt`
@@ -17,10 +17,10 @@
 - `POST /api/issues/:issueId/approvals`
 - `GET /api/approvals/:approvalId/issues`
 
-Approval collaboration:
+审批协作：
 
 - `GET /api/approvals/:approvalId`
-- `POST /api/approvals/:approvalId/request-revision` (board)
+- `POST /api/approvals/:approvalId/request-revision`（board）
 - `POST /api/approvals/:approvalId/resubmit`
 - `GET /api/approvals/:approvalId/comments`
 - `POST /api/approvals/:approvalId/comments`
@@ -28,7 +28,7 @@ Approval collaboration:
 
 ## `POST /api/companies/:companyId/agent-hires`
 
-Request body matches agent create shape:
+请求体与 agent create shape 一致：
 
 ```json
 {
@@ -62,7 +62,7 @@ Request body matches agent create shape:
 }
 ```
 
-Response:
+响应：
 
 ```json
 {
@@ -81,14 +81,14 @@ Response:
 }
 ```
 
-If company setting disables required approval, `approval` is `null` and the agent is created as `idle`.
+如果公司设置关闭了强制审批，`approval` 为 `null`，智能体会直接以 `idle` 状态创建。
 
-`desiredSkills` accepts company skill ids, canonical keys, or a unique slug. The server resolves and stores canonical company skill keys.
-Leave timer heartbeats disabled by default. Only set `runtimeConfig.heartbeat.enabled=true` and include an `intervalSec` when the role truly needs scheduled recurring work or the user explicitly requested it.
+`desiredSkills` 接受公司 skill id、canonical key 或唯一 slug。服务器会解析并存储 canonical company skill key。
+默认关闭 timer heartbeat。只有角色确实需要按计划重复工作，或用户明确要求时，才设置 `runtimeConfig.heartbeat.enabled=true` 并包含 `intervalSec`。
 
-## Approval Lifecycle
+## 审批生命周期
 
-Statuses:
+状态：
 
 - `pending`
 - `revision_requested`
@@ -96,15 +96,15 @@ Statuses:
 - `rejected`
 - `cancelled`
 
-For hire approvals:
+对 hire approvals：
 
-- approved: linked agent transitions `pending_approval -> idle`
-- rejected: linked agent is terminated
+- approved：关联智能体从 `pending_approval` 转为 `idle`
+- rejected：关联智能体被终止
 
-## Safety Notes
+## 安全说明
 
-- Config read APIs redact obvious secrets.
-- `pending_approval` agents cannot run heartbeats, receive assignments, or create keys.
-- All actions are logged in activity for auditability.
-- Use markdown in issue/approval comments and include links to approval, agent, and source issue.
-- After approval resolution, requester may be woken with `PAPERCLIP_APPROVAL_ID` and should reconcile linked issues.
+- config 读取 API 会遮蔽明显 secret。
+- `pending_approval` 智能体不能运行 heartbeat、接收分配或创建 key。
+- 所有动作都会写入 activity，便于审计。
+- issue / approval 评论使用 markdown，并包含 approval、agent、source issue 链接。
+- 审批决议后，请求人可能被带着 `PAPERCLIP_APPROVAL_ID` 唤醒，并应同步处理关联 issues。

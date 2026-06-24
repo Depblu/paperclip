@@ -1,95 +1,95 @@
-# Draft-Review Checklist
+# 草稿审查清单
 
-Walk this checklist before submitting any `agent-hires` request. Fix each item that does not pass — do not submit a draft with open failures.
+提交任何 `agent-hires` 请求前，先走完这份清单。未通过的项必须先修正；不要提交带已知失败项的草稿。
 
-Use it for every path: exact template, adjacent template, or generic fallback.
+适用于所有路径：精确模板、相邻模板，或通用兜底。
 
 ---
 
-## A. Identity and framing
+## A. 身份与定位
 
-- [ ] `name`, `role`, and `title` are set and consistent with each other
-- [ ] `AGENTS.md` names the agent, the role, and the company in the first sentence
-- [ ] The first paragraph points at the Paperclip skill as the source of truth for the heartbeat procedure
-- [ ] The reporting line (`reportsTo`) resolves to a real in-company agent id
-- [ ] The `AGENTS.md` states the same reporting line in prose
+- [ ] `name`、`role`、`title` 已设置，且彼此一致
+- [ ] `AGENTS.md` 首句写明智能体、角色和公司
+- [ ] 第一段指向 Paperclip skill，作为 heartbeat 流程的事实来源
+- [ ] 汇报关系（`reportsTo`）能解析到真实的公司内智能体 id
+- [ ] `AGENTS.md` 正文也说明同一条汇报关系
 
-## B. Role clarity
+## B. 角色清晰度
 
-- [ ] `capabilities` is one concrete sentence about what the agent does — not a vague "assists with X"
-- [ ] The role charter in `AGENTS.md` names what the agent owns end-to-end
-- [ ] The charter names what the agent should decline, hand off, or escalate
-- [ ] A stranger reading `capabilities` plus the role charter can tell in 30 seconds what this agent is for
+- [ ] `capabilities` 是一句具体说明，描述智能体做什么，而不是含糊的“协助 X”
+- [ ] `AGENTS.md` 里的角色章程说明该智能体端到端负责什么
+- [ ] 章程说明该智能体应拒绝、移交或升级哪些工作
+- [ ] 陌生人读完 `capabilities` 和角色章程后，30 秒内能判断这个智能体的用途
 
-## C. Operating workflow
+## C. 运行流程
 
-- [ ] `AGENTS.md` states the comment-on-every-touch rule
-- [ ] `AGENTS.md` states the "leave a clear next action" rule
-- [ ] `AGENTS.md` covers how to mark work `blocked` with owner + action
-- [ ] `AGENTS.md` covers handoff to reviewer or manager on completion
-- [ ] For execution-heavy roles (coders, operators, designers, security, QA), `AGENTS.md` includes the Paperclip execution contract verbatim:
+- [ ] `AGENTS.md` 写明每次触碰任务都要评论
+- [ ] `AGENTS.md` 写明必须留下清晰下一步
+- [ ] `AGENTS.md` 说明如何用 owner + action 标记 `blocked`
+- [ ] `AGENTS.md` 说明完成时如何移交给 reviewer 或 manager
+- [ ] 对执行密集型角色（coder、operator、designer、security、QA），`AGENTS.md` 原样包含 Paperclip 执行契约：
   > Start actionable work in the same heartbeat; do not stop at a plan unless planning was requested. Leave durable progress with a clear next action. Use child issues for long or parallel delegated work instead of polling. Mark blocked work with owner and action. Respect budget, pause/cancel, approval gates, and company boundaries.
 
-## D. Domain lenses and judgment
+## D. 领域 lens 与判断
 
-- [ ] Expert roles list 5–15 named lenses with one-line explanations
-- [ ] Lenses are role-specific, not generic productivity advice
-- [ ] Simple operational roles do not carry copy-pasted lenses from expert templates
+- [ ] 专家角色列出 5-15 个具名 lens，并给出一行解释
+- [ ] lens 是角色专属判断工具，不是通用效率建议
+- [ ] 简单运营角色没有复制专家模板里的 lens 噪音
 
-## E. Output / review bar
+## E. 输出 / 审查标准
 
-- [ ] `AGENTS.md` describes what a good deliverable looks like for this role
-- [ ] Negative examples are included where useful ("a flow that works but looks unstyled is not done")
-- [ ] Evidence expectations are concrete (tests, screenshots, repro steps, spec sections)
+- [ ] `AGENTS.md` 描述该角色的优秀交付物长什么样
+- [ ] 有用时包含反例（例如“流程能跑但像未样式化页面，不算完成”）
+- [ ] 证据要求具体（测试、截图、复现步骤、spec 章节）
 
-## F. Collaboration routing
+## F. 协作路由
 
-- [ ] Cross-role handoffs are named only when the role actually touches that domain
-- [ ] UX-facing role or change → routes to `[UXDesigner](/PAP/agents/uxdesigner)`
-- [ ] Security-sensitive role, permissions, secrets, auth, adapters, tool access → routes to `[SecurityEngineer](/PAP/agents/securityengineer)`
-- [ ] Browser validation or user-facing verification → routes to `[QA](/PAP/agents/qa)`
-- [ ] Skill architecture / instruction quality changes → routes to the Skill Consultant when present
-- [ ] Engineering/runtime changes → routes to CTO and a coder
+- [ ] 只在角色确实触及该领域时列跨角色移交
+- [ ] UX 相关角色或改动 -> 路由到 `[UXDesigner](/PAP/agents/uxdesigner)`
+- [ ] 安全敏感角色、权限、secret、auth、adapter、工具访问 -> 路由到 `[SecurityEngineer](/PAP/agents/securityengineer)`
+- [ ] 浏览器验证或用户可见验证 -> 路由到 `[QA](/PAP/agents/qa)`
+- [ ] skill 架构 / 指令质量变更 -> 存在 Skill Consultant 时路由给它
+- [ ] 工程 / runtime 变更 -> 路由给 CTO 和 coder
 
-## G. Governance fields
+## G. 治理字段
 
-- [ ] `icon` is set to one of `/llms/agent-icons.txt` and fits the role
-- [ ] `sourceIssueId` (or `sourceIssueIds`) is set when the hire was triggered by an issue
-- [ ] `desiredSkills` lists only skills that already exist in the company library, or will be installed first via the company-skills workflow
-- [ ] Adapter config matches this Paperclip instance (cwd, model, credentials) per `/llms/agent-configuration/<adapter>.txt`
-- [ ] Local managed-bundle adapters send custom instructions through top-level `instructionsBundle.files["AGENTS.md"]` and do not set `adapterConfig.promptTemplate` or `bootstrapPromptTemplate`
-- [ ] Placeholders like `{{companyName}}`, `{{managerTitle}}`, `{{issuePrefix}}`, and any URL stubs are replaced with real values
+- [ ] `icon` 来自 `/llms/agent-icons.txt`，且适合该角色
+- [ ] 招聘由 issue 触发时设置了 `sourceIssueId`（或 `sourceIssueIds`）
+- [ ] `desiredSkills` 只列公司 skill library 中已有的 skill，或先通过 company-skills 流程安装
+- [ ] adapter config 与当前 Paperclip 实例匹配（cwd、model、凭证），参照 `/llms/agent-configuration/<adapter>.txt`
+- [ ] 本地 managed-bundle adapter 通过顶层 `instructionsBundle.files["AGENTS.md"]` 传自定义指令，不设置 `adapterConfig.promptTemplate` 或 `bootstrapPromptTemplate`
+- [ ] `{{companyName}}`、`{{managerTitle}}`、`{{issuePrefix}}` 等占位符和 URL stub 已替换为真实值
 
-## H. Safety and permissions (least privilege)
+## H. 安全与权限（最小权限）
 
-- [ ] The hire grants only the access the role needs — no "just in case" permissions
-- [ ] No secrets are embedded in plain text in `adapterConfig`, `instructionsBundle`, or any legacy prompt field; prefer environment-injected credentials or scoped skills
-- [ ] Any `desiredSkills` or adapter settings that expand external-system access, browser/network reach, filesystem scope, or secret-handling capability are individually justified in the hire comment
-- [ ] `runtimeConfig.heartbeat.enabled` is `false` unless the role genuinely needs scheduled recurring work AND `intervalSec` is justified in the hire comment
-- [ ] `AGENTS.md` explicitly names anything the role must never do (external posts, shared infra changes, destructive ops without approval)
-- [ ] If the role may handle private disclosures or security advisories, the hire names a confidential workflow (dedicated skill or documented manual process) instead of relying on normal issue threads
-- [ ] No tool, skill, or capability is listed that this environment cannot actually provide
+- [ ] 招聘只授予角色需要的访问权，没有“以防万一”的权限
+- [ ] `adapterConfig`、`instructionsBundle` 或任何旧 prompt 字段中没有明文 secret；优先用环境注入凭证或有作用域的 skill
+- [ ] 任何扩大外部系统访问、浏览器/网络范围、文件系统范围或 secret 处理能力的 `desiredSkills` 或 adapter 设置，都已在招聘评论中单独说明理由
+- [ ] `runtimeConfig.heartbeat.enabled` 默认为 `false`，除非角色确实需要定期调度工作，且招聘评论解释了 `intervalSec`
+- [ ] `AGENTS.md` 明确列出角色绝不能做的事（外部发布、共享基础设施变更、未经批准的破坏性操作）
+- [ ] 若角色可能处理私密披露或安全公告，招聘中说明保密流程（专用 skill 或已记录的手工流程），而不是依赖普通 issue thread
+- [ ] 没有列出当前环境实际无法提供的工具、skill 或能力
 
-## I. Done criteria
+## I. 完成标准
 
-- [ ] `AGENTS.md` states how the agent verifies its work before marking an issue done
-- [ ] `AGENTS.md` states who the task goes to on completion (reviewer, manager, or `done`)
-- [ ] `AGENTS.md` ends with the "always update your task with a comment" rule
+- [ ] `AGENTS.md` 说明智能体在标记 issue 完成前如何验证工作
+- [ ] `AGENTS.md` 说明完成后任务交给谁（reviewer、manager 或 `done`）
+- [ ] `AGENTS.md` 以“退出 heartbeat 前必须评论更新任务”规则结尾
 
-## J. Choice of instruction source was explicit
+## J. 指令来源选择明确
 
-- [ ] The hire comment states which path was used: exact template, adjacent template, or generic fallback
-- [ ] If an adjacent template was used, the comment names what was adapted (charter rewritten, lenses swapped, sections removed)
-- [ ] If the generic fallback was used, every section of the baseline role guide is present in the draft
+- [ ] 招聘评论说明采用了哪条路径：精确模板、相邻模板，或通用兜底
+- [ ] 若使用相邻模板，评论说明改了什么（重写章程、替换 lens、删除章节）
+- [ ] 若使用通用兜底，草稿包含 baseline role guide 的每个章节
 
 ---
 
-## Failure modes to watch for
+## 需要防范的失败模式
 
-- **Boilerplate pass-through.** If `AGENTS.md` reads like it could apply to any role, the charter and lenses are too generic — rewrite them.
-- **Quiet permission sprawl.** A big `desiredSkills` list or an open-ended adapter config usually means "just in case" access. Trim to what the charter needs.
-- **Capability expansion without review.** Browser, external-system, wide-filesystem, or secret-handling access hidden inside adapter config or `desiredSkills` must be called out explicitly in the hire comment.
-- **Timer-heartbeat-by-default.** If you enabled a timer heartbeat, the hire comment must state why schedule-based wake is required.
-- **No confidential path for sensitive work.** Roles that may receive private advisories or incident details need a private workflow, not normal issue comments.
-- **Missing governance fields.** A hire without `sourceIssueId`, `icon`, or a resolvable reporting line is hard to audit later.
-- **Unreplaced placeholders.** `{{companyName}}`, `{{managerTitle}}`, and URL stubs in a submitted draft are the most common rejected-hire defect — grep the draft for `{{` before submitting.
+- **样板透传。** 如果 `AGENTS.md` 看起来适用于任何角色，说明章程和 lens 太泛，需要重写。
+- **静默权限膨胀。** 很长的 `desiredSkills` 或开放式 adapter config 通常意味着“以防万一”访问。删到章程真正需要的范围。
+- **能力扩张未审查。** 浏览器、外部系统、宽文件系统或 secret 处理访问隐藏在 adapter config 或 `desiredSkills` 里时，必须在招聘评论中点名说明。
+- **默认启用 timer heartbeat。** 如果启用了 timer heartbeat，招聘评论必须说明为什么需要按计划唤醒。
+- **敏感工作缺少保密路径。** 可能收到私密公告或事故详情的角色，需要私密流程，而不是普通 issue 评论。
+- **治理字段缺失。** 没有 `sourceIssueId`、`icon` 或可解析汇报关系的招聘，后续难以审计。
+- **占位符未替换。** 提交草稿中仍有 `{{companyName}}`、`{{managerTitle}}` 和 URL stub，是最常见的被拒缺陷。提交前 grep `{{`。

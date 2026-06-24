@@ -10,6 +10,31 @@ import {
   supportedLocales,
 } from "./locales";
 
+const DEFAULT_LOCALE_MIGRATION_KEY = "paperclip.locale.default.zh-CN.v1";
+
+function migrateStoredDefaultLocale() {
+  if (typeof window === "undefined") return;
+  try {
+    const migrated = window.localStorage.getItem(DEFAULT_LOCALE_MIGRATION_KEY);
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (!migrated && (!stored || stored === "en")) {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE);
+      window.localStorage.setItem(DEFAULT_LOCALE_MIGRATION_KEY, "true");
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = DEFAULT_LOCALE;
+      }
+      return;
+    }
+    if (!migrated) {
+      window.localStorage.setItem(DEFAULT_LOCALE_MIGRATION_KEY, "true");
+    }
+  } catch {
+    // localStorage may be unavailable in restricted contexts.
+  }
+}
+
+migrateStoredDefaultLocale();
+
 const i18nextOptions: InitOptions = {
   resources: i18nextResources,
   fallbackLng: DEFAULT_LOCALE,

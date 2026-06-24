@@ -64,11 +64,12 @@ import {
 type Step = 1 | 2 | 3 | 4;
 type AdapterType = string;
 
-const DEFAULT_TASK_DESCRIPTION = `You are the CEO. You set the direction for the company.
+const DEFAULT_TASK_TITLE = "招聘第一位工程师并制定招聘计划";
+const DEFAULT_TASK_DESCRIPTION = `你是 CEO。你负责为公司确定方向。
 
-- hire a founding engineer
-- write a hiring plan
-- break the roadmap into concrete tasks and start delegating work`;
+- 招募创始工程师
+- 编写招聘计划
+- 将路线图拆成具体任务，并开始委派工作`;
 
 export function OnboardingWizard() {
 const { t } = useTranslation();
@@ -128,9 +129,7 @@ const { t } = useTranslation();
   const [showMoreAdapters, setShowMoreAdapters] = useState(false);
 
   // Step 3
-  const [taskTitle, setTaskTitle] = useState(
-    "Hire your first engineer and create a hiring plan"
-  );
+  const [taskTitle, setTaskTitle] = useState(DEFAULT_TASK_TITLE);
   const [taskDescription, setTaskDescription] = useState(
     DEFAULT_TASK_DESCRIPTION
   );
@@ -304,7 +303,7 @@ const { t } = useTranslation();
     setAdapterEnvLoading(false);
     setForceUnsetAnthropicApiKey(false);
     setUnsetAnthropicLoading(false);
-    setTaskTitle("Hire your first engineer and create a hiring plan");
+    setTaskTitle(DEFAULT_TASK_TITLE);
     setTaskDescription(DEFAULT_TASK_DESCRIPTION);
     setCreatedCompanyId(null);
     setCreatedCompanyPrefix(null);
@@ -362,7 +361,7 @@ const { t } = useTranslation();
   ): Promise<AdapterEnvironmentTestResult | null> {
     if (!createdCompanyId) {
       setAdapterEnvError(
-        "Create or select a company before testing adapter environment."
+        t("components.onboardingwizard.create_or_select_company_before_testing.error", { defaultValue: "Create or select a company before testing adapter environment." })
       );
       return null;
     }
@@ -380,7 +379,7 @@ const { t } = useTranslation();
       return result;
     } catch (err) {
       setAdapterEnvError(
-        err instanceof Error ? err.message : "Adapter environment test failed"
+        err instanceof Error ? err.message : t("components.onboardingwizard.adapter_environment_test_failed.error", { defaultValue: "Adapter environment test failed" })
       );
       return null;
     } finally {
@@ -453,7 +452,7 @@ const { t } = useTranslation();
       if (hire.approval) {
         await approvalsApi.approve(
           hire.approval.id,
-          "Approved during onboarding first-agent setup."
+          "已在启动向导的首个智能体设置中批准。"
         );
         queryClient.invalidateQueries({
           queryKey: queryKeys.approvals.list(createdCompanyId)
@@ -507,14 +506,14 @@ const { t } = useTranslation();
       const result = await runAdapterEnvironmentTest(configWithUnset);
       if (result?.status === "fail") {
         setError(
-          "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing."
+          t("components.onboardingwizard.unset_anthropic_retry_still_failing.error", { defaultValue: "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing." })
         );
       }
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to unset ANTHROPIC_API_KEY and retry."
+          : t("components.onboardingwizard.failed_to_unset_anthropic_and_retry.error", { defaultValue: "Failed to unset ANTHROPIC_API_KEY and retry." })
       );
     } finally {
       setUnsetAnthropicLoading(false);
@@ -825,7 +824,7 @@ const { t } = useTranslation();
                             <span className="font-medium">{opt.label}</span>
                             <span className="text-muted-foreground text-[10px]">
                               {opt.comingSoon
-                                ? opt.disabledLabel ?? "Coming soon"
+                                ? opt.disabledLabel ?? t("components.onboardingwizard.coming_soon.jsx-text", { defaultValue: "Coming soon" })
                                 : opt.description}
                             </span>
                           </button>
@@ -858,8 +857,8 @@ const { t } = useTranslation();
                                   ? selectedModel.label
                                   : model ||
                                     (adapterType === "opencode_local"
-                                      ? "Select model (required)"
-                                      : "Default")}
+                                      ? t("components.onboardingwizard.select_model_required.jsx-text", { defaultValue: "Select model (required)" })
+                                      : t("components.onboardingwizard.default_model.jsx-text", { defaultValue: "Default" }))}
                               </span>
                               <ChevronDown className="h-3 w-3 text-muted-foreground" />
                             </button>
@@ -950,7 +949,9 @@ const { t } = useTranslation();
                           disabled={adapterEnvLoading}
                           onClick={() => void runAdapterEnvironmentTest()}
                         >
-                          {adapterEnvLoading ? "Testing..." : "Test now"}
+                          {adapterEnvLoading
+                            ? t("components.onboardingwizard.testing.action", { defaultValue: "Testing..." })
+                            : t("components.onboardingwizard.test_now.action", { defaultValue: "Test now" })}
                         </Button>
                       </div>
 
@@ -986,8 +987,8 @@ const { t } = useTranslation();
                             onClick={() => void handleUnsetAnthropicApiKey()}
                           >
                             {unsetAnthropicLoading
-                              ? "Retrying..."
-                              : "Unset ANTHROPIC_API_KEY"}
+                              ? t("components.onboardingwizard.retrying.action", { defaultValue: "Retrying..." })
+                              : t("components.onboardingwizard.unset_anthropic_api_key.action", { defaultValue: "Unset ANTHROPIC_API_KEY" })}
                           </Button>
                         </div>
                       )}
@@ -1051,8 +1052,8 @@ const { t } = useTranslation();
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">
                         {adapterType === "openclaw_gateway"
-                          ? "Gateway URL"
-                          : "Webhook URL"}
+                          ? t("components.onboardingwizard.gateway_url.label", { defaultValue: "Gateway URL" })
+                          : t("components.onboardingwizard.webhook_url.label", { defaultValue: "Webhook URL" })}
                       </label>
                       <input
                         className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
@@ -1136,7 +1137,7 @@ const { t } = useTranslation();
                           {agentName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {getUIAdapter(adapterType).label}
+                          {getAdapterDisplay(adapterType, t).description}
                         </p>
                       </div>
                       <Check className="h-4 w-4 text-green-500 shrink-0" />
@@ -1188,7 +1189,9 @@ const { t } = useTranslation();
                       ) : (
                         <ArrowRight className="h-3.5 w-3.5 mr-1" />
                       )}
-                      {loading ? "Creating..." : "Next"}
+                      {loading
+                        ? t("components.onboardingwizard.creating.action", { defaultValue: "Creating..." })
+                        : t("components.onboardingwizard.next.action", { defaultValue: "Next" })}
                     </Button>
                   )}
                   {step === 2 && (
@@ -1204,7 +1207,9 @@ const { t } = useTranslation();
                       ) : (
                         <ArrowRight className="h-3.5 w-3.5 mr-1" />
                       )}
-                      {loading ? "Creating..." : "Next"}
+                      {loading
+                        ? t("components.onboardingwizard.creating.action", { defaultValue: "Creating..." })
+                        : t("components.onboardingwizard.next.action", { defaultValue: "Next" })}
                     </Button>
                   )}
                   {step === 3 && (
@@ -1218,7 +1223,9 @@ const { t } = useTranslation();
                       ) : (
                         <ArrowRight className="h-3.5 w-3.5 mr-1" />
                       )}
-                      {loading ? "Creating..." : "Next"}
+                      {loading
+                        ? t("components.onboardingwizard.creating.action", { defaultValue: "Creating..." })
+                        : t("components.onboardingwizard.next.action", { defaultValue: "Next" })}
                     </Button>
                   )}
                   {step === 4 && (
@@ -1228,7 +1235,9 @@ const { t } = useTranslation();
                       ) : (
                         <ArrowRight className="h-3.5 w-3.5 mr-1" />
                       )}
-                      {loading ? "Creating..." : "Create & Open Task"}
+                      {loading
+                        ? t("components.onboardingwizard.creating.action", { defaultValue: "Creating..." })
+                        : t("components.onboardingwizard.create_and_open_task.action", { defaultValue: "Create & Open Task" })}
                     </Button>
                   )}
                 </div>
@@ -1260,10 +1269,10 @@ const { t } = useTranslation();
 
   const statusLabel =
     result.status === "pass"
-      ? "Passed"
+      ? t("components.onboardingwizard.passed.jsx-text", { defaultValue: "Passed" })
       : result.status === "warn"
-      ? "Warnings"
-      : "Failed";
+      ? t("components.onboardingwizard.warnings.status", { defaultValue: "Warnings" })
+      : t("components.onboardingwizard.failed.status", { defaultValue: "Failed" });
   const statusClass =
     result.status === "pass"
       ? "text-green-700 dark:text-green-300 border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-green-500/10"
@@ -1286,7 +1295,11 @@ const { t } = useTranslation();
             className="leading-relaxed break-words"
           >
             <span className="font-medium uppercase tracking-wide opacity-80">
-              {check.level}
+              {check.level === "info"
+                ? t("components.onboardingwizard.info.level", { defaultValue: "Info" })
+                : check.level === "warn"
+                  ? t("components.onboardingwizard.warn.level", { defaultValue: "Warn" })
+                  : t("components.onboardingwizard.error.level", { defaultValue: "Error" })}
             </span>
             <span className="mx-1 opacity-60">·</span>
             <span>{check.message}</span>

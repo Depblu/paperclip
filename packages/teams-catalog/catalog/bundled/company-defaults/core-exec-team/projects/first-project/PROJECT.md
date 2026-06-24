@@ -1,8 +1,8 @@
 ---
-name: First Project
+name: 第一个项目
 slug: first-project
-description: Starter project that turns the company goal into the first useful piece of implementation work.
+description: 将公司目标转换成第一个有用实现工作的起始项目。
 owner: cto
 ---
 
-Use this project to convert the company goal into a concrete first deliverable. The CEO seeds priorities, the CTO breaks them into engineering tasks, and QA verifies the result before close-out.
+使用此项目将公司目标转换成具体的第一个交付物。CEO 播种优先级，CTO 将其拆成工程任务，QA 在关闭前验证结果。

@@ -4,6 +4,26 @@
       "title": "创建您的第一家公司",
       "description": "通过创建公司开始。",
       "newCompany": "新公司"
+    },
+    "onboardingRoute": {
+      "addAnotherAgent": {
+        "title": "向 {{companyName}} 添加另一个智能体",
+        "description": "再次运行启动向导，为这家公司添加一个智能体和起始任务。"
+      },
+      "createAnotherCompany": {
+        "title": "创建另一家公司",
+        "description": "再次运行启动向导，创建另一家公司并初始化第一位智能体。"
+      },
+      "createYourFirstCompany": {
+        "title": "创建您的第一家公司",
+        "description": "创建公司和第一位智能体，开始使用。"
+      },
+      "addAgent": {
+        "action": "添加智能体"
+      },
+      "startOnboarding": {
+        "action": "启动向导"
+      }
     }
   },
   "common": {
@@ -96,7 +116,7 @@
   },
   "nav": {
     "dashboard": "看板",
-    "agents": "代理",
+    "agents": "智能体",
     "projects": "项目",
     "issues": "任务",
     "inbox": "收件箱",
@@ -109,7 +129,7 @@
     "settings": "设置",
     "search": "搜索",
     "newIssue": "新建任务",
-    "newAgent": "新建代理",
+    "newAgent": "新建智能体",
     "newProject": "新建项目",
     "newGoal": "新建目标",
     "openCommandPalette": "打开命令面板"
@@ -143,7 +163,7 @@
     "noAccount": "还没有账户？",
     "hasAccount": "已有账户？",
     "onboardingTitle": "设置您的工作区",
-    "onboardingDescription": "通过创建您的第一家公司并邀请代理开始使用。"
+    "onboardingDescription": "通过创建您的第一家公司并邀请智能体开始使用。"
   },
   "commonRelative": {
     "justNow": "刚刚",
@@ -252,6 +272,9 @@
       }
     },
     "activeagentspanel": {
+      "agents": {
+        "jsx-text": "智能体"
+      },
       "more_active_recent_run": {
         "jsx-text": " more active/recent run"
       },
@@ -3644,7 +3667,7 @@
         "label": "创建"
       },
       "agents": {
-        "label": "Agents"
+        "label": "智能体"
       },
       "inbox": {
         "label": "收件箱"
@@ -3652,67 +3675,67 @@
     },
     "newagentdialog": {
       "add_a_new_agent": {
-        "jsx-text": "Add a new agent"
+        "jsx-text": "添加新智能体"
       },
       "add_onboarding_context_expected_": {
-        "attr_placeholder": "Add onboarding context, expected role, or first instructions."
+        "attr_placeholder": "添加入职上下文、预期角色或第一条指令。"
       },
       "agent_invites_create_a_join_requ": {
-        "jsx-text": "\n                Agent invites创建 a join request first. A company admin still approves the request before the agent can claim its API key.\n              "
+        "jsx-text": "\n                智能体邀请会先创建加入请求。公司管理员仍需审批该请求，智能体才能领取 Paperclip API key。\n              "
       },
       "agent_onboarding_prompt": {
-        "jsx-text": "Agent onboarding prompt"
+        "jsx-text": "智能体入职提示词"
       },
       "ask_a_leader_to_propose_the_hire": {
-        "jsx-text": "\n                  Ask a leader to propose the hire, configure a runtime yourself, or send an onboarding prompt to an external agent.\n                "
+        "jsx-text": "\n                  让负责人提出招聘请求，手动配置运行时，或向外部智能体发送入职提示词。\n                "
       },
       "ask_the_ceo_to_create_a_new_agen": {
-        "jsx-text": "\n                Ask the CEO to创建 a new agent\n              "
+        "jsx-text": "\n                让 CEO 创建新智能体\n              "
       },
       "back": {
-        "jsx-text": "\n                  Back\n                "
+        "jsx-text": "\n                  返回\n                "
       },
       "choose_the_runtime_paperclip_sho": {
-        "jsx-text": "\n                  Choose the runtime Paperclip should start or resume directly.\n                "
+        "jsx-text": "\n                  选择 Paperclip 应直接启动或恢复的运行时。\n                "
       },
       "configure_a_runtime_manually": {
-        "jsx-text": "\n                  Configure a runtime manually\n                "
+        "jsx-text": "\n                  手动配置运行时\n                "
       },
       "copied": {
-        "jsx-text": "\n                        Copied\n                      "
+        "jsx-text": "\n                        已复制\n                      "
       },
       "generate_a_one_time_onboarding_p": {
-        "jsx-text": "\n                    Generate a one-time onboarding prompt that any compatible agent can use to request access, wait for approval, and claim its Paperclip API key.\n                  "
+        "jsx-text": "\n                    生成一次性入职提示词，任何兼容智能体都可用它申请访问、等待审批并领取 Paperclip API key。\n                  "
       },
       "invite_an_external_agent": {
-        "jsx-text": "\n                    Invite an external agent\n                  "
+        "jsx-text": "\n                    邀请外部智能体\n                  "
       },
       "openclaw_hermes_or_any_agent_tha": {
-        "jsx-text": "\n                    (OpenClaw, Hermes, or any agent that can call the invite API.)\n                  "
+        "jsx-text": "\n                    （OpenClaw、Hermes，或任何能调用邀请 API 的智能体。）\n                  "
       },
       "optional_message_for_the_agent": {
-        "jsx-text": "Optional message for the agent"
+        "jsx-text": "给智能体的可选消息"
       },
       "recommended": {
-        "jsx-text": "\n                        Recommended\n                      "
+        "jsx-text": "\n                        推荐\n                      "
       },
       "send_this_prompt_to_the_external": {
-        "jsx-text": "\n                    Send this prompt to the external agent that should join this company.\n                  "
+        "jsx-text": "\n                    将此提示词发送给需要加入这家公司的外部智能体。\n                  "
       },
       "times": {
         "jsx-text": "×"
       },
       "agent_invite_created": {
-        "title": "Agent 邀请已创建"
+        "title": "智能体邀请已创建"
       },
       "agent_onboarding_prompt_copied": {
-        "body": "Agent onboarding prompt 已在下方准备好，并已复制到剪贴板。"
+        "body": "智能体入职提示词已在下方准备好，并已复制到剪贴板。"
       },
       "agent_onboarding_prompt_ready": {
-        "body": "Agent onboarding prompt 已在下方准备好。"
+        "body": "智能体入职提示词已在下方准备好。"
       },
       "failed_to_create_agent_invite": {
-        "title": "创建 agent 邀请失败"
+        "title": "创建智能体邀请失败"
       },
       "clipboard_unavailable": {
         "title": "剪贴板不可用"
@@ -3724,10 +3747,16 @@
         "action": "复制提示词"
       },
       "copy_prompt_manually_above": {
-        "body": "请从上方字段手动复制 agent 入职提示词。"
+        "body": "请从上方字段手动复制智能体入职提示词。"
       },
       "copy_prompt_manually_below": {
-        "body": "请从下方字段手动复制 agent 入职提示词。"
+        "body": "请从下方字段手动复制智能体入职提示词。"
+      },
+      "generating_onboarding_prompt": {
+        "action": "生成中..."
+      },
+      "generate_onboarding_prompt": {
+        "action": "生成入职提示词"
       }
     },
     "newgoaldialog": {
@@ -3752,85 +3781,98 @@
     },
     "newissuedialog": {
       "adapter_default": {
-        "jsx-text": "· adapter default "
+        "jsx-text": "· adapter 默认 "
       },
       "add_description": {
-        "attr_placeholder": "Add description..."
+        "attr_placeholder": "添加描述..."
       },
       "add_reviewer_or_approver": {
-        "attr_title": "Add reviewer or approver"
+        "attr_title": "添加评审人或审批人"
       },
       "approver": {
-        "attr_placeholder": "Approver",
-        "jsx-text": "\n                    Approver\n                  "
+        "attr_placeholder": "审批人",
+        "jsx-text": "审批人"
       },
       "assignee": {
-        "attr_placeholder": "Assignee",
-        "jsx-text": "Assignee"
+        "attr_placeholder": "承接人",
+        "jsx-text": "承接人"
       },
       "assigning_implies_executable_int": {
-        "jsx-text": "\n              Assigning implies executable intent — leave status as "
+        "jsx-text": "指定承接人表示任务可执行，请保持状态为 "
       },
       "attachments": {
         "jsx-text": "附件"
       },
       "backlog": {
-        "jsx-text": "Backlog",
-        "status_label": "Backlog",
+        "jsx-text": "积压",
+        "status_label": "积压",
         "description": "已搁置 - 不会唤醒承接人"
       },
       "choose_an_existing_workspace": {
-        "jsx-text": "Choose an existing workspace"
+        "jsx-text": "选择现有工作区"
+      },
+      "claude_options": {
+        "title": "Claude 选项"
+      },
+      "codex_options": {
+        "title": "Codex 选项"
+      },
+      "opencode_options": {
+        "title": "OpenCode 选项"
+      },
+      "agent_options": {
+        "title": "智能体选项"
       },
       "control_whether_this_task_runs_i": {
-        "jsx-text": "\n                Control whether this task runs in the shared workspace, a new isolated workspace, or an existing one.\n              "
+        "jsx-text": "控制此任务在共享工作区、新隔离工作区或现有工作区中运行。"
       },
       "creating_issue": {
-        "jsx-text": "\n                  Creating issue...\n                "
+        "jsx-text": "正在创建任务..."
       },
       "default_model": {
-        "attr_placeholder": "Default model"
+        "attr_placeholder": "默认模型",
+        "option_label": "默认模型"
       },
       "discard_draft": {
-        "jsx-text": "\n            Discard Draft\n          "
+        "jsx-text": "丢弃草稿"
       },
       "documents": {
         "jsx-text": "文档"
       },
       "due_date": {
-        "jsx-text": "\n                Due date\n              "
+        "jsx-text": "截止日期"
       },
       "enable_chrome_chrome": {
-        "jsx-text": "Enable Chrome (--chrome)"
+        "jsx-text": "启用 Chrome (--chrome)"
       },
       "execution_workspace": {
-        "jsx-text": "Execution workspace"
+        "jsx-text": "执行工作区"
       },
       "falls_back_to_the_primary_model_": {
-        "jsx-text": "· falls back to the primary model if无 cheap profile is configured"
+        "jsx-text": "· 未配置 cheap profile 时回退到主模型"
       },
       "for": {
-        "jsx-text": "For"
+        "jsx-text": "给"
       },
       "from": {
-        "jsx-text": " from "
+        "jsx-text": " 来自 "
       },
       "in_progress": {
         "jsx-text": "进行中",
         "status_label": "进行中"
       },
       "in": {
-        "jsx-text": "后"
+        "jsx-text": "在"
       },
       "low_trust_review_agent_it_can_on": {
-        "jsx-text": "\n              Low-trust review agent. It can only act inside its assigned review boundary; issue, project, or run policy defines the concrete scope.\n            "
+        "jsx-text": "低信任评审 agent。它只能在分配的评审边界内行动；任务、项目或运行策略会定义具体范围。"
       },
       "low_trust_review_agent": {
-        "attr_aria-label": "Low-trust review agent"
+        "attr_aria-label": "低信任评审 agent"
       },
       "model_lane": {
-        "attr_aria-label": "Model lane",
-        "jsx-text": "Model lane"
+        "attr_aria-label": "模型通道",
+        "jsx-text": "模型通道"
       },
       "model": {
         "jsx-text": "模型"
@@ -3839,77 +3881,77 @@
         "jsx-text": "modelProfile: \"cheap\""
       },
       "only_to_deliberately_park_this_t": {
-        "jsx-text": " only to deliberately park this. The assignee will not be woken until status moves to "
+        "jsx-text": " 仅用于刻意搁置。状态变为 "
       },
       "or": {
-        "jsx-text": " or "
+        "jsx-text": " 或 "
       },
       "override_the_model_and_effort_fo": {
-        "jsx-text": "Override the model and effort for this task only."
+        "jsx-text": "仅为此任务覆盖模型和思考强度。"
       },
       "priority": {
-        "jsx-text": "\n                    Priority\n                  "
+        "jsx-text": "优先级"
       },
       "project": {
-        "attr_placeholder": "Project",
-        "jsx-text": "Project"
+        "attr_placeholder": "项目",
+        "jsx-text": "项目"
       },
       "remove_attachment": {
-        "attr_title": "Remove attachment"
+        "attr_title": "移除附件"
       },
       "remove_document": {
-        "attr_title": "Remove document"
+        "attr_title": "移除文档"
       },
       "reusing": {
-        "jsx-text": "\n                  Reusing "
+        "jsx-text": "复用 "
       },
       "reviewer": {
-        "attr_placeholder": "Reviewer",
-        "jsx-text": "\n                    Reviewer\n                  "
+        "attr_placeholder": "评审人",
+        "jsx-text": "评审人"
       },
       "rsaquo": {
         "jsx-text": "›"
       },
       "runs_on_the_agent_s_primary_mode": {
-        "jsx-text": "Runs on the agent's primary model."
+        "jsx-text": "使用 agent 的主模型运行。"
       },
       "sends": {
-        "jsx-text": "\n                      Sends "
+        "jsx-text": "发送 "
       },
       "start_date": {
-        "jsx-text": "\n                Start date\n              "
+        "jsx-text": "开始日期"
       },
       "sub_task_of": {
-        "jsx-text": "Sub-task of"
+        "jsx-text": "子任务归属"
       },
       "task_title": {
         "attr_placeholder": "任务标题"
       },
       "thinking_effort": {
-        "jsx-text": "Thinking effort"
+        "jsx-text": "思考强度"
       },
       "times": {
         "jsx-text": "×"
       },
       "todo": {
-        "jsx-text": "Todo",
+        "jsx-text": "待办",
         "status_label": "待办",
         "description": "可执行 - 会唤醒承接人"
       },
       "upload": {
-        "jsx-text": "\n            Upload\n          "
+        "jsx-text": "上传"
       },
       "uses_the_agent_s_configured_chea": {
-        "jsx-text": "· uses the agent's configured cheap profile"
+        "jsx-text": "· 使用 agent 已配置的 cheap profile"
       },
       "warning_this_sub_task_will_no_lo": {
-        "jsx-text": "\n                  Warning: this sub-task will无 longer use the parent task workspace"
+        "jsx-text": "警告：此子任务将不再使用父任务工作区"
       },
       "default": {
         "option_label": "默认"
       },
       "minimal": {
-        "option_label": "Minimal"
+        "option_label": "最低"
       },
       "low": {
         "option_label": "低",
@@ -3924,7 +3966,7 @@
         "priority_label": "高"
       },
       "xhigh": {
-        "option_label": "X-High"
+        "option_label": "超高"
       },
       "max": {
         "option_label": "最大"
@@ -3978,22 +4020,22 @@
         "empty": "未找到项目。"
       },
       "no_reviewer": {
-        "option_label": "无 reviewer"
+        "option_label": "无评审人"
       },
       "search_reviewers": {
-        "placeholder": "搜索 reviewer..."
+        "placeholder": "搜索评审人..."
       },
       "no_reviewers_found": {
-        "empty": "未找到 reviewer。"
+        "empty": "未找到评审人。"
       },
       "no_approver": {
-        "option_label": "无 approver"
+        "option_label": "无审批人"
       },
       "search_approvers": {
-        "placeholder": "搜索 approver..."
+        "placeholder": "搜索审批人..."
       },
       "no_approvers_found": {
-        "empty": "未找到 approver。"
+        "empty": "未找到审批人。"
       },
       "created_with_upload_warnings": {
         "title": "已创建 {{issueRef}}，但上传有警告"
@@ -4009,7 +4051,34 @@
         "error": "未选择公司"
       },
       "staged_files_could_not_be_added_one": "{{count}} 个暂存文件无法添加。",
-      "staged_files_could_not_be_added_other": "{{count}} 个暂存文件无法添加。"
+      "staged_files_could_not_be_added_other": "{{count}} 个暂存文件无法添加。",
+      "primary": {
+        "option_label": "主模型"
+      },
+      "cheap": {
+        "option_label": "低成本"
+      },
+      "custom": {
+        "option_label": "自定义"
+      },
+      "search_models": {
+        "placeholder": "搜索模型..."
+      },
+      "no_models_found": {
+        "empty": "未找到模型。"
+      },
+      "creating": {
+        "action": "创建中..."
+      },
+      "create_sub_task": {
+        "action": "创建子任务"
+      },
+      "create_task": {
+        "action": "创建任务"
+      },
+      "failed_to_create_task_try_again": {
+        "error": "创建任务失败。请重试。"
+      }
     },
     "newprojectdialog": {
       "add_description": {
@@ -4085,28 +4154,28 @@
         "attr_placeholder": "Acme Corp"
       },
       "adapter_environment_check": {
-        "jsx-text": "\n                            Adapter environment check\n                          "
+        "jsx-text": "\n                            适配器环境检查\n                          "
       },
       "adapter_type": {
-        "jsx-text": "\n                      Adapter type\n                    "
+        "jsx-text": "\n                      适配器类型\n                    "
       },
       "add_more_detail_about_what_the_a": {
-        "attr_placeholder": "Add more detail about what the agent should do..."
+        "attr_placeholder": "补充智能体需要执行的具体内容..."
       },
       "agent_name": {
-        "jsx-text": "\n                      Agent name\n                    "
+        "jsx-text": "\n                      智能体名称\n                    "
       },
       "and_retry": {
-        "jsx-text": "\n                              and retry.\n                            "
+        "jsx-text": "\n                              后重试。\n                            "
       },
       "back": {
-        "jsx-text": "\n                      Back\n                    "
+        "jsx-text": "\n                      上一步\n                    "
       },
       "choose_how_this_agent_will_run_t": {
-        "jsx-text": "\n                        Choose how this agent will run tasks.\n                      "
+        "jsx-text": "\n                        选择这个智能体执行任务的方式。\n                      "
       },
       "claude_failed_while": {
-        "jsx-text": "\n                            Claude failed while"
+        "jsx-text": "\n                            Claude 失败时"
       },
       "claude_login": {
         "jsx-text": "claude login"
@@ -4115,99 +4184,99 @@
         "jsx-text": "关闭"
       },
       "company_name": {
-        "jsx-text": "\n                      Company name\n                    "
+        "jsx-text": "\n                      公司名称\n                    "
       },
       "company": {
         "jsx-text": "公司",
         "step_label": "公司"
       },
       "create_your_first_agent": {
-        "jsx-text": "Create your first agent"
+        "jsx-text": "创建第一个智能体"
       },
       "default": {
-        "jsx-text": "\n                                Default\n                              "
+        "jsx-text": "\n                                默认\n                              "
       },
       "description_optional": {
-        "jsx-text": "\n                      Description (optional)\n                    "
+        "jsx-text": "\n                      描述（可选）\n                    "
       },
       "e_g_research_competitor_pricing": {
-        "attr_placeholder": "e.g. Research competitor pricing"
+        "attr_placeholder": "例如：研究竞品定价"
       },
       "everything_is_set_up_launching_n": {
-        "jsx-text": "\n                        Everything is set up. Launching now will创建 the starter task, wake the agent, and open the task.\n                      "
+        "jsx-text": "\n                        一切已准备就绪。现在启动会创建初始任务、唤醒智能体，并打开该任务。\n                      "
       },
       "give_it_something_to_do": {
-        "jsx-text": "Give it something to do"
+        "jsx-text": "给它一个任务"
       },
       "give_your_agent_a_small_task_to_": {
-        "jsx-text": "\n                        Give your agent a small task to start with — a bug fix, a research question, writing a script.\n                      "
+        "jsx-text": "\n                        先给智能体一个小任务：修复 bug、研究问题，或编写脚本。\n                      "
       },
       "hint": {
-        "jsx-text": "\n                Hint: "
+        "jsx-text": "\n                提示："
       },
       "if_auth_fails_set": {
-        "jsx-text": "\n                              If auth fails, set"
+        "jsx-text": "\n                              如果认证失败，请设置"
       },
       "if_login_is_required_run": {
-        "jsx-text": "\n                              If login is required, run"
+        "jsx-text": "\n                              如果需要登录，请运行"
       },
       "in_env_or_run": {
-        "jsx-text": "\n                              in env or run"
+        "jsx-text": "\n                              到环境变量，或运行"
       },
       "is_set_you_can_clear_it_in_this_": {
-        "jsx-text": "\n                            is set. You can clear it in this CEO adapter config and retry the probe.\n                          "
+        "jsx-text": "\n                            已设置。你可以在这个 CEO 适配器配置中清空它，然后重试探测。\n                          "
       },
       "manual_debug": {
-        "jsx-text": "Manual debug"
+        "jsx-text": "手动调试"
       },
       "mission_goal_optional": {
-        "jsx-text": "\n                      Mission / goal (optional)\n                    "
+        "jsx-text": "\n                      使命 / 目标（可选）\n                    "
       },
       "model": {
-        "jsx-text": "\n                          Model\n                        "
+        "jsx-text": "\n                          模型\n                        "
       },
       "more_agent_adapter_types": {
-        "jsx-text": "\n                      More Agent Adapter Types\n                    "
+        "jsx-text": "\n                      更多智能体适配器类型\n                    "
       },
       "name_your_company": {
-        "jsx-text": "Name your company"
+        "jsx-text": "命名你的公司"
       },
       "no_models_discovered": {
-        "jsx-text": "\n                               无 models discovered.\n                              "
+        "jsx-text": "\n                                未发现模型。\n                              "
       },
       "passed": {
-        "jsx-text": "Passed"
+        "jsx-text": "已通过"
       },
       "prompt": {
-        "jsx-text": "\n                            Prompt:"
+        "jsx-text": "\n                            Prompt："
       },
       "ready_to_launch": {
-        "jsx-text": "Ready to launch"
+        "jsx-text": "准备启动"
       },
       "recommended": {
-        "jsx-text": "\n                              Recommended\n                            "
+        "jsx-text": "\n                              推荐\n                            "
       },
       "respond_with_hello": {
         "jsx-text": "Respond with hello."
       },
       "runs_a_live_probe_that_asks_the_": {
-        "jsx-text": "\n                            Runs a live probe that asks the adapter CLI to respond with hello.\n                          "
+        "jsx-text": "\n                            运行实时探测，要求适配器 CLI 响应 hello。\n                          "
       },
       "search_models": {
-        "attr_placeholder": "Search models..."
+        "attr_placeholder": "搜索模型..."
       },
       "task_title": {
-        "jsx-text": "\n                      Task title\n                    "
+        "jsx-text": "\n                      任务标题\n                    "
       },
       "task": {
-        "jsx-text": "Task",
+        "jsx-text": "任务",
         "step_label": "任务"
       },
       "this_is_the_organization_your_ag": {
-        "jsx-text": "\n                        This is the organization your agents will work for.\n                      "
+        "jsx-text": "\n                        这是你的智能体将服务的组织。\n                      "
       },
       "what_is_this_company_trying_to_a": {
-        "attr_placeholder": "What is this company trying to achieve?"
+        "attr_placeholder": "这家公司想实现什么？"
       },
       "failed_to_create_company": {
         "error": "创建公司失败"
@@ -4216,16 +4285,79 @@
         "error": "OpenCode 需要 provider/model 格式的明确 model。"
       },
       "failed_to_create_agent": {
-        "error": "创建 agent 失败"
+        "error": "创建智能体失败"
       },
       "failed_to_create_task": {
         "error": "创建任务失败"
+      },
+      "create_or_select_company_before_testing": {
+        "error": "请先创建或选择公司，再测试适配器环境。"
+      },
+      "adapter_environment_test_failed": {
+        "error": "适配器环境测试失败"
+      },
+      "unset_anthropic_retry_still_failing": {
+        "error": "已在适配器配置中清空 ANTHROPIC_API_KEY 并重试，但环境测试仍然失败。"
+      },
+      "failed_to_unset_anthropic_and_retry": {
+        "error": "清空 ANTHROPIC_API_KEY 并重试失败。"
+      },
+      "coming_soon": {
+        "jsx-text": "即将推出"
+      },
+      "select_model_required": {
+        "jsx-text": "选择模型（必填）"
+      },
+      "default_model": {
+        "jsx-text": "默认"
+      },
+      "testing": {
+        "action": "测试中..."
+      },
+      "test_now": {
+        "action": "立即测试"
+      },
+      "retrying": {
+        "action": "重试中..."
+      },
+      "unset_anthropic_api_key": {
+        "action": "清空 ANTHROPIC_API_KEY"
+      },
+      "gateway_url": {
+        "label": "网关 URL"
+      },
+      "webhook_url": {
+        "label": "Webhook URL"
+      },
+      "creating": {
+        "action": "创建中..."
+      },
+      "next": {
+        "action": "下一步"
+      },
+      "create_and_open_task": {
+        "action": "创建并打开任务"
+      },
+      "warnings": {
+        "status": "警告"
+      },
+      "failed": {
+        "status": "失败"
+      },
+      "info": {
+        "level": "信息"
+      },
+      "warn": {
+        "level": "警告"
+      },
+      "error": {
+        "level": "错误"
       },
       "ceo": {
         "attr_placeholder": "CEO"
       },
       "agent": {
-        "step_label": "Agent"
+        "step_label": "智能体"
       },
       "launch": {
         "step_label": "启动"
@@ -5405,22 +5537,49 @@
     },
     "sidebaragents": {
       "agent_paused_by_budget": {
-        "attr_title": "Agent paused by budget"
+        "attr_title": "智能体因预算暂停"
+      },
+      "agent_paused": {
+        "title": "智能体已暂停"
+      },
+      "agent_resumed": {
+        "title": "智能体已恢复"
+      },
+      "agent_was_paused_by_budget_limi": {
+        "attr_title": "智能体因预算限制而暂停"
       },
       "agents": {
-        "attr_label": "代理"
+        "attr_label": "智能体"
+      },
+      "budget_paused": {
+        "jsx-text": "预算已暂停"
+      },
+      "could_not_pause_agent": {
+        "title": "无法暂停智能体"
+      },
+      "could_not_resume_agent": {
+        "title": "无法恢复智能体"
       },
       "edit_agent": {
-        "jsx-text": "编辑代理"
+        "jsx-text": "编辑智能体"
       },
       "invalid_reporting_chain": {
-        "attr_aria-label": "Invalid reporting chain"
+        "attr_aria-label": "汇报链无效"
+      },
+      "invalid_org_chain": {
+        "jsx-text": "组织链无效"
+      },
+      "leave_agent": {
+        "jsx-text": "离开智能体"
+      },
+      "leaving": {
+        "jsx-text": "正在离开..."
       },
       "live": {
         "jsx-text": " live\n              "
       },
       "see_all_agents": {
-        "jsx-text": "See全部 agents"
+        "jsx-text": "查看全部智能体"
       },
       "top": {
         "sort_label": "置顶"
@@ -5432,30 +5591,63 @@
         "sort_label": "最近"
       },
       "new_agent": {
-        "attr_aria-label": "新建 agent"
+        "attr_aria-label": "新建智能体"
       },
       "agents_section_actions": {
-        "attr_aria-label": "Agent 区操作"
+        "attr_aria-label": "智能体区操作"
       },
       "browse_agents": {
-        "menu_item": "浏览 agents"
+        "menu_item": "浏览智能体"
       },
       "agent_sort": {
-        "radio_label": "Agent 排序"
+        "radio_label": "智能体排序"
+      },
+      "pause_agent": {
+        "jsx-text": "暂停智能体"
+      },
+      "resume_agent": {
+        "jsx-text": "恢复智能体"
+      },
+      "updating": {
+        "jsx-text": "更新中..."
       }
     },
     "sidebarcompanymenu": {
       "add_company": {
-        "jsx-text": "Add company..."
+        "jsx-text": "添加公司..."
       },
       "company_settings": {
-        "jsx-text": "Company settings"
+        "jsx-text": "公司设置"
+      },
+      "done": {
+        "action": "完成"
+      },
+      "edit": {
+        "action": "编辑"
+      },
+      "invite_people": {
+        "jsx-text": "邀请成员"
+      },
+      "invite_people_to_company": {
+        "jsx-text": "邀请成员加入 {{companyName}}"
       },
       "no_workspaces": {
-        "jsx-text": "No workspaces"
+        "jsx-text": "没有工作区"
+      },
+      "open_workspace_switcher": {
+        "attr_aria-label": "打开工作区切换器"
+      },
+      "open_workspace_switcher_for": {
+        "attr_aria-label": "打开 {{companyName}} 工作区切换器"
+      },
+      "sign_out": {
+        "action": "退出登录"
+      },
+      "signing_out": {
+        "action": "正在退出..."
       },
       "switch_workspace": {
-        "jsx-text": "\n            Switch workspace\n          "
+        "jsx-text": "\n            切换工作区\n          "
       }
     },
     "sidebarnavitem": {
@@ -9288,7 +9480,7 @@
         "jsx-text": " active budget incident"
       },
       "agents_enabled": {
-        "attr_label": "已启用的代理"
+        "attr_label": "已启用的智能体"
       },
       "agents_paused": {
         "jsx-text": " agents paused · "
@@ -9327,10 +9519,10 @@
         "jsx-text": " projects paused · "
       },
       "recent_activity": {
-        "jsx-text": "\n                  Recent Activity\n                "
+        "jsx-text": "\n                  最近活动\n                "
       },
       "recent_tasks": {
-        "jsx-text": "\n                Recent Tasks\n              "
+        "jsx-text": "\n                最近任务\n              "
       },
       "run_activity": {
         "attr_title": "运行活动"
@@ -15187,38 +15379,38 @@
   "adapters": {
     "display": {
       "acpx_local": {
-        "description": "实验性本地 ACPX 多 agent 适配器"
+        "description": "实验性本地 ACPX 多智能体适配器"
       },
       "claude_local": {
-        "description": "本地 Claude agent"
+        "description": "本地 Claude 智能体"
       },
       "codex_local": {
-        "description": "本地 Codex agent"
+        "description": "本地 Codex 智能体"
       },
       "gemini_local": {
-        "description": "本地 Gemini agent"
+        "description": "本地 Gemini 智能体"
       },
       "grok_local": {
-        "description": "本地 Grok Build agent"
+        "description": "本地 Grok Build 智能体"
       },
       "opencode_local": {
-        "description": "本地多供应商 agent"
+        "description": "本地多供应商智能体"
       },
       "hermes_local": {
-        "description": "本地 Hermes CLI agent"
+        "description": "本地 Hermes CLI 智能体"
       },
       "pi_local": {
-        "description": "本地 Pi agent"
+        "description": "本地 Pi 智能体"
       },
       "cursor": {
-        "description": "本地 Cursor agent"
+        "description": "本地 Cursor 智能体"
       },
       "cursor_cloud": {
-        "description": "托管远程 Cursor agent"
+        "description": "托管远程 Cursor 智能体"
       },
       "openclaw_gateway": {
         "description": "外部网关适配器",
-        "disabled_label": "请从添加 agent 弹窗邀请外部 agent"
+        "disabled_label": "请从添加智能体弹窗邀请外部智能体"
       },
       "process": {
         "description": "内部进程适配器"

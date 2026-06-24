@@ -1,6 +1,6 @@
 ---
-name: Core Exec Team
-description: Default leadership and engineering team for bootstrapping a Paperclip company with a CEO, CTO, QA Engineer, starter project, and a recurring CEO heartbeat review task.
+name: 核心执行团队
+description: 用于启动 Paperclip 公司的默认领导与工程团队，包含 CEO、CTO、QA 工程师、起始项目，以及周期性 CEO heartbeat 复盘任务。
 schema: agentcompanies/v1
 slug: core-exec-team
 category: company-defaults
@@ -27,18 +27,18 @@ requiredSkills:
   - paperclipai/bundled/quality/qa-acceptance
 ---
 
-# Core Exec Team
+# 核心执行团队
 
-The Core Exec Team is the bundled default install for a new Paperclip company. It boots the smallest org that can take a board prompt, plan it, implement it, and verify it.
+核心执行团队是新 Paperclip 公司的内置默认安装项。它启动一个最小组织：能接收 board 提示，制定计划，完成实现，并验证结果。
 
-## Contents
+## 内容
 
-- `CEO` — strategy, prioritization, delegation. Uses `task-planning` and `issue-triage` to keep the inbox moving.
-- `CTO` — technical execution and engineering oversight. Reports to CEO. Uses `github-pr-workflow` for code review and merge hygiene.
-- `QA` — verifies fixes and captures evidence. Reports to CTO. Uses `qa-acceptance` for structured acceptance reports.
-- `first-project` — starter project under the CTO for converting the company goal into the first implementation task.
-- `first-heartbeat` — recurring CEO heartbeat to review priorities and confirm the next useful task.
+- `CEO` — 负责战略、优先级和委派。使用 `task-planning` 与 `issue-triage` 推动 inbox 流转。
+- `CTO` — 负责技术执行和工程监督。向 CEO 汇报。使用 `github-pr-workflow` 保持代码审查和合并纪律。
+- `QA` — 验证修复并收集证据。向 CTO 汇报。使用 `qa-acceptance` 输出结构化验收报告。
+- `first-project` — CTO 名下的起始项目，用于把公司目标转换成第一个实现任务。
+- `first-heartbeat` — 周期性 CEO heartbeat，用于复盘优先级并确认下一个有用任务。
 
-## Migration notes
+## 迁移说明
 
-This entry mirrors the historical `server/src/onboarding-assets/ceo/` template family while staying inside the catalog package boundary. Per-agent persona files (the legacy `SOUL.md`, `HEARTBEAT.md`, `TOOLS.md` siblings) are intentionally collapsed into a single `AGENTS.md` per agent so importer/portability semantics stay simple. The richer persona content can move into `references/` files in a follow-up once onboarding actually switches to the catalog service.
+此条目对应历史上的 `server/src/onboarding-assets/ceo/` 模板族，但保留在 catalog package 边界内。每个 agent 的 persona 文件（旧版 `SOUL.md`、`HEARTBEAT.md`、`TOOLS.md` 等同级文件）刻意合并为单个 `AGENTS.md`，以保持导入器和可移植语义简单。等 onboarding 实际切换到 catalog service 后，更完整的 persona 内容可在后续迁移到 `references/` 文件。

@@ -1,10 +1,10 @@
-# Worked examples
+# Worked examples（示例）
 
-Four complete wireframes you can copy and modify. Each one is a valid standalone SVG file. The annotation list under each example is what you should reproduce in your reply when emitting a wireframe.
+这里有四个可复制和修改的完整 wireframe。每个都是有效的独立 SVG 文件。每个示例下方的 annotation list，是你输出 wireframe 时应在回复中复现的格式。
 
 ---
 
-## 1. Login screen (mobile, 375×812)
+## 1. Login screen（mobile, 375×812）
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812"
@@ -70,7 +70,7 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 </svg>
 ```
 
-**Annotations:**
+**Annotations（注释）：**
 1. Status bar placeholder
 2. Brand mark
 3. Page title + subtitle
@@ -83,7 +83,7 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 
 ---
 
-## 2. Admin dashboard (desktop, 1280×800)
+## 2. Admin dashboard（desktop, 1280×800）
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
@@ -187,7 +187,7 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 </svg>
 ```
 
-**Annotations:**
+**Annotations（注释）：**
 1. Sidebar nav with active "Dashboard"
 2. Top bar with global search and account menu
 3. Page header with title, subtitle, and primary CTA
@@ -197,7 +197,7 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 
 ---
 
-## 3. Settings page with form (desktop, 1280×800)
+## 3. Settings page with form（desktop, 1280×800）
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
@@ -288,14 +288,14 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 </svg>
 ```
 
-**Annotations:**
+**Annotations（注释）：**
 1. Top bar with section name
 2. Settings sub-nav (Personal / Workspace groups)
 3. Form: avatar with upload, display name, email + help text, role dropdown, save / cancel actions
 
 ---
 
-## 4. Modal confirmation overlay (desktop, 1280×800)
+## 4. Modal confirmation overlay（desktop, 1280×800）
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
@@ -350,7 +350,7 @@ Four complete wireframes you can copy and modify. Each one is a valid standalone
 </svg>
 ```
 
-**Annotations:**
+**Annotations（注释）：**
 1. Backdrop dims the underlying page
 2. Confirmation modal: title, body copy, type-to-confirm field, Cancel + destructive Confirm
 3. Reviewer note (red dashed): the destructive button must remain disabled until the typed input matches

@@ -1,19 +1,19 @@
-# Component primitives
+# 组件 primitives
 
-Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g transform="translate(0, 0)">` so you can position it by changing the translate values. All sizes follow the 8px grid and the type scale defined in `grid-system.md`.
+将这些 snippets 直接复制进 SVG。每个 primitive 都包在 `<g transform="translate(0, 0)">` 中，因此可通过修改 translate 值定位。所有尺寸遵循 8px grid 和 `grid-system.md` 中定义的 type scale。
 
-## Conventions used below
+## 下方约定
 
-- `W`, `H` placeholders mean "pick a multiple of 8 that fits your layout".
-- `Label`, `Placeholder`, etc. mean "replace with the actual copy".
-- The root `<svg>` is assumed to set: `font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5"`.
-- Always set `stroke="none"` on `<text>` elements.
+- `W`、`H` placeholders 表示“选择适合布局且为 8 的倍数的值”。
+- `Label`、`Placeholder` 等表示“替换成真实文案”。
+- 假设 root `<svg>` 已设置：`font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5"`.
+- 始终在 `<text>` elements 上设置 `stroke="none"`。
 
 ---
 
-## Inputs
+## 输入
 
-### Button (filled)
+### Button（filled）
 
 ```svg
 <g transform="translate(0,0)">
@@ -22,7 +22,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Button (outlined / secondary)
+### Button（outlined / secondary）
 
 ```svg
 <g transform="translate(0,0)">
@@ -31,7 +31,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Button (icon-only square)
+### Button（icon-only square）
 
 ```svg
 <g transform="translate(0,0)">
@@ -51,7 +51,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Search input (with magnifier)
+### Search input（带 magnifier）
 
 ```svg
 <g transform="translate(0,0)">
@@ -71,7 +71,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Dropdown (collapsed)
+### Dropdown（collapsed）
 
 ```svg
 <g transform="translate(0,0)">
@@ -82,7 +82,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Checkbox (unchecked / checked)
+### Checkbox（unchecked / checked）
 
 ```svg
 <!-- unchecked -->
@@ -97,7 +97,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Radio (unselected / selected)
+### Radio（unselected / selected）
 
 ```svg
 <!-- unselected -->
@@ -112,7 +112,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Toggle (off / on)
+### Toggle（off / on）
 
 ```svg
 <!-- off -->
@@ -128,7 +128,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Form field (label + input + help)
+### Form field（label + input + help）
 
 ```svg
 <g transform="translate(0,0)">
@@ -143,7 +143,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ---
 
-## Layout
+## 布局
 
 ### Card
 
@@ -165,7 +165,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Two-column split (60 / 40)
+### Two-column split（60 / 40）
 
 ```svg
 <g transform="translate(0,0)">
@@ -176,9 +176,9 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ---
 
-## Navigation
+## 导航
 
-### Navbar (top)
+### Navbar（top）
 
 ```svg
 <g transform="translate(0,0)">
@@ -258,7 +258,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ---
 
-## Content
+## 内容
 
 ### Heading
 
@@ -272,7 +272,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 <text x="0" y="20" font-size="20" font-weight="600" stroke="none" fill="#000">Section</text>
 ```
 
-### Paragraph block (placeholder lines)
+### Paragraph block（placeholder lines）
 
 ```svg
 <g transform="translate(0,0)">
@@ -282,7 +282,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### List row (avatar + title + subtitle + chevron)
+### List row（avatar + title + subtitle + chevron）
 
 ```svg
 <g transform="translate(0,0)">
@@ -345,9 +345,9 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ---
 
-## Media
+## 媒体
 
-### Image placeholder (with diagonal cross)
+### Image placeholder（with diagonal cross）
 
 ```svg
 <g transform="translate(0,0)">
@@ -357,7 +357,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Avatar (circular, with cross)
+### Avatar（circular, with cross）
 
 ```svg
 <g transform="translate(0,0)">
@@ -367,7 +367,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Video placeholder (image + play triangle)
+### Video placeholder（image + play triangle）
 
 ```svg
 <g transform="translate(0,0)">
@@ -383,7 +383,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ## Overlay
 
-### Modal (with backdrop)
+### Modal（with backdrop）
 
 ```svg
 <!-- backdrop dims the canvas; render this inside an SVG that already has the underlying screen -->
@@ -427,7 +427,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 </g>
 ```
 
-### Dropdown menu (open state)
+### Dropdown menu（open state）
 
 ```svg
 <g transform="translate(0,0)">
@@ -444,7 +444,7 @@ Copy these snippets directly into your SVG. Each primitive is wrapped in a `<g t
 
 ## Annotation layer
 
-Use these for callouts and reviewer notes. Render them in a final `<g data-region="annotations">` so reviewers can hide them by toggling the group.
+这些用于 callouts 和 reviewer notes。将它们渲染在最后的 `<g data-region="annotations">` 中，方便 reviewer 通过切换该 group 隐藏。
 
 ### Numbered callout
 
@@ -461,7 +461,7 @@ Use these for callouts and reviewer notes. Render them in a final `<g data-regio
 <rect x="0" y="0" width="240" height="120" fill="none" stroke="#d33" stroke-dasharray="6 3" />
 ```
 
-### Arrow connector (between two screens)
+### Arrow connector（between two screens）
 
 ```svg
 <g transform="translate(0,0)">
@@ -472,11 +472,11 @@ Use these for callouts and reviewer notes. Render them in a final `<g data-regio
 
 ---
 
-## Common composition mistakes (avoid)
+## 常见组合错误（避免）
 
-- **Text with halo:** forgetting `stroke="none"` on `<text>`. The text inherits the parent stroke.
-- **Off-grid coordinates:** values like `x="37"` instead of `x="40"`. Snap everything to multiples of 8.
-- **Solid fills sneaking in:** anything other than `#fff`, `#e6e6e6`, `#f4f4f4`, or `#000` is a mistake.
-- **Multiple typefaces:** stick to one font-family across the whole file.
-- **Annotation colour bleeding into UI:** `#d33` only ever appears inside the annotation `<g>`.
-- **Missing `viewBox`:** without it, the SVG won't scale when embedded in different containers.
+- **Text with halo：** `<text>` 忘记 `stroke="none"`。text 会继承 parent stroke。
+- **Off-grid coordinates：** 使用 `x="37"` 而不是 `x="40"`。所有值吸附到 8 的倍数。
+- **Solid fills sneaking in：** 除 `#fff`、`#e6e6e6`、`#f4f4f4`、`#000` 外的任何颜色都是错误。
+- **Multiple typefaces：** 全文件只使用一个 font-family。
+- **Annotation colour bleeding into UI：** `#d33` 只能出现在 annotation `<g>` 内。
+- **Missing `viewBox`：** 没有它，SVG 嵌入不同容器时无法正确缩放。

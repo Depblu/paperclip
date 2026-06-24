@@ -176,15 +176,15 @@ const { t } = useTranslation();
     : null;
 
   const title = matchedCompany
-    ? `Add another agent to ${matchedCompany.name}`
+    ? t("app.onboardingRoute.addAnotherAgent.title", { companyName: matchedCompany.name, defaultValue: "Add another agent to {{companyName}}" })
     : companies.length > 0
-      ? "Create another company"
-      : "Create your first company";
+      ? t("app.onboardingRoute.createAnotherCompany.title", { defaultValue: "Create another company" })
+      : t("app.onboardingRoute.createYourFirstCompany.title", { defaultValue: "Create your first company" });
   const description = matchedCompany
-    ? "Run onboarding again to add an agent and a starter task for this company."
+    ? t("app.onboardingRoute.addAnotherAgent.description", { defaultValue: "Run onboarding again to add an agent and a starter task for this company." })
     : companies.length > 0
-      ? "Run onboarding again to create another company and seed its first agent."
-      : "Get started by creating a company and your first agent.";
+      ? t("app.onboardingRoute.createAnotherCompany.description", { defaultValue: "Run onboarding again to create another company and seed its first agent." })
+      : t("app.onboardingRoute.createYourFirstCompany.description", { defaultValue: "Get started by creating a company and your first agent." });
 
   return (
     <div className="mx-auto max-w-xl py-10">
@@ -199,7 +199,9 @@ const { t } = useTranslation();
                 : openOnboarding()
             }
           >
-            {matchedCompany ? "Add Agent" : "Start Onboarding"}
+            {matchedCompany
+              ? t("app.onboardingRoute.addAgent.action", { defaultValue: "Add Agent" })
+              : t("app.onboardingRoute.startOnboarding.action", { defaultValue: "Start Onboarding" })}
           </Button>
         </div>
       </div>

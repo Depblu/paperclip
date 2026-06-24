@@ -113,14 +113,16 @@ function SidebarAgentItem({
   const isPaused = agent.status === "paused";
   const isBudgetPaused = isPaused && agent.pauseReason === "budget";
   const hasInvalidOrgChain = agent.orgChainHealth?.status === "invalid_org_chain";
-  const pauseResumeLabel = isPaused ? "Resume agent" : "Pause agent";
+  const pauseResumeLabel = isPaused
+    ? t("components.sidebaragents.resume_agent.jsx-text", { defaultValue: "Resume agent" })
+    : t("components.sidebaragents.pause_agent.jsx-text", { defaultValue: "Pause agent" });
   const pauseResumeDisabled = disabled || agent.status === "pending_approval" || isBudgetPaused || (isPaused && hasInvalidOrgChain);
   const pauseResumeDisabledLabel = disabled
-    ? "Updating..."
+    ? t("components.sidebaragents.updating.jsx-text", { defaultValue: "Updating..." })
     : isBudgetPaused
-      ? "Budget paused"
+      ? t("components.sidebaragents.budget_paused.jsx-text", { defaultValue: "Budget paused" })
       : isPaused && hasInvalidOrgChain
-        ? "Invalid org chain"
+        ? t("components.sidebaragents.invalid_org_chain.jsx-text", { defaultValue: "Invalid org chain" })
       : pauseResumeLabel;
 
   return (
@@ -197,7 +199,7 @@ function SidebarAgentItem({
               onPauseResume(agent, isPaused ? "resume" : "pause");
             }}
             disabled={pauseResumeDisabled}
-            title={isBudgetPaused ? "Agent was paused by budget limits" : undefined}
+            title={isBudgetPaused ? t("components.sidebaragents.agent_was_paused_by_budget_limi.attr_title", { defaultValue: "Agent was paused by budget limits" }) : undefined}
           >
             {isPaused ? <PlayCircle className="size-4" /> : <PauseCircle className="size-4" />}
             <span>{pauseResumeDisabledLabel}</span>
@@ -211,7 +213,9 @@ function SidebarAgentItem({
             disabled={leaving}
           >
             {leaving ? <Loader2 className="size-4 motion-safe:animate-spin" /> : <LogOut className="size-4" />}
-            <span>{leaving ? "Leaving..." : "Leave agent"}</span>
+            <span>{leaving
+              ? t("components.sidebaragents.leaving.jsx-text", { defaultValue: "Leaving..." })
+              : t("components.sidebaragents.leave_agent.jsx-text", { defaultValue: "Leave agent" })}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -382,14 +386,18 @@ const { t } = useTranslation();
         queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(agentRouteRef(agent)) }),
       ]);
       pushToast({
-        title: action === "pause" ? "Agent paused" : "Agent resumed",
+        title: action === "pause"
+          ? t("components.sidebaragents.agent_paused.title", { defaultValue: "Agent paused" })
+          : t("components.sidebaragents.agent_resumed.title", { defaultValue: "Agent resumed" }),
         body: agent.name,
         tone: "success",
       });
     },
     onError: (error, { agent, action }) => {
       pushToast({
-        title: action === "pause" ? "Could not pause agent" : "Could not resume agent",
+        title: action === "pause"
+          ? t("components.sidebaragents.could_not_pause_agent.title", { defaultValue: "Could not pause agent" })
+          : t("components.sidebaragents.could_not_resume_agent.title", { defaultValue: "Could not resume agent" }),
         body: error instanceof Error ? error.message : agent.name,
         tone: "error",
       });

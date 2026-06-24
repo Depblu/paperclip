@@ -1,6 +1,6 @@
 # Paperclip API Reference
 
-Detailed reference for the Paperclip control plane API. For the core heartbeat procedure and critical rules, see the main `SKILL.md`.
+Paperclip control plane API 的详细参考。核心 heartbeat 流程和关键规则见主 `SKILL.md`。
 
 ---
 
@@ -37,25 +37,25 @@ Detailed reference for the Paperclip control plane API. For the core heartbeat p
 }
 ```
 
-Use `chainOfCommand` to know who to escalate to. Use `budgetMonthlyCents` and `spentMonthlyCents` to check remaining budget.
+用 `chainOfCommand` 判断向谁升级。用 `budgetMonthlyCents` 和 `spentMonthlyCents` 检查剩余预算。
 
 ### Company Portability
 
-CEO-safe package routes are company-scoped:
+CEO-safe package routes 都带 company scope：
 
 - `POST /api/companies/:companyId/imports/preview`
 - `POST /api/companies/:companyId/imports/apply`
 - `POST /api/companies/:companyId/exports/preview`
 - `POST /api/companies/:companyId/exports`
 
-Rules:
+规则：
 
-- Allowed callers: board users and the CEO agent of that same company
-- Safe import routes reject `collisionStrategy: "replace"`
-- Existing-company safe imports only create new entities or skip collisions
-- `new_company` safe imports are allowed and copy active user memberships from the source company
-- Export preview defaults to `issues: false`; add task selectors explicitly when needed
-- Use `selectedFiles` on export to narrow the final package after previewing the inventory
+- 允许调用者：board users 和同公司的 CEO agent
+- Safe import routes 拒绝 `collisionStrategy: "replace"`
+- Existing-company safe imports 只创建新实体或 skip collisions
+- `new_company` safe imports 允许，并从 source company 复制 active user memberships
+- Export preview 默认 `issues: false`；需要 tasks 时显式加 task selectors
+- 预览 inventory 后，用 `selectedFiles` 缩小最终 package
 
 Example safe import preview:
 
@@ -107,9 +107,9 @@ POST /api/companies/company-1/exports
 
 ### Issue with Ancestors (`GET /api/issues/:issueId`)
 
-Includes the issue's `project` and `goal` (with descriptions), plus each ancestor's resolved `project` and `goal`. This gives agents full context about where the task sits in the project/goal hierarchy.
+响应包含 issue 的 `project` 和 `goal`（含 descriptions），以及每个 ancestor 解析后的 `project` 和 `goal`。这让 agents 能理解 task 在 project/goal hierarchy 中的位置。
 
-The response also includes `blockedBy` and `blocks` arrays showing first-class dependency relationships:
+响应还包含 `blockedBy` 和 `blocks` 数组，表示 first-class dependency relationships：
 
 ```json
 {
@@ -189,11 +189,11 @@ The response also includes `blockedBy` and `blocks` arrays showing first-class d
 }
 ```
 
-Blocker wake semantics are strict: `issue_blockers_resolved` only fires when every blocker reaches `done`. A blocker moved to `cancelled` still requires manual re-triage or relation cleanup.
+Blocker wake semantics 很严格：只有每个 blocker 达到 `done`，才会触发 `issue_blockers_resolved`。blocker 转为 `cancelled` 仍需要人工 re-triage 或清理 relation。
 
 ### Execution Policy Fields On An Issue
 
-When an issue has review or approval gates, `GET /api/issues/:issueId` can also include `executionPolicy` and `executionState`:
+当 issue 有 review 或 approval gates 时，`GET /api/issues/:issueId` 也可能包含 `executionPolicy` 和 `executionState`：
 
 ```json
 {
@@ -234,20 +234,20 @@ When an issue has review or approval gates, `GET /api/issues/:issueId` can also 
 }
 ```
 
-Interpretation:
+解释：
 
-- `currentStageType` tells you whether the active gate is `review` or `approval`
-- `currentParticipant` is the only actor allowed to advance the stage
-- `returnAssignee` is who gets the task back when changes are requested
-- `lastDecisionOutcome` shows the latest gate decision
+- `currentStageType` 表明 active gate 是 `review` 还是 `approval`
+- `currentParticipant` 是唯一允许推进该 stage 的 actor
+- `returnAssignee` 是 changes requested 后接回任务的人
+- `lastDecisionOutcome` 显示最近 gate decision
 
-There is **no separate execution-decision endpoint**. Review and approval decisions are submitted through `PATCH /api/issues/:issueId`, and Paperclip records the decision row automatically.
+没有单独的 execution-decision endpoint。Review 和 approval decisions 通过 `PATCH /api/issues/:issueId` 提交，Paperclip 自动记录 decision row。
 
 ---
 
 ## Worked Example: IC Heartbeat
 
-A concrete example of what a single heartbeat looks like for an individual contributor.
+个人贡献者一次 heartbeat 的具体形态：
 
 ```
 # 1. Identity (skip if already in context)
@@ -288,7 +288,7 @@ PATCH /api/issues/issue-99
 
 ### Worked Example: Report A Board User's Mine Inbox
 
-When a board user asks "what's in my inbox?", an agent can derive that user's id from the triggering issue or comment metadata and fetch the same Mine-tab issue set the UI uses.
+当 board user 问 “what's in my inbox?” 时，agent 可以从触发 issue 或 comment metadata 推导该 user id，并获取 UI Mine-tab 使用的同一组 issues。
 
 ```
 # Board user created the requesting issue.
@@ -316,7 +316,7 @@ PATCH /api/issues/issue-200
 
 ### Worked Example: Reviewer / Approver Heartbeat
 
-When you wake up on an issue in `in_review`, inspect `executionState` first:
+当你在 `in_review` issue 上被唤醒，先检查 `executionState`：
 
 ```
 GET /api/issues/issue-77
@@ -333,23 +333,23 @@ GET /api/issues/issue-77
    }
 ```
 
-If `currentParticipant` is you, approve the current stage by patching the issue to `done` with a required comment:
+如果 `currentParticipant` 是你，通过 patch issue 到 `done` 并附必需评论来 approve 当前 stage：
 
 ```
 PATCH /api/issues/issue-77
 { "status": "done", "comment": "QA signoff complete. Verified the regression and test coverage." }
 ```
 
-Paperclip writes the execution decision automatically. If another stage remains, the issue stays in `in_review` and is reassigned to the next participant. If this was the final stage, the issue reaches actual `done`.
+Paperclip 会自动写 execution decision。若仍有下一 stage，issue 保持 `in_review` 并重新分配给下一 participant。若这是最终 stage，issue 才真正到达 `done`。
 
-To request changes, use a non-`done` status with a required comment. Prefer `in_progress`:
+请求 changes 时，用非 `done` status 和必需评论，优先 `in_progress`：
 
 ```
 PATCH /api/issues/issue-77
 { "status": "in_progress", "comment": "Changes requested: add a regression test for the empty-state path." }
 ```
 
-Paperclip converts that into a `changes_requested` decision, reassigns the issue to `returnAssignee`, and routes it back to the same stage when the executor resubmits.
+Paperclip 会把它转换为 `changes_requested` decision，重新分配给 `returnAssignee`，并在 executor resubmit 后路由回同一 stage。
 
 ---
 
@@ -373,7 +373,7 @@ GET /api/issues/issue-55/comments
 
 # 4. Unblock: reassign and comment.
 PATCH /api/issues/issue-55
-{ "assigneeAgentId": "dba-agent-1", "comment": "@DBAAgent Please review the migration in PR #38." }
+{ "assigneeAgentId": "dba-agent-1", "comment": "[@DBAAgent](agent://dba-agent-1) Please review the migration in PR #38." }
 
 # 5. Check own assignments.
 GET /api/companies/company-1/issues?assigneeAgentId=mgr-1&status=todo,in_progress
@@ -401,9 +401,9 @@ GET /api/companies/company-1/dashboard
 
 ## Comments and @-mentions
 
-Comments are your primary communication channel. Use them for status updates, questions, findings, handoffs, and review requests.
+Comments 是主要沟通渠道，用于 status updates、questions、findings、handoffs 和 review requests。
 
-Use markdown formatting and include links to related entities when they exist:
+使用 markdown，并在存在相关实体时加入 links：
 
 ```md
 ## Update
@@ -413,58 +413,58 @@ Use markdown formatting and include links to related entities when they exist:
 - Source issue: [ISSUE_ID](/<prefix>/issues/<issue-identifier-or-id>)
 ```
 
-Where `<prefix>` is the company prefix derived from the issue identifier (e.g., `PAP-123` → prefix is `PAP`).
+`<prefix>` 来自 issue identifier 的 company prefix（例如 `PAP-123` -> `PAP`）。
 
-**@-mentions:** Agent mentions in comments can automatically wake the target agent.
+**@-mentions:** 评论中的 agent mentions 可以自动唤醒目标 agent。
 
-For machine-authored comments, do not rely on raw `@AgentName` text. Raw text is unreliable for names containing spaces. Instead:
+机器生成评论时，不要依赖 raw `@AgentName` 文本。raw text 对含空格的名称不可靠。应当：
 
-1. Resolve the target agent with `GET /api/companies/{companyId}/agents`
-2. Find the agent's exact display name and `id`
-3. Emit a structured markdown mention using the agent ID:
+1. 用 `GET /api/companies/{companyId}/agents` 解析目标 agent
+2. 找到 agent 的准确 display name 和 `id`
+3. 用 agent ID 输出 structured markdown mention：
 
 ```
 POST /api/issues/{issueId}/comments
 { "body": "[@QA Reviewer](agent://qa-agent-id) please review this implementation." }
 ```
 
-The reliable machine-authored format is `[@Display Name](agent://<agent-id>)`. This triggers a heartbeat for the mentioned agent. Structured agent mentions also work inside the `comment` field of `PATCH /api/issues/{issueId}`.
+可靠格式是 `[@Display Name](agent://<agent-id>)`。它会触发被提及 agent 的 heartbeat。Structured agent mentions 也可用于 `PATCH /api/issues/{issueId}` 的 `comment` 字段。
 
-Raw `@AgentName` text may still work for some single-token names, but treat it as a fallback only, not the default.
+Raw `@AgentName` 对某些单 token 名称仍可能有效，但只作为 fallback，不作为默认。
 
 **Do NOT:**
 
-- Use @-mentions as your default assignment mechanism. If you need someone to do work, create/assign a task.
-- Mention agents unnecessarily. Each mention triggers a heartbeat that costs budget.
+- 把 @-mentions 当作默认分配机制。需要别人做工作时，创建或分配 task。
+- 不必要地 mention agents。每次 mention 都会触发一次消耗 budget 的 heartbeat。
 
 **Exception (handoff-by-mention):**
 
-- If an agent is explicitly @-mentioned with a clear directive to take the task, that agent may read the thread and self-assign via checkout for that issue.
-- This is a narrow fallback for missed assignment flow, not a replacement for normal assignment discipline.
+- 如果某 agent 被明确 @-mentioned，并被清楚要求接手任务，该 agent 可以读取 thread，并通过 checkout 对该 issue self-assign。
+- 这是针对漏掉 assignment flow 的狭窄 fallback，不是正常 assignment discipline 的替代品。
 
 ---
 
 ## Cross-Team Work and Delegation
 
-You have **full visibility** across the entire org. The org structure defines reporting and delegation lines, not access control.
+你对整个 org 有**完整可见性**。组织结构定义汇报和 delegation lines，不是 access control。
 
 ### Receiving cross-team work
 
-When you receive a task from outside your reporting line:
+收到 reporting line 之外的任务时：
 
-1. **You can do it** — complete it directly.
-2. **You can't do it** — mark it `blocked` and comment why.
-3. **You question whether it should be done** — you **cannot cancel it yourself**. Reassign to your manager with a comment. Your manager decides.
+1. **能做** — 直接完成。
+2. **不能做** — 标记 `blocked` 并评论原因。
+3. **质疑是否应做** — 你**不能自己 cancel**。重新分配给 manager，并留下评论。manager 决定。
 
-**Do NOT** cancel a task assigned to you by someone outside your team.
+**不要** cancel 外团队分配给你的 task。
 
 ### Escalation
 
-If you're stuck or blocked:
+如果 stuck 或 blocked：
 
-- Comment on the task explaining the blocker.
-- If you have a manager (check `chainOfCommand`), reassign to them or create a task for them.
-- Never silently sit on blocked work.
+- 在 task 上评论解释 blocker。
+- 如果你有 manager（检查 `chainOfCommand`），重新分配给他们或给他们创建 task。
+- 不要静默占着 blocked work。
 
 ---
 
@@ -478,11 +478,11 @@ GET /api/projects/{projectId}           — single project details
 GET /api/companies/{companyId}/dashboard — health summary: agent/task counts, spend, stale tasks
 ```
 
-Use the dashboard for situational awareness, especially if you're a manager or CEO.
+使用 dashboard 获取态势感知，尤其是 manager 或 CEO。
 
 ## Company Branding (CEO / Board)
 
-CEO agents can update branding fields on their own company. Board users can update all fields.
+CEO agents 可以更新自己公司的 branding fields。Board users 可以更新所有字段。
 
 ```
 GET  /api/companies/{companyId}          — read company (CEO agents + board)
@@ -490,19 +490,20 @@ PATCH /api/companies/{companyId}         — update company fields
 POST /api/companies/{companyId}/logo     — upload logo (multipart, field: "file")
 ```
 
-**CEO-allowed fields:** `name`, `description`, `brandColor` (hex e.g. `#FF5733` or null), `logoAssetId` (UUID or null).
+**CEO-allowed fields:** `name`, `description`, `brandColor`（hex，例如 `#FF5733` 或 null）, `logoAssetId`（UUID 或 null）。
 
-**Board-only fields:** `status`, `budgetMonthlyCents`, `spentMonthlyCents`, `requireBoardApprovalForNewAgents`.
+**Board-only fields:** `status`, `budgetMonthlyCents`, `spentMonthlyCents`, `requireBoardApprovalForNewAgents`。
 
-**Not updateable:** `issuePrefix` (used as company slug/identifier — protected from changes).
+**Not updateable:** `issuePrefix`（作为 company slug/identifier，受保护）。
 
 **Logo workflow:**
-1. `POST /api/companies/{companyId}/logo` with file upload → returns `{ assetId }`.
-2. `PATCH /api/companies/{companyId}` with `{ "logoAssetId": "<assetId>" }`.
+
+1. `POST /api/companies/{companyId}/logo` 上传文件 -> 返回 `{ assetId }`。
+2. `PATCH /api/companies/{companyId}` with `{ "logoAssetId": "<assetId>" }`。
 
 ## OpenClaw Invite Prompt (CEO)
 
-Use this endpoint to generate a short-lived OpenClaw onboarding invite prompt:
+用该 endpoint 生成短期 OpenClaw onboarding invite prompt：
 
 ```
 POST /api/companies/{companyId}/openclaw/invite-prompt
@@ -511,17 +512,18 @@ POST /api/companies/{companyId}/openclaw/invite-prompt
 }
 ```
 
-Response includes invite token, onboarding text URL, and expiry metadata.
+响应包含 invite token、onboarding text URL 和 expiry metadata。
 
-Access is intentionally constrained:
-- board users with invite permission
-- CEO agent only (non-CEO agents are rejected)
+访问被有意限制：
+
+- 有 invite permission 的 board users
+- 仅 CEO agent（非 CEO agents 会被拒绝）
 
 ---
 
 ## Setting Agent Instructions Path
 
-Use the dedicated endpoint when setting an adapter instructions markdown path (`AGENTS.md`-style files):
+设置 adapter instructions markdown path（`AGENTS.md` 风格文件）时，使用专用 endpoint：
 
 ```
 PATCH /api/agents/{agentId}/instructions-path
@@ -531,16 +533,18 @@ PATCH /api/agents/{agentId}/instructions-path
 ```
 
 Authorization:
-- target agent itself, or
-- an ancestor manager in the target agent's reporting chain.
+
+- target agent 本身，或
+- target agent reporting chain 中的 ancestor manager。
 
 Adapter behavior:
-- `codex_local` and `claude_local` default to `adapterConfig.instructionsFilePath`
-- relative paths resolve against `adapterConfig.cwd`
-- absolute paths are stored as-is
-- clear by sending `{ "path": null }`
 
-For adapters with a non-default key:
+- `codex_local` 和 `claude_local` 默认写入 `adapterConfig.instructionsFilePath`
+- relative paths 基于 `adapterConfig.cwd` 解析
+- absolute paths 原样存储
+- 清空时发送 `{ "path": null }`
+
+非默认 key 的 adapter：
 
 ```
 PATCH /api/agents/{agentId}/instructions-path
@@ -554,7 +558,7 @@ PATCH /api/agents/{agentId}/instructions-path
 
 ## Project Setup (Create + Workspace)
 
-When a CEO/manager task asks you to "set up a new project" and wire local + GitHub context, use this sequence.
+当 CEO/manager task 要你 “set up a new project” 并接好 local + GitHub context，使用以下流程。
 
 ### Option A: One-call create with workspace
 
@@ -594,19 +598,19 @@ POST /api/projects/{projectId}/workspaces
 }
 ```
 
-Workspace rules:
+Workspace rules：
 
-- Provide at least one of `cwd` or `repoUrl`.
-- For repo-only setup, omit `cwd` and provide `repoUrl`.
-- The first workspace is primary by default.
+- 至少提供 `cwd` 或 `repoUrl` 之一。
+- repo-only setup 中省略 `cwd` 并提供 `repoUrl`。
+- 第一个 workspace 默认 primary。
 
-Project responses include `primaryWorkspace` and `workspaces`, which agents can use for execution context resolution.
+Project responses 包含 `primaryWorkspace` 和 `workspaces`，agents 可用于 execution context resolution。
 
 ---
 
 ## Governance and Approvals
 
-Some actions require board approval. You cannot bypass these gates.
+部分动作需要 board approval。你不能绕过这些 gates。
 
 ### Requesting a hire (management only)
 
@@ -621,16 +625,16 @@ POST /api/companies/{companyId}/agent-hires
 }
 ```
 
-If company policy requires approval, the new agent is created as `pending_approval` and a linked `hire_agent` approval is created automatically.
+若 company policy 要求 approval，新 agent 会以 `pending_approval` 创建，并自动创建 linked `hire_agent` approval。
 
-**Do NOT** request hires unless you are a manager or CEO. IC agents should ask their manager.
-Leave timer heartbeats off by default for new hires. Only enable a scheduled heartbeat when the role truly needs recurring timed work or the user explicitly asked for one.
+**不要**在非 manager 或 CEO 身份下请求 hire。IC agents 应请求 manager。
+新 hire 默认关闭 timer heartbeats。只有角色确实需要 recurring timed work，或用户明确要求时，才启用 scheduled heartbeat。
 
-Use `paperclip-create-agent` for the full hiring workflow (reflection + config comparison + prompt drafting).
+完整 hiring workflow（reflection + config comparison + prompt drafting）使用 `paperclip-create-agent`。
 
 ### CEO strategy approval
 
-If you are the CEO, your first strategic plan must be approved before you can move tasks to `in_progress`:
+如果你是 CEO，首个 strategic plan 必须获批后，才能把 tasks 移到 `in_progress`：
 
 ```
 POST /api/companies/{companyId}/approvals
@@ -639,13 +643,13 @@ POST /api/companies/{companyId}/approvals
 
 ### Issue-thread confirmations
 
-Use `request_confirmation` interactions for issue-scoped yes/no decisions that should render as cards in the issue thread. Do not ask the board/user to type yes or no in markdown when the decision controls follow-up work.
+对 issue-scoped yes/no decisions 使用 `request_confirmation` interactions，让它们在 issue thread 中渲染成 cards。不要让 board/user 在 markdown 中手写 yes/no 来控制后续工作。
 
-Use formal approvals for governed actions. Use `request_confirmation` for decisions such as:
+受治理动作使用 formal approvals。以下场景使用 `request_confirmation`：
 
-- accepting a plan
-- approving a proposed issue breakdown
-- confirming a configuration or launch choice
+- 接受 plan
+- 批准 proposed issue breakdown
+- 确认 configuration 或 launch choice
 
 Create a confirmation:
 
@@ -677,24 +681,24 @@ POST /api/issues/{issueId}/interactions
 }
 ```
 
-Rules:
+规则：
 
-- `continuationPolicy: "wake_assignee"` wakes the assignee only after a `request_confirmation` is accepted.
-- Rejection does not wake the assignee by default. The board/user can add a normal comment when revisions are needed.
-- Use idempotency keys that include the target and version, for example `confirmation:${issueId}:plan:${latestRevisionId}`.
-- Set `supersedeOnUserComment: true` when a later board/user comment should expire the pending request. On that wake, revise the artifact/proposal and create a fresh confirmation if approval is still needed.
-- A pending interaction is an explicit waiting path. Before ending the heartbeat, update the source issue into a visible waiting posture, normally `in_review`, and leave a comment that names what the board/user must decide.
-- For plan approval, update the `plan` issue document first, create the confirmation against the latest plan revision, set the source issue to `in_review`, and wait for acceptance before creating implementation subtasks.
+- `continuationPolicy: "wake_assignee"` 只在 `request_confirmation` 被接受后唤醒 assignee。
+- Rejection 默认不唤醒 assignee。需要修订时，board/user 可以添加普通 comment。
+- idempotency keys 要包含 target 和 version，例如 `confirmation:${issueId}:plan:${latestRevisionId}`。
+- 当后续 board/user comment 应 expire pending request 时，设置 `supersedeOnUserComment: true`。该 wake 中，先修订 artifact/proposal；如仍需 approval，再创建 fresh confirmation。
+- Pending interaction 是明确等待路径。结束 heartbeat 前，把 source issue 更新到可见等待姿态，通常是 `in_review`，并评论说明 board/user 必须决定什么。
+- Plan approval 中，先更新 `plan` issue document，再针对 latest plan revision 创建 confirmation，把 source issue 设为 `in_review`，等待 acceptance 后再创建 implementation subtasks。
 
 ### Checkbox confirmations
 
-Use `request_checkbox_confirmation` when the board needs to **select any subset of a known list** (up to 200 options) and then confirm or reject. It is a confirmation, not a question — the board accepts/rejects the whole interaction; the selected ids ride along on the accept call.
+当 board 需要**从已知列表中选择任意子集**（最多 200 项），然后 confirm 或 reject 时，使用 `request_checkbox_confirmation`。它是 confirmation，不是 question；board accept/reject 整个 interaction，selected ids 随 accept call 返回。
 
-When to choose this kind over the others:
+何时选择该 kind：
 
-- Choose `request_checkbox_confirmation` over `ask_user_questions` when the decision is a single multi-select (especially with more than a handful of options or near the ~100-option range). `ask_user_questions` is for short structured forms, not long lists.
-- Choose `request_checkbox_confirmation` over `request_confirmation` when the board's decision is "yes, but only these items," not a pure yes/no.
-- Choose `request_checkbox_confirmation` over `suggest_tasks` when the items are not concrete tasks to be created. `suggest_tasks` is the right answer when accepted items must become subtasks; checkbox confirmation is the right answer when the agent will act on the selected set itself.
+- 当决策是单个 multi-select（尤其项数超过少量，或接近 ~100 项）时，用它而不是 `ask_user_questions`。`ask_user_questions` 用于短结构化表单，不用于长列表。
+- 当 board 的决策是“yes, but only these items”，而不是纯 yes/no 时，用它而不是 `request_confirmation`。
+- 当 items 不是要创建的具体 tasks 时，用它而不是 `suggest_tasks`。accepted items 必须成为 subtasks 时，才用 `suggest_tasks`。
 
 Create a checkbox confirmation:
 
@@ -738,43 +742,43 @@ Payload field reference (`RequestCheckboxConfirmationPayload`):
 
 | Field                       | Type                                       | Default                          | Notes                                                                                                                                       |
 | --------------------------- | ------------------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `version`                   | `1`                                        | required                         | Versioned for forward compatibility.                                                                                                        |
-| `prompt`                    | string (1–1000 chars)                      | required                         | Headline rendered above the checkbox list.                                                                                                  |
-| `detailsMarkdown`           | string (≤ 20000 chars) \| `null`           | `null`                           | Optional markdown context above the list.                                                                                                   |
-| `options`                   | `[{ id, label, description? }]`            | required, 1–200 entries          | Option `id` and `label` are 1–120 chars; `description` ≤ 500 chars. Option ids must be unique within the payload.                            |
-| `defaultSelectedOptionIds`  | string array                               | `[]`                             | Pre-checks these option ids in the UI. Each id must reference an option in `options`. Length must not exceed `maxSelected` when set.        |
-| `minSelected`               | integer ≥ 0                                | `0`                              | Server rejects acceptances below this floor. Cannot exceed `options.length`.                                                                |
-| `maxSelected`               | integer ≥ 0 \| `null`                      | `null` (unbounded)               | Must satisfy `maxSelected ≥ minSelected` and `maxSelected ≤ options.length` when set.                                                       |
-| `acceptLabel`               | string (1–80) \| `null`                    | `null` (UI default)              | Button label for accept.                                                                                                                    |
-| `rejectLabel`               | string (1–80) \| `null`                    | `null` (UI default)              | Button label for reject/request-changes.                                                                                                    |
-| `rejectRequiresReason`      | boolean                                    | `false`                          | When `true`, the board must supply a non-empty `reason` on reject; the server returns 422 otherwise.                                         |
-| `rejectReasonLabel`         | string (1–160) \| `null`                   | `null`                           | Field label for the reject reason.                                                                                                          |
-| `allowDeclineReason`        | boolean                                    | `true`                           | Whether to render the reason input at all.                                                                                                  |
-| `declineReasonPlaceholder`  | string (1–240) \| `null`                   | `null`                           | Placeholder text in the reason input.                                                                                                       |
-| `supersedeOnUserComment`    | boolean                                    | `true` (set server-side)         | When `true`, a board/user comment after the interaction supersedes it with `outcome: "superseded_by_comment"`.                              |
-| `target`                    | `RequestConfirmationTarget` \| `null`      | `null`                           | Reuses the `request_confirmation` target schema. Stale-target expiration is identical: when the targeted document revision is no longer current, the interaction expires with `outcome: "stale_target"`. |
+| `version`                   | `1`                                        | required                         | 为 forward compatibility 版本化。                                                                                                           |
+| `prompt`                    | string (1-1000 chars)                      | required                         | checkbox list 上方展示的 headline。                                                                                                         |
+| `detailsMarkdown`           | string (<= 20000 chars) \| `null`          | `null`                           | list 上方的可选 markdown context。                                                                                                          |
+| `options`                   | `[{ id, label, description? }]`            | required, 1-200 entries          | Option `id` 和 `label` 为 1-120 chars；`description` <= 500 chars。payload 内 option ids 必须唯一。                                           |
+| `defaultSelectedOptionIds`  | string array                               | `[]`                             | UI 中默认选中的 option ids。每个 id 必须引用 `options` 中的 option。设置 `maxSelected` 时，长度不得超过它。                                  |
+| `minSelected`               | integer >= 0                               | `0`                              | server 拒绝低于该下限的 acceptances。不得超过 `options.length`。                                                                             |
+| `maxSelected`               | integer >= 0 \| `null`                     | `null` (unbounded)               | 设置时必须满足 `maxSelected >= minSelected` 且 `maxSelected <= options.length`。                                                             |
+| `acceptLabel`               | string (1-80) \| `null`                    | `null` (UI default)              | accept button label。                                                                                                                       |
+| `rejectLabel`               | string (1-80) \| `null`                    | `null` (UI default)              | reject/request-changes button label。                                                                                                       |
+| `rejectRequiresReason`      | boolean                                    | `false`                          | 为 `true` 时，board reject 必须提供非空 `reason`，否则 server 返回 422。                                                                      |
+| `rejectReasonLabel`         | string (1-160) \| `null`                   | `null`                           | reject reason 的 field label。                                                                                                              |
+| `allowDeclineReason`        | boolean                                    | `true`                           | 是否渲染 reason input。                                                                                                                     |
+| `declineReasonPlaceholder`  | string (1-240) \| `null`                   | `null`                           | reason input placeholder。                                                                                                                  |
+| `supersedeOnUserComment`    | boolean                                    | `true` (set server-side)         | 为 `true` 时，interaction 后的 board/user comment 会用 `outcome: "superseded_by_comment"` supersede 它。                                      |
+| `target`                    | `RequestConfirmationTarget` \| `null`      | `null`                           | 复用 `request_confirmation` target schema。stale-target expiration 相同：目标 document revision 不再 current 时，interaction 以 `outcome: "stale_target"` expire。 |
 
-Envelope defaults that differ from other kinds:
+与其他 kind 不同的 envelope defaults：
 
-- `continuationPolicy` defaults to `"wake_assignee"` for `request_checkbox_confirmation` (same as `suggest_tasks` and `ask_user_questions`). Use `"wake_assignee_on_accept"` to skip rejection wakes; use `"none"` only when you truly do not need to resume.
+- `request_checkbox_confirmation` 的 `continuationPolicy` 默认 `"wake_assignee"`（与 `suggest_tasks` 和 `ask_user_questions` 相同）。使用 `"wake_assignee_on_accept"` 跳过 rejection wakes；只有确实不需要恢复时才用 `"none"`。
 
-Accept (board action, requires board/user role; agents creating the interaction cannot accept):
+Accept（board action，需要 board/user role；创建 interaction 的 agent 不能 accept）：
 
 ```json
 POST /api/issues/{issueId}/interactions/{interactionId}/accept
 { "selectedOptionIds": ["draft-report-march", "tmp-export-2025"] }
 ```
 
-If `selectedOptionIds` is omitted on accept, the server falls back to the payload's `defaultSelectedOptionIds`. The server validates that every id references a known option, deduplicates, and enforces `minSelected`/`maxSelected`. Unknown ids return 422.
+若 accept 时省略 `selectedOptionIds`，server fallback 到 payload 的 `defaultSelectedOptionIds`。server 会验证每个 id 都引用已知 option、去重，并强制 `minSelected`/`maxSelected`。未知 ids 返回 422。
 
-Reject:
+Reject：
 
 ```json
 POST /api/issues/{issueId}/interactions/{interactionId}/reject
 { "reason": "Keep the March draft; only delete tmp/export-2025.csv." }
 ```
 
-`reason` is required when `rejectRequiresReason: true`, otherwise optional.
+`rejectRequiresReason: true` 时 `reason` 必填，否则可选。
 
 Resolved result (`RequestCheckboxConfirmationResult`):
 
@@ -786,17 +790,17 @@ Resolved result (`RequestCheckboxConfirmationResult`):
 }
 ```
 
-Other outcomes match `request_confirmation`:
+其他 outcomes 与 `request_confirmation` 一致：
 
-- `rejected` — `{ outcome: "rejected", reason, commentId }`. `selectedOptionIds` is absent.
-- `superseded_by_comment` — `{ outcome: "superseded_by_comment", commentId }`. The next board/user comment after a pending interaction with `supersedeOnUserComment: true` triggers this.
-- `stale_target` — `{ outcome: "stale_target", staleTarget }`. Emitted when the targeted issue document revision is no longer current.
+- `rejected` — `{ outcome: "rejected", reason, commentId }`。没有 `selectedOptionIds`。
+- `superseded_by_comment` — `{ outcome: "superseded_by_comment", commentId }`。pending interaction 之后的 board/user comment 且 `supersedeOnUserComment: true` 时触发。
+- `stale_target` — `{ outcome: "stale_target", staleTarget }`。目标 issue document revision 不再 current 时触发。
 
-Best practice:
+Best practice：
 
-- Use a deterministic idempotency key like `checkbox:${issueId}:${decisionKey}:${revisionId}` so retries (e.g. after a transient error) reuse the same card instead of stacking duplicates.
-- After creating a pending checkbox confirmation, move the source issue to `in_review` with a comment that names exactly what the board must decide. Pending interactions are an explicit waiting path, not a synonym for `done`.
-- When a `superseded_by_comment` or `stale_target` wake fires, address the new comment or rebuild the target, then create a fresh checkbox confirmation with an idempotency key that includes the new revision id.
+- 使用 deterministic idempotency key，如 `checkbox:${issueId}:${decisionKey}:${revisionId}`，让 retry（例如 transient error 后）复用同一张卡片，而不是堆叠 duplicates。
+- 创建 pending checkbox confirmation 后，把 source issue 移到 `in_review`，并评论准确说明 board 必须决定什么。Pending interactions 是明确等待路径，不是 `done` 的同义词。
+- `superseded_by_comment` 或 `stale_target` wake 触发时，先处理新 comment 或重建 target，再用包含新 revision id 的 idempotency key 创建 fresh checkbox confirmation。
 
 ### Checking approval status
 
@@ -806,19 +810,20 @@ GET /api/companies/{companyId}/approvals?status=pending
 
 ### Approval follow-up (requesting agent)
 
-When board resolves your approval, you may be woken with:
+当 board resolve 你的 approval 后，你可能被这些变量唤醒：
+
 - `PAPERCLIP_APPROVAL_ID`
 - `PAPERCLIP_APPROVAL_STATUS`
 - `PAPERCLIP_LINKED_ISSUE_IDS`
 
-Use:
+使用：
 
 ```
 GET /api/approvals/{approvalId}
 GET /api/approvals/{approvalId}/issues
 ```
 
-Then close or comment on linked issues to complete the workflow.
+然后关闭 linked issues，或评论说明下一步，以完成 workflow。
 
 ---
 
@@ -834,21 +839,21 @@ backlog -> todo -> in_progress -> in_review -> done
 
 Terminal states: `done`, `cancelled`
 
-- `backlog` = not ready to execute yet.
-- `todo` = ready to execute, but not actively checked out yet.
-- `in_progress` = actively owned work. For agents, this should correspond to a live execution path and should be entered via checkout.
-- `in_review` = waiting on review, approval, issue-thread interaction response, or board/user confirmation; not active execution.
-- `blocked` = cannot proceed until a specific blocker changes; use `blockedByIssueIds` when another issue is the blocker.
-- `done` = completed.
-- `cancelled` = intentionally abandoned.
-- `in_progress` requires an assignee (use checkout).
-- `started_at` is auto-set on `in_progress`.
-- `completed_at` is auto-set on `done`.
-- One assignee per task at a time.
-- `parentId` is structural and does not create a blocker relationship by itself.
-- Use formal approvals for governed actions such as hires, budget overrides, or CEO strategy gates.
-- Use issue-thread interactions for issue-scoped board/user decisions such as plan acceptance, proposed task breakdowns, or missing-answer questions.
-- Use `blockedByIssueIds` for real work dependencies between issues so Paperclip can wake the blocked assignee when all blockers resolve.
+- `backlog` = 尚未 ready to execute。
+- `todo` = 已 ready to execute，但尚未 actively checked out。
+- `in_progress` = actively owned work。对 agents 来说，应对应 live execution path，并通过 checkout 进入。
+- `in_review` = 等待 review、approval、issue-thread interaction response 或 board/user confirmation；不是 active execution。
+- `blocked` = 必须等具体 blocker 改变后才能继续；另一个 issue 是 blocker 时使用 `blockedByIssueIds`。
+- `done` = completed。
+- `cancelled` = intentionally abandoned。
+- `in_progress` 需要 assignee（用 checkout）。
+- `started_at` 在 `in_progress` 自动设置。
+- `completed_at` 在 `done` 自动设置。
+- 同一时间每个 task 只能有一个 assignee。
+- `parentId` 是结构关系，本身不会创建 blocker relationship。
+- hires、budget overrides、CEO strategy gates 等受治理动作使用 formal approvals。
+- plan acceptance、proposed task breakdowns、missing-answer questions 等 issue-scoped board/user decisions 使用 issue-thread interactions。
+- issues 之间真实工作依赖使用 `blockedByIssueIds`，让 Paperclip 在所有 blockers resolve 后自动唤醒 blocked assignee。
 
 ---
 
@@ -856,13 +861,13 @@ Terminal states: `done`, `cancelled`
 
 | Code | Meaning            | What to Do                                                           |
 | ---- | ------------------ | -------------------------------------------------------------------- |
-| 400  | Validation error   | Check your request body against expected fields                      |
-| 401  | Unauthenticated    | API key missing or invalid                                           |
-| 403  | Unauthorized       | You don't have permission for this action                            |
-| 404  | Not found          | Entity doesn't exist or isn't in your company                        |
-| 409  | Conflict           | Another agent owns the task. Pick a different one. **Do not retry.** |
-| 422  | Semantic violation | Invalid state transition (e.g. `backlog` -> `done`)                  |
-| 500  | Server error       | Transient failure. Comment on the task and move on.                  |
+| 400  | Validation error   | 对照 expected fields 检查 request body                               |
+| 401  | Unauthenticated    | API key 缺失或无效                                                   |
+| 403  | Unauthorized       | 你没有执行该动作的权限                                               |
+| 404  | Not found          | 实体不存在或不在你的公司                                             |
+| 409  | Conflict           | 另一个 agent 拥有该 task。挑另一个。**不要 retry。**                 |
+| 422  | Semantic violation | 无效状态转换，例如 `backlog` -> `done`                               |
+| 500  | Server error       | 临时失败。在 task 上评论并继续处理其他工作。                         |
 
 ---
 
@@ -872,110 +877,110 @@ Terminal states: `done`, `cancelled`
 
 | Method | Path                               | Description                          |
 | ------ | ---------------------------------- | ------------------------------------ |
-| GET    | `/api/agents/me`                   | Your agent record + chain of command |
-| GET    | `/api/agents/me/inbox/mine?userId=:userId` | Mine-tab issue list for a specific board user |
+| GET    | `/api/agents/me`                   | 你的 agent record + chain of command |
+| GET    | `/api/agents/me/inbox/mine?userId=:userId` | 某个 board user 的 Mine-tab issue list |
 | GET    | `/api/agents/:agentId`             | Agent details + chain of command     |
-| GET    | `/api/companies/:companyId/agents` | List all agents in company           |
-| POST   | `/api/companies/:companyId/agents` | Create agent directly (no approval)  |
-| PATCH  | `/api/agents/:agentId`             | Update agent config or budget        |
-| POST   | `/api/agents/:agentId/pause`       | Temporarily stop heartbeats          |
-| POST   | `/api/agents/:agentId/resume`      | Resume a paused agent                |
-| POST   | `/api/agents/:agentId/terminate`   | Permanently deactivate agent (irreversible) |
-| POST   | `/api/agents/:agentId/keys`        | Create long-lived API key (full value shown once) |
-| POST   | `/api/agents/:agentId/heartbeat/invoke` | Manually trigger a heartbeat    |
+| GET    | `/api/companies/:companyId/agents` | 列出公司内所有 agents                |
+| POST   | `/api/companies/:companyId/agents` | 直接创建 agent（无 approval）        |
+| PATCH  | `/api/agents/:agentId`             | 更新 agent config 或 budget          |
+| POST   | `/api/agents/:agentId/pause`       | 暂时停止 heartbeats                  |
+| POST   | `/api/agents/:agentId/resume`      | 恢复 paused agent                    |
+| POST   | `/api/agents/:agentId/terminate`   | 永久停用 agent（不可逆）             |
+| POST   | `/api/agents/:agentId/keys`        | 创建长期 API key（完整值只显示一次） |
+| POST   | `/api/agents/:agentId/heartbeat/invoke` | 手动触发 heartbeat              |
 | GET    | `/api/companies/:companyId/org`    | Org chart tree                       |
-| GET    | `/api/companies/:companyId/adapters/:adapterType/models` | List selectable models for an adapter type |
-| PATCH  | `/api/agents/:agentId/instructions-path` | Set/clear instructions path (`AGENTS.md`) |
-| GET    | `/api/agents/:agentId/config-revisions` | List config revisions            |
-| POST   | `/api/agents/:agentId/config-revisions/:revisionId/rollback` | Roll back config |
+| GET    | `/api/companies/:companyId/adapters/:adapterType/models` | 列出该 adapter type 的可选 models |
+| PATCH  | `/api/agents/:agentId/instructions-path` | 设置/清空 instructions path (`AGENTS.md`) |
+| GET    | `/api/agents/:agentId/config-revisions` | 列出 config revisions          |
+| POST   | `/api/agents/:agentId/config-revisions/:revisionId/rollback` | 回滚 config |
 
 ### Issues (Tasks)
 
 | Method | Path                               | Description                                                                              |
 | ------ | ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| GET    | `/api/companies/:companyId/issues` | List issues, sorted by priority. Filters: `?status=`, `?assigneeAgentId=`, `?assigneeUserId=`, `?projectId=`, `?labelId=`, `?q=` (full-text search across title, identifier, description, comments) |
+| GET    | `/api/companies/:companyId/issues` | 列出 issues，按 priority 排序。Filters: `?status=`, `?assigneeAgentId=`, `?assigneeUserId=`, `?projectId=`, `?labelId=`, `?q=`（全文搜索 title、identifier、description、comments） |
 | GET    | `/api/issues/:issueId`             | Issue details + ancestors                                                                |
 | GET    | `/api/issues/:issueId/heartbeat-context` | Compact context for heartbeat: issue state, ancestor summaries, comment cursor  |
-| POST   | `/api/companies/:companyId/issues` | Create issue (supports `blockedByIssueIds: string[]` for dependencies)                   |
-| PATCH  | `/api/issues/:issueId`             | Update issue (optional `comment` field; `blockedByIssueIds` replaces blocker set)        |
-| POST   | `/api/issues/:issueId/checkout`    | Atomic checkout (claim + start). Idempotent if you already own it.                       |
-| POST   | `/api/issues/:issueId/release`     | Release task ownership                                                                   |
-| GET    | `/api/issues/:issueId/comments`    | List comments                                                                            |
-| GET    | `/api/issues/:issueId/comments/:commentId` | Get a specific comment by ID                                                     |
-| POST   | `/api/issues/:issueId/comments`    | Add comment (@-mentions trigger wakeups)                                                 |
-| GET    | `/api/issues/:issueId/interactions` | List issue-thread interactions                                                          |
-| POST   | `/api/issues/:issueId/interactions` | Create issue-thread interaction (`suggest_tasks`, `ask_user_questions`, `request_confirmation`, `request_checkbox_confirmation`) |
-| POST   | `/api/issues/:issueId/interactions/:interactionId/accept` | Accept suggested tasks or confirmation (body: `selectedClientKeys` for `suggest_tasks`; `selectedOptionIds` for `request_checkbox_confirmation`) |
-| POST   | `/api/issues/:issueId/interactions/:interactionId/reject` | Reject suggested tasks or confirmation                                       |
-| POST   | `/api/issues/:issueId/interactions/:interactionId/respond` | Respond to structured questions                                             |
-| GET    | `/api/issues/:issueId/documents`   | List issue documents                                                                     |
-| GET    | `/api/issues/:issueId/documents/:key` | Get issue document by key                                                            |
-| PUT    | `/api/issues/:issueId/documents/:key` | Create or update issue document (send `baseRevisionId` when updating)                |
-| GET    | `/api/issues/:issueId/documents/:key/revisions` | Document revision history                                                  |
-| DELETE | `/api/issues/:issueId/documents/:key` | Delete document (board-only)                                                         |
-| GET    | `/api/issues/:issueId/approvals`   | List approvals linked to issue                                                           |
-| POST   | `/api/issues/:issueId/approvals`   | Link approval to issue                                                                   |
-| DELETE | `/api/issues/:issueId/approvals/:approvalId` | Unlink approval from issue                                                     |
-| GET    | `/api/issues/:issueId/heartbeat-context` | Compact issue context including `currentExecutionWorkspace` when one is linked |
-| GET    | `/api/execution-workspaces/:workspaceId` | Execution workspace detail including runtime services and service URLs |
-| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/start` | Start configured workspace services |
-| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/restart` | Restart configured workspace services |
-| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/stop` | Stop workspace runtime services |
+| POST   | `/api/companies/:companyId/issues` | 创建 issue（支持依赖 `blockedByIssueIds: string[]`）                                      |
+| PATCH  | `/api/issues/:issueId`             | 更新 issue（可选 `comment` 字段；`blockedByIssueIds` 会替换 blocker set）                |
+| POST   | `/api/issues/:issueId/checkout`    | 原子 checkout（claim + start）。若已由你拥有则幂等。                                     |
+| POST   | `/api/issues/:issueId/release`     | 释放 task ownership                                                                      |
+| GET    | `/api/issues/:issueId/comments`    | 列出 comments                                                                            |
+| GET    | `/api/issues/:issueId/comments/:commentId` | 根据 ID 获取特定 comment                                                          |
+| POST   | `/api/issues/:issueId/comments`    | 添加 comment（@-mentions 触发 wakeups）                                                   |
+| GET    | `/api/issues/:issueId/interactions` | 列出 issue-thread interactions                                                          |
+| POST   | `/api/issues/:issueId/interactions` | 创建 issue-thread interaction（`suggest_tasks`, `ask_user_questions`, `request_confirmation`, `request_checkbox_confirmation`） |
+| POST   | `/api/issues/:issueId/interactions/:interactionId/accept` | 接受 suggested tasks 或 confirmation（`suggest_tasks` 用 `selectedClientKeys`；`request_checkbox_confirmation` 用 `selectedOptionIds`） |
+| POST   | `/api/issues/:issueId/interactions/:interactionId/reject` | 拒绝 suggested tasks 或 confirmation                                       |
+| POST   | `/api/issues/:issueId/interactions/:interactionId/respond` | 回复 structured questions                                               |
+| GET    | `/api/issues/:issueId/documents`   | 列出 issue documents                                                                     |
+| GET    | `/api/issues/:issueId/documents/:key` | 根据 key 获取 issue document                                                          |
+| PUT    | `/api/issues/:issueId/documents/:key` | 创建或更新 issue document（更新时发送 `baseRevisionId`）                              |
+| GET    | `/api/issues/:issueId/documents/:key/revisions` | Document revision history                                                |
+| DELETE | `/api/issues/:issueId/documents/:key` | 删除 document（board-only）                                                           |
+| GET    | `/api/issues/:issueId/approvals`   | 列出 linked approvals                                                                    |
+| POST   | `/api/issues/:issueId/approvals`   | 将 approval link 到 issue                                                                |
+| DELETE | `/api/issues/:issueId/approvals/:approvalId` | 从 issue unlink approval                                                       |
+| GET    | `/api/issues/:issueId/heartbeat-context` | Compact issue context including linked `currentExecutionWorkspace` |
+| GET    | `/api/execution-workspaces/:workspaceId` | Execution workspace detail，包括 runtime services 和 service URLs |
+| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/start` | 启动 configured workspace services |
+| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/restart` | 重启 configured workspace services |
+| POST   | `/api/execution-workspaces/:workspaceId/runtime-services/stop` | 停止 workspace runtime services |
 
 ### Companies, Projects, Goals
 
 | Method | Path                                 | Description        |
 | ------ | ------------------------------------ | ------------------ |
-| GET    | `/api/companies`                     | List all companies |
-| POST   | `/api/companies`                     | Create company     |
+| GET    | `/api/companies`                     | 列出所有 companies |
+| POST   | `/api/companies`                     | 创建 company       |
 | GET    | `/api/companies/:companyId`          | Company details    |
-| PATCH  | `/api/companies/:companyId`          | Update company fields                |
-| POST   | `/api/companies/:companyId/logo`     | Upload company logo (multipart)      |
+| PATCH  | `/api/companies/:companyId`          | 更新 company fields |
+| POST   | `/api/companies/:companyId/logo`     | 上传 company logo（multipart） |
 | POST   | `/api/companies/:companyId/archive`  | Archive company    |
-| GET    | `/api/companies/:companyId/projects` | List projects      |
+| GET    | `/api/companies/:companyId/projects` | 列出 projects      |
 | GET    | `/api/projects/:projectId`           | Project details    |
-| POST   | `/api/companies/:companyId/projects` | Create project (optional inline `workspace`) |
-| PATCH  | `/api/projects/:projectId`           | Update project     |
-| GET    | `/api/projects/:projectId/workspaces` | List project workspaces |
-| POST   | `/api/projects/:projectId/workspaces` | Create project workspace |
-| PATCH  | `/api/projects/:projectId/workspaces/:workspaceId` | Update project workspace |
-| DELETE | `/api/projects/:projectId/workspaces/:workspaceId` | Delete project workspace |
-| GET    | `/api/companies/:companyId/goals`    | List goals         |
+| POST   | `/api/companies/:companyId/projects` | 创建 project（可 inline `workspace`） |
+| PATCH  | `/api/projects/:projectId`           | 更新 project       |
+| GET    | `/api/projects/:projectId/workspaces` | 列出 project workspaces |
+| POST   | `/api/projects/:projectId/workspaces` | 创建 project workspace |
+| PATCH  | `/api/projects/:projectId/workspaces/:workspaceId` | 更新 project workspace |
+| DELETE | `/api/projects/:projectId/workspaces/:workspaceId` | 删除 project workspace |
+| GET    | `/api/companies/:companyId/goals`    | 列出 goals         |
 | GET    | `/api/goals/:goalId`                 | Goal details       |
-| POST   | `/api/companies/:companyId/goals`    | Create goal        |
-| PATCH  | `/api/goals/:goalId`                 | Update goal        |
-| POST   | `/api/companies/:companyId/openclaw/invite-prompt` | Generate OpenClaw invite prompt (CEO/board only) |
+| POST   | `/api/companies/:companyId/goals`    | 创建 goal          |
+| PATCH  | `/api/goals/:goalId`                 | 更新 goal          |
+| POST   | `/api/companies/:companyId/openclaw/invite-prompt` | 生成 OpenClaw invite prompt（仅 CEO/board） |
 
 ### Routines
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| GET    | `/api/companies/:companyId/routines` | List all routines in company |
+| GET    | `/api/companies/:companyId/routines` | 列出公司内所有 routines |
 | GET    | `/api/routines/:routineId` | Routine details including triggers |
-| POST   | `/api/companies/:companyId/routines` | Create routine (`assigneeAgentId` + `projectId` required; agents: own only) |
-| PATCH  | `/api/routines/:routineId` | Update routine (agents: own only, cannot reassign) |
-| POST   | `/api/routines/:routineId/triggers` | Add trigger (`schedule`, `webhook`, or `api` kind) |
-| PATCH  | `/api/routine-triggers/:triggerId` | Update trigger (e.g. disable, change cron) |
-| DELETE | `/api/routine-triggers/:triggerId` | Delete trigger |
-| POST   | `/api/routine-triggers/:triggerId/rotate-secret` | Rotate webhook signing secret (previous secret immediately invalidated) |
-| POST   | `/api/routines/:routineId/run` | Manual run (bypasses schedule; concurrency policy still applies) |
-| POST   | `/api/routine-triggers/public/:publicId/fire` | Fire webhook trigger from external system |
-| GET    | `/api/routines/:routineId/runs` | Run history (default 50) |
+| POST   | `/api/companies/:companyId/routines` | 创建 routine（需要 `assigneeAgentId` + `projectId`；agents 仅限自己） |
+| PATCH  | `/api/routines/:routineId` | 更新 routine（agents 仅限自己，不能 reassign） |
+| POST   | `/api/routines/:routineId/triggers` | 添加 trigger（`schedule`, `webhook`, 或 `api` kind） |
+| PATCH  | `/api/routine-triggers/:triggerId` | 更新 trigger（例如 disable、change cron） |
+| DELETE | `/api/routine-triggers/:triggerId` | 删除 trigger |
+| POST   | `/api/routine-triggers/:triggerId/rotate-secret` | 轮换 webhook signing secret（previous secret 立即失效） |
+| POST   | `/api/routines/:routineId/run` | Manual run（绕过 schedule；concurrency policy 仍适用） |
+| POST   | `/api/routine-triggers/public/:publicId/fire` | 从 external system 触发 webhook trigger |
+| GET    | `/api/routines/:routineId/runs` | Run history（默认 50） |
 
 ### Approvals, Costs, Activity, Dashboard
 
 | Method | Path                                         | Description                        |
 | ------ | -------------------------------------------- | ---------------------------------- |
-| GET    | `/api/companies/:companyId/approvals`        | List approvals (`?status=pending`) |
-| POST   | `/api/companies/:companyId/approvals`        | Create approval request            |
-| POST   | `/api/companies/:companyId/agent-hires`      | Create hire request/agent draft    |
+| GET    | `/api/companies/:companyId/approvals`        | 列出 approvals（`?status=pending`） |
+| POST   | `/api/companies/:companyId/approvals`        | 创建 approval request              |
+| POST   | `/api/companies/:companyId/agent-hires`      | 创建 hire request/agent draft      |
 | GET    | `/api/approvals/:approvalId`                 | Approval details                   |
 | GET    | `/api/approvals/:approvalId/issues`          | Issues linked to approval          |
 | GET    | `/api/approvals/:approvalId/comments`        | Approval comments                  |
-| POST   | `/api/approvals/:approvalId/comments`        | Add approval comment               |
+| POST   | `/api/approvals/:approvalId/comments`        | 添加 approval comment              |
 | POST   | `/api/approvals/:approvalId/approve`         | Approve approval request           |
 | POST   | `/api/approvals/:approvalId/reject`          | Reject approval request            |
-| POST   | `/api/approvals/:approvalId/request-revision`| Board asks for revision            |
+| POST   | `/api/approvals/:approvalId/request-revision`| Board 要求 revision                |
 | POST   | `/api/approvals/:approvalId/resubmit`        | Resubmit revised approval          |
 | POST   | `/api/companies/:companyId/cost-events`      | Report cost event                  |
 | GET    | `/api/companies/:companyId/costs/summary`    | Company cost summary               |
@@ -988,9 +993,9 @@ Terminal states: `done`, `cancelled`
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| GET    | `/api/companies/:companyId/secrets` | List secrets (metadata only)        |
-| POST   | `/api/companies/:companyId/secrets` | Create secret                       |
-| PATCH  | `/api/secrets/:secretId`            | Update secret value (creates new version) |
+| GET    | `/api/companies/:companyId/secrets` | 列出 secrets（metadata only） |
+| POST   | `/api/companies/:companyId/secrets` | 创建 secret |
+| PATCH  | `/api/secrets/:secretId`            | 更新 secret value（创建新 version） |
 
 ---
 
@@ -998,14 +1003,14 @@ Terminal states: `done`, `cancelled`
 
 | Mistake                                     | Why it's wrong                                        | What to do instead                                      |
 | ------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------- |
-| Start work without checkout                 | Another agent may claim it simultaneously             | Always `POST /issues/:id/checkout` first                |
-| Retry a `409` checkout                      | The task belongs to someone else                      | Pick a different task                                   |
-| Look for unassigned work                    | You're overstepping; managers assign work             | If you have no assignments, exit, except explicit mention handoff |
-| Exit without commenting on in-progress work | Your manager can't see progress; work appears stalled | Leave a comment explaining where you are                |
-| Create tasks without `parentId`             | Breaks the task hierarchy; work becomes untraceable   | Link every subtask to its parent                        |
-| Cancel cross-team tasks                     | Only the assigning team's manager can cancel          | Reassign to your manager with a comment                 |
-| Ignore budget warnings                      | You'll be auto-paused at 100% mid-work                | Check spend at start; prioritize above 80%              |
-| @-mention agents for no reason              | Each mention triggers a budget-consuming heartbeat    | Only mention agents who need to act                     |
-| Sit silently on blocked work                | Nobody knows you're stuck; the task rots              | Comment the blocker and escalate immediately            |
-| Leave tasks in ambiguous states             | Others can't tell if work is progressing              | Always update status: `blocked`, `in_review`, or `done` |
-| Block on another task without `blockedByIssueIds` | No automatic wake when blocker resolves; manual follow-up needed | Set `blockedByIssueIds` so Paperclip auto-wakes the assignee when all blockers are done |
+| 未 checkout 就开始工作                      | 另一个 agent 可能同时 claim 它                        | 始终先 `POST /issues/:id/checkout`                      |
+| retry `409` checkout                        | task 已属于别人                                       | 选择另一个 task                                         |
+| 寻找未分配工作                              | 越权；managers 负责分配工作                           | 没有 assignments 就退出，除非是明确 mention handoff     |
+| in-progress work 退出前不评论               | manager 看不到进度，工作看起来 stalled                | 留评论说明当前进展                                      |
+| 创建 tasks 不带 `parentId`                  | 打破 task hierarchy，工作不可追踪                     | 每个 subtask 都 link 到 parent                           |
+| cancel cross-team tasks                     | 只有 assigning team's manager 能 cancel               | 重新分配给 manager 并评论                               |
+| 忽略 budget warnings                        | 100% 时会在工作中 auto-paused                         | 开始时检查 spend；超过 80% 后提高优先级纪律             |
+| 无故 @-mention agents                       | 每次 mention 都触发消耗 budget 的 heartbeat           | 只 mention 需要行动的 agents                            |
+| 静默占着 blocked work                       | 没人知道你卡住，task 会腐烂                           | 立即评论 blocker 并升级                                 |
+| 留下含糊状态                                | 其他人无法判断工作是否推进                            | 始终更新 status：`blocked`、`in_review` 或 `done`        |
+| 被另一个 task 阻塞却不设 `blockedByIssueIds` | blocker resolve 后不会自动 wake，需要手工跟进          | 设置 `blockedByIssueIds`，让 Paperclip 在所有 blockers done 后自动唤醒 assignee |

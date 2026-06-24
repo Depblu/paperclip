@@ -1,6 +1,6 @@
 ---
 name: design-critique
-description: Give a structured product design critique — user job clarity, hierarchy, affordance, error states, accessibility, and consistency — focused on what to change, in what order, and why.
+description: 进行结构化产品设计评审：用户任务清晰度、层级、affordance、错误状态、可访问性和一致性；重点说明改什么、按什么顺序改、为什么。
 key: paperclipai/optional/product/design-critique
 recommendedForRoles:
   - designer
@@ -13,86 +13,86 @@ tags:
   - review
 ---
 
-# Product Design Critique
+# 产品设计评审
 
-A structured critique pass for a screen, flow, or component. The output is a prioritized list of changes a designer or engineer can act on — not adjectives. Critique is not redesign; recommend, do not rebuild.
+针对 screen、flow 或 component 做结构化 critique。输出应是 designer 或 engineer 可执行的优先级变更清单，而不是形容词。Critique 不是 redesign；提出建议，不要重建。
 
-## When to use
+## 何时使用
 
-- A designer or engineer asks for feedback on a screen, mock, or live UI.
-- A feature is shipping and someone wants a final UX read.
-- A flow is suspected of causing user drop-off and you want a pre-research read before instrumentation.
+- designer 或 engineer 请求你反馈某个 screen、mock 或 live UI。
+- 功能即将发布，有人需要最终 UX read。
+- 某个 flow 疑似导致 user drop-off，需要在 instrumentation 前做预研判断。
 
-## When not to use
+## 何时不要使用
 
-- The user wants a redesign. That is a design project, not a critique.
-- The work is so early that no concrete artifact exists. Sketch with them instead of critiquing air.
-- You have no context on the user job. Ask for it first; design critique without user context devolves into taste.
+- 用户想要 redesign。这是设计项目，不是 critique。
+- 工作早到没有具体 artifact。和对方一起 sketch，而不是 critique 空气。
+- 你不了解 user job。先询问；没有用户上下文的设计评审会退化成审美偏好。
 
-## Pre-critique context
+## Critique 前上下文
 
-Before opening a screen, get:
+打开 screen 前，获取：
 
-- **Who is the user.** Specific role and competence, not "users".
-- **What job they are doing on this screen.** One sentence.
-- **What success looks like.** What the user can do after this screen that they could not before.
-- **Where this screen sits in the larger flow.** What precedes and follows.
+- **用户是谁。** 具体角色和能力水平，不要写泛泛的“users”。
+- **他们在这个 screen 上要完成什么 job。** 一句话。
+- **成功是什么样。** 这个 screen 后用户能做什么以前做不到的事。
+- **这个 screen 在更大 flow 中的位置。** 前一步和后一步是什么。
 
-If any of these is missing, ask. Critique without these is opinion.
+缺任何一项就先问。没有这些信息的 critique 只是观点。
 
-## The pass (in order)
+## 评审顺序
 
-1. **Clarity of the user job.**
-   - Within 3 seconds of opening, is it obvious what this screen is for?
-   - Does the primary action match the user's actual job, or a designer's preferred path?
+1. **用户 job 清晰度。**
+   - 打开后 3 秒内，是否能明显看出这个 screen 用来做什么？
+   - primary action 是否匹配用户真实 job，而不是 designer 偏好的路径？
 
-2. **Visual hierarchy.**
-   - The most important thing on the screen should be the most prominent (size, weight, position, color).
-   - Secondary actions should look secondary. Tertiary should be findable but not loud.
-   - Headings should chunk content into the right groups for the task.
+2. **视觉层级。**
+   - screen 上最重要的内容应最突出（size、weight、position、color）。
+   - secondary action 看起来应次要。tertiary action 应可找到但不喧宾夺主。
+   - headings 应按任务把内容切成正确分组。
 
-3. **Affordance and signifiers.**
-   - Clickable things look clickable.
-   - Disabled things look disabled and explain why on hover/focus.
-   - Drag, scroll, or swipe interactions are discoverable, not hidden.
+3. **Affordance 与 signifier。**
+   - 可点击对象看起来可点击。
+   - disabled 对象看起来 disabled，并在 hover/focus 时解释原因。
+   - drag、scroll、swipe 等交互应可发现，不要隐藏。
 
-4. **States.**
-   - Empty state (no data) is designed, not a blank rectangle.
-   - Loading state communicates progress, not just spins.
-   - Error states say what went wrong and what to do next, in the user's words.
-   - Success state confirms without celebrating banal actions.
+4. **状态。**
+   - Empty state 有设计，而不是空白矩形。
+   - Loading state 表达进度，而不是只转圈。
+   - Error state 用用户语言说明发生了什么，以及下一步怎么做。
+   - Success state 做确认，不要为普通操作庆祝。
 
-5. **Inputs and forms.**
-   - Labels visible, not just placeholders.
-   - Validation runs at the right time (on blur, not on every keystroke unless the user is in a known-format field).
-   - Required fields marked.
-   - Field order matches the user's mental order, not the database order.
+5. **输入和表单。**
+   - label 可见，不只依赖 placeholder。
+   - validation 时机正确（on blur，而非每次 keystroke，除非字段格式明确）。
+   - 必填字段有标记。
+   - 字段顺序符合用户思维顺序，而不是数据库顺序。
 
-6. **Accessibility.**
-   - Sufficient color contrast (WCAG AA at minimum; AAA where reasonable).
-   - Focus order is logical for keyboard navigation.
-   - Interactive elements are reachable without a mouse.
-   - Critical information is not color-only (icons, text, position back it up).
-   - Touch targets at least 44×44 px on mobile.
+6. **可访问性。**
+   - 颜色对比至少满足 WCAG AA；合理时追求 AAA。
+   - keyboard navigation 的 focus order 合理。
+   - 交互元素无需鼠标也能到达。
+   - 关键信息不只靠颜色传达；icon、text、position 要支撑它。
+   - mobile touch target 至少 44x44 px。
 
-7. **Consistency.**
-   - Tokens, components, and patterns match the rest of the product.
-   - "Borrowed" patterns from other products are intentional, not accidental drift.
+7. **一致性。**
+   - tokens、components、patterns 与产品其余部分一致。
+   - 借鉴其他产品的 pattern 必须是有意选择，不是意外漂移。
 
-8. **Copy.**
-   - Buttons are verbs that name the outcome ("Save changes" beats "Submit").
-   - Microcopy explains, does not decorate.
-   - Tone matches the product voice.
+8. **文案。**
+   - button 使用动词并说明结果（“Save changes” 优于 “Submit”）。
+   - microcopy 解释问题，不做装饰。
+   - 语气匹配产品 voice。
 
-9. **Edge cases.**
-   - Long content (long names, many items, RTL languages).
-   - Tiny content (one item, zero items).
-   - Slow network and offline behavior.
-   - Permissions denied.
+9. **边界情况。**
+   - 长内容（长名称、大量 items、RTL 语言）。
+   - 极少内容（一个 item、零 items）。
+   - 慢网络和离线行为。
+   - 权限拒绝。
 
-## Output format
+## 输出格式
 
-Group findings by severity, then by category. Each finding is one issue and one suggested fix.
+按严重程度分组，再按类别写。每条 finding 都是一个问题和一个建议修复。
 
 ```md
 ## Design critique: <screen name>
@@ -110,12 +110,12 @@ Group findings by severity, then by category. Each finding is one issue and one 
 - <one-line thing the design got right>
 ```
 
-Always include the "strengths to keep" section. It is not flattery — it is signal to the designer about what not to change in the next round.
+始终包含 “strengths to keep” section。这不是奉承，而是告诉 designer 下一轮不要改掉什么。
 
-## Anti-patterns
+## 反模式
 
-- "I would do it differently" without saying what or why. That is preference, not critique.
-- Long critiques that bury must-fix items under nice-to-haves.
-- Suggesting net-new features under the guise of a critique.
-- Ignoring user context and grading on taste.
-- Treating a critique as approval. State approval explicitly if asked; otherwise critique is feedback, not sign-off.
+- 只说 “I would do it differently”，不说明改什么和为什么。这是偏好，不是 critique。
+- 长篇 critique 把 must-fix 淹没在 nice-to-have 里。
+- 借 critique 之名建议全新功能。
+- 忽略用户上下文，按个人 taste 打分。
+- 把 critique 当 approval。若用户要求 approval，明确说；否则 critique 只是反馈，不是签核。

@@ -1,33 +1,31 @@
 # Company Skills Workflow
 
-Use this reference when a board user, CEO, or manager asks you to find a skill, install it into the company library, or assign it to an agent.
+当 board user、CEO 或 manager 要求你查找 skill、安装到 company library，或分配给 agent 时使用本参考。
 
 ## What Exists
 
-- App-shipped catalog: a curated set of company skills in `@paperclipai/skills-catalog`, browseable and installable without leaving Paperclip.
-- Company skill library: install, inspect, update, audit, reset, and read company skills for the whole company.
-- Agent skill assignment: add or remove company skills on an existing agent.
-- Hire/create composition: pass `desiredSkills` when creating or hiring an agent so the same assignment model applies immediately.
+- App-shipped catalog：`@paperclipai/skills-catalog` 中内置的一组 curated company skills，可在 Paperclip 内浏览和安装。
+- Company skill library：对整家公司安装、检查、更新、审计、reset、读取 company skills。
+- Agent skill assignment：给现有 agent 添加或移除 company skills。
+- Hire/create composition：创建或招聘 agent 时传 `desiredSkills`，让同一 assignment model 立即生效。
 
-The canonical model is:
+Canonical model：
 
-1. add the skill to the company library — either from the app catalog (`skills install`), an external source (`skills import`), or a managed local skill (`skills create`/`skills scan-projects`)
-2. attach the company skill to the agent (`skills agent sync`)
-3. optionally do step 2 during hire/create with `desiredSkills`
+1. 把 skill 添加到 company library：来自 app catalog（`skills install`）、external source（`skills import`），或 managed local skill（`skills create`/`skills scan-projects`）
+2. 把 company skill attach 到 agent（`skills agent sync`）
+3. 可选：hire/create 时通过 `desiredSkills` 执行第 2 步
 
-Catalog install ≠ agent attach. Installing a catalog skill only adds the row to
-`company_skills`. The agent will not use it until you sync the agent's desired
-set.
+Catalog install 不等于 agent attach。安装 catalog skill 只是在 `company_skills` 中增加记录。只有 sync agent 的 desired set 后，agent 才会使用它。
 
 ## Permission Model
 
-- Company skill reads: any same-company actor
-- Company skill mutations: board, CEO, or an agent with the effective `agents:create` capability
-- Agent skill assignment: same permission model as updating that agent
+- Company skill reads：同公司任意 actor
+- Company skill mutations：board、CEO，或具备 effective `agents:create` capability 的 agent
+- Agent skill assignment：与更新该 agent 相同的权限模型
 
 ## Core Endpoints
 
-App-shipped catalog (read-only browse + company install):
+App-shipped catalog（只读浏览 + company install）：
 
 - `GET /api/skills/catalog`
 - `GET /api/skills/catalog/:catalogId`
@@ -35,12 +33,12 @@ App-shipped catalog (read-only browse + company install):
 - `GET /api/skills/catalog/:catalogId/files?path=SKILL.md`
 - `POST /api/companies/:companyId/skills/install-catalog`
 
-Company library:
+Company library：
 
 - `GET /api/companies/:companyId/skills`
 - `GET /api/companies/:companyId/skills/:skillId`
 - `GET /api/companies/:companyId/skills/:skillId/files?path=SKILL.md`
-- `POST /api/companies/:companyId/skills` (managed local create)
+- `POST /api/companies/:companyId/skills`（managed local create）
 - `POST /api/companies/:companyId/skills/import`
 - `POST /api/companies/:companyId/skills/scan-projects`
 - `GET /api/companies/:companyId/skills/:skillId/update-status`
@@ -49,33 +47,25 @@ Company library:
 - `POST /api/companies/:companyId/skills/:skillId/reset`
 - `DELETE /api/companies/:companyId/skills/:skillId`
 
-Agent attach and hire/create composition:
+Agent attach 与 hire/create composition：
 
 - `GET /api/agents/:agentId/skills`
 - `POST /api/agents/:agentId/skills/sync`
 - `POST /api/companies/:companyId/agent-hires`
 - `POST /api/companies/:companyId/agents`
 
-If a board user, CEO, or manager is driving locally, prefer the
-`paperclipai skills` CLI documented in `doc/CLI.md` — it wraps every endpoint
-above, accepts company skill or catalog refs by `id`/`key`/`slug`, and prints
-the same JSON these endpoints return when called with `--json`.
+如果 board user、CEO 或 manager 在本地操作，优先使用 `doc/CLI.md` 中记录的 `paperclipai skills` CLI。它封装上述 endpoints，接受 company skill 或 catalog refs（`id`/`key`/`slug`），并在 `--json` 下打印与 endpoint 相同的 JSON。
 
 ## Install A Skill Into The Company
 
-Two paths cover the common cases:
+常见场景有两条路径：
 
-1. **App-shipped catalog** (preferred when the right skill exists in the
-   bundled/optional catalog) — browse it first, then install with the catalog
-   install endpoint. No external network fetch happens.
-2. **External source** (skills.sh, GitHub, local path, or URL) — use the
-   import endpoint below.
+1. **App-shipped catalog**（catalog 中有合适 skill 时优先）——先浏览，再用 catalog install endpoint 安装。不会进行外部网络 fetch。
+2. **External source**（skills.sh、GitHub、local path 或 URL）——使用下面的 import endpoint。
 
 ### App-shipped catalog
 
-Browse, inspect, and install catalog skills before reaching for an external
-source. Bundled skills are the curated defaults for any company; optional
-skills are role- or domain-specific.
+先浏览、检查并安装 catalog skills，再考虑 external source。Bundled skills 是任何公司的 curated defaults；optional skills 是角色或领域专用。
 
 ```sh
 curl -sS "$PAPERCLIP_API_URL/api/skills/catalog?kind=bundled" \
@@ -92,27 +82,24 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/
   }'
 ```
 
-The install response records provenance (`catalogId`, `catalogKey`,
-`packageVersion`, `originHash`) on the company skill so update/audit/reset
-flows know the pinned origin. `force: true` may replace a same-key
-catalog-managed skill but never bypasses hard-stop audit findings.
+install response 会在 company skill 上记录 provenance（`catalogId`、`catalogKey`、`packageVersion`、`originHash`），供 update/audit/reset flows 使用 pinned origin。`force: true` 可替换 same-key catalog-managed skill，但永远不能绕过 hard-stop audit findings。
 
 ### External source import
 
-Import using a **skills.sh URL**, a key-style source string, a GitHub URL, or a local path.
+可用 **skills.sh URL**、key-style source string、GitHub URL 或 local path 导入。
 
-### Source types (in order of preference)
+### Source types（按优先级）
 
 | Source format | Example | When to use |
 |---|---|---|
-| **skills.sh URL** | `https://skills.sh/google-labs-code/stitch-skills/design-md` | When a user gives you a `skills.sh` link. This is the managed skill registry — **always prefer it when available**. |
-| **Key-style string** | `google-labs-code/stitch-skills/design-md` | Shorthand for the same skill — `org/repo/skill-name` format. Equivalent to the skills.sh URL. |
-| **GitHub URL** | `https://github.com/vercel-labs/agent-browser` | When the skill is in a GitHub repo but not on skills.sh. |
-| **Local path** | `/abs/path/to/skill-dir` | When the skill is on disk (dev/testing only). |
+| **skills.sh URL** | `https://skills.sh/google-labs-code/stitch-skills/design-md` | 用户给出 `skills.sh` link 时使用。这是 managed skill registry，可用时始终优先。 |
+| **Key-style string** | `google-labs-code/stitch-skills/design-md` | 同一 skill 的 shorthand，格式为 `org/repo/skill-name`，等价于 skills.sh URL。 |
+| **GitHub URL** | `https://github.com/vercel-labs/agent-browser` | skill 位于 GitHub repo，但不在 skills.sh 上时使用。 |
+| **Local path** | `/abs/path/to/skill-dir` | skill 在磁盘上时使用（仅 dev/testing）。 |
 
-**Critical:** If a user gives you a `https://skills.sh/...` URL, use that URL or its key-style equivalent (`org/repo/skill-name`) as the `source`. Do **not** convert it to a GitHub URL — skills.sh is the managed registry and the source of truth for versioning, discovery, and updates.
+**Critical:** 如果用户给出 `https://skills.sh/...` URL，直接用该 URL 或它的 key-style 等价形式（`org/repo/skill-name`）作为 `source`。不要转换成 GitHub URL；skills.sh 是 versioning、discovery、updates 的 managed registry 和 source of truth。
 
-### Example: skills.sh import (preferred)
+### Example: skills.sh import（优先）
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/import" \
@@ -123,7 +110,7 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/
   }'
 ```
 
-Or equivalently using the key-style string:
+或使用等价 key-style string：
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/import" \
@@ -145,13 +132,13 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/
   }'
 ```
 
-You can also use source strings such as:
+也可使用 source strings：
 
 - `google-labs-code/stitch-skills/design-md`
 - `vercel-labs/agent-browser/agent-browser`
 - `npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser`
 
-If the task is to discover skills from the company project workspaces first:
+如果任务是先从 company project workspaces 发现 skills：
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/scan-projects" \
@@ -167,7 +154,7 @@ curl -sS "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills" \
   -H "Authorization: Bearer $PAPERCLIP_API_KEY"
 ```
 
-Read the skill entry and its `SKILL.md`:
+读取 skill entry 和它的 `SKILL.md`：
 
 ```sh
 curl -sS "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/<skill-id>" \
@@ -179,13 +166,13 @@ curl -sS "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/<skill-i
 
 ## Assign Skills To An Existing Agent
 
-`desiredSkills` accepts:
+`desiredSkills` 接受：
 
 - exact company skill key
 - exact company skill id
-- exact slug when it is unique in the company
+- 公司内唯一的 exact slug
 
-The server persists canonical company skill keys.
+服务器会持久化 canonical company skill keys。
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills/sync" \
@@ -198,7 +185,7 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills/sync" \
   }'
 ```
 
-If you need the current state first:
+需要先看当前状态：
 
 ```sh
 curl -sS "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills" \
@@ -207,7 +194,7 @@ curl -sS "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills" \
 
 ## Include Skills During Hire Or Create
 
-Use the same company skill keys or references in `desiredSkills` when hiring or creating an agent:
+招聘或创建 agent 时，在 `desiredSkills` 中使用同样的 company skill keys 或 refs：
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agent-hires" \
@@ -226,7 +213,7 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agent-h
   }'
 ```
 
-For direct create without approval:
+不经 approval 的 direct create：
 
 ```sh
 curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agents" \
@@ -247,12 +234,12 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agents"
 
 ## Notes
 
-- Built-in Paperclip runtime skills are still added automatically when required by the adapter.
-- If a reference is missing or ambiguous, the API returns `422`.
-- Prefer linking back to the relevant issue, approval, and agent when you comment about skill changes.
-- Use company portability routes when you need whole-package import/export, not just a skill:
+- Adapter 需要时，内置 Paperclip runtime skills 仍会自动添加。
+- ref 缺失或歧义时，API 返回 `422`。
+- 评论 skill changes 时，优先链接相关 issue、approval 和 agent。
+- 需要整包 import/export 时使用 company portability routes，而不是只导入 skill：
   - `POST /api/companies/:companyId/imports/preview`
   - `POST /api/companies/:companyId/imports/apply`
   - `POST /api/companies/:companyId/exports/preview`
   - `POST /api/companies/:companyId/exports`
-- Use skill-only import when the task is specifically to add a skill to the company library without importing the surrounding company/team/package structure.
+- 任务只是把 skill 加入 company library、并不导入周边 company/team/package 结构时，使用 skill-only import。

@@ -4,6 +4,26 @@
       "title": "Create your first company",
       "description": "Get started by creating a company.",
       "newCompany": "New Company"
+    },
+    "onboardingRoute": {
+      "addAnotherAgent": {
+        "title": "Add another agent to {{companyName}}",
+        "description": "Run onboarding again to add an agent and a starter task for this company."
+      },
+      "createAnotherCompany": {
+        "title": "Create another company",
+        "description": "Run onboarding again to create another company and seed its first agent."
+      },
+      "createYourFirstCompany": {
+        "title": "Create your first company",
+        "description": "Get started by creating a company and your first agent."
+      },
+      "addAgent": {
+        "action": "Add Agent"
+      },
+      "startOnboarding": {
+        "action": "Start Onboarding"
+      }
     }
   },
   "common": {
@@ -252,6 +272,9 @@
       }
     },
     "activeagentspanel": {
+      "agents": {
+        "jsx-text": "Agents"
+      },
       "more_active_recent_run": {
         "jsx-text": " more active/recent run"
       },
@@ -3728,6 +3751,12 @@
       },
       "copy_prompt_manually_below": {
         "body": "Copy the agent onboarding prompt manually from the field below."
+      },
+      "generating_onboarding_prompt": {
+        "action": "Generating..."
+      },
+      "generate_onboarding_prompt": {
+        "action": "Generate onboarding prompt"
       }
     },
     "newgoaldialog": {
@@ -3782,6 +3811,18 @@
       "choose_an_existing_workspace": {
         "jsx-text": "Choose an existing workspace"
       },
+      "claude_options": {
+        "title": "Claude options"
+      },
+      "codex_options": {
+        "title": "Codex options"
+      },
+      "opencode_options": {
+        "title": "OpenCode options"
+      },
+      "agent_options": {
+        "title": "Agent options"
+      },
       "control_whether_this_task_runs_i": {
         "jsx-text": "\n                Control whether this task runs in the shared workspace, a new isolated workspace, or an existing one.\n              "
       },
@@ -3789,7 +3830,8 @@
         "jsx-text": "\n                  Creating issue...\n                "
       },
       "default_model": {
-        "attr_placeholder": "Default model"
+        "attr_placeholder": "Default model",
+        "option_label": "Default model"
       },
       "discard_draft": {
         "jsx-text": "\n            Discard Draft\n          "
@@ -4009,7 +4051,34 @@
         "error": "No company selected"
       },
       "staged_files_could_not_be_added_one": "{{count}} staged file could not be added.",
-      "staged_files_could_not_be_added_other": "{{count}} staged files could not be added."
+      "staged_files_could_not_be_added_other": "{{count}} staged files could not be added.",
+      "primary": {
+        "option_label": "Primary"
+      },
+      "cheap": {
+        "option_label": "Cheap"
+      },
+      "custom": {
+        "option_label": "Custom"
+      },
+      "search_models": {
+        "placeholder": "Search models..."
+      },
+      "no_models_found": {
+        "empty": "No models found."
+      },
+      "creating": {
+        "action": "Creating..."
+      },
+      "create_sub_task": {
+        "action": "Create Sub-Task"
+      },
+      "create_task": {
+        "action": "Create Task"
+      },
+      "failed_to_create_task_try_again": {
+        "error": "Failed to create task. Try again."
+      }
     },
     "newprojectdialog": {
       "add_description": {
@@ -4220,6 +4289,69 @@
       },
       "failed_to_create_task": {
         "error": "Failed to create task"
+      },
+      "create_or_select_company_before_testing": {
+        "error": "Create or select a company before testing adapter environment."
+      },
+      "adapter_environment_test_failed": {
+        "error": "Adapter environment test failed"
+      },
+      "unset_anthropic_retry_still_failing": {
+        "error": "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing."
+      },
+      "failed_to_unset_anthropic_and_retry": {
+        "error": "Failed to unset ANTHROPIC_API_KEY and retry."
+      },
+      "coming_soon": {
+        "jsx-text": "Coming soon"
+      },
+      "select_model_required": {
+        "jsx-text": "Select model (required)"
+      },
+      "default_model": {
+        "jsx-text": "Default"
+      },
+      "testing": {
+        "action": "Testing..."
+      },
+      "test_now": {
+        "action": "Test now"
+      },
+      "retrying": {
+        "action": "Retrying..."
+      },
+      "unset_anthropic_api_key": {
+        "action": "Unset ANTHROPIC_API_KEY"
+      },
+      "gateway_url": {
+        "label": "Gateway URL"
+      },
+      "webhook_url": {
+        "label": "Webhook URL"
+      },
+      "creating": {
+        "action": "Creating..."
+      },
+      "next": {
+        "action": "Next"
+      },
+      "create_and_open_task": {
+        "action": "Create & Open Task"
+      },
+      "warnings": {
+        "status": "Warnings"
+      },
+      "failed": {
+        "status": "Failed"
+      },
+      "info": {
+        "level": "Info"
+      },
+      "warn": {
+        "level": "Warn"
+      },
+      "error": {
+        "level": "Error"
       },
       "ceo": {
         "attr_placeholder": "CEO"
@@ -5407,8 +5539,26 @@
       "agent_paused_by_budget": {
         "attr_title": "Agent paused by budget"
       },
+      "agent_paused": {
+        "title": "Agent paused"
+      },
+      "agent_resumed": {
+        "title": "Agent resumed"
+      },
+      "agent_was_paused_by_budget_limi": {
+        "attr_title": "Agent was paused by budget limits"
+      },
       "agents": {
         "attr_label": "Agents"
+      },
+      "budget_paused": {
+        "jsx-text": "Budget paused"
+      },
+      "could_not_pause_agent": {
+        "title": "Could not pause agent"
+      },
+      "could_not_resume_agent": {
+        "title": "Could not resume agent"
       },
       "edit_agent": {
         "jsx-text": "Edit agent"
@@ -5416,8 +5566,23 @@
       "invalid_reporting_chain": {
         "attr_aria-label": "Invalid reporting chain"
       },
+      "invalid_org_chain": {
+        "jsx-text": "Invalid org chain"
+      },
+      "leave_agent": {
+        "jsx-text": "Leave agent"
+      },
+      "leaving": {
+        "jsx-text": "Leaving..."
+      },
       "live": {
         "jsx-text": " live\n              "
+      },
+      "pause_agent": {
+        "jsx-text": "Pause agent"
+      },
+      "resume_agent": {
+        "jsx-text": "Resume agent"
       },
       "see_all_agents": {
         "jsx-text": "See all agents"
@@ -5442,6 +5607,9 @@
       },
       "agent_sort": {
         "radio_label": "Agent sort"
+      },
+      "updating": {
+        "jsx-text": "Updating..."
       }
     },
     "sidebarcompanymenu": {
@@ -5451,8 +5619,32 @@
       "company_settings": {
         "jsx-text": "Company settings"
       },
+      "done": {
+        "action": "Done"
+      },
+      "edit": {
+        "action": "Edit"
+      },
+      "invite_people": {
+        "jsx-text": "Invite people"
+      },
+      "invite_people_to_company": {
+        "jsx-text": "Invite people to {{companyName}}"
+      },
       "no_workspaces": {
         "jsx-text": "No workspaces"
+      },
+      "open_workspace_switcher": {
+        "attr_aria-label": "Open workspace switcher"
+      },
+      "open_workspace_switcher_for": {
+        "attr_aria-label": "Open {{companyName}} workspace switcher"
+      },
+      "sign_out": {
+        "action": "Sign out"
+      },
+      "signing_out": {
+        "action": "Signing out..."
       },
       "switch_workspace": {
         "jsx-text": "\n            Switch workspace\n          "

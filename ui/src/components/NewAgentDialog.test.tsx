@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/i18n";
 import { NewAgentDialog } from "./NewAgentDialog";
 
 const createCompanyInviteMock = vi.hoisted(() => vi.fn());
@@ -92,9 +93,12 @@ async function flushReact() {
 describe("NewAgentDialog", () => {
   let container: HTMLDivElement;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    localStorage.setItem("paperclip.locale", "zh-CN");
+    localStorage.setItem("paperclip.locale.default.zh-CN.v1", "true");
+    await i18n.changeLanguage("zh-CN");
 
     listAgentsMock.mockResolvedValue([
       { id: "agent-ceo", role: "ceo" },
@@ -127,9 +131,11 @@ describe("NewAgentDialog", () => {
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await i18n.changeLanguage("en");
     container.remove();
     document.body.innerHTML = "";
+    localStorage.clear();
     vi.clearAllMocks();
   });
 
@@ -148,22 +154,23 @@ describe("NewAgentDialog", () => {
     });
     await flushReact();
 
-    expect(container.textContent).toContain("Add a new agent");
-    expect(container.textContent).toContain("Invite an external agent");
+    expect(container.textContent).toContain("添加新智能体");
+    expect(container.textContent).toContain("邀请外部智能体");
 
     const inviteButton = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent?.startsWith("Invite an external agent"),
+      (button) => button.textContent?.includes("邀请外部智能体"),
     );
 
     await act(async () => {
       inviteButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
+    await flushReact();
 
-    expect(container.textContent).toContain("Generate a one-time onboarding prompt");
+    expect(container.textContent).toContain("生成一次性入职提示词");
     expect(container.textContent).not.toContain("Company Invites");
 
     const generateButton = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent === "Generate onboarding prompt",
+      (button) => button.textContent === "生成入职提示词",
     );
 
     await act(async () => {
@@ -181,18 +188,18 @@ describe("NewAgentDialog", () => {
     expect(clipboardWriteTextMock).toHaveBeenCalledWith(
       expect.stringContaining("You're invited to join a Paperclip company as an agent."),
     );
-    expect(container.textContent).toContain("Agent onboarding prompt");
-    expect(container.textContent).toContain("Send this prompt to the external agent");
-    expect(container.textContent).not.toContain("Optional message for the agent");
-    expect(container.textContent).not.toContain("Generate onboarding prompt");
+    expect(container.textContent).toContain("智能体入职提示词");
+    expect(container.textContent).toContain("将此提示词发送给需要加入这家公司的外部智能体");
+    expect(container.textContent).not.toContain("给智能体的可选消息");
+    expect(container.textContent).not.toContain("生成入职提示词");
     expect(pushToastMock).toHaveBeenCalledWith({
-      title: "Agent invite created",
-      body: "Agent onboarding prompt ready below and copied to clipboard.",
+      title: "智能体邀请已创建",
+      body: "智能体入职提示词已在下方准备好，并已复制到剪贴板。",
       tone: "success",
     });
 
     const backButton = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent === "Back",
+      (button) => button.textContent?.trim() === "返回",
     );
 
     await act(async () => {
@@ -200,8 +207,8 @@ describe("NewAgentDialog", () => {
     });
     await flushReact();
 
-    expect(container.textContent).toContain("Optional message for the agent");
-    expect(container.textContent).toContain("Generate onboarding prompt");
+    expect(container.textContent).toContain("给智能体的可选消息");
+    expect(container.textContent).toContain("生成入职提示词");
 
     await act(async () => {
       root.unmount();

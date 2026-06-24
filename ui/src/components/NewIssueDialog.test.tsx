@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/i18n";
 import { NewIssueDialog } from "./NewIssueDialog";
 
 const dialogState = vi.hoisted(() => ({
@@ -299,7 +300,7 @@ function renderDialog(container: HTMLDivElement) {
 describe("NewIssueDialog", () => {
   let container: HTMLDivElement;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.useRealTimers();
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -329,6 +330,9 @@ describe("NewIssueDialog", () => {
     mockAssetsApi.uploadImage.mockResolvedValue({ contentPath: "/uploads/asset.png" });
     mockInstanceSettingsApi.getExperimental.mockResolvedValue({ enableIsolatedWorkspaces: false });
     localStorage.clear();
+    localStorage.setItem("paperclip.locale", "en");
+    localStorage.setItem("paperclip.locale.default.zh-CN.v1", "true");
+    await i18n.changeLanguage("en");
     mockIssuesApi.create.mockResolvedValue({
       id: "issue-2",
       companyId: "company-1",

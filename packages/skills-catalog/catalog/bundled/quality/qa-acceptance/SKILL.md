@@ -1,6 +1,6 @@
 ---
 name: qa-acceptance
-description: Produce QA acceptance criteria and a manual validation plan for a feature change — golden path, edge cases, error states, performance limits, and explicit pass/fail evidence.
+description: 为功能变更产出 QA acceptance criteria 和手工验证计划，覆盖 golden path、边界情况、错误状态、性能限制，以及明确的 pass/fail 证据。
 key: paperclipai/bundled/quality/qa-acceptance
 recommendedForRoles:
   - qa
@@ -13,81 +13,81 @@ tags:
   - testing
 ---
 
-# QA Acceptance
+# QA 验收
 
-Write acceptance criteria that a reviewer can run against the running app and decide pass or fail without asking the author. The criteria are the contract — automated tests cover correctness, QA covers feature-level behavior.
+编写 reviewer 能在运行中的 app 上执行，并独立判断 pass / fail 的 acceptance criteria。criteria 是契约；自动化测试覆盖正确性，QA 覆盖功能级行为。
 
-## When to use
+## 何时使用
 
-- A feature change is heading to QA and needs a written validation plan.
-- A reviewer is asked to verify a PR that touches user-visible behavior.
-- An incident postmortem requires a regression check before reopen-prevention.
-- A release candidate needs a pre-cut smoke pass.
+- 功能变更即将进入 QA，需要书面验证计划。
+- reviewer 被要求验证影响用户可见行为的 PR。
+- 事故复盘要求在防复发前补充 regression check。
+- release candidate 需要发布前 smoke pass。
 
-## When not to use
+## 何时不要使用
 
-- The change is unit-test-only (utility refactor, internal naming). Acceptance criteria are unnecessary churn.
-- You are asked to write tests against API contracts. Use contract testing, not feature QA.
+- 改动只涉及 unit test 或内部实现（utility refactor、内部命名）。acceptance criteria 是不必要的噪音。
+- 你被要求针对 API contract 写测试。应使用 contract testing，而不是功能 QA。
 
-## Acceptance criteria format
+## Acceptance criteria 格式
 
-Each criterion is a single, independently-verifiable statement:
-
-```md
-- **Given** <starting state>, **when** <action>, **then** <observable outcome>.
-```
-
-Example:
+每条 criterion 是单个可独立验证的陈述：
 
 ```md
-- **Given** a CSV export with 0 rows, **when** the user clicks Export, **then** the file downloads with only the header row and the UI shows "Exported 0 rows".
+- **Given** <起始状态>, **when** <动作>, **then** <可观察结果>.
 ```
 
-Avoid criteria that combine multiple `when`s or `then`s. Split them.
+示例：
 
-## What every plan must cover
+```md
+- **Given** CSV export 有 0 行数据, **when** 用户点击 Export, **then** 下载的文件只包含 header row，且 UI 显示 "Exported 0 rows"。
+```
 
-1. **Golden path.** The most common successful flow, end to end.
-2. **Empty and minimum states.** Zero items, one item, missing optional inputs.
-3. **Boundary inputs.** Max length strings, max numeric values, unicode, RTL text where applicable.
-4. **Error states.** Network failure, permission denied, validation failures, conflict (409), not found (404).
-5. **Concurrency and ordering.** Two users acting at once, race against background jobs, refresh during mutation.
-6. **Performance envelope.** The largest realistic input the change must handle without UI hangs or timeouts.
-7. **Backward compatibility.** Existing data, existing URLs, persisted user preferences continue to work.
-8. **Telemetry and audit.** Events, logs, or activity entries the change is supposed to emit.
+避免一条 criterion 包含多个 `when` 或 `then`。拆开写。
 
-If a section is genuinely not applicable, write "N/A: <why>" — do not silently omit.
+## 每个计划必须覆盖
 
-## Evidence
+1. **Golden path。** 最常见的成功流程，端到端覆盖。
+2. **空状态与最小状态。** 0 个 item、1 个 item、缺少可选输入。
+3. **边界输入。** 最大长度字符串、最大数值、Unicode、适用时的 RTL 文本。
+4. **错误状态。** 网络失败、权限拒绝、validation 失败、conflict (409)、not found (404)。
+5. **并发与顺序。** 两个用户同时操作、与 background job 竞争、mutation 期间刷新。
+6. **性能边界。** 变更必须处理的最大现实输入，不应 UI 卡死或 timeout。
+7. **向后兼容。** 既有数据、既有 URL、持久化用户偏好继续可用。
+8. **Telemetry 与 audit。** 变更应产生的 events、logs 或 activity entries。
 
-Each criterion needs evidence on the verification pass:
+若某节确实不适用，写 `N/A: <原因>`，不要静默省略。
 
-- Screenshot or short clip for UI behavior.
-- Copied console / network output for API behavior.
-- Log snippet or activity row for telemetry.
-- Timing measurement for performance criteria.
+## 证据
 
-"Looks good to me" without evidence is not a pass.
+每条 criterion 在验证时都需要证据：
 
-## Quarantine and follow-up
+- UI 行为用 screenshot 或短 clip。
+- API 行为用 console / network 输出。
+- telemetry 用 log snippet 或 activity row。
+- 性能 criteria 用时间测量。
 
-- A failing criterion blocks acceptance unless explicitly waived by the owner with a tracked follow-up issue.
-- "Known issue" without a linked follow-up is not a waiver.
-- If you add a new criterion mid-pass, restart the pass — partial coverage hides regressions.
+没有证据的 “Looks good to me” 不是 pass。
 
-## Handoff back to the author
+## 隔离与跟进
 
-Return the validation plan with three sections:
+- 失败 criterion 会阻塞验收，除非 owner 明确 waiver 并关联 follow-up issue。
+- 没有 linked follow-up 的 “Known issue” 不是 waiver。
+- 如果中途新增 criterion，重新开始该 pass；部分覆盖会掩盖 regression。
 
-- **Pass.** Criteria that passed, with one-line evidence summaries.
-- **Fail.** Criteria that failed, with the exact reproduction.
-- **Blocked.** Criteria you could not run, with why.
+## 交还给作者
 
-The author owns turning failures into either fixes or accepted deferrals.
+返回验证计划，包含三节：
 
-## Anti-patterns
+- **Pass。** 已通过 criteria，附一行证据摘要。
+- **Fail。** 失败 criteria，附精确复现步骤。
+- **Blocked。** 无法运行的 criteria，附原因。
 
-- Acceptance phrased as test plan ("write a Cypress test for X"). Acceptance is what is true after the change ships; tests are how you check.
-- Criteria that depend on inspecting implementation details (selectors, query plans). Stay observable.
-- Long checklists with no priority. Mark must-pass criteria distinctly from nice-to-have.
-- Validation reports that say "passed" with no evidence. Reviewers cannot audit those.
+作者负责将失败项转成修复或接受的 deferral。
+
+## 反模式
+
+- 把 acceptance 写成测试计划（“为 X 写 Cypress test”）。acceptance 是变更发布后应成立的事实；测试只是检查方式。
+- criteria 依赖实现细节（selector、query plan）。保持可观察。
+- 长 checklist 没有优先级。明确标记 must-pass criteria 和 nice-to-have。
+- 验证报告说 “passed” 但没有证据。reviewer 无法审计。

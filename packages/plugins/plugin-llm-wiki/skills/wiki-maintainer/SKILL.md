@@ -1,12 +1,12 @@
 ---
 name: "LLM Wiki Maintainer"
-description: "Use the LLM Wiki plugin tools to maintain a cited local company wiki."
+description: "使用 LLM Wiki 插件工具维护带引用的本地公司 wiki。"
 ---
 
 # LLM Wiki Maintainer
 
-Use this skill when maintaining the company LLM Wiki, answering questions from it, ingesting durable source material, refreshing the index, or linting wiki structure.
+维护公司 LLM Wiki、从中回答问题、摄取持久 source material、刷新 index 或 lint wiki 结构时，使用此 skill。
 
-Before changing wiki files, resolve the configured wiki root, read its AGENTS.md, inspect wiki/index.md and recent wiki/log.md entries, then use the LLM Wiki plugin tools for source reads, page writes, patch proposals, backlinks, and logging.
+修改 wiki 文件前，先解析配置的 wiki root，读取其 AGENTS.md，检查 wiki/index.md 和最近的 wiki/log.md entry，然后使用 LLM Wiki 插件工具执行 source read、page write、patch proposal、backlink 和 logging。
 
-Keep raw sources immutable, cite wiki pages and raw paths, update wiki/index.md when page navigation changes, and append a concise wiki/log.md entry for durable updates. For Paperclip project work, keep `wiki/projects/<project-slug>/standup.md` current as the executive status view and use `wiki/projects/<project-slug>/index.md` for durable project knowledge. Write project material as concept-grouped executive synthesis, not issue-id lists or metadata dumps.
+保持 raw source 不可变；在答案中引用 wiki page 和 raw path；页面导航变化时更新 wiki/index.md；持久更新后向 wiki/log.md 追加简洁 entry。对于 Paperclip project work，保持 `wiki/projects/<project-slug>/standup.md` 作为 executive status view，并用 `wiki/projects/<project-slug>/index.md` 存放持久 project knowledge。project material 应写成按概念分组的 executive synthesis，而不是 issue-id list 或 metadata dump。

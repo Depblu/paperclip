@@ -4,6 +4,7 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/i18n";
 import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
 
 const mockAuthApi = vi.hoisted(() => ({
@@ -108,9 +109,12 @@ async function flushReact() {
 describe("SidebarCompanyMenu", () => {
   let container: HTMLDivElement;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    localStorage.setItem("paperclip.locale", "zh-CN");
+    localStorage.setItem("paperclip.locale.default.zh-CN.v1", "true");
+    await i18n.changeLanguage("zh-CN");
     mockAuthApi.getSession.mockResolvedValue({
       session: { id: "session-1", userId: "user-1" },
       user: {
@@ -155,7 +159,7 @@ describe("SidebarCompanyMenu", () => {
 
     expect(container.textContent).toContain("Acme Labs");
 
-    const trigger = container.querySelector('button[aria-label="Open Acme Labs workspace switcher"]');
+    const trigger = container.querySelector('button[aria-label="打开 Acme Labs 工作区切换器"]');
     expect(trigger).not.toBeNull();
 
     await act(async () => {
@@ -164,17 +168,17 @@ describe("SidebarCompanyMenu", () => {
     });
     await flushReact();
 
-    expect(document.body.textContent).toContain("Switch workspace");
-    expect(document.body.textContent).toContain("Edit");
+    expect(document.body.textContent).toContain("切换工作区");
+    expect(document.body.textContent).toContain("编辑");
     expect(document.body.textContent).toContain("Strata");
     expect(document.body.textContent).toContain("ANA");
-    expect(document.body.textContent).toContain("Add company...");
-    expect(document.body.textContent).toContain("Invite people to Acme Labs");
-    expect(document.body.textContent).toContain("Company settings");
-    expect(document.body.textContent).toContain("Sign out");
+    expect(document.body.textContent).toContain("添加公司...");
+    expect(document.body.textContent).toContain("邀请成员加入 Acme Labs");
+    expect(document.body.textContent).toContain("公司设置");
+    expect(document.body.textContent).toContain("退出登录");
 
     const signOutButton = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
-      .find((element) => element.textContent?.includes("Sign out"));
+      .find((element) => element.textContent?.includes("退出登录"));
     expect(signOutButton).toBeTruthy();
 
     await act(async () => {
@@ -205,7 +209,7 @@ describe("SidebarCompanyMenu", () => {
     await flushReact();
     await flushReact();
 
-    const trigger = container.querySelector('button[aria-label="Open Acme Labs workspace switcher"]');
+    const trigger = container.querySelector('button[aria-label="打开 Acme Labs 工作区切换器"]');
     expect(trigger).not.toBeNull();
 
     await act(async () => {
@@ -215,7 +219,7 @@ describe("SidebarCompanyMenu", () => {
     await flushReact();
 
     const editButton = Array.from(document.body.querySelectorAll("button"))
-      .find((element) => element.textContent === "Edit");
+      .find((element) => element.textContent === "编辑");
     expect(editButton).toBeTruthy();
 
     await act(async () => {
@@ -223,7 +227,7 @@ describe("SidebarCompanyMenu", () => {
     });
     await flushReact();
 
-    expect(document.body.textContent).toContain("Done");
+    expect(document.body.textContent).toContain("完成");
     expect(document.body.textContent).not.toContain("PAP");
     expect(document.body.textContent).not.toContain("ANA");
     expect(document.body.querySelector('button[aria-label="Reorder Strata"]')).toBeTruthy();
@@ -262,7 +266,7 @@ describe("SidebarCompanyMenu", () => {
     await flushReact();
     await flushReact();
 
-    const trigger = container.querySelector('button[aria-label="Open Acme Labs workspace switcher"]');
+    const trigger = container.querySelector('button[aria-label="打开 Acme Labs 工作区切换器"]');
     expect(trigger).not.toBeNull();
 
     await act(async () => {

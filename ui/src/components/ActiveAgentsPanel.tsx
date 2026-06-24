@@ -73,7 +73,7 @@ interface ActiveAgentsPanelProps {
 
 export function ActiveAgentsPanel({
   companyId,
-  title = "Agents",
+  title,
   minRunCount = MIN_DASHBOARD_RUNS,
   fetchLimit,
   cardLimit = DASHBOARD_RUN_CARD_LIMIT,
@@ -84,6 +84,7 @@ export function ActiveAgentsPanel({
   showMoreLink = true,
 }: ActiveAgentsPanelProps) {
 const { t } = useTranslation();
+  const heading = title ?? t("components.activeagentspanel.agents.jsx-text", { defaultValue: "Agents" });
 
   const { data: liveRuns } = useQuery({
     queryKey: [...queryKeys.liveRuns(companyId), queryScope, { minRunCount, fetchLimit }],
@@ -128,7 +129,7 @@ const { t } = useTranslation();
   return (
     <div>
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        {title}
+        {heading}
       </h3>
       {runs.length === 0 ? (
         <div className="rounded-xl border border-border p-4">

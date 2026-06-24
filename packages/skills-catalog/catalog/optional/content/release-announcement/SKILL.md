@@ -1,6 +1,6 @@
 ---
 name: release-announcement
-description: Write a release announcement — changelog, blog post, in-app note, or social post — that leads with user impact, names the audience, and includes upgrade/migration steps without filler.
+description: 撰写 release announcement、changelog、blog post、in-app note 或 social post；以用户影响开头，明确受众，并包含 upgrade/migration 步骤，避免 filler。
 key: paperclipai/optional/content/release-announcement
 recommendedForRoles:
   - devrel
@@ -13,46 +13,46 @@ tags:
   - communication
 ---
 
-# Release Announcement
+# 发布公告
 
-Write the channel-appropriate announcement for a release without churn. Different surfaces need different shapes: a changelog entry is not a blog post is not a social card. The bar is: a reader of the chosen surface can decide in under 30 seconds whether this release affects them, and if so what to do.
+为 release 写适合渠道的公告，避免无效包装。不同 surface 需要不同形状：changelog entry 不是 blog post，也不是 social card。标准是：读者能在 30 秒内判断这次 release 是否影响自己，以及如果影响该做什么。
 
-## When to use
+## 何时使用
 
-- A version, feature, or fix is shipping and needs writeup for at least one surface.
-- A previously private feature is going GA.
-- A breaking change needs broadcast before users hit it.
+- 某个版本、功能或修复正在发布，需要至少一个 surface 的 writeup。
+- 之前内部可见的功能进入 GA。
+- 破坏性变更需要在用户踩坑前广播。
 
-## When not to use
+## 何时不要使用
 
-- An internal-only change with no user impact. Update internal docs; do not announce.
-- The release is incomplete (still in active development). Wait until it ships, even if marketing wants the post.
+- 内部变更没有用户影响。更新内部文档，不要公告。
+- release 还没完成，仍在 active development。等它真正发布，即使 marketing 想提前发。
 
-## Determine the audience and channel first
+## 先确定受众和渠道
 
-| Audience | Best channel | Tone |
+| 受众 | 最佳渠道 | 语气 |
 |---|---|---|
-| Existing power users | Changelog, in-app note | Terse, factual, links |
-| Engineering teams adopting your API | Release notes, dev blog | Examples, migration steps, version pins |
-| Prospective customers | Landing page, marketing blog | Story arc, problem → solution, social proof |
-| Broad audience | Social post, email newsletter | One-sentence pitch, link to depth |
-| Internal team | Slack/Discord post | What changed, who to ping if it breaks |
+| 既有 power users | Changelog、in-app note | 简短、事实、链接 |
+| 接入 API 的工程团队 | Release notes、dev blog | 示例、迁移步骤、版本 pin |
+| 潜在客户 | Landing page、marketing blog | 故事线、问题到方案、social proof |
+| 广泛受众 | Social post、email newsletter | 一句话 pitch、链接到详情 |
+| 内部团队 | Slack/Discord post | 变化内容、出问题找谁 |
 
-Pick the audience for *this* writeup. One release often needs several writeups; do not blend them.
+为本次 writeup 选择一个受众。一次 release 往往需要多篇 writeup；不要混在一起。
 
-## Universal structure
+## 通用结构
 
-Whatever the channel, lead with:
+无论渠道如何，都先写：
 
-1. **What changed.** One sentence in the user's vocabulary.
-2. **Who it affects.** Which user role / use case.
-3. **What to do.** Migrate now / opt-in / no action needed.
+1. **改了什么。** 用用户语言写一句话。
+2. **影响谁。** 哪类用户角色 / use case。
+3. **需要做什么。** 现在迁移 / opt-in / 无需操作。
 
-Everything else is depth that supports those three.
+其他内容都是支撑这三点的细节。
 
-## Channel templates
+## 渠道模板
 
-### Changelog entry (terse)
+### Changelog entry（简短）
 
 ```md
 ## v1.42.0 — 2026-05-26
@@ -73,56 +73,56 @@ Everything else is depth that supports those three.
 - <change>. **Migration:** <one-line> or <link to guide>.
 ```
 
-### Release notes (for adopters)
+### Release notes（面向 adopters）
 
-Same as changelog, plus:
+与 changelog 相同，另加：
 
-- Migration guide section with before/after code.
-- Compatibility table (versions, runtimes, OS).
-- Known issues and workarounds.
-- Acknowledgements (contributors, reporters of fixed bugs).
+- migration guide section，包含 before/after code。
+- compatibility table（versions、runtimes、OS）。
+- known issues 和 workarounds。
+- acknowledgements（contributors、fixed bugs 的 reporters）。
 
-### Dev blog post (300–800 words)
+### Dev blog post（300-800 字）
 
-- **Hook (1 paragraph):** the problem the release solves, in a real-world scenario.
-- **What's new (3–5 bullets with sub-paragraphs):** features, with one code or screenshot example each.
-- **Upgrade (1 paragraph):** how to upgrade, what to check.
-- **What's next:** one sentence about the next direction. Avoid promises.
+- **Hook（1 段）：** release 解决的问题，放进真实场景。
+- **What's new（3-5 bullets + 子段落）：** 功能，每项配一个 code 或 screenshot 示例。
+- **Upgrade（1 段）：** 如何升级，要检查什么。
+- **What's next：** 一句话说明下一方向。避免承诺。
 
 ### In-app note
 
-- 1 sentence.
-- 1 link.
-- Dismiss after seen.
+- 1 句话。
+- 1 个链接。
+- 用户看过后 dismiss。
 
 ### Social post
 
-- 1 sentence pitch.
-- 1 link.
-- 1 image or short clip.
-- No threadbait. If it needs a thread, write a blog post instead.
+- 1 句 pitch。
+- 1 个链接。
+- 1 张图或短 clip。
+- 不要 threadbait。若需要 thread，就写 blog post。
 
-## Writing rules
+## 写作规则
 
-- Lead with the user, not the team. `You can now export to CSV` beats `We've added CSV export`.
-- Numbers beat adjectives. `60% faster cold start` beats `much faster`. Cite the methodology.
-- Show, don't just tell. One code snippet, one screenshot — more is noise.
-- Date the post. Undated release content rots fastest.
-- Link the migration path explicitly. Do not bury it.
-- Mark breaking changes with `**Breaking:**` prefix. Repeat in the email/social channel.
+- 以用户开头，而不是团队。`You can now export to CSV` 优于 `We've added CSV export`。
+- 数字优于形容词。`冷启动快 60%` 优于 `much faster`。说明测量方法。
+- 展示胜过空说。一个 code snippet、一张 screenshot；更多就是噪音。
+- 给文章标日期。无日期 release 内容最快腐烂。
+- 明确链接迁移路径。不要埋起来。
+- 破坏性变更用 `**Breaking:**` 前缀标记。email/social 渠道也要重复。
 
-## Avoid
+## 避免
 
-- "We are excited to announce" filler.
-- Lists of changes that mix user-visible and internal items.
-- Marketing claims without a way to verify.
-- Promised dates for unshipped work.
-- Pre-announcing something the team has not yet committed to ship.
+- “We are excited to announce” 这类 filler。
+- 把用户可见变更和内部变更混在一个列表。
+- 没有验证路径的 marketing claim。
+- 承诺未发布工作日期。
+- 预告团队尚未承诺发布的内容。
 
-## Post-publish checklist
+## 发布后 checklist
 
-- Changelog is in source control alongside the release.
-- Blog post date matches actual ship date.
-- All links work (release tag, PRs, docs sections).
-- Breaking changes are also in the upgrade guide, not only the post.
-- Internal team is notified before the public post goes live, not after.
+- changelog 已随 release 进入 source control。
+- blog post 日期与实际发布日期一致。
+- 所有链接可用（release tag、PR、docs sections）。
+- breaking changes 同时进入 upgrade guide，而不是只写在公告里。
+- 内部团队在公开发布前已收到通知，而不是发布后才知道。

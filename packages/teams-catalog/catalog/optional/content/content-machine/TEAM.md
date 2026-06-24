@@ -1,6 +1,6 @@
 ---
-name: Content Machine
-description: Optional content operations team with a lead agent, a recurring review task, and a vendored local content planning skill.
+name: 内容机器
+description: 可选内容运营团队，包含负责人 agent、周期性复盘任务，以及随包提供的本地内容规划 skill。
 schema: agentcompanies/v1
 slug: content-machine
 category: content
@@ -19,12 +19,12 @@ tags:
   - routines
 ---
 
-# Content Machine
+# 内容机器
 
-This optional fixture proves local skill resolution and recurring task inventory without introducing external source risk.
+这个可选 fixture 用于验证本地 skill 解析和周期性任务清单，不引入外部来源风险。
 
-## Contents
+## 内容
 
-- `ContentLead` — content operations lead responsible for calendar planning and publication workflow triage.
-- `content-operations` project — rolling backlog for editorial planning and content production review.
-- `weekly-content-review` routine — recurring content lead check-in to choose next posts and surface blocked publication work.
+- `ContentLead` — 内容运营负责人，负责日历规划和发布工作流分流。
+- `content-operations` project — 编辑规划和内容生产复盘的滚动 backlog。
+- `weekly-content-review` routine — 内容负责人周期性 check-in，用于选择下一批文章并暴露被阻塞的发布工作。

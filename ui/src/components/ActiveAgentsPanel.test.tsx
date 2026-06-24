@@ -4,6 +4,7 @@ import { act, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/i18n";
 import { ActiveAgentsPanel } from "./ActiveAgentsPanel";
 
 const mockHeartbeatsApi = vi.hoisted(() => ({
@@ -119,17 +120,44 @@ function createIssue(id: string, identifier: string, title: string) {
 describe("ActiveAgentsPanel", () => {
   let container: HTMLDivElement;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    localStorage.setItem("paperclip.locale", "zh-CN");
+    localStorage.setItem("paperclip.locale.default.zh-CN.v1", "true");
+    await i18n.changeLanguage("zh-CN");
     mockHeartbeatsApi.liveRunsForCompany.mockResolvedValue([1, 2, 3, 4, 5].map(createRun));
     mockIssuesApi.get.mockRejectedValue(new Error("Issue not found"));
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await i18n.changeLanguage("en");
     container.remove();
     document.body.innerHTML = "";
+    localStorage.clear();
     vi.clearAllMocks();
+  });
+
+  it("renders the default heading from locale messages", async () => {
+    const root = createRoot(container);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <ActiveAgentsPanel companyId="company-1" />
+        </QueryClientProvider>,
+      );
+    });
+    await flushReact();
+
+    expect(container.querySelector("h3")?.textContent?.trim()).toBe("智能体");
+
+    await act(async () => {
+      root.unmount();
+    });
   });
 
   it("links hidden active/recent runs to the full live dashboard", async () => {
