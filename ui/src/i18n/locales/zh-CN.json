@@ -964,22 +964,79 @@
     },
     "budgetpolicycard": {
       "budget_usd": {
-        "jsx-text": "\n          Budget (USD)\n        "
+        "jsx-text": "\n          预算（USD）\n        "
       },
       "budget": {
-        "jsx-text": "Budget"
+        "jsx-text": "预算"
+      },
+      "disabled": {
+        "jsx-text": "未启用"
       },
       "enter_a_valid_non_negative_dolla": {
-        "jsx-text": "Enter a valid non-negative dollar amount."
+        "jsx-text": "请输入有效的非负美元金额。"
+      },
+      "hard_stop": {
+        "jsx-text": "硬停止"
+      },
+      "healthy": {
+        "jsx-text": "健康"
+      },
+      "heartbeats_paused": {
+        "jsx-text": "此范围的 heartbeat 已暂停，直到提高预算或关闭事件。"
+      },
+      "lifetime_budget": {
+        "jsx-text": "生命周期预算"
+      },
+      "monthly_utc_budget": {
+        "jsx-text": "每月 UTC 预算"
+      },
+      "no_cap_configured": {
+        "jsx-text": "未配置上限"
       },
       "observed": {
-        "jsx-text": "Observed"
+        "jsx-text": "已用"
+      },
+      "pause_reason_suffix": {
+        "jsx-text": " · {{reason}} 暂停"
+      },
+      "paused": {
+        "jsx-text": "已暂停"
+      },
+      "percent_of_limit": {
+        "jsx-text": "已用上限的 {{percent}}%"
+      },
+      "project_execution_paused": {
+        "jsx-text": "此项目的执行已暂停，直到提高预算或关闭事件。"
       },
       "remaining": {
-        "jsx-text": "Remaining"
+        "jsx-text": "剩余"
       },
-      "soft_alert_at": {
-        "jsx-text": "\n          Soft alert at "
+      "saving": {
+        "jsx-text": "保存中..."
+      },
+      "scope_agent": {
+        "jsx-text": "智能体"
+      },
+      "scope_company": {
+        "jsx-text": "公司"
+      },
+      "scope_project": {
+        "jsx-text": "项目"
+      },
+      "set_budget": {
+        "jsx-text": "设置预算"
+      },
+      "soft_alert_at_percent": {
+        "jsx-text": "{{percent}}% 时软提醒"
+      },
+      "unlimited": {
+        "jsx-text": "无限制"
+      },
+      "update_budget": {
+        "jsx-text": "更新预算"
+      },
+      "warning": {
+        "jsx-text": "警告"
       }
     },
     "claudesubscriptionpanel": {

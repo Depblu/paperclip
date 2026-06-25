@@ -19,8 +19,23 @@ function parseDollarInput(value: string) {
   return Math.round(parsed * 100);
 }
 
-function windowLabel(windowKind: BudgetPolicySummary["windowKind"]) {
-  return windowKind === "lifetime" ? "Lifetime budget" : "Monthly UTC budget";
+function windowLabel(windowKind: BudgetPolicySummary["windowKind"], t: ReturnType<typeof useTranslation>["t"]) {
+  return windowKind === "lifetime"
+    ? t("components.budgetpolicycard.lifetime_budget.jsx-text", { defaultValue: "Lifetime budget" })
+    : t("components.budgetpolicycard.monthly_utc_budget.jsx-text", { defaultValue: "Monthly UTC budget" });
+}
+
+function scopeTypeLabel(scopeType: BudgetPolicySummary["scopeType"], t: ReturnType<typeof useTranslation>["t"]) {
+  if (scopeType === "agent") return t("components.budgetpolicycard.scope_agent.jsx-text", { defaultValue: "Agent" });
+  if (scopeType === "project") return t("components.budgetpolicycard.scope_project.jsx-text", { defaultValue: "Project" });
+  return t("components.budgetpolicycard.scope_company.jsx-text", { defaultValue: "Company" });
+}
+
+function statusLabel(summary: BudgetPolicySummary, t: ReturnType<typeof useTranslation>["t"]) {
+  if (summary.paused) return t("components.budgetpolicycard.paused.jsx-text", { defaultValue: "Paused" });
+  if (summary.status === "warning") return t("components.budgetpolicycard.warning.jsx-text", { defaultValue: "Warning" });
+  if (summary.status === "hard_stop") return t("components.budgetpolicycard.hard_stop.jsx-text", { defaultValue: "Hard stop" });
+  return t("components.budgetpolicycard.healthy.jsx-text", { defaultValue: "Healthy" });
 }
 
 function statusTone(status: BudgetPolicySummary["status"]) {
@@ -62,16 +77,19 @@ const { t } = useTranslation();
         <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("components.budgetpolicycard.observed.jsx-text", { defaultValue: "Observed" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">{formatCents(summary.observedAmount)}</div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {summary.amount > 0 ? `${summary.utilizationPercent}% of limit` : "No cap configured"}
+          {summary.amount > 0
+            ? t("components.budgetpolicycard.percent_of_limit.jsx-text", { defaultValue: "{{percent}}% of limit", percent: summary.utilizationPercent })
+            : t("components.budgetpolicycard.no_cap_configured.jsx-text", { defaultValue: "No cap configured" })}
         </div>
       </div>
       <div>
         <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("components.budgetpolicycard.budget.jsx-text", { defaultValue: "Budget" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">
-          {summary.amount > 0 ? formatCents(summary.amount) : "Disabled"}
+          {summary.amount > 0 ? formatCents(summary.amount) : t("components.budgetpolicycard.disabled.jsx-text", { defaultValue: "Disabled" })}
         </div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {t("components.budgetpolicycard.soft_alert_at.jsx-text", { defaultValue: "\n          Soft alert at " })}{summary.warnPercent}%{summary.paused && summary.pauseReason ? ` · ${summary.pauseReason} pause` : ""}
+          {t("components.budgetpolicycard.soft_alert_at_percent.jsx-text", { defaultValue: "Soft alert at {{percent}}%", percent: summary.warnPercent })}
+          {summary.paused && summary.pauseReason ? t("components.budgetpolicycard.pause_reason_suffix.jsx-text", { defaultValue: " · {{reason}} pause", reason: summary.pauseReason }) : ""}
         </div>
       </div>
     </div>
@@ -81,16 +99,19 @@ const { t } = useTranslation();
         <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("components.budgetpolicycard.observed.jsx-text", { defaultValue: "Observed" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">{formatCents(summary.observedAmount)}</div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {summary.amount > 0 ? `${summary.utilizationPercent}% of limit` : "No cap configured"}
+          {summary.amount > 0
+            ? t("components.budgetpolicycard.percent_of_limit.jsx-text", { defaultValue: "{{percent}}% of limit", percent: summary.utilizationPercent })
+            : t("components.budgetpolicycard.no_cap_configured.jsx-text", { defaultValue: "No cap configured" })}
         </div>
       </div>
       <div className="rounded-xl border border-border/70 bg-black/[0.18] px-4 py-3">
         <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("components.budgetpolicycard.budget.jsx-text", { defaultValue: "Budget" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">
-          {summary.amount > 0 ? formatCents(summary.amount) : "Disabled"}
+          {summary.amount > 0 ? formatCents(summary.amount) : t("components.budgetpolicycard.disabled.jsx-text", { defaultValue: "Disabled" })}
         </div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {t("components.budgetpolicycard.soft_alert_at.jsx-text", { defaultValue: "\n          Soft alert at " })}{summary.warnPercent}%{summary.paused && summary.pauseReason ? ` · ${summary.pauseReason} pause` : ""}
+          {t("components.budgetpolicycard.soft_alert_at_percent.jsx-text", { defaultValue: "Soft alert at {{percent}}%", percent: summary.warnPercent })}
+          {summary.paused && summary.pauseReason ? t("components.budgetpolicycard.pause_reason_suffix.jsx-text", { defaultValue: " · {{reason}} pause", reason: summary.pauseReason }) : ""}
         </div>
       </div>
     </div>
@@ -100,7 +121,7 @@ const { t } = useTranslation();
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{t("components.budgetpolicycard.remaining.jsx-text", { defaultValue: "Remaining" })}</span>
-        <span>{summary.amount > 0 ? formatCents(summary.remainingAmount) : "Unlimited"}</span>
+        <span>{summary.amount > 0 ? formatCents(summary.remainingAmount) : t("components.budgetpolicycard.unlimited.jsx-text", { defaultValue: "Unlimited" })}</span>
       </div>
       <div className={cn("h-2 overflow-hidden rounded-full", isPlain ? "bg-border/70" : "bg-muted/70")}>
         <div
@@ -123,8 +144,8 @@ const { t } = useTranslation();
       <PauseCircle className="mt-0.5 h-4 w-4 shrink-0" />
       <div>
         {summary.scopeType === "project"
-          ? "Execution is paused for this project until the budget is raised or the incident is dismissed."
-          : "Heartbeats are paused for this scope until the budget is raised or the incident is dismissed."}
+          ? t("components.budgetpolicycard.project_execution_paused.jsx-text", { defaultValue: "Execution is paused for this project until the budget is raised or the incident is dismissed." })
+          : t("components.budgetpolicycard.heartbeats_paused.jsx-text", { defaultValue: "Heartbeats are paused for this scope until the budget is raised or the incident is dismissed." })}
       </div>
     </div>
   ) : null;
@@ -148,7 +169,11 @@ const { t } = useTranslation();
         }}
         disabled={!canSave || isSaving || parsedDraft === null}
       >
-        {isSaving ? "Saving..." : summary.amount > 0 ? "Update budget" : "Set budget"}
+        {isSaving
+          ? t("components.budgetpolicycard.saving.jsx-text", { defaultValue: "Saving..." })
+          : summary.amount > 0
+            ? t("components.budgetpolicycard.update_budget.jsx-text", { defaultValue: "Update budget" })
+            : t("components.budgetpolicycard.set_budget.jsx-text", { defaultValue: "Set budget" })}
       </Button>
     </div>
   ) : null;
@@ -159,10 +184,10 @@ const { t } = useTranslation();
         <div className="flex items-start justify-between gap-6">
           <div>
             <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-              {summary.scopeType}
+              {scopeTypeLabel(summary.scopeType, t)}
             </div>
             <div className="mt-2 text-xl font-semibold">{summary.scopeName}</div>
-            <div className="mt-2 text-sm text-muted-foreground">{windowLabel(summary.windowKind)}</div>
+            <div className="mt-2 text-sm text-muted-foreground">{windowLabel(summary.windowKind, t)}</div>
           </div>
           <div
             className={cn(
@@ -175,7 +200,7 @@ const { t } = useTranslation();
             )}
           >
             <StatusIcon className="h-3.5 w-3.5" />
-            {summary.paused ? "Paused" : summary.status === "warning" ? "Warning" : summary.status === "hard_stop" ? "Hard stop" : "Healthy"}
+            {statusLabel(summary, t)}
           </div>
         </div>
 
@@ -196,14 +221,14 @@ const { t } = useTranslation();
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-              {summary.scopeType}
+              {scopeTypeLabel(summary.scopeType, t)}
             </div>
             <CardTitle className="mt-1 text-base">{summary.scopeName}</CardTitle>
-            <CardDescription className="mt-1">{windowLabel(summary.windowKind)}</CardDescription>
+            <CardDescription className="mt-1">{windowLabel(summary.windowKind, t)}</CardDescription>
           </div>
           <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.18em]", statusTone(summary.status))}>
             <StatusIcon className="h-3.5 w-3.5" />
-            {summary.paused ? "Paused" : summary.status === "warning" ? "Warning" : summary.status === "hard_stop" ? "Hard stop" : "Healthy"}
+            {statusLabel(summary, t)}
           </div>
         </div>
       </CardHeader>

@@ -969,17 +969,74 @@
       "budget": {
         "jsx-text": "Budget"
       },
+      "disabled": {
+        "jsx-text": "Disabled"
+      },
       "enter_a_valid_non_negative_dolla": {
         "jsx-text": "Enter a valid non-negative dollar amount."
+      },
+      "hard_stop": {
+        "jsx-text": "Hard stop"
+      },
+      "healthy": {
+        "jsx-text": "Healthy"
+      },
+      "heartbeats_paused": {
+        "jsx-text": "Heartbeats are paused for this scope until the budget is raised or the incident is dismissed."
+      },
+      "lifetime_budget": {
+        "jsx-text": "Lifetime budget"
+      },
+      "monthly_utc_budget": {
+        "jsx-text": "Monthly UTC budget"
+      },
+      "no_cap_configured": {
+        "jsx-text": "No cap configured"
       },
       "observed": {
         "jsx-text": "Observed"
       },
+      "pause_reason_suffix": {
+        "jsx-text": " · {{reason}} pause"
+      },
+      "paused": {
+        "jsx-text": "Paused"
+      },
+      "percent_of_limit": {
+        "jsx-text": "{{percent}}% of limit"
+      },
+      "project_execution_paused": {
+        "jsx-text": "Execution is paused for this project until the budget is raised or the incident is dismissed."
+      },
       "remaining": {
         "jsx-text": "Remaining"
       },
-      "soft_alert_at": {
-        "jsx-text": "\n          Soft alert at "
+      "saving": {
+        "jsx-text": "Saving..."
+      },
+      "scope_agent": {
+        "jsx-text": "Agent"
+      },
+      "scope_company": {
+        "jsx-text": "Company"
+      },
+      "scope_project": {
+        "jsx-text": "Project"
+      },
+      "set_budget": {
+        "jsx-text": "Set budget"
+      },
+      "soft_alert_at_percent": {
+        "jsx-text": "Soft alert at {{percent}}%"
+      },
+      "unlimited": {
+        "jsx-text": "Unlimited"
+      },
+      "update_budget": {
+        "jsx-text": "Update budget"
+      },
+      "warning": {
+        "jsx-text": "Warning"
       }
     },
     "claudesubscriptionpanel": {
