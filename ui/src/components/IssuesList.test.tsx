@@ -452,12 +452,12 @@ describe("IssuesList", () => {
     );
 
     await waitForAssertion(() => {
-      const button = container.querySelector<HTMLButtonElement>('button[aria-label="New task in Feature Branch"]');
+      const button = container.querySelector<HTMLButtonElement>('button[aria-label="在 Feature Branch 中新建任务"]');
       expect(button).not.toBeNull();
     });
 
     await act(async () => {
-      const button = container.querySelector<HTMLButtonElement>('button[aria-label="New task in Feature Branch"]');
+      const button = container.querySelector<HTMLButtonElement>('button[aria-label="在 Feature Branch 中新建任务"]');
       button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();
     });
@@ -531,7 +531,7 @@ describe("IssuesList", () => {
       expect(progress?.getAttribute("aria-valuenow")).toBe("1");
       expect(progress?.getAttribute("aria-valuemax")).toBe("3");
       expect(container.textContent).toContain("1/3 done");
-      expect(container.textContent).toContain("0 in progress");
+      expect(container.textContent).toContain("0 进行中");
       expect(container.textContent).toContain("1 blocked");
       expect(container.textContent).not.toContain("Done 1");
       expect(container.textContent).toContain("Next up");
@@ -884,7 +884,7 @@ describe("IssuesList", () => {
       container,
     );
 
-    const input = container.querySelector('input[aria-label="Search tasks"]') as HTMLInputElement | null;
+    const input = container.querySelector('input[aria-label="搜索任务"]') as HTMLInputElement | null;
     expect(input).not.toBeNull();
     const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
     expect(valueSetter).toBeTypeOf("function");
@@ -1475,7 +1475,7 @@ describe("IssuesList", () => {
 
     await waitForAssertion(() => {
       expect(container.textContent).toContain("Todo");
-      expect(container.textContent).toContain("Done");
+      expect(container.textContent).toContain("完成");
       expect(container.textContent).toContain("Alpha");
       expect(container.textContent).toContain("Beta");
     });
@@ -1669,13 +1669,13 @@ describe("IssuesList", () => {
     );
 
     await waitForAssertion(() => {
-      const input = container.querySelector('input[aria-label="Search tasks"]') as HTMLInputElement | null;
+      const input = container.querySelector('input[aria-label="搜索任务"]') as HTMLInputElement | null;
       expect(input).not.toBeNull();
       input?.focus();
       expect(document.activeElement).toBe(input);
     });
 
-    const input = container.querySelector('input[aria-label="Search tasks"]') as HTMLInputElement;
+    const input = container.querySelector('input[aria-label="搜索任务"]') as HTMLInputElement;
     act(() => {
       input.dispatchEvent(new KeyboardEvent("keydown", {
         key: "Enter",
@@ -1705,13 +1705,13 @@ describe("IssuesList", () => {
     );
 
     await waitForAssertion(() => {
-      const input = container.querySelector('input[aria-label="Search tasks"]') as HTMLInputElement | null;
+      const input = container.querySelector('input[aria-label="搜索任务"]') as HTMLInputElement | null;
       expect(input).not.toBeNull();
       input?.focus();
       expect(document.activeElement).toBe(input);
     });
 
-    const input = container.querySelector('input[aria-label="Search tasks"]') as HTMLInputElement;
+    const input = container.querySelector('input[aria-label="搜索任务"]') as HTMLInputElement;
     act(() => {
       input.dispatchEvent(new KeyboardEvent("keydown", {
         key: "Escape",

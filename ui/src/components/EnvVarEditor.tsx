@@ -160,7 +160,7 @@ const { t } = useTranslation();
     if (!key || plain.length === 0) return;
 
     const suggested = defaultSecretName(key) || "secret";
-    const name = window.prompt("Secret name", suggested)?.trim();
+    const name = window.prompt(t("components.envvareditor.secret_name.prompt", { defaultValue: "Secret name" }), suggested)?.trim();
     if (!name) return;
 
     try {
@@ -168,7 +168,7 @@ const { t } = useTranslation();
       const created = await onCreateSecret(name, plain);
       updateRow(index, { source: "secret", secretId: created.id });
     } catch (error) {
-      setSealError(error instanceof Error ? error.message : "Failed to create secret");
+      setSealError(error instanceof Error ? error.message : t("components.envvareditor.failed_to_create_secret.error", { defaultValue: "Failed to create secret" }));
     }
   }
 

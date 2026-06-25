@@ -49,15 +49,42 @@ import type { RoutineListItem, RoutineVariable } from "@paperclipai/shared";
 
 const concurrencyPolicies = ["coalesce_if_active", "always_enqueue", "skip_if_active"];
 const catchUpPolicies = ["skip_missed", "enqueue_missed_with_cap"];
-const concurrencyPolicyDescriptions: Record<string, string> = {
-  coalesce_if_active: "If a run is already active, keep just one follow-up run queued.",
-  always_enqueue: "Queue every trigger occurrence, even if the routine is already running.",
-  skip_if_active: "Drop new trigger occurrences while a run is still active.",
-};
-const catchUpPolicyDescriptions: Record<string, string> = {
-  skip_missed: "Ignore windows that were missed while the scheduler or routine was paused.",
-  enqueue_missed_with_cap: "Catch up missed schedule windows in capped batches after recovery.",
-};
+
+function concurrencyPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+  if (value === "coalesce_if_active") return t("pages.routines.coalesce_if_active.policy_label", { defaultValue: "Coalesce if active" });
+  if (value === "always_enqueue") return t("pages.routines.always_enqueue.policy_label", { defaultValue: "Always enqueue" });
+  if (value === "skip_if_active") return t("pages.routines.skip_if_active.policy_label", { defaultValue: "Skip if active" });
+  return value.replaceAll("_", " ");
+}
+
+function concurrencyPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+  if (value === "coalesce_if_active") {
+    return t("pages.routines.coalesce_if_active.policy_description", { defaultValue: "If a run is already active, keep just one follow-up run queued." });
+  }
+  if (value === "always_enqueue") {
+    return t("pages.routines.always_enqueue.policy_description", { defaultValue: "Queue every trigger occurrence, even if the routine is already running." });
+  }
+  if (value === "skip_if_active") {
+    return t("pages.routines.skip_if_active.policy_description", { defaultValue: "Drop new trigger occurrences while a run is still active." });
+  }
+  return value.replaceAll("_", " ");
+}
+
+function catchUpPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+  if (value === "skip_missed") return t("pages.routines.skip_missed.policy_label", { defaultValue: "Skip missed" });
+  if (value === "enqueue_missed_with_cap") return t("pages.routines.enqueue_missed_with_cap.policy_label", { defaultValue: "Enqueue missed with cap" });
+  return value.replaceAll("_", " ");
+}
+
+function catchUpPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+  if (value === "skip_missed") {
+    return t("pages.routines.skip_missed.policy_description", { defaultValue: "Ignore windows that were missed while the scheduler or routine was paused." });
+  }
+  if (value === "enqueue_missed_with_cap") {
+    return t("pages.routines.enqueue_missed_with_cap.policy_description", { defaultValue: "Catch up missed schedule windows in capped batches after recovery." });
+  }
+  return value.replaceAll("_", " ");
+}
 
 function autoResizeTextarea(element: HTMLTextAreaElement | null) {
   if (!element) return;
@@ -83,11 +110,25 @@ type RoutineGroup = {
   items: RoutineListItem[];
 };
 
+type RoutineGroupLabels = {
+  noProject: string;
+  unknownProject: string;
+  unassigned: string;
+  unknownAgent: string;
+};
+
 const defaultRoutineViewState: RoutineViewState = {
   sortField: "title",
   sortDir: "asc",
   groupBy: "project",
   collapsedGroups: [],
+};
+
+const defaultRoutineGroupLabels: RoutineGroupLabels = {
+  noProject: "No project",
+  unknownProject: "Unknown project",
+  unassigned: "Unassigned",
+  unknownAgent: "Unknown agent",
 };
 
 function getRoutineViewState(key: string): RoutineViewState {
@@ -137,6 +178,7 @@ export function buildRoutineGroups(
   groupByValue: RoutineGroupBy,
   projectById: Map<string, { name: string }>,
   agentById: Map<string, { name: string }>,
+  labels: RoutineGroupLabels = defaultRoutineGroupLabels,
 ): RoutineGroup[] {
   if (groupByValue === "none") {
     return [{ key: "__all", label: null, items: routines }];
@@ -146,13 +188,13 @@ export function buildRoutineGroups(
     const groups = groupBy(routines, (routine) => routine.projectId ?? "__no_project");
     return Object.keys(groups)
       .sort((left, right) => {
-        const leftLabel = left === "__no_project" ? "No project" : (projectById.get(left)?.name ?? "Unknown project");
-        const rightLabel = right === "__no_project" ? "No project" : (projectById.get(right)?.name ?? "Unknown project");
+        const leftLabel = left === "__no_project" ? labels.noProject : (projectById.get(left)?.name ?? labels.unknownProject);
+        const rightLabel = right === "__no_project" ? labels.noProject : (projectById.get(right)?.name ?? labels.unknownProject);
         return leftLabel.localeCompare(rightLabel);
       })
       .map((key) => ({
         key,
-        label: key === "__no_project" ? "No project" : (projectById.get(key)?.name ?? "Unknown project"),
+        label: key === "__no_project" ? labels.noProject : (projectById.get(key)?.name ?? labels.unknownProject),
         items: groups[key]!,
       }));
   }
@@ -160,13 +202,13 @@ export function buildRoutineGroups(
   const groups = groupBy(routines, (routine) => routine.assigneeAgentId ?? "__unassigned");
   return Object.keys(groups)
     .sort((left, right) => {
-      const leftLabel = left === "__unassigned" ? "Unassigned" : (agentById.get(left)?.name ?? "Unknown agent");
-      const rightLabel = right === "__unassigned" ? "Unassigned" : (agentById.get(right)?.name ?? "Unknown agent");
+      const leftLabel = left === "__unassigned" ? labels.unassigned : (agentById.get(left)?.name ?? labels.unknownAgent);
+      const rightLabel = right === "__unassigned" ? labels.unassigned : (agentById.get(right)?.name ?? labels.unknownAgent);
       return leftLabel.localeCompare(rightLabel);
     })
     .map((key) => ({
       key,
-      label: key === "__unassigned" ? "Unassigned" : (agentById.get(key)?.name ?? "Unknown agent"),
+      label: key === "__unassigned" ? labels.unassigned : (agentById.get(key)?.name ?? labels.unknownAgent),
       items: groups[key]!,
     }));
 }
@@ -429,17 +471,22 @@ const { t } = useTranslation();
     [routineViewState.sortDir, routineViewState.sortField, visibleRoutines],
   );
   const routineGroups = useMemo(
-    () => buildRoutineGroups(sortedRoutines, routineViewState.groupBy, projectById, agentById),
-    [agentById, projectById, routineViewState.groupBy, sortedRoutines],
+    () => buildRoutineGroups(sortedRoutines, routineViewState.groupBy, projectById, agentById, {
+      noProject: t("pages.routines.no_project.group_label", { defaultValue: "No project" }),
+      unknownProject: t("pages.routines.unknown_project.group_label", { defaultValue: "Unknown project" }),
+      unassigned: t("pages.routines.unassigned.group_label", { defaultValue: "Unassigned" }),
+      unknownAgent: t("pages.routines.unknown_agent.group_label", { defaultValue: "Unknown agent" }),
+    }),
+    [agentById, projectById, routineViewState.groupBy, sortedRoutines, t],
   );
   const recentRunsIssueLinkState = useMemo(
     () =>
       createIssueDetailLocationState(
-        "Recent Runs",
+        t("pages.routines.recent_runs.tab_label", { defaultValue: "Recent Runs" }),
         buildRoutinesTabHref("runs"),
         "issues",
       ),
-    [],
+    [t],
   );
   const currentAssignee = draft.assigneeAgentId ? agentById.get(draft.assigneeAgentId) ?? null : null;
   const currentProject = draft.projectId ? projectById.get(draft.projectId) ?? null : null;
@@ -537,10 +584,10 @@ const { t } = useTranslation();
                 <PopoverContent align="end" className="w-44 p-0">
                   <div className="p-2 space-y-0.5">
                     {([
-                      ["updated", "Updated"],
-                      ["created", "Created"],
-                      ["lastRun", "Last run"],
-                      ["title", "Title"],
+                      ["updated", t("pages.routines.updated.sort_label", { defaultValue: "Updated" })],
+                      ["created", t("pages.routines.created.sort_label", { defaultValue: "Created" })],
+                      ["lastRun", t("pages.routines.last_run.sort_label", { defaultValue: "Last run" })],
+                      ["title", t("pages.routines.title.sort_label", { defaultValue: "Title" })],
                     ] as const).map(([field, label]) => (
                       <button
                         key={field}
@@ -560,7 +607,9 @@ const { t } = useTranslation();
                         <span>{label}</span>
                         {routineViewState.sortField === field ? (
                           <span className="text-xs text-muted-foreground">
-                            {routineViewState.sortDir === "asc" ? "Asc" : "Desc"}
+                            {routineViewState.sortDir === "asc"
+                              ? t("pages.routines.asc.sort_direction", { defaultValue: "Asc" })
+                              : t("pages.routines.desc.sort_direction", { defaultValue: "Desc" })}
                           </span>
                         ) : null}
                       </button>
@@ -578,9 +627,9 @@ const { t } = useTranslation();
                 <PopoverContent align="end" className="w-44 p-0">
                   <div className="p-2 space-y-0.5">
                     {([
-                      ["project", "Project"],
-                      ["assignee", "Agent"],
-                      ["none", "None"],
+                      ["project", t("pages.routines.project.group_label", { defaultValue: "Project" })],
+                      ["assignee", t("pages.routines.agent.group_label", { defaultValue: "Agent" })],
+                      ["none", t("pages.routines.none.group_label", { defaultValue: "None" })],
                     ] as const).map(([value, label]) => (
                       <button
                         key={value}
@@ -691,9 +740,9 @@ const { t } = useTranslation();
                     options={assigneeOptions}
                     recentOptionIds={recentAssigneeIds}
                     placeholder={t("pages.routines.assignee.attr_placeholder", { defaultValue: "Assignee" })}
-                    noneLabel="No assignee"
-                    searchPlaceholder="Search assignees..."
-                    emptyMessage="No assignees found."
+                    noneLabel={t("pages.routines.no_assignee.option_label", { defaultValue: "No assignee" })}
+                    searchPlaceholder={t("pages.routines.search_assignees.attr_placeholder", { defaultValue: "Search assignees..." })}
+                    emptyMessage={t("pages.routines.no_assignees_found.empty_message", { defaultValue: "No assignees found." })}
                     onChange={(assigneeAgentId) => {
                       if (assigneeAgentId) trackRecentAssignee(assigneeAgentId);
                       setDraft((current) => ({ ...current, assigneeAgentId }));
@@ -737,9 +786,9 @@ const { t } = useTranslation();
                     options={projectOptions}
                     recentOptionIds={recentProjectIds}
                     placeholder={t("pages.routines.project.attr_placeholder", { defaultValue: "Project" })}
-                    noneLabel="No project"
-                    searchPlaceholder="Search projects..."
-                    emptyMessage="No projects found."
+                    noneLabel={t("pages.routines.no_project.option_label", { defaultValue: "No project" })}
+                    searchPlaceholder={t("pages.routines.search_projects.attr_placeholder", { defaultValue: "Search projects..." })}
+                    emptyMessage={t("pages.routines.no_projects_found.empty_message", { defaultValue: "No projects found." })}
                     onChange={(projectId) => {
                       if (projectId) trackRecentProject(projectId);
                       setDraft((current) => ({ ...current, projectId }));
@@ -815,11 +864,11 @@ const { t } = useTranslation();
                         </SelectTrigger>
                         <SelectContent>
                           {concurrencyPolicies.map((value) => (
-                            <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>
+                            <SelectItem key={value} value={value}>{concurrencyPolicyLabel(value, t)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground">{concurrencyPolicyDescriptions[draft.concurrencyPolicy]}</p>
+                      <p className="text-xs text-muted-foreground">{concurrencyPolicyDescription(draft.concurrencyPolicy, t)}</p>
                     </div>
                     <div className="space-y-2">
                       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{t("pages.routines.catch_up.jsx-text", { defaultValue: "Catch-up" })}</p>
@@ -832,11 +881,11 @@ const { t } = useTranslation();
                         </SelectTrigger>
                         <SelectContent>
                           {catchUpPolicies.map((value) => (
-                            <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>
+                            <SelectItem key={value} value={value}>{catchUpPolicyLabel(value, t)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground">{catchUpPolicyDescriptions[draft.catchUpPolicy]}</p>
+                      <p className="text-xs text-muted-foreground">{catchUpPolicyDescription(draft.catchUpPolicy, t)}</p>
                     </div>
                   </div>
                 </CollapsibleContent>
@@ -856,11 +905,13 @@ const { t } = useTranslation();
                 }
               >
                 <Plus className="mr-2 h-4 w-4" />
-                {createRoutine.isPending ? "Creating..." : "Create routine"}
+                {createRoutine.isPending
+                  ? t("pages.routines.creating.jsx-text", { defaultValue: "Creating..." })
+                  : t("pages.routines.create_routine.jsx-text", { defaultValue: "Create routine" })}
               </Button>
               {createRoutine.isError ? (
                 <p className="text-sm text-destructive">
-                  {createRoutine.error instanceof Error ? createRoutine.error.message : "Failed to create routine"}
+                  {createRoutine.error instanceof Error ? createRoutine.error.message : t("pages.routines.failed_to_create_routine.error", { defaultValue: "Failed to create routine" })}
                 </p>
               ) : null}
             </div>

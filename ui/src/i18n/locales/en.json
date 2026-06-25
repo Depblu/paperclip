@@ -1423,6 +1423,9 @@
       "create_secret_from_current_plain": {
         "attr_title": "Create secret from current plain value"
       },
+      "failed_to_create_secret": {
+        "error": "Failed to create secret"
+      },
       "latest": {
         "jsx-text": "latest"
       },
@@ -1449,6 +1452,9 @@
       },
       "secret": {
         "jsx-text": "Secret"
+      },
+      "secret_name": {
+        "prompt": "Secret name"
       },
       "select_secret": {
         "jsx-text": "Select secret..."
@@ -3227,6 +3233,16 @@
       "runtime": {
         "jsx-text": " runtime\n                "
       },
+      "create_task": {
+        "action": "Create Task"
+      },
+      "new_task": {
+        "action": "New Task"
+      },
+      "new_task_in": {
+        "attr_aria-label": "New task in {{group}}",
+        "attr_title": "New task in {{group}}"
+      },
       "search_assignees": {
         "attr_placeholder": "Search assignees..."
       },
@@ -4215,6 +4231,9 @@
       "local_folder": {
         "jsx-text": "Local folder"
       },
+      "local_folder_must_be_absolute": {
+        "error": "Local folder must be a full absolute path."
+      },
       "new_project": {
         "jsx-text": "New project"
       },
@@ -4611,6 +4630,21 @@
       "all_goals_linked": {
         "jsx-text": "\n                    All goals linked.\n                  "
       },
+      "archive": {
+        "action": "Archive"
+      },
+      "archive_confirm_prompt": {
+        "jsx-text": "{{action}} \"{{name}}\"?"
+      },
+      "archive_project": {
+        "jsx-text": "Archive project"
+      },
+      "archive_project_description": {
+        "jsx-text": "Archive this project to hide it from the sidebar and project selectors."
+      },
+      "archiving": {
+        "jsx-text": "Archiving..."
+      },
       "applied_to_all_runs_for_tasks_in": {
         "jsx-text": "\n              Applied to all runs for tasks in this project. Project values override agent env on key conflicts.\n            "
       },
@@ -4632,6 +4666,9 @@
       "change_repo": {
         "jsx-text": "\n                      Change repo\n                    "
       },
+      "change_local_folder": {
+        "jsx-text": "Change local folder"
+      },
       "clear_local_folder": {
         "attr_aria-label": "Clear local folder"
       },
@@ -4650,8 +4687,14 @@
       "danger_zone": {
         "jsx-text": "\n              Danger Zone\n            "
       },
+      "disabled": {
+        "state_label": "Disabled"
+      },
       "enable_isolated_task_checkouts": {
         "jsx-text": "Enable isolated task checkouts"
+      },
+      "enabled": {
+        "state_label": "Enabled"
       },
       "environment": {
         "jsx-text": "Environment"
@@ -4680,6 +4723,9 @@
       "goal": {
         "jsx-text": "\n                  Goal\n                "
       },
+      "hide_advanced_checkout_settings": {
+        "jsx-text": "Hide advanced checkout settings"
+      },
       "host_managed_implementation": {
         "jsx-text": "\n                          Host-managed implementation: "
       },
@@ -4697,6 +4743,9 @@
       },
       "local_folder": {
         "jsx-text": "Local folder"
+      },
+      "local_folder_must_be_absolute": {
+        "error": "Local folder must be a full absolute path."
       },
       "new_tasks_default_to_isolated_ch": {
         "jsx-text": "New tasks default to isolated checkout"
@@ -4737,6 +4786,9 @@
       "repo_identifies_the_source_of_tr": {
         "jsx-text": "\n                Repo identifies the source of truth. Local folder is the default place agents write code.\n              "
       },
+      "repo_must_be_valid": {
+        "error": "Repo must use a valid GitHub or GitHub Enterprise repo URL."
+      },
       "repo": {
         "jsx-text": "Repo"
       },
@@ -4752,8 +4804,26 @@
       "set_repo": {
         "jsx-text": "\n                    Set repo\n                  "
       },
+      "set_local_folder": {
+        "jsx-text": "Set local folder"
+      },
+      "show_advanced_checkout_settings": {
+        "jsx-text": "Show advanced checkout settings"
+      },
       "teardown_command": {
         "jsx-text": "Teardown command"
+      },
+      "unarchive": {
+        "action": "Unarchive"
+      },
+      "unarchive_project": {
+        "jsx-text": "Unarchive project"
+      },
+      "unarchive_project_description": {
+        "jsx-text": "Unarchive this project to restore it in the sidebar and project selectors."
+      },
+      "unarchiving": {
+        "jsx-text": "Unarchiving..."
       },
       "worktree_parent_dir": {
         "jsx-text": "Worktree parent dir"
@@ -13636,12 +13706,22 @@
       "advanced_delivery_settings": {
         "jsx-text": "Advanced delivery settings"
       },
+      "always_enqueue": {
+        "policy_description": "Queue every trigger occurrence, even if the routine is already running.",
+        "policy_label": "Always enqueue"
+      },
       "after_creation_paperclip_takes_y": {
         "jsx-text": "\n              After creation, Paperclip takes you straight to trigger setup. Draft routines stay paused until you add a default agent.\n            "
       },
       "assignee": {
         "attr_placeholder": "Assignee",
         "jsx-text": "Assignee"
+      },
+      "agent": {
+        "group_label": "Agent"
+      },
+      "asc": {
+        "sort_direction": "Asc"
       },
       "cancel": {
         "jsx-text": "\n              Cancel\n            "
@@ -13652,11 +13732,31 @@
       "concurrency": {
         "jsx-text": "Concurrency"
       },
+      "coalesce_if_active": {
+        "policy_description": "If a run is already active, keep just one follow-up run queued.",
+        "policy_label": "Coalesce if active"
+      },
       "create_routine": {
         "jsx-text": "\n          Create routine\n        "
       },
+      "created": {
+        "sort_label": "Created"
+      },
+      "creating": {
+        "jsx-text": "Creating..."
+      },
       "define_the_recurring_work_first_": {
         "jsx-text": "\n                Define the recurring work first. Default project and agent are optional for draft routines.\n              "
+      },
+      "desc": {
+        "sort_direction": "Desc"
+      },
+      "failed_to_create_routine": {
+        "error": "Failed to create routine"
+      },
+      "enqueue_missed_with_cap": {
+        "policy_description": "Catch up missed schedule windows in capped batches after recovery.",
+        "policy_label": "Enqueue missed with cap"
       },
       "for": {
         "jsx-text": "For"
@@ -13671,12 +13771,32 @@
       "keep_policy_controls_secondary_t": {
         "jsx-text": "Keep policy controls secondary to the work definition."
       },
+      "last_run": {
+        "sort_label": "Last run"
+      },
       "new_routine": {
         "jsx-text": "New routine"
       },
+      "no_assignee": {
+        "option_label": "No assignee"
+      },
+      "no_assignees_found": {
+        "empty_message": "No assignees found."
+      },
       "project": {
         "attr_placeholder": "Project",
-        "jsx-text": "Project"
+        "jsx-text": "Project",
+        "group_label": "Project"
+      },
+      "no_project": {
+        "group_label": "No project",
+        "option_label": "No project"
+      },
+      "no_projects_found": {
+        "empty_message": "No projects found."
+      },
+      "none": {
+        "group_label": "None"
       },
       "recurring_work_definitions_that_": {
         "jsx-text": "\n            Recurring work definitions that materialize into auditable execution tasks.\n          "
@@ -13687,17 +13807,50 @@
       "routine": {
         "jsx-text": " routine"
       },
+      "routine_count": {
+        "label_one": "{{count}} routine",
+        "label_other": "{{count}} routines"
+      },
       "routines": {
         "jsx-text": "\n            Routines\n          ",
         "breadcrumb": "Routines",
         "tab_label": "Routines"
       },
+      "search_assignees": {
+        "attr_placeholder": "Search assignees..."
+      },
+      "search_projects": {
+        "attr_placeholder": "Search projects..."
+      },
       "sort": {
         "attr_title": "Sort",
         "jsx-text": "Sort"
       },
+      "title": {
+        "sort_label": "Title"
+      },
+      "unassigned": {
+        "group_label": "Unassigned"
+      },
+      "unknown_agent": {
+        "group_label": "Unknown agent"
+      },
+      "unknown_project": {
+        "group_label": "Unknown project"
+      },
+      "updated": {
+        "sort_label": "Updated"
+      },
       "select_a_company_to_view_rout": {
         "jsx-text": "Select a company to view routines."
+      },
+      "skip_if_active": {
+        "policy_description": "Drop new trigger occurrences while a run is still active.",
+        "policy_label": "Skip if active"
+      },
+      "skip_missed": {
+        "policy_description": "Ignore windows that were missed while the scheduler or routine was paused.",
+        "policy_label": "Skip missed"
       },
       "failed_to_load_routines": {
         "jsx-text": "Failed to load routines"

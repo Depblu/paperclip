@@ -181,24 +181,29 @@ const { t } = useTranslation();
 
   const [confirming, setConfirming] = useState(false);
   const isArchive = !project.archivedAt;
-  const action = isArchive ? "Archive" : "Unarchive";
+  const action = isArchive
+    ? t("components.projectproperties.archive.action", { defaultValue: "Archive" })
+    : t("components.projectproperties.unarchive.action", { defaultValue: "Unarchive" });
 
   return (
     <div className="space-y-3 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-4">
       <p className="text-sm text-muted-foreground">
         {isArchive
-          ? "Archive this project to hide it from the sidebar and project selectors."
-          : "Unarchive this project to restore it in the sidebar and project selectors."}
+          ? t("components.projectproperties.archive_project_description.jsx-text", { defaultValue: "Archive this project to hide it from the sidebar and project selectors." })
+          : t("components.projectproperties.unarchive_project_description.jsx-text", { defaultValue: "Unarchive this project to restore it in the sidebar and project selectors." })}
       </p>
       {archivePending ? (
         <Button size="sm" variant="destructive" disabled>
           <Loader2 className="h-3 w-3 animate-spin mr-1" />
-          {isArchive ? "Archiving..." : "Unarchiving..."}
+          {isArchive
+            ? t("components.projectproperties.archiving.jsx-text", { defaultValue: "Archiving..." })
+            : t("components.projectproperties.unarchiving.jsx-text", { defaultValue: "Unarchiving..." })}
         </Button>
       ) : confirming ? (
         <div className="flex items-center gap-2">
           <span className="text-sm text-destructive font-medium">
-            {action} {t("components.projectproperties.ldquo.jsx-text", { defaultValue: " &ldquo;" })}{project.name}{t("components.projectproperties.rdquo.jsx-text", { defaultValue: "&rdquo;?\n          " })}</span>
+            {t("components.projectproperties.archive_confirm_prompt.jsx-text", { action, name: project.name, defaultValue: '{{action}} "{{name}}"?' })}
+          </span>
           <Button
             size="sm"
             variant="destructive"
@@ -222,9 +227,9 @@ const { t } = useTranslation();
           onClick={() => setConfirming(true)}
         >
           {isArchive ? (
-            <><Archive className="h-3 w-3 mr-1" />{action} {t("components.projectproperties.project.jsx-text", { defaultValue: " project" })}</>
+            <><Archive className="h-3 w-3 mr-1" />{t("components.projectproperties.archive_project.jsx-text", { defaultValue: "Archive project" })}</>
           ) : (
-            <><ArchiveRestore className="h-3 w-3 mr-1" />{action} {t("components.projectproperties.project.jsx-text", { defaultValue: " project" })}</>
+            <><ArchiveRestore className="h-3 w-3 mr-1" />{t("components.projectproperties.unarchive_project.jsx-text", { defaultValue: "Unarchive project" })}</>
           )}
         </Button>
       )}
@@ -465,7 +470,7 @@ const { t } = useTranslation();
       return;
     }
     if (!isAbsolutePath(cwd)) {
-      setWorkspaceError("Local folder must be a full absolute path.");
+      setWorkspaceError(t("components.projectproperties.local_folder_must_be_absolute.error", { defaultValue: "Local folder must be a full absolute path." }));
       return;
     }
     setWorkspaceError(null);
@@ -480,7 +485,7 @@ const { t } = useTranslation();
       return;
     }
     if (!looksLikeRepoUrl(repoUrl)) {
-      setWorkspaceError("Repo must use a valid GitHub or GitHub Enterprise repo URL.");
+      setWorkspaceError(t("components.projectproperties.repo_must_be_valid.error", { defaultValue: "Repo must use a valid GitHub or GitHub Enterprise repo URL." }));
       return;
     }
     setWorkspaceError(null);
@@ -763,7 +768,9 @@ const { t } = useTranslation();
                       setWorkspaceError(null);
                     }}
                   >
-                    {codebase.localFolder ? "Change local folder" : "Set local folder"}
+                    {codebase.localFolder
+                      ? t("components.projectproperties.change_local_folder.jsx-text", { defaultValue: "Change local folder" })
+                      : t("components.projectproperties.set_local_folder.jsx-text", { defaultValue: "Set local folder" })}
                   </Button>
                   {codebase.localFolder ? (
                     <Button
@@ -951,7 +958,9 @@ const { t } = useTranslation();
                     />
                   ) : (
                     <span className="text-xs text-muted-foreground">
-                      {executionWorkspacesEnabled ? "Enabled" : "Disabled"}
+                      {executionWorkspacesEnabled
+                        ? t("components.projectproperties.enabled.state_label", { defaultValue: "Enabled" })
+                        : t("components.projectproperties.disabled.state_label", { defaultValue: "Disabled" })}
                     </span>
                   )}
                 </div>
@@ -989,8 +998,8 @@ const { t } = useTranslation();
                         onClick={() => setExecutionWorkspaceAdvancedOpen((open) => !open)}
                       >
                         {executionWorkspaceAdvancedOpen
-                          ? "Hide advanced checkout settings"
-                          : "Show advanced checkout settings"}
+                          ? t("components.projectproperties.hide_advanced_checkout_settings.jsx-text", { defaultValue: "Hide advanced checkout settings" })
+                          : t("components.projectproperties.show_advanced_checkout_settings.jsx-text", { defaultValue: "Show advanced checkout settings" })}
                       </button>
                     </div>
 

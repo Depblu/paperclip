@@ -1302,8 +1302,8 @@ const { t } = useTranslation();
     viewState.groupBy,
   ]);
 
-  const createActionLabel = createIssueLabel ? `Create ${createIssueLabel}` : "Create Task";
-  const createButtonLabel = createIssueLabel ? `New ${createIssueLabel}` : "New Task";
+  const createActionLabel = createIssueLabel ? `Create ${createIssueLabel}` : t("components.issueslist.create_task.action", { defaultValue: "Create Task" });
+  const createButtonLabel = createIssueLabel ? `New ${createIssueLabel}` : t("components.issueslist.new_task.action", { defaultValue: "New Task" });
   const openCreateIssueDialog = useCallback((group?: { key: string; items: Issue[] }) => {
     openNewIssue(newIssueDefaults(group));
   }, [newIssueDefaults, openNewIssue]);
@@ -1649,8 +1649,8 @@ const { t } = useTranslation();
                     variant="ghost"
                     size="icon-xs"
                     className="-mr-2 text-muted-foreground"
-                    title={`New task in ${group.label}`}
-                    aria-label={`New task in ${group.label}`}
+                    title={t("components.issueslist.new_task_in.attr_title", { defaultValue: "New task in {{group}}", group: group.label })}
+                    aria-label={t("components.issueslist.new_task_in.attr_aria-label", { defaultValue: "New task in {{group}}", group: group.label })}
                     onClick={() => openCreateIssueDialog(group)}
                   >
                     <Plus className="h-3 w-3" />

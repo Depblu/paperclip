@@ -204,7 +204,7 @@ describe("ProjectDetail", () => {
     });
 
     expect(container.textContent).toContain("Managed by Missions");
-    expect(container.textContent).toContain("Plugin operations");
+    expect(container.textContent).toContain("插件操作");
     expect(mockIssuesApi.list).toHaveBeenCalledWith("company-1", {
       projectId: "project-1",
       originKindPrefix: "plugin:paperclip.missions",
