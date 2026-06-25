@@ -814,31 +814,34 @@
         "jsx-expr": " · "
       },
       "billing_types": {
-        "jsx-text": "\n                Billing types\n              "
+        "jsx-text": "\n                计费类型\n              "
       },
       "in": {
-        "jsx-text": " in\n              "
-      },
-      "model": {
-        "jsx-text": " model"
+        "jsx-text": " 输入\n              "
       },
       "out": {
-        "jsx-text": " out\n              "
+        "jsx-text": " 输出\n              "
       },
       "period_spend": {
-        "attr_label": "Period spend"
+        "attr_label": "周期支出"
       },
-      "provider": {
-        "jsx-text": " provider"
+      "percent_of_allocation": {
+        "jsx-text": "占分配额度 {{percent}}%"
+      },
+      "provider_model_count": {
+        "jsx-text": "{{providerCount}} 个供应商 · {{modelCount}} 个模型"
+      },
+      "run_summary": {
+        "jsx-text": "按量运行 {{meteredRunCount}} 次 · 订阅运行 {{subscriptionRunCount}} 次 · 本周 {{amount}}"
       },
       "this_week": {
-        "jsx-text": " this week\n        "
+        "jsx-text": " 本周\n        "
       },
       "tok": {
-        "jsx-text": " tok\n                      "
+        "jsx-text": " token\n                      "
       },
       "upstream_providers": {
-        "jsx-text": "\n                Upstream providers\n              "
+        "jsx-text": "\n                上游供应商\n              "
       }
     },
     "blockedinboxview": {
@@ -4932,45 +4935,66 @@
       "": {
         "jsx-expr": " · "
       },
+      "api_runs_count": {
+        "jsx-text": "API 运行：{{count}} 次"
+      },
       "in": {
-        "jsx-text": " in\n              "
+        "jsx-text": " 输入\n              "
       },
       "of_token_usage_via_subscription": {
-        "jsx-text": "% of token usage via subscription\n                  "
+        "jsx-text": "% 的 token 用量来自订阅\n                  "
       },
       "out": {
-        "jsx-text": " out\n              "
+        "jsx-text": " 输出\n              "
       },
       "period_spend": {
-        "attr_label": "Period spend"
+        "attr_label": "周期支出"
+      },
+      "percent_of_allocation": {
+        "jsx-text": "占分配额度 {{percent}}%"
+      },
+      "provider_cost_percent": {
+        "attr_title": "占供应商成本 {{percent}}%"
+      },
+      "provider_tokens_percent": {
+        "attr_title": "占供应商 token {{percent}}%"
       },
       "resets": {
-        "jsx-text": "\n                              resets "
+        "jsx-text": "\n                              重置于 "
       },
       "rolling_windows": {
-        "jsx-text": "\n                Rolling windows\n              "
+        "jsx-text": "\n                滚动窗口\n              "
+      },
+      "run_separator": {
+        "jsx-text": " / "
       },
       "runs": {
-        "jsx-expr": " runs",
-        "jsx-text": " runs\n                "
+        "jsx-expr": " 次运行",
+        "jsx-text": " 次运行\n                "
+      },
+      "subscription_runs_count": {
+        "jsx-text": "订阅运行：{{count}} 次"
       },
       "subscription_quota": {
-        "jsx-text": "\n                  Subscription quota\n                "
+        "jsx-text": "\n                  订阅额度\n                "
       },
       "subscription": {
-        "jsx-text": "\n                Subscription\n              "
+        "jsx-text": "\n                订阅\n              "
       },
       "this_week": {
         "attr_label": "本周"
       },
       "tok": {
-        "jsx-text": " tok\n                        "
+        "jsx-text": " token\n                        "
       },
       "total": {
-        "jsx-text": " total\n                    "
+        "jsx-text": " 总计\n                    "
+      },
+      "weekly_allocation": {
+        "jsx-text": "~{{amount}} / 周"
       },
       "used": {
-        "jsx-text": "% used"
+        "jsx-text": "% 已用"
       }
     },
     "reportstopicker": {
@@ -8449,32 +8473,44 @@
     },
     "companyexport": {
       "binary_asset_preview_is_not_avai": {
-        "jsx-text": "\n            Binary asset preview is not available for this file type.\n          "
+        "jsx-text": "\n            此文件类型不支持二进制资源预览。\n          "
+      },
+      "building_export": {
+        "jsx-text": "正在构建导出包..."
       },
       "export": {
-        "jsx-text": " export\n            ",
+        "jsx-text": " 导出\n            ",
         "breadcrumb": "导出"
       },
+      "export_files_count": {
+        "jsx-text": "导出 {{count}} 个文件"
+      },
       "file": {
-        "jsx-text": " file"
+        "jsx-text": " 个文件"
+      },
+      "files_selected_count": {
+        "jsx-text": "已选择 {{selectedCount}} / {{totalFiles}} 个文件"
       },
       "of": {
-        "jsx-text": " of "
+        "jsx-text": " / "
       },
       "package_files": {
-        "jsx-text": "Package files"
+        "jsx-text": "包文件"
       },
       "search_files": {
-        "attr_placeholder": "Search files..."
+        "attr_placeholder": "搜索文件..."
       },
       "selected": {
-        "jsx-text": " selected\n            "
+        "jsx-text": " 已选择\n            "
+      },
+      "warning_count": {
+        "jsx-text": "{{count}} 条警告"
       },
       "show_more_tasks": {
-        "jsx-text": "\n                  Show more tasks ("
+        "jsx-text": "\n                  显示更多任务（"
       },
       "warning": {
-        "jsx-text": " warning"
+        "jsx-text": " 条警告"
       },
       "select_a_file_to_preview_its": {
         "attr_message": "选择文件以预览其内容。"
@@ -8484,6 +8520,51 @@
       },
       "loading_export_data": {
         "attr_message": "正在加载导出数据..."
+      },
+      "readme_agent": {
+        "text": "智能体"
+      },
+      "readme_agent_company_package": {
+        "text": "这是一个 [智能体公司](https://paperclip.ing) 包。"
+      },
+      "readme_agents": {
+        "text": "智能体"
+      },
+      "readme_content": {
+        "text": "内容"
+      },
+      "readme_count": {
+        "text": "数量"
+      },
+      "readme_exported_from": {
+        "text": "由 [Paperclip](https://paperclip.ing) 于 {{date}} 导出"
+      },
+      "readme_getting_started": {
+        "text": "开始使用"
+      },
+      "readme_more_information": {
+        "text": "更多信息请参见 [Paperclip](https://paperclip.ing)。"
+      },
+      "readme_org_chart_alt": {
+        "text": "组织图"
+      },
+      "readme_projects": {
+        "text": "项目"
+      },
+      "readme_reports_to": {
+        "text": "汇报给"
+      },
+      "readme_role": {
+        "text": "角色"
+      },
+      "readme_skills": {
+        "text": "技能"
+      },
+      "readme_tasks": {
+        "text": "任务"
+      },
+      "readme_whats_inside": {
+        "text": "包含内容"
       },
       "export_failed": {
         "title": "导出失败"
@@ -8506,85 +8587,109 @@
     },
     "companyimport": {
       "adapters": {
-        "jsx-text": "Adapters"
+        "jsx-text": "适配器"
       },
       "agent": {
-        "jsx-text": " agent"
+        "jsx-text": " 个智能体"
       },
       "binary_asset_preview_is_not_avai": {
-        "jsx-text": "\n            Binary asset preview is not available for this file type.\n          "
+        "jsx-text": "\n            此文件类型不支持二进制资源预览。\n          "
       },
       "choose_a_github_repo_or_upload_a": {
-        "jsx-text": "\n            Choose a GitHub repo or upload a local Paperclip zip package.\n          "
+        "jsx-text": "\n            选择 GitHub 仓库，或上传本地 Paperclip zip 包。\n          "
       },
       "choose_zip": {
-        "jsx-text": "\n                Choose zip\n              "
+        "jsx-text": "\n                选择 zip\n              "
       },
       "collision_strategy": {
-        "attr_label": "Collision strategy"
+        "attr_label": "冲突策略"
       },
       "configure_adapter": {
-        "jsx-text": "\n                    configure adapter\n                  "
+        "jsx-text": "\n                    配置适配器\n                  "
       },
       "confirmed": {
-        "jsx-text": "\n                        confirmed\n                      "
+        "jsx-text": "\n                        已确认\n                      "
       },
       "conflict": {
-        "jsx-text": " conflict"
+        "jsx-text": " 个冲突"
+      },
+      "conflict_count": {
+        "jsx-text": "{{count}} 个冲突"
       },
       "create_new_company": {
-        "jsx-text": "Create new company"
+        "jsx-text": "创建新公司"
       },
       "error": {
-        "jsx-text": " error"
+        "jsx-text": " 个错误"
+      },
+      "error_count": {
+        "jsx-text": "{{count}} 个错误"
       },
       "existing_company": {
-        "jsx-text": "\n              Existing company: "
+        "jsx-text": "\n              现有公司："
       },
       "file": {
-        "jsx-text": " file\n                  "
+        "jsx-text": " 个文件\n                  "
+      },
+      "files_selected_count": {
+        "jsx-text": "已选择 {{selectedCount}} / {{totalFiles}} 个文件"
       },
       "github_url": {
         "attr_label": "GitHub URL"
       },
       "import_preview": {
-        "jsx-text": "\n                Import preview\n              "
+        "jsx-text": "\n                导入预览\n              "
+      },
+      "import_files_count": {
+        "jsx-text": "导入 {{count}} 个文件"
       },
       "import_source": {
-        "jsx-text": "Import source"
+        "jsx-text": "导入来源"
+      },
+      "importing": {
+        "jsx-text": "正在导入..."
       },
       "imported_company": {
-        "attr_placeholder": "Imported Company"
+        "attr_placeholder": "导入的公司"
       },
       "item": {
-        "jsx-text": " item"
+        "jsx-text": " 项"
       },
       "new_company_name": {
-        "attr_label": "New company name"
+        "attr_label": "新公司名称"
       },
       "package_files": {
-        "jsx-text": "Package files"
+        "jsx-text": "包文件"
+      },
+      "local_package_file_count": {
+        "jsx-text": "{{name}}，包含 {{count}} 个文件"
       },
       "rarr": {
         "jsx-text": "\n          → "
       },
+      "preview_import": {
+        "jsx-text": "预览导入"
+      },
+      "previewing": {
+        "jsx-text": "正在预览..."
+      },
       "rename_on_conflict": {
-        "jsx-text": "Rename on conflict"
+        "jsx-text": "冲突时重命名"
       },
       "renames": {
-        "jsx-text": "\n            Renames\n          "
+        "jsx-text": "\n            重命名\n          "
       },
       "replace_existing": {
-        "jsx-text": "Replace existing"
+        "jsx-text": "替换现有内容"
       },
       "selected": {
-        "jsx-text": " selected\n              "
+        "jsx-text": " 已选择\n              "
       },
       "skip_on_conflict": {
-        "jsx-text": "Skip on conflict"
+        "jsx-text": "冲突时跳过"
       },
       "with": {
-        "jsx-text": " with"
+        "jsx-text": "，包含"
       },
       "select_a_file_to_preview_its": {
         "attr_message": "选择文件以预览其内容。"

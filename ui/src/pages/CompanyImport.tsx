@@ -1167,8 +1167,11 @@ const { t } = useTranslation();
                 {t("pages.companyimport.choose_zip.jsx-text", { defaultValue: "\n                Choose zip\n              " })}</Button>
               {localPackage && (
                 <span className="text-xs text-muted-foreground">
-                  {localPackage.name} {t("pages.companyimport.with.jsx-text", { defaultValue: " with" })}{" "}
-                  {Object.keys(localPackage.files).length} {t("pages.companyimport.file.jsx-text", { defaultValue: " file\n                  " })}{Object.keys(localPackage.files).length === 1 ? "" : "s"}
+                  {t("pages.companyimport.local_package_file_count.jsx-text", {
+                    name: localPackage.name,
+                    count: Object.keys(localPackage.files).length,
+                    defaultValue: "{{name}} with {{count}} files",
+                  })}
                 </span>
               )}
             </div>
@@ -1255,7 +1258,9 @@ const { t } = useTranslation();
             onClick={() => previewMutation.mutate()}
             disabled={previewMutation.isPending || !hasSource}
           >
-            {previewMutation.isPending ? "Previewing..." : "Preview import"}
+            {previewMutation.isPending
+              ? t("pages.companyimport.previewing.jsx-text", { defaultValue: "Previewing..." })
+              : t("pages.companyimport.preview_import.jsx-text", { defaultValue: "Preview import" })}
           </Button>
         </div>
       </div>
@@ -1269,15 +1274,19 @@ const { t } = useTranslation();
               <span className="font-medium">
                 {t("pages.companyimport.import_preview.jsx-text", { defaultValue: "\n                Import preview\n              " })}</span>
               <span className="text-muted-foreground">
-                {selectedCount} / {totalFiles} {t("pages.companyimport.file.jsx-text", { defaultValue: " file" })}{totalFiles === 1 ? "" : "s"} {t("pages.companyimport.selected.jsx-text", { defaultValue: " selected\n              " })}</span>
+                {t("pages.companyimport.files_selected_count.jsx-text", {
+                  selectedCount,
+                  totalFiles,
+                  defaultValue: "{{selectedCount}} / {{totalFiles}} files selected",
+                })}</span>
               {conflicts.length > 0 && (
                 <span className="text-amber-500">
-                  {conflicts.length} {t("pages.companyimport.conflict.jsx-text", { defaultValue: " conflict" })}{conflicts.length === 1 ? "" : "s"}
+                  {t("pages.companyimport.conflict_count.jsx-text", { count: conflicts.length, defaultValue: "{{count}} conflicts" })}
                 </span>
               )}
               {importPreview.errors.length > 0 && (
                 <span className="text-destructive">
-                  {importPreview.errors.length} {t("pages.companyimport.error.jsx-text", { defaultValue: " error" })}{importPreview.errors.length === 1 ? "" : "s"}
+                  {t("pages.companyimport.error_count.jsx-text", { count: importPreview.errors.length, defaultValue: "{{count}} errors" })}
                 </span>
               )}
             </div>
@@ -1314,8 +1323,8 @@ const { t } = useTranslation();
             >
               <Download className="mr-1.5 h-3.5 w-3.5" />
               {importMutation.isPending
-                ? "Importing..."
-                : `Import ${selectedCount} file${selectedCount === 1 ? "" : "s"}`}
+                ? t("pages.companyimport.importing.jsx-text", { defaultValue: "Importing..." })
+                : t("pages.companyimport.import_files_count.jsx-text", { count: selectedCount, defaultValue: "Import {{count}} files" })}
             </Button>
           </div>
 

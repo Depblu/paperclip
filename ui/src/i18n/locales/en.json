@@ -819,17 +819,20 @@
       "in": {
         "jsx-text": " in\n              "
       },
-      "model": {
-        "jsx-text": " model"
-      },
       "out": {
         "jsx-text": " out\n              "
       },
       "period_spend": {
         "attr_label": "Period spend"
       },
-      "provider": {
-        "jsx-text": " provider"
+      "percent_of_allocation": {
+        "jsx-text": "{{percent}}% of allocation"
+      },
+      "provider_model_count": {
+        "jsx-text": "Providers: {{providerCount}} · Models: {{modelCount}}"
+      },
+      "run_summary": {
+        "jsx-text": "Metered runs: {{meteredRunCount}} · Subscription runs: {{subscriptionRunCount}} · {{amount}} this week"
       },
       "this_week": {
         "jsx-text": " this week\n        "
@@ -4932,6 +4935,9 @@
       "": {
         "jsx-expr": " · "
       },
+      "api_runs_count": {
+        "jsx-text": "API runs: {{count}}"
+      },
       "in": {
         "jsx-text": " in\n              "
       },
@@ -4944,15 +4950,30 @@
       "period_spend": {
         "attr_label": "Period spend"
       },
+      "percent_of_allocation": {
+        "jsx-text": "{{percent}}% of allocation"
+      },
+      "provider_cost_percent": {
+        "attr_title": "{{percent}}% of provider cost"
+      },
+      "provider_tokens_percent": {
+        "attr_title": "{{percent}}% of provider tokens"
+      },
       "resets": {
         "jsx-text": "\n                              resets "
       },
       "rolling_windows": {
         "jsx-text": "\n                Rolling windows\n              "
       },
+      "run_separator": {
+        "jsx-text": " / "
+      },
       "runs": {
         "jsx-expr": " runs",
         "jsx-text": " runs\n                "
+      },
+      "subscription_runs_count": {
+        "jsx-text": "Subscription runs: {{count}}"
       },
       "subscription_quota": {
         "jsx-text": "\n                  Subscription quota\n                "
@@ -4968,6 +4989,9 @@
       },
       "total": {
         "jsx-text": " total\n                    "
+      },
+      "weekly_allocation": {
+        "jsx-text": "~{{amount}} / wk"
       },
       "used": {
         "jsx-text": "% used"
@@ -8451,12 +8475,21 @@
       "binary_asset_preview_is_not_avai": {
         "jsx-text": "\n            Binary asset preview is not available for this file type.\n          "
       },
+      "building_export": {
+        "jsx-text": "Building export..."
+      },
       "export": {
         "jsx-text": " export\n            ",
         "breadcrumb": "Export"
       },
+      "export_files_count": {
+        "jsx-text": "Export {{count}} files"
+      },
       "file": {
         "jsx-text": " file"
+      },
+      "files_selected_count": {
+        "jsx-text": "{{selectedCount}} / {{totalFiles}} files selected"
       },
       "of": {
         "jsx-text": " of "
@@ -8469,6 +8502,9 @@
       },
       "selected": {
         "jsx-text": " selected\n            "
+      },
+      "warning_count": {
+        "jsx-text": "{{count}} warnings"
       },
       "show_more_tasks": {
         "jsx-text": "\n                  Show more tasks ("
@@ -8484,6 +8520,51 @@
       },
       "loading_export_data": {
         "attr_message": "Loading export data..."
+      },
+      "readme_agent": {
+        "text": "Agent"
+      },
+      "readme_agent_company_package": {
+        "text": "This is an [Agent Company](https://paperclip.ing) package."
+      },
+      "readme_agents": {
+        "text": "Agents"
+      },
+      "readme_content": {
+        "text": "Content"
+      },
+      "readme_count": {
+        "text": "Count"
+      },
+      "readme_exported_from": {
+        "text": "Exported from [Paperclip](https://paperclip.ing) on {{date}}"
+      },
+      "readme_getting_started": {
+        "text": "Getting Started"
+      },
+      "readme_more_information": {
+        "text": "See [Paperclip](https://paperclip.ing) for more information."
+      },
+      "readme_org_chart_alt": {
+        "text": "Org Chart"
+      },
+      "readme_projects": {
+        "text": "Projects"
+      },
+      "readme_reports_to": {
+        "text": "Reports To"
+      },
+      "readme_role": {
+        "text": "Role"
+      },
+      "readme_skills": {
+        "text": "Skills"
+      },
+      "readme_tasks": {
+        "text": "Tasks"
+      },
+      "readme_whats_inside": {
+        "text": "What's Inside"
       },
       "export_failed": {
         "title": "Export failed"
@@ -8532,11 +8613,17 @@
       "conflict": {
         "jsx-text": " conflict"
       },
+      "conflict_count": {
+        "jsx-text": "{{count}} conflicts"
+      },
       "create_new_company": {
         "jsx-text": "Create new company"
       },
       "error": {
         "jsx-text": " error"
+      },
+      "error_count": {
+        "jsx-text": "{{count}} errors"
       },
       "existing_company": {
         "jsx-text": "\n              Existing company: "
@@ -8544,14 +8631,23 @@
       "file": {
         "jsx-text": " file\n                  "
       },
+      "files_selected_count": {
+        "jsx-text": "{{selectedCount}} / {{totalFiles}} files selected"
+      },
       "github_url": {
         "attr_label": "GitHub URL"
       },
       "import_preview": {
         "jsx-text": "\n                Import preview\n              "
       },
+      "import_files_count": {
+        "jsx-text": "Import {{count}} files"
+      },
       "import_source": {
         "jsx-text": "Import source"
+      },
+      "importing": {
+        "jsx-text": "Importing..."
       },
       "imported_company": {
         "attr_placeholder": "Imported Company"
@@ -8565,8 +8661,17 @@
       "package_files": {
         "jsx-text": "Package files"
       },
+      "local_package_file_count": {
+        "jsx-text": "{{name}} with {{count}} files"
+      },
       "rarr": {
         "jsx-text": "\n          → "
+      },
+      "preview_import": {
+        "jsx-text": "Preview import"
+      },
+      "previewing": {
+        "jsx-text": "Previewing..."
       },
       "rename_on_conflict": {
         "jsx-text": "Rename on conflict"

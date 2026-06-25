@@ -131,6 +131,14 @@ const { t } = useTranslation();
   const supportsSubscriptionQuota = provider === "anthropic" || provider === "openai";
   const showSubscriptionQuotaSection =
     supportsSubscriptionQuota && (quotaLoading || quotaWindows.length > 0 || quotaError != null);
+  const runParts = [
+    totalApiRuns > 0
+      ? t("components.providerquotacard.api_runs_count.jsx-text", { count: totalApiRuns, defaultValue: "API runs: {{count}}" })
+      : null,
+    totalSubRuns > 0
+      ? t("components.providerquotacard.subscription_runs_count.jsx-text", { count: totalSubRuns, defaultValue: "Subscription runs: {{count}}" })
+      : null,
+  ].filter(Boolean);
 
   return (
     <Card>
@@ -144,11 +152,8 @@ const { t } = useTranslation();
               <span className="font-mono">{formatTokens(totalInputTokens)}</span> {t("components.providerquotacard.in.jsx-text", { defaultValue: " in\n              " })}{t("components.providerquotacard..jsx-expr", { defaultValue: " · " })}
               <span className="font-mono">{formatTokens(totalOutputTokens)}</span> {t("components.providerquotacard.out.jsx-text", { defaultValue: " out\n              " })}{(totalApiRuns > 0 || totalSubRuns > 0) && (
                 <span className="ml-1.5">
-                  ·{" "}
-                  {totalApiRuns > 0 && `~${totalApiRuns} api`}
-                  {totalApiRuns > 0 && totalSubRuns > 0 && " / "}
-                  {totalSubRuns > 0 && `~${totalSubRuns} sub`}
-                  {t("components.providerquotacard.runs.jsx-expr", { defaultValue: " runs" })}
+                  {t("components.providerquotacard..jsx-expr", { defaultValue: " · " })}
+                  {runParts.join(t("components.providerquotacard.run_separator.jsx-text", { defaultValue: " / " }))}
                 </span>
               )}
             </CardDescription>
@@ -166,14 +171,14 @@ const { t } = useTranslation();
               label={t("components.providerquotacard.period_spend.attr_label", { defaultValue: "Period spend" })}
               percentUsed={budgetPct}
               leftLabel={formatCents(totalCostCents)}
-              rightLabel={`${Math.round(budgetPct)}% of allocation`}
+              rightLabel={t("components.providerquotacard.percent_of_allocation.jsx-text", { percent: Math.round(budgetPct), defaultValue: "{{percent}}% of allocation" })}
               showDeficitNotch={showDeficitNotch}
             />
             <QuotaBar
               label={t("components.providerquotacard.this_week.attr_label", { defaultValue: "This week" })}
               percentUsed={weekPct}
               leftLabel={formatCents(weekSpendCents)}
-              rightLabel={`~${formatCents(Math.round(weeklyBudgetShare))} / wk`}
+              rightLabel={t("components.providerquotacard.weekly_allocation.jsx-text", { amount: formatCents(Math.round(weeklyBudgetShare)), defaultValue: "~{{amount}} / wk" })}
               showDeficitNotch={weekPct >= 100}
             />
           </div>
@@ -266,7 +271,7 @@ const { t } = useTranslation();
                           {row.model}
                         </span>
                         <span className="text-[11px] text-muted-foreground truncate block">
-                          {providerDisplayName(row.biller)} · {billingTypeDisplayName(row.billingType)}
+                          {providerDisplayName(row.biller)} · {billingTypeDisplayName(row.billingType, t)}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 shrink-0 tabular-nums text-xs">
@@ -280,13 +285,13 @@ const { t } = useTranslation();
                       <div
                         className="absolute inset-y-0 left-0 bg-primary/60 transition-[width] duration-150"
                         style={{ width: `${tokenPct}%` }}
-                        title={`${Math.round(tokenPct)}% of provider tokens`}
+                        title={t("components.providerquotacard.provider_tokens_percent.attr_title", { percent: Math.round(tokenPct), defaultValue: "{{percent}}% of provider tokens" })}
                       />
                       {/* cost share overlay — narrower, opaque, shows relative cost weight */}
                       <div
                         className="absolute inset-y-0 left-0 bg-primary/85 transition-[width] duration-150"
                         style={{ width: `${costPct}%` }}
-                        title={`${Math.round(costPct)}% of provider cost`}
+                        title={t("components.providerquotacard.provider_cost_percent.attr_title", { percent: Math.round(costPct), defaultValue: "{{percent}}% of provider cost" })}
                       />
                     </div>
                   </div>

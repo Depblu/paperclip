@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   Agent,
@@ -406,6 +407,7 @@ function generateReadmeFromSelection(
   checkedFiles: Set<string>,
   companyName: string,
   companyDescription: string | null,
+  t: TFunction,
 ): string {
   const slugs = checkedSlugs(checkedFiles);
 
@@ -426,23 +428,23 @@ function generateReadmeFromSelection(
   }
   // Org chart image (generated during export as images/org-chart.png)
   if (agents.length > 0) {
-    lines.push("![Org Chart](images/org-chart.png)");
+    lines.push(`![${t("pages.companyexport.readme_org_chart_alt.text", { defaultValue: "Org Chart" })}](images/org-chart.png)`);
     lines.push("");
   }
 
-  lines.push("## What's Inside");
+  lines.push(`## ${t("pages.companyexport.readme_whats_inside.text", { defaultValue: "What's Inside" })}`);
   lines.push("");
-  lines.push("This is an [Agent Company](https://paperclip.ing) package.");
+  lines.push(t("pages.companyexport.readme_agent_company_package.text", { defaultValue: "This is an [Agent Company](https://paperclip.ing) package." }));
   lines.push("");
 
   const counts: Array<[string, number]> = [];
-  if (agents.length > 0) counts.push(["Agents", agents.length]);
-  if (projects.length > 0) counts.push(["Projects", projects.length]);
-  if (skills.length > 0) counts.push(["Skills", skills.length]);
-  if (tasks.length > 0) counts.push(["Tasks", tasks.length]);
+  if (agents.length > 0) counts.push([t("pages.companyexport.readme_agents.text", { defaultValue: "Agents" }), agents.length]);
+  if (projects.length > 0) counts.push([t("pages.companyexport.readme_projects.text", { defaultValue: "Projects" }), projects.length]);
+  if (skills.length > 0) counts.push([t("pages.companyexport.readme_skills.text", { defaultValue: "Skills" }), skills.length]);
+  if (tasks.length > 0) counts.push([t("pages.companyexport.readme_tasks.text", { defaultValue: "Tasks" }), tasks.length]);
 
   if (counts.length > 0) {
-    lines.push("| Content | Count |");
+    lines.push(`| ${t("pages.companyexport.readme_content.text", { defaultValue: "Content" })} | ${t("pages.companyexport.readme_count.text", { defaultValue: "Count" })} |`);
     lines.push("|---------|-------|");
     for (const [label, count] of counts) {
       lines.push(`| ${label} | ${count} |`);
@@ -451,9 +453,9 @@ function generateReadmeFromSelection(
   }
 
   if (agents.length > 0) {
-    lines.push("### Agents");
+    lines.push(`### ${t("pages.companyexport.readme_agents.text", { defaultValue: "Agents" })}`);
     lines.push("");
-    lines.push("| Agent | Role | Reports To |");
+    lines.push(`| ${t("pages.companyexport.readme_agent.text", { defaultValue: "Agent" })} | ${t("pages.companyexport.readme_role.text", { defaultValue: "Role" })} | ${t("pages.companyexport.readme_reports_to.text", { defaultValue: "Reports To" })} |`);
     lines.push("|-------|------|------------|");
     for (const agent of agents) {
       const roleLabel = ROLE_LABELS[agent.role] ?? agent.role;
@@ -464,7 +466,7 @@ function generateReadmeFromSelection(
   }
 
   if (projects.length > 0) {
-    lines.push("### Projects");
+    lines.push(`### ${t("pages.companyexport.readme_projects.text", { defaultValue: "Projects" })}`);
     lines.push("");
     for (const project of projects) {
       const desc = project.description ? ` \u2014 ${project.description}` : "";
@@ -473,16 +475,16 @@ function generateReadmeFromSelection(
     lines.push("");
   }
 
-  lines.push("## Getting Started");
+  lines.push(`## ${t("pages.companyexport.readme_getting_started.text", { defaultValue: "Getting Started" })}`);
   lines.push("");
   lines.push("```bash");
   lines.push("pnpm paperclipai company import this-github-url-or-folder");
   lines.push("```");
   lines.push("");
-  lines.push("See [Paperclip](https://paperclip.ing) for more information.");
+  lines.push(t("pages.companyexport.readme_more_information.text", { defaultValue: "See [Paperclip](https://paperclip.ing) for more information." }));
   lines.push("");
   lines.push("---");
-  lines.push(`Exported from [Paperclip](https://paperclip.ing) on ${new Date().toISOString().split("T")[0]}`);
+  lines.push(t("pages.companyexport.readme_exported_from.text", { date: new Date().toISOString().split("T")[0], defaultValue: "Exported from [Paperclip](https://paperclip.ing) on {{date}}" }));
   lines.push("");
 
   return lines.join("\n");
@@ -810,11 +812,12 @@ const { t } = useTranslation();
         checkedFiles,
         companyName,
         companyDescription,
+        t,
       );
     }
 
     return filtered;
-  }, [exportData, checkedFiles, selectedCompany?.name]);
+  }, [exportData, checkedFiles, selectedCompany?.name, t]);
 
   const totalFiles = useMemo(() => countFiles(tree), [tree]);
   const selectedCount = checkedFiles.size;
@@ -961,10 +964,14 @@ const { t } = useTranslation();
             <span className="font-medium">
               {selectedCompany?.name ?? "Company"} {t("pages.companyexport.export.jsx-text", { defaultValue: " export\n            " })}</span>
             <span className="text-muted-foreground">
-              {selectedCount} / {totalFiles} {t("pages.companyexport.file.jsx-text", { defaultValue: " file" })}{totalFiles === 1 ? "" : "s"} {t("pages.companyexport.selected.jsx-text", { defaultValue: " selected\n            " })}</span>
+              {t("pages.companyexport.files_selected_count.jsx-text", {
+                selectedCount,
+                totalFiles,
+                defaultValue: "{{selectedCount}} / {{totalFiles}} files selected",
+              })}</span>
             {warnings.length > 0 && (
               <span className="text-amber-500">
-                {warnings.length} {t("pages.companyexport.warning.jsx-text", { defaultValue: " warning" })}{warnings.length === 1 ? "" : "s"}
+                {t("pages.companyexport.warning_count.jsx-text", { count: warnings.length, defaultValue: "{{count}} warnings" })}
               </span>
             )}
           </div>
@@ -975,8 +982,8 @@ const { t } = useTranslation();
           >
             <Download className="mr-1.5 h-3.5 w-3.5" />
             {downloadMutation.isPending
-              ? "Building export..."
-              : `Export ${selectedCount} file${selectedCount === 1 ? "" : "s"}`}
+              ? t("pages.companyexport.building_export.jsx-text", { defaultValue: "Building export..." })
+              : t("pages.companyexport.export_files_count.jsx-text", { count: selectedCount, defaultValue: "Export {{count}} files" })}
           </Button>
         </div>
       </div>

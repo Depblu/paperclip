@@ -67,9 +67,11 @@ const { t } = useTranslation();
             <CardDescription className="text-xs mt-0.5">
               <span className="font-mono">{formatTokens(row.inputTokens + row.cachedInputTokens)}</span> {t("components.billerspendcard.in.jsx-text", { defaultValue: " in\n              " })}{t("components.billerspendcard..jsx-expr", { defaultValue: " · " })}
               <span className="font-mono">{formatTokens(row.outputTokens)}</span> {t("components.billerspendcard.out.jsx-text", { defaultValue: " out\n              " })}{t("components.billerspendcard..jsx-expr", { defaultValue: " · " })}
-              {row.providerCount} {t("components.billerspendcard.provider.jsx-text", { defaultValue: " provider" })}{row.providerCount === 1 ? "" : "s"}
-              {t("components.billerspendcard..jsx-expr", { defaultValue: " · " })}
-              {row.modelCount} {t("components.billerspendcard.model.jsx-text", { defaultValue: " model" })}{row.modelCount === 1 ? "" : "s"}
+              {t("components.billerspendcard.provider_model_count.jsx-text", {
+                providerCount: row.providerCount,
+                modelCount: row.modelCount,
+                defaultValue: "Providers: {{providerCount}} · Models: {{modelCount}}",
+              })}
             </CardDescription>
           </div>
           <span className="text-xl font-bold tabular-nums shrink-0">
@@ -84,18 +86,17 @@ const { t } = useTranslation();
             label={t("components.billerspendcard.period_spend.attr_label", { defaultValue: "Period spend" })}
             percentUsed={budgetPct}
             leftLabel={formatCents(row.costCents)}
-            rightLabel={`${Math.round(budgetPct)}% of allocation`}
+            rightLabel={t("components.billerspendcard.percent_of_allocation.jsx-text", { percent: Math.round(budgetPct), defaultValue: "{{percent}}% of allocation" })}
           />
         )}
 
         <div className="text-xs text-muted-foreground">
-          {row.apiRunCount > 0 ? `${row.apiRunCount} metered run${row.apiRunCount === 1 ? "" : "s"}` : "0 metered runs"}
-          {t("components.billerspendcard..jsx-expr", { defaultValue: " · " })}
-          {row.subscriptionRunCount > 0
-            ? `${row.subscriptionRunCount} subscription run${row.subscriptionRunCount === 1 ? "" : "s"}`
-            : "0 subscription runs"}
-          {t("components.billerspendcard..jsx-expr", { defaultValue: " · " })}
-          {formatCents(weekSpendCents)} {t("components.billerspendcard.this_week.jsx-text", { defaultValue: " this week\n        " })}</div>
+          {t("components.billerspendcard.run_summary.jsx-text", {
+            meteredRunCount: row.apiRunCount,
+            subscriptionRunCount: row.subscriptionRunCount,
+            amount: formatCents(weekSpendCents),
+            defaultValue: "Metered runs: {{meteredRunCount}} · Subscription runs: {{subscriptionRunCount}} · {{amount}} this week",
+          })}</div>
 
         {billingTypeBreakdown.length > 0 && (
           <>
@@ -106,7 +107,7 @@ const { t } = useTranslation();
               <div className="space-y-1.5">
                 {billingTypeBreakdown.map(([billingType, costCents]) => (
                   <div key={billingType} className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-muted-foreground">{billingTypeDisplayName(billingType as any)}</span>
+                    <span className="text-muted-foreground">{billingTypeDisplayName(billingType as any, t)}</span>
                     <span className="font-medium tabular-nums">{formatCents(costCents)}</span>
                   </div>
                 ))}
