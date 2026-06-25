@@ -239,6 +239,10 @@ const { t } = useTranslation();
   );
   const activeReassignmentAgents = (agentsQuery.data ?? []).filter(isAssignableAgent);
   const assignedIssues = assignedIssuesQuery.data ?? [];
+  const companyRoleOptions = Object.entries(HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS).map(([value, label]) => ({
+    value,
+    label: t(`pages.companyaccess.role_${value}.jsx-text`, { defaultValue: label }),
+  }));
 
   return (
     <div className="max-w-6xl space-y-8">
@@ -335,6 +339,10 @@ const { t } = useTranslation();
           ) : (
             members.map((member) => {
               const removalReason = member.removal?.reason ?? null;
+              const removalReasonLabel =
+                removalReason === "You cannot remove yourself."
+                  ? t("pages.companyaccess.you_cannot_remove_yourself.jsx-text", { defaultValue: "You cannot remove yourself." })
+                  : removalReason;
               const canArchive = member.removal?.canArchive ?? true;
               return (
                 <div
@@ -347,12 +355,14 @@ const { t } = useTranslation();
                   </div>
                   <div className="text-sm">
                     {member.membershipRole
-                      ? HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS[member.membershipRole]
-                      : "Unset"}
+                      ? t(`pages.companyaccess.role_${member.membershipRole}.jsx-text`, {
+                        defaultValue: HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS[member.membershipRole],
+                      })
+                      : t("pages.companyaccess.unset.jsx-text", { defaultValue: "Unset" })}
                   </div>
                   <div>
                     <Badge variant={member.status === "active" ? "secondary" : member.status === "suspended" ? "destructive" : "outline"}>
-                      {member.status.replace("_", " ")}
+                      {t(`pages.companyaccess.status_${member.status}.jsx-text`, { defaultValue: member.status.replace("_", " ") })}
                     </Badge>
                   </div>
                   <div className="space-y-1 text-right">
@@ -364,13 +374,13 @@ const { t } = useTranslation();
                         variant="outline"
                         onClick={() => setRemovingMemberId(member.id)}
                         disabled={!canArchive}
-                        title={removalReason ?? undefined}
+                        title={removalReasonLabel ?? undefined}
                       >
                         <Trash2 className="mr-1 h-3.5 w-3.5" />
                         {t("pages.companyaccess.remove.jsx-text", { defaultValue: "\n                        Remove\n                      " })}</Button>
                     </div>
-                    {removalReason ? (
-                      <div className="text-xs text-muted-foreground">{removalReason}</div>
+                    {removalReasonLabel ? (
+                      <div className="text-xs text-muted-foreground">{removalReasonLabel}</div>
                     ) : null}
                   </div>
                 </div>
@@ -401,7 +411,7 @@ const { t } = useTranslation();
                     }
                   >
                     <option value="">{t("pages.companyaccess.unset.jsx-text", { defaultValue: "Unset" })}</option>
-                    {Object.entries(HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS).map(([value, label]) => (
+                    {companyRoleOptions.map(({ value, label }) => (
                       <option key={value} value={value}>
                         {label}
                       </option>

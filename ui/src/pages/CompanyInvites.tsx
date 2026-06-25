@@ -295,7 +295,9 @@ const { t } = useTranslation();
 
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => createInviteMutation.mutate()} disabled={createInviteMutation.isPending}>
-            {createInviteMutation.isPending ? "Creating…" : "Create invite"}
+            {createInviteMutation.isPending
+              ? t("pages.companyinvites.creating_invite.jsx-text", { defaultValue: "Creating…" })
+              : t("pages.companyinvites.create_invite.jsx-text", { defaultValue: "Create invite" })}
           </Button>
           <span className="text-sm text-muted-foreground">{t("pages.companyinvites.invite_history_below_keeps_the_a.jsx-text", { defaultValue: "Invite history below keeps the audit trail." })}</span>
         </div>

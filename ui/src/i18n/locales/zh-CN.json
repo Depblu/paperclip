@@ -1224,13 +1224,13 @@
     },
     "companysettingssidebar": {
       "cloud_upstream": {
-        "attr_label": "Cloud upstream"
+        "attr_label": "云端上游"
       },
       "company_settings": {
-        "jsx-text": "\n            Company Settings\n          "
+        "jsx-text": "\n            公司设置\n          "
       },
       "environments": {
-        "attr_label": "Environments"
+        "attr_label": "环境"
       },
       "general": {
         "attr_label": "常规"
@@ -1242,7 +1242,7 @@
         "attr_label": "成员"
       },
       "secrets": {
-        "attr_label": "Secrets"
+        "attr_label": "密钥"
       }
     },
     "companyswitcher": {
@@ -6378,13 +6378,13 @@
     },
     "companysettingsnav": {
       "general": {
-        "label": "通用"
+        "label": "常规"
       },
       "environments": {
         "label": "环境"
       },
       "cloud-upstream": {
-        "label": "Cloud upstream"
+        "label": "云端上游"
       },
       "members": {
         "label": "成员"
@@ -6393,7 +6393,7 @@
         "label": "邀请"
       },
       "secrets": {
-        "label": "Secrets"
+        "label": "密钥"
       }
     },
     "searchresultrow": {
@@ -8123,7 +8123,7 @@
         "jsx-text": "Advanced Permissions"
       },
       "agents": {
-        "attr_label": "代理"
+        "attr_label": "智能体"
       },
       "and_move_active_assignments_befo": {
         "jsx-text": " and move active assignments before hiding this user from assignment fields.\n            "
@@ -8138,50 +8138,50 @@
         "jsx-text": "Checking for advanced permission extensions..."
       },
       "company_members": {
-        "jsx-text": "Company Members"
+        "jsx-text": "公司成员"
       },
       "company_role": {
-        "jsx-text": "Company role"
+        "jsx-text": "公司角色"
       },
       "core_keeps_this_page_focused_on_": {
-        "jsx-text": "\n          Core keeps this page focused on membership, invite approvals, and safe member removal.\n        "
+        "jsx-text": "\n          Core 将此页面聚焦在成员资格、邀请审批和安全移除成员上。\n        "
       },
       "core_paperclip_keeps_enforcing_c": {
         "jsx-text": "\n            Core Paperclip keeps enforcing company boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.\n          "
       },
       "edit_member": {
-        "jsx-text": "Edit member"
+        "jsx-text": "编辑成员"
       },
       "edit": {
-        "jsx-text": "\n                        Edit\n                      "
+        "jsx-text": "\n                        编辑\n                      "
       },
       "humans": {
-        "attr_label": "Humans",
-        "jsx-text": "Humans"
+        "attr_label": "人员",
+        "jsx-text": "人员"
       },
       "leave_unassigned": {
-        "jsx-text": "Leave unassigned"
+        "jsx-text": "保持未分配"
       },
       "loading_company_access": {
-        "jsx-text": "Loading company access…"
+        "jsx-text": "正在加载公司访问权限..."
       },
       "manage_human_company_memberships": {
-        "jsx-text": "\n            Manage human company memberships and status here.\n          "
+        "jsx-text": "\n            在此管理人员公司成员资格和状态。\n          "
       },
       "manage_the_people_who_can_work_i": {
-        "jsx-text": "\n          Manage the people who can work in "
+        "jsx-text": "\n          管理可在 "
       },
       "members_can_collaborate_across_t": {
-        "jsx-text": ". Members can collaborate across the company by default.\n        "
+        "jsx-text": " 中工作的成员。默认情况下，成员可在公司范围内协作。\n        "
       },
       "membership_status": {
-        "jsx-text": "Membership status"
+        "jsx-text": "成员状态"
       },
       "more_task": {
         "jsx-text": " more task"
       },
       "no_user_memberships_found_for_th": {
-        "jsx-text": "No user memberships found for this company yet."
+        "jsx-text": "此公司还没有用户成员资格。"
       },
       "open_invites": {
         "jsx-text": "Open Invites"
@@ -8190,46 +8190,46 @@
         "jsx-text": "Open Members"
       },
       "pending_human_joins": {
-        "jsx-text": "Pending human joins"
+        "jsx-text": "待处理人员加入"
       },
       "pending": {
-        "jsx-text": " pending"
+        "jsx-text": "待处理"
       },
       "plugin_extensions_unavailable": {
         "jsx-text": "Plugin extensions unavailable: "
       },
       "remove_member": {
-        "jsx-text": "Remove member"
+        "jsx-text": "移除成员"
       },
       "remove": {
-        "jsx-text": "\n                        Remove\n                      "
+        "jsx-text": "\n                        移除\n                      "
       },
       "review_pending_join_requests_bef": {
-        "jsx-text": "\n                  Review pending join requests before they become active company members.\n                "
+        "jsx-text": "\n                  在加入请求成为活跃公司成员前进行审核。\n                "
       },
       "select_a_company_to_manage_acces": {
-        "jsx-text": "Select a company to manage access."
+        "jsx-text": "选择公司以管理访问权限。"
       },
       "status": {
         "jsx-text": "状态"
       },
       "suspended": {
-        "jsx-text": "Suspended"
+        "jsx-text": "已暂停"
       },
       "task_reassignment": {
-        "jsx-text": "Task reassignment"
+        "jsx-text": "任务重新分配"
       },
       "this_account_can_manage_access_h": {
         "jsx-text": "\n          This account can manage access here through instance-admin privileges, but it does not currently hold an active company membership.\n        "
       },
       "unset": {
-        "jsx-text": "Unset"
+        "jsx-text": "未设置"
       },
       "update_company_role_and_membersh": {
-        "jsx-text": "\n             更新 company role and membership status for "
+        "jsx-text": "\n              更新公司角色和成员状态："
       },
       "user_account": {
-        "jsx-text": "User account"
+        "jsx-text": "用户账户"
       },
       "unknown_human_requester": {
         "text": "未知人工请求者"
@@ -8299,6 +8299,30 @@
       },
       "assigned_tasks_cleaned_up": {
         "body": "已清理 {{count}} 个已分配任务。"
+      },
+      "status_active": {
+        "jsx-text": "活跃"
+      },
+      "status_pending": {
+        "jsx-text": "待处理"
+      },
+      "status_suspended": {
+        "jsx-text": "已暂停"
+      },
+      "role_owner": {
+        "jsx-text": "所有者"
+      },
+      "role_admin": {
+        "jsx-text": "管理员"
+      },
+      "role_operator": {
+        "jsx-text": "操作员"
+      },
+      "role_viewer": {
+        "jsx-text": "查看者"
+      },
+      "you_cannot_remove_yourself": {
+        "jsx-text": "不能移除自己。"
       }
     },
     "companyenvironments": {
@@ -8306,13 +8330,13 @@
         "jsx-text": "适配器"
       },
       "cancel": {
-        "jsx-text": "\n                  Cancel\n                "
+        "jsx-text": "\n                  取消\n                "
       },
       "company_environments": {
-        "jsx-text": "Company Environments"
+        "jsx-text": "公司环境"
       },
       "define_reusable_execution_target": {
-        "jsx-text": "\n          Define reusable execution targets for projects, task workspaces, and remote-capable adapters.\n        "
+        "jsx-text": "\n          为项目、任务工作区和支持远程的适配器定义可复用执行目标。\n        "
       },
       "description": {
         "attr_label": "描述"
@@ -8321,31 +8345,31 @@
         "attr_label": "驱动"
       },
       "enable_environments_in_instance_": {
-        "jsx-text": "\n          Enable Environments in instance experimental settings to manage company execution targets.\n        "
+        "jsx-text": "\n          在实例实验设置中启用“环境”，用于管理公司的执行目标。\n        "
       },
       "environment_choices_use_the_same": {
-        "jsx-text": "\n          Environment choices use the same adapter support matrix as agent defaults. SSH is always available for remote-managed adapters, and sandbox environments appear only when a run-capable sandbox provider plugin is installed.\n        "
+        "jsx-text": "\n          环境选项使用与智能体默认值相同的适配器支持矩阵。远程托管适配器始终可使用 SSH；只有安装了可运行的 sandbox provider 插件时，才会显示 sandbox 环境。\n        "
       },
       "environment_support_by_adapter": {
-        "jsx-text": "Environment support by adapter"
+        "jsx-text": "按适配器查看环境支持"
       },
       "host": {
         "attr_label": "主机"
       },
       "installed_sandbox_providers": {
-        "jsx-text": "\n            Installed sandbox providers:"
+        "jsx-text": "\n            已安装的 sandbox provider:"
       },
       "known_hosts": {
         "attr_label": "known_hosts"
       },
       "local": {
-        "jsx-text": "Local"
+        "jsx-text": "本地"
       },
       "no_environments_saved_for_this_c": {
-        "jsx-text": "No environments saved for this company yet."
+        "jsx-text": "此公司还没有保存环境。"
       },
       "no_saved_secret": {
-        "jsx-text": "No saved secret"
+        "jsx-text": "无已保存密钥"
       },
       "no": {
         "jsx-text": "否"
@@ -8363,13 +8387,13 @@
         "attr_label": "远程工作区路径"
       },
       "runs_on_this_paperclip_host": {
-        "jsx-text": "Runs on this Paperclip host."
+        "jsx-text": "在此 Paperclip 主机上运行。"
       },
       "sandbox_via_plugin": {
-        "jsx-text": "Sandbox via plugin"
+        "jsx-text": "通过插件提供的 Sandbox"
       },
       "select_a_company_to_manage_envir": {
-        "jsx-text": "Select a company to manage environments."
+        "jsx-text": "选择公司以管理环境。"
       },
       "strict_host_key_checking": {
         "attr_label": "严格主机密钥检查"
@@ -8384,7 +8408,7 @@
         "attr_label": "用户名"
       },
       "yes": {
-        "jsx-text": "\n      Yes\n    "
+        "jsx-text": "\n      是\n    "
       },
       "edit_environment": {
         "jsx-text": "编辑环境"
@@ -8763,89 +8787,89 @@
     },
     "companyinvites": {
       "choose_a_role": {
-        "jsx-text": "Choose a role"
+        "jsx-text": "选择角色"
       },
       "company_invites": {
-        "jsx-text": "Company Invites"
+        "jsx-text": "公司邀请"
       },
       "copied": {
-        "jsx-text": "\n                    Copied\n                  "
+        "jsx-text": "\n                    已复制\n                  "
       },
       "copy_link": {
-        "jsx-text": "\n                Copy link\n              "
+        "jsx-text": "\n                复制链接\n              "
       },
       "created": {
         "jsx-text": "已创建"
       },
       "default": {
-        "jsx-text": "\n                          Default\n                        "
+        "jsx-text": "\n                          默认\n                        "
       },
       "each_invite_link_is_single_use_h": {
-        "jsx-text": "\n          Each invite link is single-use. Human invitees get the selected role immediately after sign-in; agent invites still创建 a join request for approval.\n        "
+        "jsx-text": "\n          每个邀请链接只能使用一次。人员受邀者登录后会立即获得所选角色；智能体邀请仍会创建加入请求等待审批。\n        "
       },
       "for": {
-        "jsx-text": "For"
+        "jsx-text": "对象"
       },
       "generate_a_human_invite_link_and": {
-        "jsx-text": "\n            Generate a human invite link and choose the default access it should request.\n          "
+        "jsx-text": "\n            生成人员邀请链接，并选择它默认申请的访问权限。\n          "
       },
       "inactive": {
         "jsx-text": "不活跃"
       },
       "invite_a_person": {
-        "jsx-text": "Invite a person"
+        "jsx-text": "邀请人员"
       },
       "invite_history_below_keeps_the_a": {
-        "jsx-text": "Invite history below keeps the audit trail."
+        "jsx-text": "下方邀请历史会保留审计记录。"
       },
       "invite_history": {
-        "jsx-text": "Invite history"
+        "jsx-text": "邀请历史"
       },
       "invite_people_to_request_access_": {
-        "jsx-text": "\n          Invite people to request access to this company. New invite links are copied to your clipboard when they are generated.\n        "
+        "jsx-text": "\n          邀请他人申请访问此公司。新邀请链接生成后会复制到剪贴板。\n        "
       },
       "invited_by": {
-        "jsx-text": "Invited by"
+        "jsx-text": "邀请人"
       },
       "join_request": {
-        "jsx-text": "Join request"
+        "jsx-text": "加入请求"
       },
       "latest_invite_link": {
-        "jsx-text": "Latest invite link"
+        "jsx-text": "最新邀请链接"
       },
       "latest_invite_url": {
-        "attr_aria-label": "Latest invite URL",
-        "jsx-text": "Latest invite URL"
+        "attr_aria-label": "最新邀请 URL",
+        "jsx-text": "最新邀请 URL"
       },
       "loading_invites": {
-        "jsx-text": "Loading invites…"
+        "jsx-text": "正在加载邀请..."
       },
       "no_invites_have_been_created_for": {
-        "jsx-text": "\n           无 invites have been created for this company yet.\n          "
+        "jsx-text": "\n            此公司还没有创建邀请。\n          "
       },
       "open_invite": {
-        "jsx-text": "\n                  Open invite\n                "
+        "jsx-text": "\n                  打开邀请\n                "
       },
       "open_join_request_queue": {
-        "jsx-text": "\n            Open join request queue\n          "
+        "jsx-text": "\n            打开加入请求队列\n          "
       },
       "review_invite_status_audience_in": {
-        "jsx-text": "\n              Review invite status, audience, inviter, and any linked join request.\n            "
+        "jsx-text": "\n              查看邀请状态、受众、邀请人和关联的加入请求。\n            "
       },
       "review_request": {
-        "jsx-text": "\n                            Review request\n                          "
+        "jsx-text": "\n                            查看请求\n                          "
       },
       "revoke": {
-        "jsx-text": "\n                            Revoke\n                          "
+        "jsx-text": "\n                            撤销\n                          "
       },
       "select_a_company_to_manage_invit": {
-        "jsx-text": "Select a company to manage invites."
+        "jsx-text": "选择公司以管理邀请。"
       },
       "state": {
-        "jsx-text": "State"
+        "jsx-text": "状态"
       },
       "this_url_includes_the_current_pa": {
-        "jsx-text": "\n                This URL includes the current Paperclip domain returned by the server.\n              "
+        "jsx-text": "\n                此 URL 包含服务器返回的当前 Paperclip 域名。\n              "
       },
       "action": {
         "jsx-text": "操作"
@@ -8921,6 +8945,12 @@
       },
       "invites": {
         "breadcrumb": "邀请"
+      },
+      "create_invite": {
+        "jsx-text": "创建邀请"
+      },
+      "creating_invite": {
+        "jsx-text": "正在创建..."
       }
     },
     "companysettings": {
@@ -8979,7 +9009,7 @@
         "jsx-text": "\n                导入\n              "
       },
       "logo": {
-        "attr_label": "Logo"
+        "attr_label": "标志"
       },
       "mib": {
         "jsx-text": "MiB"
@@ -9003,7 +9033,7 @@
         "jsx-text": "\n                  发送到 Paperclip Cloud\n                "
       },
       "uploading_logo": {
-        "jsx-text": "正在上传 Logo..."
+        "jsx-text": "正在上传标志..."
       },
       "accepted_range_1_max_mib": {
         "attr_hint": "可接受范围：1-{{max}} MiB。"
@@ -9025,7 +9055,7 @@
         "jsx-text": "保存失败"
       },
       "logo_upload_failed": {
-        "jsx-text": "Logo 上传失败"
+        "jsx-text": "标志上传失败"
       },
       "new_agent_hires_stay_pending": {
         "attr_hint": "新 agent 招聘会保持待审批，直到看板批准。"
@@ -9034,7 +9064,7 @@
         "attr_hint": "显示在公司资料中的可选描述。"
       },
       "remove_logo": {
-        "jsx-text": "移除 Logo"
+        "jsx-text": "移除标志"
       },
       "removing": {
         "jsx-text": "正在移除..."
@@ -9052,13 +9082,19 @@
         "attr_hint": "公司的显示名称。"
       },
       "upload_a_png_jpeg_webp_gif_": {
-        "attr_hint": "上传 PNG、JPEG、WEBP、GIF 或 SVG Logo 图片。"
+        "attr_hint": "上传 PNG、JPEG、WEBP、GIF 或 SVG 标志图片。"
       },
       "company": {
         "breadcrumb": "公司"
       },
       "settings": {
         "breadcrumb": "设置"
+      },
+      "browse_logo": {
+        "jsx-text": "浏览..."
+      },
+      "no_file_selected": {
+        "jsx-text": "未选择文件。"
       }
     },
     "companysettingspluginpage": {
@@ -14164,7 +14200,7 @@
         "jsx-text": "All providers"
       },
       "and_select_the_stored_secret_ver": {
-        "jsx-text": ", and select the stored secret version.\n        "
+        "jsx-text": "，并选择已存储的密钥版本。\n        "
       },
       "archive": {
         "jsx-text": " Archive\n                  "
@@ -14200,7 +14236,7 @@
         "jsx-text": "\n              Choose whether Paperclip should own future provider writes, or only resolve an existing provider reference at runtime.\n            "
       },
       "choose": {
-        "jsx-text": ", choose"
+        "jsx-text": "，选择"
       },
       "clear": {
         "jsx-text": "\n                Clear\n              "
@@ -14212,7 +14248,7 @@
         "attr_title": "Configure an AWS provider vault to enable remote import"
       },
       "create_or_link_a_secret_here_the": {
-        "jsx-text": "\n         创建 or link a secret here, then open an agent's Environment variables or a project's Env field.添加 the env key the process expects, for example "
+        "jsx-text": "\n          在这里创建或链接密钥，然后打开智能体的环境变量或项目的 Env 字段。添加进程所需的 env key，例如 "
       },
       "create_secret": {
         "jsx-text": "Create secret"
@@ -14340,8 +14376,8 @@
         "attr_label": "Namespace"
       },
       "new_secret": {
-        "jsx-text": " New secret\n            ",
-        "action": "新建 secret"
+        "jsx-text": " 新建密钥\n            ",
+        "action": "新建密钥"
       },
       "new_value": {
         "jsx-text": "New value"
@@ -14377,7 +14413,7 @@
         "attr_placeholder": "paperclip-prod"
       },
       "paperclip_resolves_the_value_ser": {
-        "jsx-text": "\n          Paperclip resolves the value server-side when the run starts and injects it as that env var. Project env applies to every task in the project and overrides agent env on matching keys.\n        "
+        "jsx-text": "\n          Paperclip 会在运行开始时在服务器端解析该值，并作为 env var 注入。项目 env 会应用到该项目的所有任务，并在 key 冲突时覆盖智能体 env。\n        "
       },
       "paperclip": {
         "attr_placeholder": "paperclip"
@@ -14451,7 +14487,7 @@
         "jsx-text": "\n             保存 only non-sensitive routing metadata. Credentials stay in the runtime environment or provider identity.\n            "
       },
       "search_by_name_key_ref": {
-        "attr_placeholder": "Search by name, key, ref"
+        "attr_placeholder": "按名称、key 或引用搜索"
       },
       "search_secrets": {
         "attr_aria-label": "Search secrets"
@@ -14470,18 +14506,18 @@
       },
       "secret": {
         "attr_placeholder": "secret",
-        "jsx-text": "Secret"
+        "jsx-text": "密钥"
       },
       "secrets_using_this_vault_will_lo": {
         "jsx-text": "\n              Secrets using this vault will lose the vault association until you assign another one.\n            "
       },
       "secrets": {
-        "jsx-text": "Secrets",
+        "jsx-text": "密钥",
         "breadcrumb": "密钥",
-        "tab_label": "Secrets"
+        "tab_label": "密钥"
       },
       "select_a_company_to_manage_secre": {
-        "jsx-text": "Select a company to manage secrets."
+        "jsx-text": "选择公司以管理密钥。"
       },
       "status": {
         "jsx-text": "状态"
@@ -14502,7 +14538,7 @@
         "attr_placeholder": "us-east-1"
       },
       "use_secrets_by_binding_them_to_r": {
-        "jsx-text": "Use secrets by binding them to runtime environment variables."
+        "jsx-text": "通过绑定到运行时环境变量来使用密钥。"
       },
       "use_values": {
         "jsx-text": "\n          Use values\n        "
@@ -14562,7 +14598,7 @@
         "block_reason": "此 provider vault 健康检查失败。"
       },
       "no_secrets_yet_create_first": {
-        "attr_message": "还没有 secret。创建第一个托管 secret 或链接外部引用。"
+        "attr_message": "还没有密钥。创建第一个托管密钥或链接外部引用。"
       },
       "no_secrets_match_filters": {
         "attr_message": "没有 secret 匹配当前筛选。"
@@ -14651,7 +14687,7 @@
         "title": "健康检查失败"
       },
       "provider_vaults": {
-        "tab_label": "Provider vaults"
+        "tab_label": "提供商保管库"
       },
       "details": {
         "tab_label": "详情"

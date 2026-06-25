@@ -8213,6 +8213,30 @@
       "status": {
         "jsx-text": "Status"
       },
+      "status_active": {
+        "jsx-text": "active"
+      },
+      "status_pending": {
+        "jsx-text": "pending"
+      },
+      "status_suspended": {
+        "jsx-text": "suspended"
+      },
+      "role_owner": {
+        "jsx-text": "Owner"
+      },
+      "role_admin": {
+        "jsx-text": "Admin"
+      },
+      "role_operator": {
+        "jsx-text": "Operator"
+      },
+      "role_viewer": {
+        "jsx-text": "Viewer"
+      },
+      "you_cannot_remove_yourself": {
+        "jsx-text": "You cannot remove yourself."
+      },
       "suspended": {
         "jsx-text": "Suspended"
       },
@@ -8921,6 +8945,12 @@
       },
       "invites": {
         "breadcrumb": "Invites"
+      },
+      "create_invite": {
+        "jsx-text": "Create invite"
+      },
+      "creating_invite": {
+        "jsx-text": "Creating…"
       }
     },
     "companysettings": {
@@ -8999,6 +9029,12 @@
       },
       "logo": {
         "attr_label": "Logo"
+      },
+      "browse_logo": {
+        "jsx-text": "Browse..."
+      },
+      "no_file_selected": {
+        "jsx-text": "No file selected."
       },
       "logo_upload_failed": {
         "jsx-text": "Logo upload failed"

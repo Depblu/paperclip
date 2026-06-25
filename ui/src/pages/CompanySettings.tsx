@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -44,6 +44,8 @@ const { t } = useTranslation();
   const [attachmentMaxMiB, setAttachmentMaxMiB] = useState(String(DEFAULT_COMPANY_ATTACHMENT_MAX_MIB));
   const [logoUrl, setLogoUrl] = useState("");
   const [logoUploadError, setLogoUploadError] = useState<string | null>(null);
+  const [logoFileName, setLogoFileName] = useState("");
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync local state from selected company
   useEffect(() => {
@@ -104,6 +106,7 @@ const { t } = useTranslation();
     onSuccess: (company) => {
       syncLogoState(company.logoUrl);
       setLogoUploadError(null);
+      setLogoFileName("");
     }
   });
 
@@ -118,7 +121,11 @@ const { t } = useTranslation();
   function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
     event.currentTarget.value = "";
-    if (!file) return;
+    if (!file) {
+      setLogoFileName("");
+      return;
+    }
+    setLogoFileName(file.name);
     setLogoUploadError(null);
     logoUploadMutation.mutate(file);
   }
@@ -230,11 +237,26 @@ const { t } = useTranslation();
               >
                 <div className="space-y-2">
                   <input
+                    ref={logoInputRef}
                     type="file"
                     accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
                     onChange={handleLogoFileChange}
-                    className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none file:mr-4 file:rounded-md file:border-0 file:bg-muted file:px-2.5 file:py-1 file:text-xs"
+                    className="hidden"
                   />
+                  <div className="flex min-w-0 items-center gap-3 rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={logoUploadMutation.isPending}
+                    >
+                      {t("pages.companysettings.browse_logo.jsx-text", { defaultValue: "Browse..." })}
+                    </Button>
+                    <span className="min-w-0 truncate text-muted-foreground">
+                      {logoFileName || t("pages.companysettings.no_file_selected.jsx-text", { defaultValue: "No file selected." })}
+                    </span>
+                  </div>
                   {logoUrl && (
                     <div className="flex items-center gap-2">
                       <Button
