@@ -532,7 +532,7 @@ const { t } = useTranslation();
       errorMessage: testEnvironment.error instanceof Error
         ? testEnvironment.error.message
         : testEnvironment.error
-          ? "Environment test failed"
+          ? t("components.agentconfigform.environment_test_failed.error", { defaultValue: "Environment test failed" })
           : null,
       result: testEnvironment.data ?? null,
     });
@@ -719,7 +719,9 @@ const { t } = useTranslation();
               onClick={handleSave}
               disabled={!isCreate && props.isSaving}
             >
-              {!isCreate && props.isSaving ? "Saving..." : "Save"}
+              {!isCreate && props.isSaving
+                ? t("components.agentconfigform.saving.jsx-text", { defaultValue: "Saving..." })
+                : t("components.agentconfigform.save.jsx-text", { defaultValue: "Save" })}
             </Button>
           </div>
         </div>
@@ -854,7 +856,9 @@ const { t } = useTranslation();
               onClick={triggerTestEnvironment}
               disabled={testEnvironmentDisabled}
             >
-              {testEnvironment.isPending ? "Testing..." : "Test"}
+              {testEnvironment.isPending
+                ? t("components.agentconfigform.testing.jsx-text", { defaultValue: "Testing..." })
+                : t("components.agentconfigform.test.jsx-text", { defaultValue: "Test" })}
             </Button>
           )}
         </div>
@@ -921,7 +925,7 @@ const { t } = useTranslation();
             <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
               {testEnvironment.error instanceof Error
                 ? testEnvironment.error.message
-                : "Environment test failed"}
+                : t("components.agentconfigform.environment_test_failed.error", { defaultValue: "Environment test failed" })}
             </div>
           )}
 
@@ -1033,8 +1037,8 @@ const { t } = useTranslation();
                     : undefined
                 }
                 refreshingModels={refreshingModels}
-                detectModelLabel="Detect model"
-                emptyDetectHint="No model detected. Select or enter one manually."
+                detectModelLabel={t("components.agentconfigform.detect_model.jsx-text", { defaultValue: "Detect model" })}
+                emptyDetectHint={t("components.agentconfigform.no_model_detected.message", { defaultValue: "No model detected. Select or enter one manually." })}
               />
               {(refreshModelsError || fetchedModelsError) && (
                 <p className="text-xs text-destructive">
@@ -1204,8 +1208,8 @@ const { t } = useTranslation();
               onCheckedChange={(v) => set!({ heartbeatEnabled: v })}
               number={val!.intervalSec}
               onNumberChange={(v) => set!({ intervalSec: v })}
-              numberLabel="sec"
-              numberPrefix="Run heartbeat every"
+              numberLabel={t("components.agentconfigform.seconds_short.jsx-text", { defaultValue: "sec" })}
+              numberPrefix={t("components.agentconfigform.run_heartbeat_every.jsx-text", { defaultValue: "Run heartbeat every" })}
               numberHint={help.intervalSec}
               showNumber={val!.heartbeatEnabled}
             />
@@ -1226,8 +1230,8 @@ const { t } = useTranslation();
                 onCheckedChange={(v) => mark("heartbeat", "enabled", v)}
                 number={eff("heartbeat", "intervalSec", Number(heartbeat.intervalSec ?? 300))}
                 onNumberChange={(v) => mark("heartbeat", "intervalSec", v)}
-                numberLabel="sec"
-                numberPrefix="Run heartbeat every"
+                numberLabel={t("components.agentconfigform.seconds_short.jsx-text", { defaultValue: "sec" })}
+                numberPrefix={t("components.agentconfigform.run_heartbeat_every.jsx-text", { defaultValue: "Run heartbeat every" })}
                 numberHint={help.intervalSec}
                 showNumber={eff("heartbeat", "enabled", heartbeat.enabled === true)}
               />
@@ -1741,8 +1745,8 @@ const { t } = useTranslation();
               <div className="px-2 py-2 space-y-2">
                 <p className="text-xs text-muted-foreground">
                   {onDetectModel
-                    ? (emptyDetectHint ?? "No model detected yet. Enter a provider/model manually.")
-                    : "No models found."}
+                    ? (emptyDetectHint ?? t("components.agentconfigform.no_model_detected_yet.message", { defaultValue: "No model detected yet. Enter a provider/model manually." }))
+                    : t("components.agentconfigform.no_models_found.message", { defaultValue: "No models found." })}
                 </p>
               </div>
             )}
@@ -1777,8 +1781,8 @@ function CheapModelSection({
 const { t } = useTranslation();
 
   const placeholderHint = adapterDefaultModel
-    ? `Adapter default · ${adapterDefaultModel}`
-    : "No adapter default — choose a cheaper model";
+    ? `${t("components.agentconfigform.adapter_default.prefix", { defaultValue: "Adapter default" })} · ${adapterDefaultModel}`
+    : t("components.agentconfigform.no_adapter_default_choose_cheaper_model.message", { defaultValue: "No adapter default - choose a cheaper model" });
   return (
     <div className="rounded-md border border-border/70 bg-muted/20 p-3 space-y-3">
       <div className="flex items-center justify-between gap-3">

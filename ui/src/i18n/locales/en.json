@@ -575,7 +575,7 @@
         "attr_hint": "Agent-level default execution target. Project and task settings can still override this."
       },
       "choose_manager": {
-        "choose_label": "Choose manager…"
+        "choose_label": "Choose manager..."
       },
       "path_to_project": {
         "attr_placeholder": "/path/to/project"
@@ -627,6 +627,45 @@
       },
       "select_company_to_test_adapter_environment": {
         "error": "Select a company to test adapter environment"
+      },
+      "save": {
+        "jsx-text": "Save"
+      },
+      "saving": {
+        "jsx-text": "Saving..."
+      },
+      "testing": {
+        "jsx-text": "Testing..."
+      },
+      "test": {
+        "jsx-text": "Test"
+      },
+      "environment_test_failed": {
+        "error": "Environment test failed"
+      },
+      "detect_model": {
+        "jsx-text": "Detect model"
+      },
+      "no_model_detected": {
+        "message": "No model detected. Select or enter one manually."
+      },
+      "run_heartbeat_every": {
+        "jsx-text": "Run heartbeat every"
+      },
+      "seconds_short": {
+        "jsx-text": "sec"
+      },
+      "no_models_found": {
+        "message": "No models found."
+      },
+      "no_model_detected_yet": {
+        "message": "No model detected yet. Enter a provider/model manually."
+      },
+      "adapter_default": {
+        "prefix": "Adapter default"
+      },
+      "no_adapter_default_choose_cheaper_model": {
+        "message": "No adapter default - choose a cheaper model"
       }
     },
     "agenticonpicker": {
@@ -1365,6 +1404,9 @@
       },
       "version": {
         "attr_aria-label": "Version"
+      },
+      "value": {
+        "attr_placeholder": "value"
       }
     },
     "executionparticipantpicker": {
@@ -4828,6 +4870,15 @@
       },
       "unknown_manager_stale_id": {
         "jsx-text": "Unknown manager (stale ID)"
+      },
+      "reports_to_na_ceo": {
+        "jsx-text": "Reports to: N/A (CEO)"
+      },
+      "reports_to_ellipsis": {
+        "jsx-text": "Reports to..."
+      },
+      "reports_to_name": {
+        "jsx-text": "Reports to {{name}}"
       }
     },
     "resizablesidebarpane": {
@@ -7154,6 +7205,54 @@
         "assignment": "Assignment",
         "on_demand": "On-demand",
         "automation": "Automation"
+      },
+      "required_by_paperclip": {
+        "section_title": "Required by Paperclip"
+      },
+      "installed_skills": {
+        "section_title": "Installed skills"
+      },
+      "other_skills": {
+        "section_title": "Other skills"
+      },
+      "no_company_library_skills_installed": {
+        "message": "No company-library skills installed on this agent."
+      },
+      "opencode_shared_claude_skills_home": {
+        "message": "OpenCode currently uses the shared Claude skills home (~/.claude/skills)."
+      },
+      "skill_name_occupied_shared_home": {
+        "message": "Skill name is occupied by an external installation in the shared skills home."
+      },
+      "save": {
+        "jsx-text": "Save"
+      },
+      "saving": {
+        "jsx-text": "Saving..."
+      },
+      "no_tracked_changes": {
+        "jsx-text": "no tracked changes"
+      },
+      "show": {
+        "attr_title": "Show"
+      },
+      "hide": {
+        "attr_title": "Hide"
+      },
+      "task_assign_ceo_role": {
+        "message": "Enabled automatically for CEO agents."
+      },
+      "task_assign_agent_creator": {
+        "message": "Enabled automatically while this agent can create new agents."
+      },
+      "task_assign_explicit_grant": {
+        "message": "Enabled via explicit company permission grant."
+      },
+      "task_assign_simple_default": {
+        "message": "Enabled by simple company-wide task assignment defaults."
+      },
+      "task_assign_disabled": {
+        "message": "Disabled unless explicitly granted."
       }
     },
     "agents": {

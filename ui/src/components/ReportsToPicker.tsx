@@ -17,8 +17,8 @@ export function ReportsToPicker({
   onChange,
   disabled = false,
   excludeAgentIds = [],
-  disabledEmptyLabel = "Reports to: N/A (CEO)",
-  chooseLabel = "Reports to...",
+  disabledEmptyLabel,
+  chooseLabel,
 }: {
   agents: Agent[];
   value: string | null;
@@ -29,6 +29,8 @@ export function ReportsToPicker({
   chooseLabel?: string;
 }) {
 const { t } = useTranslation();
+  const resolvedDisabledEmptyLabel = disabledEmptyLabel ?? t("components.reportstopicker.reports_to_na_ceo.jsx-text", { defaultValue: "Reports to: N/A (CEO)" });
+  const resolvedChooseLabel = chooseLabel ?? t("components.reportstopicker.reports_to_ellipsis.jsx-text", { defaultValue: "Reports to..." });
 
   const [open, setOpen] = useState(false);
   const exclude = new Set(excludeAgentIds);
@@ -65,14 +67,15 @@ const { t } = useTranslation();
                   terminatedManager && "text-amber-900 dark:text-amber-200",
                 )}
               >
-                {`Reports to ${current.name}${terminatedManager ? " (terminated)" : ""}`}
+                {t("components.reportstopicker.reports_to_name.jsx-text", { defaultValue: "Reports to {{name}}", name: current.name })}
+                {terminatedManager ? t("components.reportstopicker.terminated.jsx-text", { defaultValue: " (terminated)\n            " }) : ""}
               </span>
             </>
           ) : (
             <>
               <User className="h-3 w-3 shrink-0 text-muted-foreground" />
               <span className="min-w-0 truncate">
-                {disabled ? disabledEmptyLabel : chooseLabel}
+                {disabled ? resolvedDisabledEmptyLabel : resolvedChooseLabel}
               </span>
             </>
           )}

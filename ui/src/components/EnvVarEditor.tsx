@@ -257,7 +257,7 @@ const { t } = useTranslation();
               <>
                 <input
                   className={cn(inputClass, "flex-[3]")}
-                  placeholder="value"
+                  placeholder={t("components.envvareditor.value.attr_placeholder", { defaultValue: "value" })}
                   value={row.plainValue}
                   onChange={(event) => updateRow(index, { plainValue: event.target.value })}
                 />

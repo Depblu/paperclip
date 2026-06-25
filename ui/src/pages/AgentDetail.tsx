@@ -194,6 +194,22 @@ function formatRunInvocationSource(source: string, t: TFunction) {
   return t(`pages.agentdetail.invocation_source.${source}`, { defaultValue: source.replace(/_/g, " ") });
 }
 
+function translateAgentSkillText(text: string | null | undefined, t: TFunction) {
+  if (!text) return text;
+  switch (text) {
+    case "OpenCode currently uses the shared Claude skills home (~/.claude/skills).":
+      return t("pages.agentdetail.opencode_shared_claude_skills_home.message", {
+        defaultValue: "OpenCode currently uses the shared Claude skills home (~/.claude/skills).",
+      });
+    case "Skill name is occupied by an external installation in the shared skills home.":
+      return t("pages.agentdetail.skill_name_occupied_shared_home.message", {
+        defaultValue: "Skill name is occupied by an external installation in the shared skills home.",
+      });
+    default:
+      return text;
+  }
+}
+
 function isWindowContainer(container: ScrollContainer): container is Window {
   return container === window;
 }
@@ -1089,7 +1105,9 @@ const { t } = useTranslation();
               onClick={() => saveConfigActionRef.current?.()}
               disabled={configSaving}
             >
-              {configSaving ? "Saving…" : "Save"}
+              {configSaving
+                ? t("pages.agentdetail.saving.jsx-text", { defaultValue: "Saving..." })
+                : t("pages.agentdetail.save.jsx-text", { defaultValue: "Save" })}
             </Button>
           </div>
         </div>
@@ -1114,7 +1132,9 @@ const { t } = useTranslation();
               onClick={() => saveConfigActionRef.current?.()}
               disabled={configSaving}
             >
-              {configSaving ? "Saving…" : "Save"}
+              {configSaving
+                ? t("pages.agentdetail.saving.jsx-text", { defaultValue: "Saving..." })
+                : t("pages.agentdetail.save.jsx-text", { defaultValue: "Save" })}
             </Button>
           </div>
         </div>
@@ -1549,7 +1569,7 @@ const { t } = useTranslation();
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {t("pages.agentdetail.changed.jsx-text", { defaultValue: "\n                      Changed:" })}{" "}
-                      {revision.changedKeys.length > 0 ? revision.changedKeys.join(", ") : "no tracked changes"}
+                      {revision.changedKeys.length > 0 ? revision.changedKeys.join(", ") : t("pages.agentdetail.no_tracked_changes.jsx-text", { defaultValue: "no tracked changes" })}
                     </p>
                   </div>
                 ))}
@@ -1658,14 +1678,14 @@ const { t } = useTranslation();
   const taskAssignLocked = agent.role === "ceo" || canCreateAgents;
   const taskAssignHint =
     taskAssignSource === "ceo_role"
-      ? "Enabled automatically for CEO agents."
+      ? t("pages.agentdetail.task_assign_ceo_role.message", { defaultValue: "Enabled automatically for CEO agents." })
       : taskAssignSource === "agent_creator"
-        ? "Enabled automatically while this agent can create new agents."
+        ? t("pages.agentdetail.task_assign_agent_creator.message", { defaultValue: "Enabled automatically while this agent can create new agents." })
         : taskAssignSource === "explicit_grant"
-          ? "Enabled via explicit company permission grant."
+          ? t("pages.agentdetail.task_assign_explicit_grant.message", { defaultValue: "Enabled via explicit company permission grant." })
           : taskAssignSource === "simple_default"
-            ? "Enabled by simple company-wide task assignment defaults."
-            : "Disabled unless explicitly granted.";
+            ? t("pages.agentdetail.task_assign_simple_default.message", { defaultValue: "Enabled by simple company-wide task assignment defaults." })
+            : t("pages.agentdetail.task_assign_disabled.message", { defaultValue: "Disabled unless explicitly granted." });
 
   return (
     <div className="space-y-6">
@@ -2767,7 +2787,7 @@ const { t } = useTranslation();
       {skillSnapshot?.warnings.length ? (
         <div className="space-y-1 rounded-xl border border-amber-300/60 bg-amber-50/60 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-200">
           {skillSnapshot.warnings.map((warning) => (
-            <div key={warning}>{warning}</div>
+            <div key={warning}>{translateAgentSkillText(warning, t)}</div>
           ))}
         </div>
       ) : null}
@@ -2810,13 +2830,13 @@ const { t } = useTranslation();
                     </MarkdownBody>
                   )}
                   {skill.readOnly && skill.originLabel && (
-                    <p className="mt-1 text-xs text-muted-foreground">{skill.originLabel}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{translateAgentSkillText(skill.originLabel, t)}</p>
                   )}
                   {skill.readOnly && skill.locationLabel && (
                     <p className="mt-1 text-xs text-muted-foreground">{t("pages.agentdetail.location.jsx-text", { defaultValue: "Location: " })}{skill.locationLabel}</p>
                   )}
                   {skill.detail && (
-                    <p className="mt-1 text-xs text-muted-foreground">{skill.detail}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{translateAgentSkillText(skill.detail, t)}</p>
                   )}
                 </div>
               );
@@ -2910,15 +2930,15 @@ const { t } = useTranslation();
               <>
                 {optionalSkillRows.length > 0
                   ? renderSkillSection(
-                      "Installed skills",
+                      t("pages.agentdetail.installed_skills.section_title", { defaultValue: "Installed skills" }),
                       installedSkillRows,
-                      "No company-library skills installed on this agent.",
+                      t("pages.agentdetail.no_company_library_skills_installed.message", { defaultValue: "No company-library skills installed on this agent." }),
                     )
                   : null}
 
-                {renderSkillSection("Other skills", otherSkillRows)}
+                {renderSkillSection(t("pages.agentdetail.other_skills.section_title", { defaultValue: "Other skills" }), otherSkillRows)}
 
-                {renderSkillSection("Required by Paperclip", requiredSkillRows)}
+                {renderSkillSection(t("pages.agentdetail.required_by_paperclip.section_title", { defaultValue: "Required by Paperclip" }), requiredSkillRows)}
 
                 {unmanagedSkillRows.length > 0 && (
                   <section className="border-y border-border">
@@ -4224,7 +4244,9 @@ const { t } = useTranslation();
               variant="ghost"
               size="icon-sm"
               onClick={() => setTokenVisible((v) => !v)}
-              title={tokenVisible ? "Hide" : "Show"}
+              title={tokenVisible
+                ? t("pages.agentdetail.hide.attr_title", { defaultValue: "Hide" })
+                : t("pages.agentdetail.show.attr_title", { defaultValue: "Show" })}
             >
               {tokenVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             </Button>
