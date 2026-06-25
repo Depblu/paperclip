@@ -106,8 +106,6 @@ const SKILL_TREE_STEP_INDENT = 24;
 const SKILL_TREE_ROW_HEIGHT_CLASS = "min-h-9";
 
 function VercelMark(props: SVGProps<SVGSVGElement>) {
-const { t } = useTranslation();
-
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M12 4 21 19H3z" />
@@ -203,6 +201,34 @@ function sourceMeta(sourceBadge: CompanySkillSourceBadge, sourceLabel: string | 
       return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: t("pages.companyskills.paperclip_managed.source_label", { defaultValue: "Paperclip managed" }) };
     default:
       return { icon: Boxes, label: sourceLabel ?? t("pages.companyskills.catalog.jsx-text", { defaultValue: "Catalog" }), managedLabel: t("pages.companyskills.catalog_managed.source_label", { defaultValue: "Catalog managed" }) };
+  }
+}
+
+function translateSkillSourceLabel(label: string | null, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (label) {
+    case "Paperclip bundled":
+      return t("pages.companyskills.paperclip_bundled.source_label", { defaultValue: "Paperclip bundled" });
+    case "Paperclip workspace":
+      return t("pages.companyskills.paperclip_workspace.source_label", { defaultValue: "Paperclip workspace" });
+    default:
+      return label;
+  }
+}
+
+function translateEditableReason(reason: string | null, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (reason) {
+    case "Bundled Paperclip skills are read-only.":
+      return t("pages.companyskills.bundled_paperclip_skills_read_only.reason", { defaultValue: "Bundled Paperclip skills are read-only." });
+    case "Skills.sh-managed skills are read-only.":
+      return t("pages.companyskills.skills_sh_managed_read_only.reason", { defaultValue: "Skills.sh-managed skills are read-only." });
+    case "Remote GitHub skills are read-only. Fork or import locally to edit them.":
+      return t("pages.companyskills.remote_github_skills_read_only.reason", { defaultValue: "Remote GitHub skills are read-only. Fork or import locally to edit them." });
+    case "URL-based skills are read-only. Save them locally to edit them.":
+      return t("pages.companyskills.url_based_skills_read_only.reason", { defaultValue: "URL-based skills are read-only. Save them locally to edit them." });
+    case "This skill source is read-only.":
+      return t("pages.companyskills.skill_source_read_only.reason", { defaultValue: "This skill source is read-only." });
+    default:
+      return reason;
   }
 }
 
@@ -733,7 +759,7 @@ const { t } = useTranslation();
       {bundled.length > 0 && kindFilter !== "optional" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("pages.companyskills.bundled.jsx-text", { defaultValue: "\n            Bundled · " })}{bundled.length}
+            {t("pages.companyskills.bundled_count_prefix.jsx-text", { defaultValue: "\n            Bundled · " })}{bundled.length}
           </div>
           {bundled.map(renderRow)}
         </div>
@@ -741,7 +767,7 @@ const { t } = useTranslation();
       {optional.length > 0 && kindFilter !== "bundled" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("pages.companyskills.optional.jsx-text", { defaultValue: "\n            Optional · " })}{optional.length}
+            {t("pages.companyskills.optional_count_prefix.jsx-text", { defaultValue: "\n            Optional · " })}{optional.length}
           </div>
           {optional.map(renderRow)}
         </div>
@@ -749,7 +775,7 @@ const { t } = useTranslation();
       {installed.length > 0 ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("pages.companyskills.installed.jsx-text", { defaultValue: "\n            Installed · " })}{installed.length}
+            {t("pages.companyskills.installed_count_prefix.jsx-text", { defaultValue: "\n            Installed · " })}{installed.length}
           </div>
           {installed.map(renderRow)}
         </div>
@@ -1548,7 +1574,7 @@ const { t } = useTranslation();
                   : t("pages.companyskills.edit.jsx-text", { defaultValue: "Edit" })}
               </button>
             ) : (
-              <div className="text-sm text-muted-foreground">{detail.editableReason}</div>
+              <div className="text-sm text-muted-foreground">{translateEditableReason(detail.editableReason, t)}</div>
             )}
           </div>
         </div>
@@ -1578,7 +1604,7 @@ const { t } = useTranslation();
                     </CopyText>
                   </>
                 ) : (
-                  <span className="truncate">{source.label}</span>
+                  <span className="truncate">{translateSkillSourceLabel(source.label, t)}</span>
                 )}
               </span>
             </div>

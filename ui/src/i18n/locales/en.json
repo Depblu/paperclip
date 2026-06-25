@@ -9723,6 +9723,36 @@
       },
       "no_filtered_skills_installed": {
         "text": "No {{filter}} skills installed."
+      },
+      "paperclip_bundled": {
+        "source_label": "Paperclip bundled"
+      },
+      "paperclip_workspace": {
+        "source_label": "Paperclip workspace"
+      },
+      "bundled_paperclip_skills_read_only": {
+        "reason": "Bundled Paperclip skills are read-only."
+      },
+      "skills_sh_managed_read_only": {
+        "reason": "Skills.sh-managed skills are read-only."
+      },
+      "remote_github_skills_read_only": {
+        "reason": "Remote GitHub skills are read-only. Fork or import locally to edit them."
+      },
+      "url_based_skills_read_only": {
+        "reason": "URL-based skills are read-only. Save them locally to edit them."
+      },
+      "skill_source_read_only": {
+        "reason": "This skill source is read-only."
+      },
+      "bundled_count_prefix": {
+        "jsx-text": "\n            Bundled · "
+      },
+      "optional_count_prefix": {
+        "jsx-text": "\n            Optional · "
+      },
+      "installed_count_prefix": {
+        "jsx-text": "\n            Installed · "
       }
     },
     "costs": {

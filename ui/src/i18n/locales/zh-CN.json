@@ -9181,161 +9181,161 @@
     },
     "companyskills": {
       "add_a_skill_source": {
-        "jsx-text": "Add a skill source"
+        "jsx-text": "添加技能来源"
       },
       "add_skill": {
-        "jsx-text": "\n                 添加 skill\n                  "
+        "jsx-text": "\n                  添加技能\n                  "
       },
       "advanced": {
-        "jsx-text": "\n            Advanced\n          "
+        "jsx-text": "\n            高级\n          "
       },
       "all_categories": {
-        "jsx-text": "All categories"
+        "jsx-text": "所有类别"
       },
       "all": {
         "jsx-text": "全部"
       },
       "an_existing_skill_with_key": {
-        "jsx-text": "\n              An existing skill with key "
+        "jsx-text": "\n              已安装 key 为 "
       },
       "attach_to_agents": {
-        "attr_aria-label": "Attach to agents"
+        "attr_aria-label": "附加到智能体"
       },
       "browse_catalog": {
-        "jsx-text": "\n                  Browse catalog\n                "
+        "jsx-text": "\n                  浏览目录\n                "
       },
       "browse_skills_sh": {
-        "jsx-text": "Browse skills.sh"
+        "jsx-text": "浏览 skills.sh"
       },
       "bundled": {
-        "jsx-text": "Bundled"
+        "jsx-text": "内置"
       },
       "cancel": {
-        "jsx-text": "\n            Cancel\n          "
+        "jsx-text": "\n            取消\n          "
       },
       "catalog_content_hash_has_changed": {
-        "jsx-text": "Catalog content hash has changed since this skill was installed."
+        "jsx-text": "目录内容 hash 与此 skill 安装时不同。"
       },
       "catalog": {
-        "jsx-text": "Catalog"
+        "jsx-text": "目录"
       },
       "category": {
         "jsx-text": "类别"
       },
       "check_for_updates": {
-        "jsx-text": "\n                  Check for updates\n                "
+        "jsx-text": "\n                  检查更新\n                "
       },
       "clear_filter": {
-        "jsx-text": "\n            Clear filter\n          "
+        "jsx-text": "\n            清除筛选\n          "
       },
       "close": {
-        "jsx-text": "\n                Close\n              "
+        "jsx-text": "\n                关闭\n              "
       },
       "code": {
-        "jsx-text": "\n                    Code\n                  "
+        "jsx-text": "\n                    代码\n                  "
       },
       "compatibility": {
-        "jsx-text": "Compatibility"
+        "jsx-text": "兼容性"
       },
       "compatible": {
-        "jsx-text": "\n                    Compatible\n                  "
+        "jsx-text": "\n                    兼容\n                  "
       },
       "copy_content_hash": {
-        "attr_title": "Copy content hash",
+        "attr_title": "复制内容 hash",
         "attr_aria-label": "复制内容 hash"
       },
       "copy_source_path": {
-        "attr_title": "Copy source path",
+        "attr_title": "复制来源路径",
         "attr_aria-label": "复制来源路径"
       },
       "create_blank_skill": {
-        "jsx-text": "\n                 创建 blank skill\n                "
+        "jsx-text": "\n                  创建空白技能\n                "
       },
       "currently_used_by": {
-        "jsx-text": "\n                Currently used by "
+        "jsx-text": "\n                当前使用方："
       },
       "detach_this_skill_from_all_agent": {
-        "jsx-text": "\n                Detach this skill from全部 agents to enable removal.\n              "
+        "jsx-text": "\n                先从所有智能体解绑此 skill，才能移除。\n              "
       },
       "edit": {
-        "jsx-text": "\n          Edit\n        "
+        "jsx-text": "\n          编辑\n        "
       },
       "files": {
-        "jsx-text": "\n              Files ("
+        "jsx-text": "\n              文件（"
       },
       "filter_agents": {
-        "attr_placeholder": "Filter agents"
+        "attr_placeholder": "筛选智能体"
       },
       "filter_skills": {
-        "attr_placeholder": "Filter skills"
+        "attr_placeholder": "筛选技能"
       },
       "find_install_commands_and_paste_": {
-        "jsx-text": "\n                  Find install commands and paste one here.\n                "
+        "jsx-text": "\n                  找到安装命令后粘贴到这里。\n                "
       },
       "force_replace_existing_same_key_": {
-        "jsx-text": "Force replace existing same-key skill"
+        "jsx-text": "强制替换相同 key 的现有技能"
       },
       "hash": {
         "jsx-text": "Hash"
       },
       "import_from_url_or_path": {
-        "jsx-text": "\n                  Import from URL or path\n                "
+        "jsx-text": "\n                  从 URL 或路径导入\n                "
       },
       "import_from_url": {
-        "jsx-text": "\n                      Import from URL\n                    "
+        "jsx-text": "\n                      从 URL 导入\n                    "
       },
       "install_skill": {
-        "jsx-text": "\n              Install skill\n            ",
-        "button": "安装 skill"
+        "jsx-text": "\n              安装技能\n            ",
+        "button": "安装技能"
       },
       "install_update": {
-        "jsx-text": "\n                    Install update",
+        "jsx-text": "\n                    安装更新",
         "button": "安装更新"
       },
       "installed_from_the_app_shipped_s": {
-        "jsx-text": "Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash."
+        "jsx-text": "从应用随附的 skills 目录安装。来源由包版本和内容 hash 签名确认。"
       },
       "installed_open_in_library": {
-        "jsx-text": "\n        Installed · Open in library\n      "
+        "jsx-text": "\n        已安装 · 在库中打开\n      "
       },
       "installed": {
-        "jsx-text": "\n            Installed · "
+        "jsx-text": "已安装"
       },
       "installing_will": {
-        "jsx-text": "). Installing will "
+        "jsx-text": "）。安装将"
       },
       "is_installed": {
-        "jsx-text": " is installed (\n              "
+        "jsx-text": " 的现有 skill（\n              "
       },
       "locally_modified": {
-        "jsx-text": "\n                    Locally modified\n                  "
+        "jsx-text": "\n                    本地已修改\n                  "
       },
       "look_for_repositories_with_skill": {
-        "jsx-text": "\n                  Look for repositories with `SKILL.md`, then paste the repo URL here.\n                "
+        "jsx-text": "\n                  查找包含 `SKILL.md` 的仓库，然后粘贴仓库 URL。\n                "
       },
       "mode": {
-        "jsx-text": "Mode"
+        "jsx-text": "模式"
       },
       "no_agents_attached": {
-        "jsx-text": "No agents attached"
+        "jsx-text": "未附加智能体"
       },
       "no_agents_in_this_company_suppor": {
-        "jsx-text": "\n           无 agents in this company support skills yet.\n          "
+        "jsx-text": "\n            此公司中还没有支持 skills 的智能体。\n          "
       },
       "no_catalog_skills_match_this_fil": {
-        "jsx-text": "\n       无 catalog skills match this filter.\n      "
+        "jsx-text": "\n        没有匹配当前筛选条件的目录技能。\n      "
       },
       "no_matches": {
-        "jsx-text": "No matches."
+        "jsx-text": "没有匹配项。"
       },
       "no_skills_match_this_filter": {
-        "jsx-text": "\n       无 skills match this filter.\n      "
+        "jsx-text": "\n        没有匹配当前筛选条件的技能。\n      "
       },
       "no": {
-        "jsx-text": "\n         无 "
+        "jsx-text": "\n          无 "
       },
       "non_script_assets": {
-        "jsx-text": "Non-script assets"
+        "jsx-text": "非脚本资源"
       },
       "optional_shortname": {
         "attr_placeholder": "optional-shortname"
@@ -9344,92 +9344,92 @@
         "jsx-text": "可选"
       },
       "paste_a_local_path_github_url_or": {
-        "jsx-text": "\n              Paste a local path, GitHub URL, or `skills.sh` command into the field first.\n            "
+        "jsx-text": "\n              请先在输入框中粘贴本地路径、GitHub URL 或 `skills.sh` 命令。\n            "
       },
       "paste_path_github_url_or_skills_": {
-        "attr_placeholder": "Paste path, GitHub URL, or skills.sh command"
+        "attr_placeholder": "粘贴路径、GitHub URL 或 skills.sh 命令"
       },
       "pin": {
-        "jsx-text": "置顶"
+        "jsx-text": "固定版本"
       },
       "provenance": {
-        "jsx-text": "Provenance"
+        "jsx-text": "来源证明"
       },
       "remove_skill": {
-        "jsx-text": "Remove skill",
-        "button": "移除 skill"
+        "jsx-text": "移除技能",
+        "button": "移除技能"
       },
       "remove_this_skill_from_the_compa": {
-        "jsx-text": "\n             移除 this skill from the company library. If any agents still use it, removal will be blocked until it is detached.\n            "
+        "jsx-text": "\n              从公司技能库移除此技能。如果还有智能体在使用它，必须先解绑才能移除。\n            "
       },
       "requires": {
-        "jsx-text": "\n              Requires: "
+        "jsx-text": "\n              依赖："
       },
       "review_required": {
-        "jsx-text": "Review required"
+        "jsx-text": "需要审查"
       },
       "roles": {
-        "jsx-text": "\n              Roles: "
+        "jsx-text": "\n              角色："
       },
       "safe": {
-        "jsx-text": "Safe"
+        "jsx-text": "安全"
       },
       "scan_project_workspaces_for_skil": {
-        "attr_title": "Scan project workspaces for skills"
+        "attr_title": "扫描项目 workspace 中的 skills"
       },
       "search_catalog": {
-        "attr_placeholder": "Search catalog"
+        "attr_placeholder": "搜索目录"
       },
       "search_github": {
-        "jsx-text": "Search GitHub"
+        "jsx-text": "搜索 GitHub"
       },
       "select_a_file_to_inspect": {
-        "jsx-text": "Select a file to inspect."
+        "jsx-text": "选择文件以查看。"
       },
       "short_description": {
-        "attr_placeholder": "Short description"
+        "attr_placeholder": "简短描述"
       },
       "skill_name": {
-        "attr_placeholder": "技能名称"
+        "attr_placeholder": "Skill 名称"
       },
       "skills_installed": {
-        "jsx-text": " skills installed."
+        "jsx-text": " 个 skill 已安装。"
       },
       "slug_override": {
-        "jsx-text": "Slug override"
+        "jsx-text": "Slug 覆盖"
       },
       "source": {
-        "jsx-text": "Source"
+        "jsx-text": "来源"
       },
       "tags": {
-        "jsx-text": "\n              Tags: "
+        "jsx-text": "\n              标签："
       },
       "this_skill_cannot_be_installed_i": {
-        "jsx-text": "This skill cannot be installed — its content is not valid Agent Skills markdown."
+        "jsx-text": "此 skill 无法安装，内容不是有效的 Agent Skills Markdown。"
       },
       "tracking": {
-        "jsx-text": "tracking "
+        "jsx-text": "跟踪 "
       },
       "trust": {
-        "jsx-text": "Trust"
+        "jsx-text": "信任"
       },
       "up_to_date": {
-        "jsx-text": "Up to date"
+        "jsx-text": "已是最新"
       },
       "update_available": {
-        "jsx-text": "\n                 更新 available\n                "
+        "jsx-text": "\n                  有可用更新\n                "
       },
       "update_from_catalog": {
-        "jsx-text": "\n       更新 from catalog\n      "
+        "jsx-text": "\n        从目录更新\n      "
       },
       "used_by": {
-        "jsx-text": "Used by"
+        "jsx-text": "使用方"
       },
       "view": {
-        "jsx-text": "\n                    View\n                  "
+        "jsx-text": "\n                    预览\n                  "
       },
       "you_have_edited_this_skill_after": {
-        "jsx-text": "You have edited this skill after installing. Updates from the catalog will overwrite your changes."
+        "jsx-text": "你在安装后编辑过此 skill。从目录更新会覆盖你的改动。"
       },
       "filters_count": {
         "attr_title": "筛选：{{count}}"
@@ -9441,7 +9441,7 @@
         "jsx-text": "类型"
       },
       "select_a_catalog_skill_to": {
-        "attr_message": "选择目录 skill 以查看详情。"
+        "attr_message": "选择目录技能以查看。"
       },
       "key": {
         "jsx-text": "键"
@@ -9450,7 +9450,7 @@
         "copy_label": "已复制 hash"
       },
       "select_a_skill_to_inspect_i": {
-        "attr_message": "选择 skill 以查看其文件。"
+        "attr_message": "选择技能以查看其文件。"
       },
       "editable": {
         "jsx-text": "可编辑"
@@ -9459,55 +9459,55 @@
         "jsx-text": "只读"
       },
       "select_a_company_to_manage": {
-        "attr_message": "选择公司以管理 skills。"
+        "attr_message": "选择公司以管理技能。"
       },
       "no_skills_installed_yet": {
-        "attr_message": "尚未安装 skill。"
+        "attr_message": "尚未安装技能。"
       },
       "copied_path": {
         "copy_label": "已复制路径"
       },
       "skills_imported": {
-        "title": "Skills 已导入"
+        "title": "技能已导入"
       },
       "skills_added": {
-        "body": "已添加 {{count}} 个 skill。"
+        "body": "已添加 {{count}} 个技能。"
       },
       "import_warnings": {
         "title": "导入警告"
       },
       "skill_import_failed": {
-        "title": "Skill 导入失败"
+        "title": "技能导入失败"
       },
       "failed_to_import_skill_source": {
-        "error": "导入 skill source 失败。"
+        "error": "导入技能来源失败。"
       },
       "skill_installed": {
-        "title": "Skill 已安装"
+        "title": "技能已安装"
       },
       "skill_updated": {
-        "title": "Skill 已更新"
+        "title": "技能已更新"
       },
       "skill_up_to_date": {
-        "title": "Skill 已是最新"
+        "title": "技能已是最新"
       },
       "install_warnings": {
         "title": "安装警告"
       },
       "failed_to_install_catalog_skill": {
-        "error": "安装目录 skill 失败。"
+        "error": "安装目录技能失败。"
       },
       "agents_updated": {
-        "title": "Agents 已更新"
+        "title": "智能体已更新"
       },
       "agents_attached": {
-        "body": "已附加 {{count}} 个 agent。"
+        "body": "已附加 {{count}} 个智能体。"
       },
       "update_failed": {
         "title": "更新失败"
       },
       "failed_to_update_agent_skills": {
-        "error": "更新 agent skills 失败。"
+        "error": "更新智能体技能失败。"
       },
       "company": {
         "filter_label": "公司"
@@ -9517,7 +9517,7 @@
       },
       "markdown_only": {
         "trust_label": "仅 Markdown",
-        "trust_tooltip": "仅文本 - 无脚本、二进制或资源文件。"
+        "trust_tooltip": "仅文本，无脚本、二进制或资源文件。"
       },
       "includes_assets": {
         "trust_label": "包含资源",
@@ -9529,17 +9529,17 @@
       },
       "unknown_format": {
         "compat_label": "格式未知",
-        "compat_tooltip": "Paperclip 无法验证此 skill 是否为 Agent Skills markdown。安装需自行承担风险。"
+        "compat_tooltip": "Paperclip 无法验证此 skill 是否为 Agent Skills Markdown。安装需自行承担风险。"
       },
       "invalid": {
         "compat_label": "无效",
-        "compat_tooltip": "此 skill 无法安装 - 内容不是有效的 Agent Skills markdown。"
+        "compat_tooltip": "此 skill 无法安装，内容不是有效的 Agent Skills Markdown。"
       },
       "creating": {
         "button": "正在创建..."
       },
       "create_skill": {
-        "button": "创建 skill"
+        "button": "创建技能"
       },
       "collapse_skill": {
         "attr_aria-label": "折叠 {{name}}"
@@ -9551,14 +9551,14 @@
         "button": "准备中..."
       },
       "install_bundled_skill": {
-        "button": "安装内置 skill"
+        "button": "安装内置技能"
       },
       "install_optional_skill": {
-        "button": "安装可选 skill"
+        "button": "安装可选技能"
       },
       "replace_existing_skill": {
-        "button": "替换现有 skill",
-        "text": "替换现有 skill"
+        "button": "替换现有技能",
+        "text": "替换现有技能"
       },
       "installing": {
         "button": "正在安装..."
@@ -9579,7 +9579,7 @@
         "value_label": "任意"
       },
       "overwrite_catalog_content": {
-        "text": "覆盖 catalog 内容"
+        "text": "覆盖目录内容"
       },
       "required_suffix": {
         "text": " - 必需"
@@ -9594,7 +9594,7 @@
         "button": "保存"
       },
       "detach_before_removing": {
-        "tooltip": "移除前先从所有 agent 解绑此 skill。"
+        "tooltip": "移除前先从所有智能体解绑此 skill。"
       },
       "removing": {
         "button": "正在移除..."
@@ -9609,50 +9609,50 @@
         "value_label": "未跟踪"
       },
       "skill_created": {
-        "title": "Skill 已创建",
+        "title": "技能已创建",
         "body": "{{name}} 现在可在 Paperclip workspace 中编辑。"
       },
       "skill_creation_failed": {
-        "title": "Skill 创建失败"
+        "title": "技能创建失败"
       },
       "failed_to_create_skill": {
-        "error": "创建 skill 失败。"
+        "error": "创建技能失败。"
       },
       "scanning_project_workspaces": {
-        "status": "正在扫描项目 workspace 中的 skills..."
+        "status": "正在扫描项目 workspace 中的技能..."
       },
       "refreshing_skills_list": {
-        "status": "正在刷新 skills 列表..."
+        "status": "正在刷新技能列表..."
       },
       "project_skill_scan_complete": {
-        "title": "项目 skill 扫描完成"
+        "title": "项目技能扫描完成"
       },
       "skill_conflicts_found": {
-        "title": "发现 skill 冲突"
+        "title": "发现技能冲突"
       },
       "scan_warnings": {
         "title": "扫描警告"
       },
       "project_skill_scan_failed": {
-        "title": "项目 skill 扫描失败"
+        "title": "项目技能扫描失败"
       },
       "failed_to_scan_project_workspaces": {
         "error": "扫描项目 workspace 失败。"
       },
       "skill_saved": {
-        "title": "Skill 已保存"
+        "title": "技能已保存"
       },
       "save_failed": {
         "title": "保存失败"
       },
       "failed_to_save_skill_file": {
-        "error": "保存 skill 文件失败。"
+        "error": "保存技能文件失败。"
       },
       "pinned_to": {
         "body": "已固定到 {{ref}}"
       },
       "failed_to_install_skill_update": {
-        "error": "安装 skill 更新失败。"
+        "error": "安装技能更新失败。"
       },
       "scan_found": {
         "part": "发现 {{count}} 个"
@@ -9673,20 +9673,20 @@
         "text": "{{parts}}，覆盖 {{count}} 个 workspace。"
       },
       "skill_removed": {
-        "title": "Skill 已移除",
-        "body": "{{name}} 已从公司 skill 库中移除。"
+        "title": "技能已移除",
+        "body": "{{name}} 已从公司技能库中移除。"
       },
       "remove_failed": {
         "title": "移除失败"
       },
       "failed_to_remove_skill": {
-        "error": "移除 skill 失败。"
+        "error": "移除技能失败。"
       },
       "about_to_remove_named": {
         "text": "即将移除 {{name}}。"
       },
       "about_to_remove_this_skill": {
-        "text": "即将移除此 skill。"
+        "text": "即将移除此技能。"
       },
       "add": {
         "button": "添加"
@@ -9710,19 +9710,49 @@
         "source_label": "Paperclip 管理"
       },
       "catalog_managed": {
-        "source_label": "Catalog 管理"
+        "source_label": "目录管理"
       },
       "failed_to_load_file": {
         "error": "加载文件失败"
       },
       "skills": {
-        "breadcrumb": "Skills"
+        "breadcrumb": "技能"
       },
       "detail": {
         "breadcrumb": "详情"
       },
       "no_filtered_skills_installed": {
-        "text": "没有已安装的{{filter}} skills。"
+        "text": "没有已安装的{{filter}}技能。"
+      },
+      "paperclip_bundled": {
+        "source_label": "Paperclip 内置"
+      },
+      "paperclip_workspace": {
+        "source_label": "Paperclip workspace"
+      },
+      "bundled_paperclip_skills_read_only": {
+        "reason": "内置 Paperclip 技能为只读。"
+      },
+      "skills_sh_managed_read_only": {
+        "reason": "skills.sh 管理的技能为只读。"
+      },
+      "remote_github_skills_read_only": {
+        "reason": "远程 GitHub 技能为只读。请 fork 或导入到本地后再编辑。"
+      },
+      "url_based_skills_read_only": {
+        "reason": "基于 URL 的技能为只读。请保存到本地后再编辑。"
+      },
+      "skill_source_read_only": {
+        "reason": "此技能来源为只读。"
+      },
+      "bundled_count_prefix": {
+        "jsx-text": "\n            内置 · "
+      },
+      "optional_count_prefix": {
+        "jsx-text": "\n            可选 · "
+      },
+      "installed_count_prefix": {
+        "jsx-text": "\n            已安装 · "
       }
     },
     "costs": {
