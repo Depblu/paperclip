@@ -281,14 +281,14 @@ describe("Inbox toolbar", () => {
       );
     });
 
-    expect(container.querySelector('input[placeholder="Search inbox…"]')).not.toBeNull();
+    expect(container.querySelector('input[placeholder="搜索收件箱…"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="inbox-blocked-tab-badge"]')).toBeNull();
-    expect(container.querySelector('button[title="Filter"]')).not.toBeNull();
-    expect(container.querySelector('button[title="Group"]')).not.toBeNull();
-    expect(container.querySelector('button[title="Columns"]')).not.toBeNull();
-    expect(container.querySelector('button[title="Sort"]')).not.toBeNull();
-    expect(container.querySelector('button[title="Enable parent-child nesting"]')).toBeNull();
-    expect(container.textContent).not.toContain("Mark all as read");
+    expect(container.querySelector('button[title="筛选"]')).not.toBeNull();
+    expect(container.querySelector('button[title="分组"]')).not.toBeNull();
+    expect(container.querySelector('button[title="列"]')).not.toBeNull();
+    expect(container.querySelector('button[title="排序"]')).not.toBeNull();
+    expect(container.querySelector('button[title="启用父子任务嵌套"]')).toBeNull();
+    expect(container.textContent).not.toContain("全部标记为已读");
 
     act(() => {
       root.unmount();
@@ -312,7 +312,7 @@ describe("Inbox toolbar", () => {
       );
     });
 
-    const groupButton = container.querySelector<HTMLButtonElement>('button[title="Group"]');
+    const groupButton = container.querySelector<HTMLButtonElement>('button[title="分组"]');
     expect(groupButton).not.toBeNull();
 
     await act(async () => {
@@ -486,9 +486,7 @@ describe("InboxIssueMetaLeading", () => {
 
     const statusIcon = container.querySelector('span[class*="border-blue-600"]');
     const liveBadge = container.querySelector('span[class*="px-1.5"][class*="bg-blue-500/10"]');
-    const liveBadgeLabel = Array.from(container.querySelectorAll("span")).find(
-      (node) => node.textContent === "Live" && node.className.includes("text-"),
-    );
+    const liveBadgeLabel = liveBadge?.querySelector('span[class*="text-"]');
     const liveDot = container.querySelector('span[class*="bg-blue-500"]');
     const pulseRing = container.querySelector('span[class*="animate-pulse"]');
 

@@ -2100,7 +2100,9 @@ const { t } = useTranslation();
                 size="icon"
                 className={cn("hidden h-8 w-8 shrink-0 sm:inline-flex", nestingEnabled && "bg-accent")}
                 onClick={toggleNesting}
-                title={nestingEnabled ? "Disable parent-child nesting" : "Enable parent-child nesting"}
+                title={nestingEnabled
+                  ? t("pages.inbox.disable_parent_child_nesting.attr_title", { defaultValue: "Disable parent-child nesting" })
+                  : t("pages.inbox.enable_parent_child_nesting.attr_title", { defaultValue: "Enable parent-child nesting" })}
               >
                 <ListTree className="h-3.5 w-3.5" />
               </Button>
@@ -2173,7 +2175,9 @@ const { t } = useTranslation();
                     onClick={() => setShowMarkAllReadConfirm(true)}
                     disabled={markAllReadMutation.isPending}
                   >
-                    {markAllReadMutation.isPending ? "Marking…" : "Mark all as read"}
+                    {markAllReadMutation.isPending
+                      ? t("pages.inbox.marking.jsx-text", { defaultValue: "Marking…" })
+                      : t("pages.inbox.mark_all_as_read_button.jsx-text", { defaultValue: "Mark all as read" })}
                   </Button>
                   <Dialog open={showMarkAllReadConfirm} onOpenChange={setShowMarkAllReadConfirm}>
                     <DialogContent className="sm:max-w-md">
@@ -2191,7 +2195,7 @@ const { t } = useTranslation();
                             markAllReadMutation.mutate(unreadIssueIds);
                           }}
                         >
-                          {t("pages.inbox.mark_all_as_read.jsx-text", { defaultValue: "\n                          Mark all as read\n                        " })}</Button>
+                          {t("pages.inbox.mark_all_as_read_button.jsx-text", { defaultValue: "\n                          Mark all as read\n                        " })}</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -2424,7 +2428,9 @@ const { t } = useTranslation();
                       >
                         <div className="h-px flex-1 bg-border/80" />
                         <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {group.searchSection === "archived" ? "Archived" : "Other results"}
+                          {group.searchSection === "archived"
+                            ? t("pages.inbox.archived_search_section.jsx-text", { defaultValue: "Archived" })
+                            : t("pages.inbox.other_results_search_section.jsx-text", { defaultValue: "Other results" })}
                         </span>
                         <div className="h-px flex-1 bg-border/80" />
                       </div>,

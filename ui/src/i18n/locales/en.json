@@ -2243,6 +2243,12 @@
       "filters": {
         "jsx-text": "Filters"
       },
+      "filters_count": {
+        "jsx-text": "Filters: {{count}}"
+      },
+      "filter": {
+        "jsx-text": "Filter"
+      },
       "hide_routine_runs": {
         "jsx-text": "Hide routine runs"
       },
@@ -11460,6 +11466,9 @@
       "choose_which_inbox_columns_stay_": {
         "attr_title": "Choose which inbox columns stay visible"
       },
+      "disable_parent_child_nesting": {
+        "attr_title": "Disable parent-child nesting"
+      },
       "dismiss_from_inbox": {
         "attr_aria-label": "Dismiss from inbox"
       },
@@ -11490,6 +11499,12 @@
       "mark_all_as_read": {
         "jsx-text": "Mark all as read?"
       },
+      "mark_all_as_read_button": {
+        "jsx-text": "Mark all as read"
+      },
+      "marking": {
+        "jsx-text": "Marking…"
+      },
       "mark_as_read": {
         "attr_aria-label": "Mark as read"
       },
@@ -11513,6 +11528,15 @@
       },
       "search_inbox": {
         "attr_placeholder": "Search inbox…"
+      },
+      "archived_search_section": {
+        "jsx-text": "Archived"
+      },
+      "enable_parent_child_nesting": {
+        "attr_title": "Enable parent-child nesting"
+      },
+      "other_results_search_section": {
+        "jsx-text": "Other results"
       },
       "sort": {
         "attr_title": "Sort"
@@ -14418,6 +14442,9 @@
       "retry": {
         "jsx-text": "\n            Retry\n          "
       },
+      "request_failed": {
+        "jsx-text": "The request failed."
+      },
       "search_all_scopes": {
         "jsx-text": "\n              Search all scopes\n            "
       },
@@ -14434,6 +14461,9 @@
       "searching_for_ldquo": {
         "jsx-text": "\n          Searching for \""
       },
+      "server_returned_status": {
+        "jsx-text": "The server returned {{status}}."
+      },
       "sorted_by_relevance": {
         "jsx-text": " · sorted by relevance\n        "
       },
@@ -14448,6 +14478,9 @@
       },
       "try_widening_the_scope_or_rephra": {
         "jsx-text": ". Try widening the scope or rephrasing your query.\n        "
+      },
+      "type": {
+        "jsx-text": "type"
       },
       "type_to_search_company_memory": {
         "jsx-text": "Type to search company memory."

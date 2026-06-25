@@ -490,7 +490,7 @@ const { t } = useTranslation();
         ) : null}
         <ul className="space-y-1 text-xs text-muted-foreground">
           <li>
-            <span className="font-medium text-foreground">{t("pages.search.identifier_lookup.jsx-text", { defaultValue: "Identifier lookup:" })}</span> type{" "}
+            <span className="font-medium text-foreground">{t("pages.search.identifier_lookup.jsx-text", { defaultValue: "Identifier lookup:" })}</span> {t("pages.search.type.jsx-text", { defaultValue: "type" })}{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-[11px]">PAP-123</code> {t("pages.search.to_jump_straight_to_a_task.jsx-text", { defaultValue: " to jump straight to a task.\n          " })}</li>
           <li>
             <span className="font-medium text-foreground">{t("pages.search.quoted_phrases.jsx-text", { defaultValue: "Quoted phrases:" })}</span> {t("pages.search.wrap_a_phrase_in_quotes_to_match.jsx-text", { defaultValue: " wrap a phrase in quotes to match the exact sequence.\n          " })}</li>
@@ -508,7 +508,9 @@ const { t } = useTranslation();
         <AlertTriangle className="h-10 w-10 text-destructive" aria-hidden />
         <div className="text-base font-semibold">{t("pages.search.couldn_t_run_that_search.jsx-text", { defaultValue: "Couldn’t run that search" })}</div>
         <p className="text-sm text-muted-foreground">
-          {status ? `The server returned ${status}.` : "The request failed."} {t("pages.search.your_input_and_filters_are_still.jsx-text", { defaultValue: " Your input and filters are still here, so you can retry or fall back to the Tasks filter.\n        " })}</p>
+          {status
+            ? t("pages.search.server_returned_status.jsx-text", { status, defaultValue: "The server returned {{status}}." })
+            : t("pages.search.request_failed.jsx-text", { defaultValue: "The request failed." })} {t("pages.search.your_input_and_filters_are_still.jsx-text", { defaultValue: " Your input and filters are still here, so you can retry or fall back to the Tasks filter.\n        " })}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button onClick={refetch} variant="default" size="sm">
             {t("pages.search.retry.jsx-text", { defaultValue: "\n            Retry\n          " })}</Button>
