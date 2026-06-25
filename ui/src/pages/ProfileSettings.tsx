@@ -20,7 +20,7 @@ function deriveInitials(name: string) {
 }
 
 export function ProfileSettings() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { setBreadcrumbs } = useBreadcrumbs();
   const { selectedCompanyId, selectedCompany } = useCompany();
@@ -137,8 +137,11 @@ const { t } = useTranslation();
   const initials = deriveInitials(currentName);
   const isSavingProfile = updateMutation.isPending || uploadAvatarMutation.isPending || removeAvatarMutation.isPending;
   const uploadHint = selectedCompany
-    ? `Stored in Paperclip file storage for ${selectedCompany.name}.`
-    : "Select a company to upload an avatar into Paperclip storage.";
+    ? t("pages.profilesettings.stored_in_paperclip_file_storage.text", {
+      companyName: selectedCompany.name,
+      defaultValue: "Stored in Paperclip file storage for {{companyName}}.",
+    })
+    : t("pages.profilesettings.select_a_company_to_upload_avatar.text", { defaultValue: "Select a company to upload an avatar into Paperclip storage." });
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -199,7 +202,9 @@ const { t } = useTranslation();
                     disabled={!selectedCompanyId || isSavingProfile}
                   >
                     {uploadAvatarMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Camera className="size-4" />}
-                    {currentImage ? "Change photo" : "Upload photo"}
+                    {currentImage
+                      ? t("pages.profilesettings.change_photo.jsx-text", { defaultValue: "Change photo" })
+                      : t("pages.profilesettings.upload_photo.jsx-text", { defaultValue: "Upload photo" })}
                   </Button>
                   {currentImage ? (
                     <Button
@@ -262,7 +267,9 @@ const { t } = useTranslation();
           <div className="md:col-span-2 flex justify-end">
             <Button type="submit" disabled={isSavingProfile || !name.trim()}>
               {updateMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {updateMutation.isPending ? "Saving..." : "Save profile"}
+              {updateMutation.isPending
+                ? t("pages.profilesettings.saving.jsx-text", { defaultValue: "Saving..." })
+                : t("pages.profilesettings.save_profile.jsx-text", { defaultValue: "Save profile" })}
             </Button>
           </div>
         </form>

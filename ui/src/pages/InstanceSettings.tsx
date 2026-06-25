@@ -28,7 +28,7 @@ function buildAgentHref(agent: InstanceSchedulerHeartbeatAgent) {
 }
 
 export function InstanceSettings() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
@@ -188,7 +188,7 @@ const { t } = useTranslation();
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <span><span className="font-semibold text-foreground">{activeCount}</span> {t("pages.instancesettings.active.jsx-text", { defaultValue: " active" })}</span>
         <span><span className="font-semibold text-foreground">{disabledCount}</span> {t("pages.instancesettings.disabled.jsx-text", { defaultValue: " disabled" })}</span>
-        <span><span className="font-semibold text-foreground">{grouped.length}</span> {grouped.length === 1 ? "company" : "companies"}</span>
+        <span>{t("pages.instancesettings.company_count.jsx-text", { count: grouped.length, defaultValue: "{{count}} companies" })}</span>
         {anyEnabled && (
           <Button
             variant="destructive"
@@ -196,14 +196,18 @@ const { t } = useTranslation();
             className="ml-auto h-7 text-xs"
             disabled={disableAllMutation.isPending}
             onClick={() => {
-              const noun = enabledCount === 1 ? "agent" : "agents";
-              if (!window.confirm(`Disable timer heartbeats for all ${enabledCount} enabled ${noun}?`)) {
+              if (!window.confirm(t("pages.instancesettings.disable_all_confirm.message", {
+                count: enabledCount,
+                defaultValue: "Disable timer heartbeats for all {{count}} enabled agents?",
+              }))) {
                 return;
               }
               disableAllMutation.mutate(agents);
             }}
           >
-            {disableAllMutation.isPending ? "Disabling..." : "Disable All"}
+            {disableAllMutation.isPending
+              ? t("pages.instancesettings.disabling.jsx-text", { defaultValue: "Disabling..." })
+              : t("pages.instancesettings.disable_all.jsx-text", { defaultValue: "Disable All" })}
           </Button>
         )}
       </div>
@@ -239,7 +243,9 @@ const { t } = useTranslation();
                           variant={agent.schedulerActive ? "default" : "outline"}
                           className="shrink-0 text-[10px] px-1.5 py-0"
                         >
-                          {agent.schedulerActive ? "On" : "Off"}
+                          {agent.schedulerActive
+                            ? t("pages.instancesettings.on.jsx-text", { defaultValue: "On" })
+                            : t("pages.instancesettings.off.jsx-text", { defaultValue: "Off" })}
                         </Badge>
                         <Link
                           to={buildAgentHref(agent)}
@@ -259,7 +265,7 @@ const { t } = useTranslation();
                         >
                           {agent.lastHeartbeatAt
                             ? relativeTime(agent.lastHeartbeatAt)
-                            : "never"}
+                            : t("pages.instancesettings.never.jsx-text", { defaultValue: "never" })}
                         </span>
                         <span className="ml-auto flex items-center gap-1.5 shrink-0">
                           <Link
@@ -276,7 +282,11 @@ const { t } = useTranslation();
                             disabled={saving}
                             onClick={() => toggleMutation.mutate(agent)}
                           >
-                            {saving ? "..." : agent.heartbeatEnabled ? "Disable Timer Heartbeat" : "Enable Timer Heartbeat"}
+                            {saving
+                              ? "..."
+                              : agent.heartbeatEnabled
+                                ? t("pages.instancesettings.disable_timer_heartbeat.jsx-text", { defaultValue: "Disable Timer Heartbeat" })
+                                : t("pages.instancesettings.enable_timer_heartbeat.jsx-text", { defaultValue: "Enable Timer Heartbeat" })}
                           </Button>
                         </span>
                       </div>

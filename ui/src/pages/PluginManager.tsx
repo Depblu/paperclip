@@ -44,6 +44,34 @@ function getPluginErrorSummary(plugin: PluginRecord): string {
   return firstNonEmptyLine(plugin.lastError) ?? "Plugin entered an error state without a stored error message.";
 }
 
+function bundledPluginTagLabel(tag: string, t: ReturnType<typeof useTranslation>["t"]) {
+  return tag === "first-party"
+    ? t("pages.pluginmanager.first_party.jsx-text", { defaultValue: "First-party" })
+    : t("pages.pluginmanager.example.jsx-text", { defaultValue: "Example" });
+}
+
+function bundledPluginLocaleKey(packageName: string) {
+  return packageName.replace(/^@/, "").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "").toLowerCase();
+}
+
+function bundledPluginDisplayName(
+  plugin: { packageName: string; displayName: string },
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  return t(`pages.pluginmanager.bundled_name.${bundledPluginLocaleKey(plugin.packageName)}`, {
+    defaultValue: plugin.displayName,
+  });
+}
+
+function bundledPluginDescription(
+  plugin: { packageName: string; description: string },
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  return t(`pages.pluginmanager.bundled_description.${bundledPluginLocaleKey(plugin.packageName)}`, {
+    defaultValue: plugin.description,
+  });
+}
+
 function isExperimentalPluginIdentity(input: {
   packageName?: string | null;
   packagePath?: string | null;
@@ -59,7 +87,7 @@ function isExperimentalPluginIdentity(input: {
 }
 
 function ExperimentalBadge() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <Badge
@@ -88,7 +116,7 @@ const { t } = useTranslation();
  * @see doc/plugins/PLUGIN_SPEC.md §3 — Plugin Lifecycle for status semantics.
  */
 export function PluginManager() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { selectedCompany } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -224,7 +252,9 @@ const { t } = useTranslation();
                 onClick={() => installMutation.mutate({ packageName: installPackage })}
                 disabled={!installPackage || installMutation.isPending}
               >
-                {installMutation.isPending ? "Installing..." : "Install"}
+                {installMutation.isPending
+                  ? t("pages.pluginmanager.installing.jsx-text", { defaultValue: "Installing..." })
+                  : t("pages.pluginmanager.install.jsx-text", { defaultValue: "Install" })}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -270,9 +300,9 @@ const { t } = useTranslation();
                   <div className="flex items-center gap-4 px-4 py-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{bundledPlugin.displayName}</span>
+                        <span className="font-medium">{bundledPluginDisplayName(bundledPlugin, t)}</span>
                         <Badge variant="outline">
-                          {bundledPlugin.tag === "first-party" ? "First-party" : "Example"}
+                          {bundledPluginTagLabel(bundledPlugin.tag, t)}
                         </Badge>
                         {isExperimentalPluginIdentity({
                           packageName: bundledPlugin.packageName,
@@ -284,13 +314,13 @@ const { t } = useTranslation();
                             variant={installedPlugin.status === "ready" ? "default" : "secondary"}
                             className={installedPlugin.status === "ready" ? "bg-green-600 hover:bg-green-700" : ""}
                           >
-                            {installedPlugin.status}
+                            {t(`pages.pluginmanager.plugin_status.${installedPlugin.status}`, { defaultValue: installedPlugin.status })}
                           </Badge>
                         ) : (
                           <Badge variant="secondary">{t("pages.pluginmanager.not_installed.jsx-text", { defaultValue: "Not installed" })}</Badge>
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-muted-foreground">{bundledPlugin.description}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{bundledPluginDescription(bundledPlugin, t)}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{bundledPlugin.packageName}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -307,7 +337,9 @@ const { t } = useTranslation();
                           )}
                           <Button variant="outline" size="sm" asChild>
                             <Link to={`/instance/settings/plugins/${installedPlugin.id}`}>
-                              {installedPlugin.status === "ready" ? "Open Settings" : "Review"}
+                              {installedPlugin.status === "ready"
+                                ? t("pages.pluginmanager.open_settings.jsx-text", { defaultValue: "Open Settings" })
+                                : t("pages.pluginmanager.review.jsx-text", { defaultValue: "Review" })}
                             </Link>
                           </Button>
                         </>
@@ -322,7 +354,9 @@ const { t } = useTranslation();
                             })
                           }
                         >
-                          {installPending ? "Installing..." : "Install"}
+                          {installPending
+                            ? t("pages.pluginmanager.installing.jsx-text", { defaultValue: "Installing..." })
+                            : t("pages.pluginmanager.install.jsx-text", { defaultValue: "Install" })}
                         </Button>
                       )}
                     </div>
@@ -366,8 +400,8 @@ const { t } = useTranslation();
                       {bundledByPackageName.has(plugin.packageName) && (
                         <Badge variant="outline">
                           {bundledByPackageName.get(plugin.packageName)?.tag === "first-party"
-                            ? "First-party"
-                            : "Example"}
+                            ? t("pages.pluginmanager.first_party.jsx-text", { defaultValue: "First-party" })
+                            : t("pages.pluginmanager.example.jsx-text", { defaultValue: "Example" })}
                         </Badge>
                       )}
                       {isExperimentalPluginIdentity({
@@ -383,7 +417,7 @@ const { t } = useTranslation();
                       </p>
                     </div>
                     <p className="text-sm text-muted-foreground truncate mt-0.5" title={plugin.manifestJson.description}>
-                      {plugin.manifestJson.description || "No description provided."}
+                      {plugin.manifestJson.description || t("pages.pluginmanager.no_description_provided.jsx-text", { defaultValue: "No description provided." })}
                     </p>
                     {plugin.status === "error" && (
                       <div className="mt-3 rounded-md border border-red-500/25 bg-red-500/[0.06] px-3 py-2">
@@ -427,13 +461,15 @@ const { t } = useTranslation();
                             plugin.status === "ready" ? "bg-green-600 hover:bg-green-700" : ""
                           )}
                         >
-                          {plugin.status}
+                          {t(`pages.pluginmanager.plugin_status.${plugin.status}`, { defaultValue: plugin.status })}
                         </Badge>
                         <Button
                           variant="outline"
                           size="icon-sm"
                           className="h-8 w-8"
-                          title={plugin.status === "ready" ? "Disable" : "Enable"}
+                          title={plugin.status === "ready"
+                            ? t("pages.pluginmanager.disable.attr_title", { defaultValue: "Disable" })
+                            : t("pages.pluginmanager.enable.attr_title", { defaultValue: "Enable" })}
                           onClick={() => {
                             if (plugin.status === "ready") {
                               disableMutation.mutate(plugin.id);
@@ -496,7 +532,9 @@ const { t } = useTranslation();
                 }
               }}
             >
-              {uninstallMutation.isPending ? "Uninstalling..." : "Uninstall"}
+              {uninstallMutation.isPending
+                ? t("pages.pluginmanager.uninstalling.jsx-text", { defaultValue: "Uninstalling..." })
+                : t("pages.pluginmanager.uninstall.jsx-text", { defaultValue: "Uninstall" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -510,7 +548,7 @@ const { t } = useTranslation();
           <DialogHeader>
             <DialogTitle>{t("pages.pluginmanager.error_details.jsx-text", { defaultValue: "Error Details" })}</DialogTitle>
             <DialogDescription>
-              {errorDetailsPlugin?.manifestJson.displayName ?? errorDetailsPlugin?.packageName ?? "Plugin"} {t("pages.pluginmanager.hit_an_error_state.jsx-text", { defaultValue: " hit an error state.\n            " })}</DialogDescription>
+              {errorDetailsPlugin?.manifestJson.displayName ?? errorDetailsPlugin?.packageName ?? t("pages.pluginmanager.plugin.jsx-text", { defaultValue: "Plugin" })} {t("pages.pluginmanager.hit_an_error_state.jsx-text", { defaultValue: " hit an error state.\n            " })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-md border border-red-500/25 bg-red-500/[0.06] px-4 py-3">
@@ -520,7 +558,7 @@ const { t } = useTranslation();
                   <p className="font-medium text-red-700 dark:text-red-300">
                     {t("pages.pluginmanager.what_errored.jsx-text", { defaultValue: "\n                    What errored\n                  " })}</p>
                   <p className="text-red-700/90 dark:text-red-200/90 break-words">
-                    {errorDetailsPlugin ? getPluginErrorSummary(errorDetailsPlugin) : "No error summary available."}
+                    {errorDetailsPlugin ? getPluginErrorSummary(errorDetailsPlugin) : t("pages.pluginmanager.no_error_summary_available.jsx-text", { defaultValue: "No error summary available." })}
                   </p>
                 </div>
               </div>
@@ -528,7 +566,7 @@ const { t } = useTranslation();
             <div className="space-y-2">
               <p className="text-sm font-medium">{t("pages.pluginmanager.full_error_output.jsx-text", { defaultValue: "Full error output" })}</p>
               <pre className="max-h-[50vh] overflow-auto rounded-md border bg-muted/40 p-3 text-xs leading-5 whitespace-pre-wrap break-words">
-                {errorDetailsPlugin?.lastError ?? "No stored error message."}
+                {errorDetailsPlugin?.lastError ?? t("pages.pluginmanager.no_stored_error_message.jsx-text", { defaultValue: "No stored error message." })}
               </pre>
             </div>
           </div>

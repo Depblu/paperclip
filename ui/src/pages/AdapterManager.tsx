@@ -67,7 +67,7 @@ function AdapterRow({
   toggleTitleDisabled?: string;
   disabledBadgeLabel?: string;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <li>
@@ -77,7 +77,11 @@ const { t } = useTranslation();
             <span className={cn("font-medium", adapter.disabled && "text-muted-foreground line-through")}>
               {adapter.label || getAdapterLabel(adapter.type)}
             </span>
-            <Badge variant="outline">{adapter.source === "external" ? "External" : "Built-in"}</Badge>
+            <Badge variant="outline">
+              {adapter.source === "external"
+                ? t("pages.adaptermanager.external.jsx-text", { defaultValue: "External" })
+                : t("pages.adaptermanager.built_in.jsx-text", { defaultValue: "Built-in" })}
+            </Badge>
             {adapter.source === "external" && (
               adapter.isLocalPath
                 ? <span title={t("pages.adaptermanager.installed_from_local_path.attr_title", { defaultValue: "Installed from local path" })}><FolderOpen className="h-4 w-4 text-amber-500" /></span>
@@ -99,7 +103,7 @@ const { t } = useTranslation();
             )}
             {adapter.disabled && (
               <Badge variant="secondary" className="text-amber-600 border-amber-400">
-                {disabledBadgeLabel ?? "Hidden from menus"}
+                {disabledBadgeLabel ?? t("pages.adaptermanager.hidden_from_menus.jsx-text", { defaultValue: "Hidden from menus" })}
               </Badge>
             )}
           </div>
@@ -140,8 +144,8 @@ const { t } = useTranslation();
             size="icon-sm"
             className="h-8 w-8"
             title={adapter.disabled
-              ? (toggleTitleEnabled ?? "Show in agent menus")
-              : (toggleTitleDisabled ?? "Hide from agent menus")}
+              ? (toggleTitleEnabled ?? t("pages.adaptermanager.show_in_agent_menus.attr_title", { defaultValue: "Show in agent menus" }))
+              : (toggleTitleDisabled ?? t("pages.adaptermanager.hide_from_agent_menus.attr_title", { defaultValue: "Hide from agent menus" }))}
             disabled={isToggling}
             onClick={() => onToggle(adapter.type, !adapter.disabled)}
           >
@@ -186,7 +190,7 @@ function ReinstallDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { data: latestVersion, isLoading: isFetchingVersion } = useQuery({
     queryKey: ["npm-latest-version", adapter?.packageName],
@@ -218,17 +222,17 @@ const { t } = useTranslation();
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">{t("pages.adaptermanager.current.jsx-text", { defaultValue: "Current" })}</span>
             <span className="font-mono">
-              {adapter?.version ? `v${adapter.version}` : "unknown"}
+              {adapter?.version ? `v${adapter.version}` : t("pages.adaptermanager.unknown.jsx-text", { defaultValue: "unknown" })}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">{t("pages.adaptermanager.latest_on_npm.jsx-text", { defaultValue: "Latest on npm" })}</span>
             <span className="font-mono">
               {isFetchingVersion
-                ? "checking..."
+                ? t("pages.adaptermanager.checking.jsx-text", { defaultValue: "checking..." })
                 : latestVersion
                   ? `v${latestVersion}`
-                  : "unavailable"}
+                  : t("pages.adaptermanager.unavailable.jsx-text", { defaultValue: "unavailable" })}
             </span>
           </div>
           {isUpToDate && (
@@ -241,7 +245,9 @@ const { t } = useTranslation();
           <Button variant="outline" onClick={onCancel} disabled={isReinstalling}>
             {t("pages.adaptermanager.cancel.jsx-text", { defaultValue: "\n            Cancel\n          " })}</Button>
           <Button disabled={isReinstalling} onClick={onConfirm}>
-            {isReinstalling ? "Reinstalling..." : "Reinstall"}
+            {isReinstalling
+              ? t("pages.adaptermanager.reinstalling.jsx-text", { defaultValue: "Reinstalling..." })
+              : t("pages.adaptermanager.reinstall.jsx-text", { defaultValue: "Reinstall" })}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -250,7 +256,7 @@ const { t } = useTranslation();
 }
 
 export function AdapterManager() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { selectedCompany } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -510,7 +516,9 @@ const { t } = useTranslation();
                 }
                 disabled={!installPackage || installMutation.isPending}
               >
-                {installMutation.isPending ? "Installing..." : "Install"}
+                {installMutation.isPending
+                  ? t("pages.adaptermanager.installing.jsx-text", { defaultValue: "Installing..." })
+                  : t("pages.adaptermanager.install.jsx-text", { defaultValue: "Install" })}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -573,9 +581,9 @@ const { t } = useTranslation();
                   isToggling={isBuiltinOverride ? overrideMutation.isPending : toggleMutation.isPending}
                   isReloading={reloadMutation.isPending}
                   isReinstalling={reinstallMutation.isPending}
-                  toggleTitleDisabled={isBuiltinOverride ? "Pause external override" : undefined}
-                  toggleTitleEnabled={isBuiltinOverride ? "Resume external override" : undefined}
-                  disabledBadgeLabel={isBuiltinOverride ? "Override paused" : undefined}
+                  toggleTitleDisabled={isBuiltinOverride ? t("pages.adaptermanager.pause_external_override.attr_title", { defaultValue: "Pause external override" }) : undefined}
+                  toggleTitleEnabled={isBuiltinOverride ? t("pages.adaptermanager.resume_external_override.attr_title", { defaultValue: "Resume external override" }) : undefined}
+                  disabledBadgeLabel={isBuiltinOverride ? t("pages.adaptermanager.override_paused.jsx-text", { defaultValue: "Override paused" }) : undefined}
                 />
               );
             })}
@@ -660,7 +668,9 @@ const { t } = useTranslation();
                 }
               }}
             >
-              {removeMutation.isPending ? "Removing..." : "Remove"}
+              {removeMutation.isPending
+                ? t("pages.adaptermanager.removing.jsx-text", { defaultValue: "Removing..." })
+                : t("pages.adaptermanager.remove.jsx-text", { defaultValue: "Remove" })}
             </Button>
           </DialogFooter>
         </DialogContent>

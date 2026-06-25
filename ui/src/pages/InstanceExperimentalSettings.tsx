@@ -46,7 +46,7 @@ function RecoveryPreviewDialog({
   onEnableAndRun: () => void;
   isPending: boolean;
 }) {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const count = preview?.recoverableFindings ?? 0;
   return (
@@ -56,8 +56,12 @@ const { t } = useTranslation();
           <DialogTitle>{t("pages.instanceexperimentalsettings.confirm_auto_recovery.jsx-text", { defaultValue: "Confirm auto-recovery" })}</DialogTitle>
           <DialogDescription>
             {preview
-              ? `${count} recovery ${count === 1 ? "task" : "tasks"} match the last ${preview.lookbackHours} hours.`
-              : "Checking recovery candidates before enabling."}
+              ? t("pages.instanceexperimentalsettings.recovery_preview_summary.text", {
+                count,
+                hours: preview.lookbackHours,
+                defaultValue: "{{count}} recovery tasks match the last {{hours}} hours.",
+              })
+              : t("pages.instanceexperimentalsettings.checking_recovery_candidates.text", { defaultValue: "Checking recovery candidates before enabling." })}
           </DialogDescription>
         </DialogHeader>
 
@@ -97,8 +101,10 @@ const { t } = useTranslation();
 
         {preview && preview.skippedOutsideLookback > 0 ? (
           <p className="text-xs text-muted-foreground">
-            {preview.skippedOutsideLookback} {t("pages.instanceexperimentalsettings.current.jsx-text", { defaultValue: " current" })}{" "}
-            {preview.skippedOutsideLookback === 1 ? "finding is" : "findings are"} {t("pages.instanceexperimentalsettings.outside_the_configured_lookback_.jsx-text", { defaultValue: " outside the configured lookback and will not be touched.\n          " })}</p>
+            {t("pages.instanceexperimentalsettings.skipped_outside_lookback.text", {
+              count: preview.skippedOutsideLookback,
+              defaultValue: "{{count}} current findings are outside the configured lookback and will not be touched.",
+            })}</p>
         ) : null}
 
         <DialogFooter>
@@ -107,7 +113,9 @@ const { t } = useTranslation();
           <Button variant="outline" onClick={onEnableOnly} disabled={isPending || !preview}>
             {t("pages.instanceexperimentalsettings.enable_only.jsx-text", { defaultValue: "\n            Enable only\n          " })}</Button>
           <Button onClick={onEnableAndRun} disabled={isPending || !preview}>
-            {count > 0 ? `Enable and create ${count}` : "Enable"}
+            {count > 0
+              ? t("pages.instanceexperimentalsettings.enable_and_create.jsx-text", { count, defaultValue: "Enable and create {{count}}" })
+              : t("pages.instanceexperimentalsettings.enable.jsx-text", { defaultValue: "Enable" })}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -116,7 +124,7 @@ const { t } = useTranslation();
 }
 
 export function InstanceExperimentalSettings() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
@@ -444,7 +452,10 @@ const { t } = useTranslation();
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {t("pages.instanceexperimentalsettings.current_window_last.jsx-text", { defaultValue: "\n            Current window: last " })}{lookbackHours} {lookbackHours === 1 ? "hour" : "hours"}.
+            {t("pages.instanceexperimentalsettings.current_window_last_hours.jsx-text", {
+              count: lookbackHours,
+              defaultValue: "Current window: last {{count}} hours.",
+            })}
           </p>
         </div>
       </section>

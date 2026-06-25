@@ -22,7 +22,7 @@ import { cn } from "../lib/utils";
 const FEEDBACK_TERMS_URL = import.meta.env.VITE_FEEDBACK_TERMS_URL?.trim() || "https://paperclip.ing/tos";
 
 export function InstanceGeneralSettings() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
@@ -84,6 +84,12 @@ const { t } = useTranslation();
   const keyboardShortcuts = generalQuery.data?.keyboardShortcuts === true;
   const feedbackDataSharingPreference = generalQuery.data?.feedbackDataSharingPreference ?? "prompt";
   const backupRetention: BackupRetentionPolicy = generalQuery.data?.backupRetention ?? DEFAULT_BACKUP_RETENTION;
+  const deploymentDescription =
+    healthQuery.data?.deploymentMode === "local_trusted"
+      ? t("pages.instancegeneralsettings.local_trusted_mode_description.text", { defaultValue: "Local trusted mode is optimized for a local operator. Browser requests run as local board context and no sign-in is required." })
+      : healthQuery.data?.deploymentExposure === "public"
+        ? t("pages.instancegeneralsettings.authenticated_public_mode_description.text", { defaultValue: "Authenticated public mode requires sign-in for board access and is intended for public URLs." })
+        : t("pages.instancegeneralsettings.authenticated_private_mode_description.text", { defaultValue: "Authenticated private mode requires sign-in and is intended for LAN, VPN, or other private-network deployments." });
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -112,24 +118,26 @@ const { t } = useTranslation();
             />
           </div>
           <div className="text-sm text-muted-foreground">
-            {healthQuery.data?.deploymentMode === "local_trusted"
-              ? "Local trusted mode is optimized for a local operator. Browser requests run as local board context and no sign-in is required."
-              : healthQuery.data?.deploymentExposure === "public"
-                ? "Authenticated public mode requires sign-in for board access and is intended for public URLs."
-                : "Authenticated private mode requires sign-in and is intended for LAN, VPN, or other private-network deployments."}
+            {deploymentDescription}
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             <StatusBox
               label={t("pages.instancegeneralsettings.auth_readiness.attr_label", { defaultValue: "Auth readiness" })}
-              value={healthQuery.data?.authReady ? "Ready" : "Not ready"}
+              value={healthQuery.data?.authReady
+                ? t("pages.instancegeneralsettings.ready.status", { defaultValue: "Ready" })
+                : t("pages.instancegeneralsettings.not_ready.status", { defaultValue: "Not ready" })}
             />
             <StatusBox
               label={t("pages.instancegeneralsettings.bootstrap_status.attr_label", { defaultValue: "Bootstrap status" })}
-              value={healthQuery.data?.bootstrapStatus === "bootstrap_pending" ? "Setup required" : "Ready"}
+              value={healthQuery.data?.bootstrapStatus === "bootstrap_pending"
+                ? t("pages.instancegeneralsettings.setup_required.status", { defaultValue: "Setup required" })
+                : t("pages.instancegeneralsettings.ready.status", { defaultValue: "Ready" })}
             />
             <StatusBox
               label={t("pages.instancegeneralsettings.bootstrap_invite.attr_label", { defaultValue: "Bootstrap invite" })}
-              value={healthQuery.data?.bootstrapInviteActive ? "Active" : "None"}
+              value={healthQuery.data?.bootstrapInviteActive
+                ? t("pages.instancegeneralsettings.active.status", { defaultValue: "Active" })
+                : t("pages.instancegeneralsettings.none.status", { defaultValue: "None" })}
             />
           </div>
         </div>
@@ -197,7 +205,7 @@ const { t } = useTranslation();
                       })
                     }
                   >
-                    <div className="text-sm font-medium">{days} {t("pages.instancegeneralsettings.days.jsx-text", { defaultValue: " days" })}</div>
+                    <div className="text-sm font-medium">{t("pages.instancegeneralsettings.days_count.jsx-text", { count: days, defaultValue: "{{count}} days" })}</div>
                   </button>
                 );
               })}
@@ -209,7 +217,7 @@ const { t } = useTranslation();
             <div className="flex flex-wrap gap-2">
               {WEEKLY_RETENTION_PRESETS.map((weeks) => {
                 const active = backupRetention.weeklyWeeks === weeks;
-                const label = weeks === 1 ? "1 week" : `${weeks} weeks`;
+                const label = t("pages.instancegeneralsettings.weeks_count.jsx-text", { count: weeks, defaultValue: "{{count}} weeks" });
                 return (
                   <button
                     key={weeks}
@@ -239,7 +247,7 @@ const { t } = useTranslation();
             <div className="flex flex-wrap gap-2">
               {MONTHLY_RETENTION_PRESETS.map((months) => {
                 const active = backupRetention.monthlyMonths === months;
-                const label = months === 1 ? "1 month" : `${months} months`;
+                const label = t("pages.instancegeneralsettings.months_count.jsx-text", { count: months, defaultValue: "{{count}} months" });
                 return (
                   <button
                     key={months}
@@ -349,7 +357,9 @@ const { t } = useTranslation();
             onClick={() => signOutMutation.mutate()}
           >
             <LogOut className="size-4" />
-            {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+            {signOutMutation.isPending
+              ? t("pages.instancegeneralsettings.signing_out.jsx-text", { defaultValue: "Signing out..." })
+              : t("pages.instancegeneralsettings.sign_out.jsx-text", { defaultValue: "Sign out" })}
           </Button>
         </div>
       </section>
@@ -358,8 +368,6 @@ const { t } = useTranslation();
 }
 
 function StatusBox({ label, value }: { label: string; value: string }) {
-const { t } = useTranslation();
-
   return (
     <div className="rounded-lg border border-border bg-background px-3 py-3">
       <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</div>

@@ -12,7 +12,7 @@ import { useToast } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
 
 export function InstanceAccess() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { companies } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -44,6 +44,36 @@ const { t } = useTranslation();
     queryFn: () => accessApi.getUserCompanyAccess(selectedUserId!),
     enabled: !!selectedUserId,
   });
+
+  function membershipRoleLabel(role: string | null | undefined) {
+    switch (role) {
+      case "owner":
+        return t("pages.instanceaccess.role_owner.jsx-text", { defaultValue: "owner" });
+      case "admin":
+        return t("pages.instanceaccess.role_admin.jsx-text", { defaultValue: "admin" });
+      case "operator":
+        return t("pages.instanceaccess.role_operator.jsx-text", { defaultValue: "operator" });
+      case "viewer":
+        return t("pages.instanceaccess.role_viewer.jsx-text", { defaultValue: "viewer" });
+      default:
+        return t("pages.instanceaccess.unset.jsx-text", { defaultValue: "unset" });
+    }
+  }
+
+  function membershipStatusLabel(status: string) {
+    switch (status) {
+      case "active":
+        return t("pages.instanceaccess.status_active.jsx-text", { defaultValue: "active" });
+      case "pending":
+        return t("pages.instanceaccess.status_pending.jsx-text", { defaultValue: "pending" });
+      case "suspended":
+        return t("pages.instanceaccess.status_suspended.jsx-text", { defaultValue: "suspended" });
+      case "archived":
+        return t("pages.instanceaccess.status_archived.jsx-text", { defaultValue: "archived" });
+      default:
+        return status;
+    }
+  }
 
   useEffect(() => {
     if (!selectedUserId && usersQuery.data?.[0]) {
@@ -144,7 +174,10 @@ const { t } = useTranslation();
                   ) : null}
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  {user.activeCompanyMembershipCount} {t("pages.instanceaccess.active_company_memberships.jsx-text", { defaultValue: " active company memberships\n                " })}</div>
+                  {t("pages.instanceaccess.active_company_memberships_count.jsx-text", {
+                    count: user.activeCompanyMembershipCount,
+                    defaultValue: "{{count}} active company memberships",
+                  })}</div>
               </button>
             ))}
           </div>
@@ -175,7 +208,9 @@ const { t } = useTranslation();
                   onClick={() => setAdminMutation.mutate(!(selectedUser?.isInstanceAdmin ?? false))}
                   disabled={setAdminMutation.isPending}
                 >
-                  {selectedUser?.isInstanceAdmin ? "Remove instance admin" : "Promote to instance admin"}
+                  {selectedUser?.isInstanceAdmin
+                    ? t("pages.instanceaccess.remove_instance_admin.jsx-text", { defaultValue: "Remove instance admin" })
+                    : t("pages.instanceaccess.promote_to_instance_admin.jsx-text", { defaultValue: "Promote to instance admin" })}
                 </Button>
               </div>
 
@@ -214,7 +249,9 @@ const { t } = useTranslation();
                     onClick={() => updateCompanyAccessMutation.mutate()}
                     disabled={updateCompanyAccessMutation.isPending}
                   >
-                    {updateCompanyAccessMutation.isPending ? "Saving…" : "Save company access"}
+                    {updateCompanyAccessMutation.isPending
+                      ? t("pages.instanceaccess.saving.jsx-text", { defaultValue: "Saving…" })
+                      : t("pages.instanceaccess.save_company_access.jsx-text", { defaultValue: "Save company access" })}
                   </Button>
                 </div>
               </div>
@@ -230,7 +267,7 @@ const { t } = useTranslation();
                       <div>
                         <div className="font-medium">{membership.companyName || membership.companyId}</div>
                         <div className="text-muted-foreground">
-                          {membership.membershipRole || "unset"} • {membership.status}
+                          {membershipRoleLabel(membership.membershipRole)} • {membershipStatusLabel(membership.status)}
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground">

@@ -1719,22 +1719,22 @@
         "attr_label": "访问"
       },
       "adapters": {
-        "attr_label": "Adapters"
+        "attr_label": "适配器"
       },
       "experimental": {
-        "attr_label": "Experimental"
+        "attr_label": "实验功能"
       },
       "general": {
         "attr_label": "常规"
       },
       "heartbeats": {
-        "attr_label": "Heartbeats"
+        "attr_label": "心跳"
       },
       "instance_settings": {
-        "jsx-text": "\n          Instance Settings\n        "
+        "jsx-text": "\n          实例设置\n        "
       },
       "plugins": {
-        "attr_label": "Plugins"
+        "attr_label": "插件"
       },
       "profile": {
         "attr_label": "个人资料"
@@ -6545,6 +6545,17 @@
       "budget_monthly_cents": {
         "help": "每月花费上限，单位为 cents。0 表示无限制。"
       }
+    },
+    "modebadge": {
+      "local_trusted": {
+        "jsx-text": "本地信任"
+      },
+      "authenticated_public": {
+        "jsx-text": "认证公开"
+      },
+      "authenticated_private": {
+        "jsx-text": "认证私有"
+      }
     }
   },
   "misc": {
@@ -6719,7 +6730,7 @@
         "jsx-text": " adapter? It will be unregistered and removed from the adapter store.\n              "
       },
       "adapters": {
-        "jsx-text": "Adapters",
+        "jsx-text": "适配器",
         "breadcrumb": "适配器"
       },
       "add_an_adapter_from_npm_or_a_loc": {
@@ -6735,7 +6746,7 @@
         "jsx-text": "\n              Are you sure you want to移除 the "
       },
       "built_in_adapters": {
-        "jsx-text": "Built-in Adapters"
+        "jsx-text": "内置适配器"
       },
       "cancel": {
         "jsx-text": "\n            Cancel\n          "
@@ -6747,19 +6758,19 @@
         "jsx-text": "Current"
       },
       "external_adapters_are_alpha": {
-        "jsx-text": "External adapters are alpha."
+        "jsx-text": "外部适配器仍处于 alpha。"
       },
       "external_adapters": {
-        "jsx-text": "External Adapters"
+        "jsx-text": "外部适配器"
       },
       "from_npm_and_hot_swap_the_runnin": {
         "jsx-text": " from npm and hot-swap the running adapter module. Existing agents will use the new version on their next run.\n          "
       },
       "install_adapter": {
-        "jsx-text": "\n              Install Adapter\n            "
+        "jsx-text": "\n              安装适配器\n            "
       },
       "install_an_adapter_package_to_ex": {
-        "jsx-text": "\n                Install an adapter package to extend model support.\n              "
+        "jsx-text": "\n                安装适配器包以扩展模型支持。\n              "
       },
       "install_external_adapter": {
         "jsx-text": "Install External Adapter"
@@ -6783,7 +6794,7 @@
         "jsx-text": "\n                  Local path\n                "
       },
       "models": {
-        "jsx-text": " models\n          "
+        "jsx-text": " 个模型\n          "
       },
       "my_paperclip_adapter": {
         "attr_placeholder": "my-paperclip-adapter"
@@ -6792,7 +6803,7 @@
         "jsx-text": "No built-in adapters found."
       },
       "no_external_adapters_installed": {
-        "jsx-text": "No external adapters installed"
+        "jsx-text": "未安装外部适配器"
       },
       "npm_package": {
         "jsx-text": "\n                  npm package\n                "
@@ -6829,7 +6840,7 @@
         "jsx-text": "Remove Adapter"
       },
       "the_adapter_plugin_system_is_und": {
-        "jsx-text": "\n              The adapter plugin system is under active development. APIs and storage format may change. Use the power icon to hide adapters from agent menus without removing them.\n            "
+        "jsx-text": "\n              适配器插件系统正在积极开发中。API 和存储格式可能变化。使用电源图标可从智能体菜单隐藏适配器，而无需移除它们。\n            "
       },
       "this_action_cannot_be_undone": {
         "jsx-text": "This action cannot be undone.\n            "
@@ -6880,6 +6891,57 @@
       },
       "settings": {
         "breadcrumb": "设置"
+      },
+      "external": {
+        "jsx-text": "外部"
+      },
+      "built_in": {
+        "jsx-text": "内置"
+      },
+      "hidden_from_menus": {
+        "jsx-text": "已从菜单隐藏"
+      },
+      "show_in_agent_menus": {
+        "attr_title": "显示在智能体菜单中"
+      },
+      "hide_from_agent_menus": {
+        "attr_title": "从智能体菜单隐藏"
+      },
+      "unknown": {
+        "jsx-text": "未知"
+      },
+      "checking": {
+        "jsx-text": "检查中..."
+      },
+      "unavailable": {
+        "jsx-text": "不可用"
+      },
+      "reinstalling": {
+        "jsx-text": "正在重新安装..."
+      },
+      "reinstall": {
+        "jsx-text": "重新安装"
+      },
+      "installing": {
+        "jsx-text": "正在安装..."
+      },
+      "install": {
+        "jsx-text": "安装"
+      },
+      "pause_external_override": {
+        "attr_title": "暂停外部覆盖"
+      },
+      "resume_external_override": {
+        "attr_title": "恢复外部覆盖"
+      },
+      "override_paused": {
+        "jsx-text": "覆盖已暂停"
+      },
+      "removing": {
+        "jsx-text": "正在移除..."
+      },
+      "remove": {
+        "jsx-text": "移除"
       }
     },
     "agentdetail": {
@@ -11456,37 +11518,37 @@
     },
     "instanceaccess": {
       "active_company_memberships": {
-        "jsx-text": " active company memberships\n                "
+        "jsx-text": " 个活跃公司成员资格\n                "
       },
       "company_access": {
-        "jsx-text": "Company access"
+        "jsx-text": "公司访问权限"
       },
       "current_memberships": {
-        "jsx-text": "Current memberships"
+        "jsx-text": "当前成员资格"
       },
       "instance_access": {
-        "jsx-text": "Instance Access"
+        "jsx-text": "实例访问权限"
       },
       "loading_instance_users": {
-        "jsx-text": "Loading instance users…"
+        "jsx-text": "正在加载实例用户..."
       },
       "loading_user_access": {
-        "jsx-text": "Loading user access…"
+        "jsx-text": "正在加载用户访问权限..."
       },
       "search_by_name_or_email": {
-        "attr_placeholder": "Search by name or email"
+        "attr_placeholder": "按名称或邮箱搜索"
       },
       "search_users_manage_instance_adm": {
-        "jsx-text": "\n          搜索 users, manage instance-admin status, and control which companies they can access.\n        "
+        "jsx-text": "\n          搜索用户、管理实例管理员状态，并控制他们可以访问哪些公司。\n        "
       },
       "search_users": {
-        "jsx-text": "Search users"
+        "jsx-text": "搜索用户"
       },
       "select_a_user_to_inspect_instanc": {
-        "jsx-text": "Select a user to inspect instance access."
+        "jsx-text": "选择用户以查看实例访问权限。"
       },
       "toggle_company_membership_for_th": {
-        "jsx-text": "\n                    Toggle company membership for this user. New access defaults to an active operator membership.\n                  "
+        "jsx-text": "\n                    切换此用户的公司成员资格。新增访问权限默认授予活跃的操作员成员资格。\n                  "
       },
       "company_access_updated": {
         "title": "公司访问权限已更新"
@@ -11502,167 +11564,227 @@
       },
       "access": {
         "breadcrumb": "访问"
+      },
+      "active_company_memberships_count": {
+        "jsx-text": "{{count}} 个活跃公司成员资格"
+      },
+      "remove_instance_admin": {
+        "jsx-text": "移除实例管理员"
+      },
+      "promote_to_instance_admin": {
+        "jsx-text": "提升为实例管理员"
+      },
+      "saving": {
+        "jsx-text": "保存中..."
+      },
+      "save_company_access": {
+        "jsx-text": "保存公司访问权限"
+      },
+      "role_owner": {
+        "jsx-text": "所有者"
+      },
+      "role_admin": {
+        "jsx-text": "管理员"
+      },
+      "role_operator": {
+        "jsx-text": "操作员"
+      },
+      "role_viewer": {
+        "jsx-text": "查看者"
+      },
+      "unset": {
+        "jsx-text": "未设置"
+      },
+      "status_active": {
+        "jsx-text": "活跃"
+      },
+      "status_pending": {
+        "jsx-text": "待处理"
+      },
+      "status_suspended": {
+        "jsx-text": "已暂停"
+      },
+      "status_archived": {
+        "jsx-text": "已归档"
       }
     },
     "instanceexperimentalsettings": {
       "auto_create_recovery_tasks": {
-        "jsx-text": "Auto-Create Recovery Tasks"
+        "jsx-text": "自动创建恢复任务"
       },
       "auto_restart_dev_server_when_idl": {
-        "jsx-text": "Auto-Restart Dev Server When Idle"
+        "jsx-text": "空闲时自动重启开发服务器"
       },
       "cancel": {
-        "jsx-text": "\n            Cancel\n          "
+        "jsx-text": "\n            取消\n          "
       },
       "cloud_sync": {
-        "jsx-text": "Cloud Sync"
+        "jsx-text": "云同步"
       },
       "confirm_auto_recovery": {
-        "jsx-text": "Confirm auto-recovery"
+        "jsx-text": "确认自动恢复"
       },
       "current_window_last": {
-        "jsx-text": "\n            Current window: last "
+        "jsx-text": "\n            当前窗口：最近 "
       },
       "current": {
-        "jsx-text": " current"
+        "jsx-text": " 当前"
       },
       "enable_environments": {
-        "jsx-text": "Enable Environments"
+        "jsx-text": "启用环境"
       },
       "enable_isolated_workspaces": {
-        "jsx-text": "Enable Isolated Workspaces"
+        "jsx-text": "启用隔离工作区"
       },
       "enable_only": {
-        "jsx-text": "\n            Enable only\n          "
+        "jsx-text": "\n            仅启用\n          "
       },
       "experimental": {
-        "jsx-text": "Experimental",
+        "jsx-text": "实验功能",
         "breadcrumb": "实验功能"
       },
       "in_pnpm_dev_once_wait_for_all_qu": {
-        "jsx-text": "\n              In `pnpm dev:once`, wait for全部 queued and running local agent runs to finish, then restart the server automatically when backend changes or migrations make the current boot stale.\n            "
+        "jsx-text": "\n              在 `pnpm dev:once` 中，等待全部排队和运行中的本地智能体 run 完成，然后在后端变更或迁移导致当前启动过期时自动重启服务器。\n            "
       },
       "let_the_heartbeat_scheduler_crea": {
-        "jsx-text": "\n                Let the heartbeat scheduler创建 recovery tasks for task dependency chains found inside the configured lookback window.\n              "
+        "jsx-text": "\n                让心跳调度器为配置回看窗口内发现的任务依赖链创建恢复任务。\n              "
       },
       "loading_experimental_settings": {
-        "jsx-text": "Loading experimental settings..."
+        "jsx-text": "正在加载实验设置..."
       },
       "lookback_hours": {
-        "jsx-text": "\n                Lookback hours\n              "
+        "jsx-text": "\n                回看小时数\n              "
       },
       "no_recovery_tasks_would_be_creat": {
-        "jsx-text": "\n             无 recovery tasks would be created right now. Auto-recovery can still run for future liveness incidents in this window.\n            "
+        "jsx-text": "\n              当前不会创建恢复任务。自动恢复仍可在此窗口内处理未来的活性事件。\n            "
       },
       "opt_into_features_that_are_still": {
-        "jsx-text": "\n          Opt into features that are still being evaluated before they become default behavior.\n        "
+        "jsx-text": "\n          选择启用仍在评估、尚未成为默认行为的功能。\n        "
       },
       "outside_the_configured_lookback_": {
-        "jsx-text": " outside the configured lookback and will not be touched.\n          "
+        "jsx-text": " 位于配置的回看窗口外，不会被处理。\n          "
       },
       "preview": {
-        "jsx-text": "\n                Preview\n              "
+        "jsx-text": "\n                预览\n              "
       },
       "recovery_target": {
-        "jsx-text": "\n                Recovery target:"
+        "jsx-text": "\n                恢复目标："
       },
       "reduces_the_maximum_number_of_it": {
-        "jsx-text": "\n              Reduces the maximum number of items in the left navigation bar — nests Projects under Work with a dedicated Projects page, and shows only active agents (max 5 recently-active) in the sidebar.\n            "
+        "jsx-text": "\n              减少左侧导航栏中的最大项目数：将项目嵌套到“工作”下的专用项目页，并在侧边栏只显示活跃智能体（最多 5 个最近活跃）。\n            "
       },
       "run_now": {
-        "jsx-text": "\n                Run now\n              "
+        "jsx-text": "\n                立即运行\n              "
       },
       "save_hours": {
-        "jsx-text": "\n               保存 hours\n              "
+        "jsx-text": "\n                保存小时数\n              "
       },
       "show_accepted_plan_decomposition": {
-        "jsx-text": "\n              Show accepted-plan decomposition history on task detail pages. Intended for debugging and validating subtask creation behavior while the presentation is still being refined.\n            "
+        "jsx-text": "\n              在任务详情页显示已接受计划的拆解历史。用于调试和验证子任务创建行为，同时展示方式仍在完善中。\n            "
       },
       "show_environment_management_in_c": {
-        "jsx-text": "\n              Show environment management in company settings and allow project and agent environment assignment controls.\n            "
+        "jsx-text": "\n              在公司设置中显示环境管理，并允许项目和智能体使用环境分配控制。\n            "
       },
       "show_execution_workspace_control": {
-        "jsx-text": "\n              Show execution workspace controls in project configuration and allow isolated workspace behavior for new and existing task runs.\n            "
+        "jsx-text": "\n              在项目配置中显示执行工作区控制，并允许新旧任务 run 使用隔离工作区行为。\n            "
       },
       "show_local_paperclip_cloud_upstr": {
-        "jsx-text": "\n              Show local Paperclip Cloud upstream connection, preview, push, retry, and activation review surfaces. Saved connections and run history are preserved when this is disabled.\n            "
+        "jsx-text": "\n              显示本地 Paperclip Cloud 上游连接、预览、推送、重试和激活审核界面。禁用后仍保留已保存连接和 run 历史。\n            "
       },
       "streamlined_left_navigation_bar": {
-        "jsx-text": "Streamlined Left Navigation Bar"
+        "jsx-text": "精简左侧导航栏"
       },
       "task_plan_decomposition_panel": {
-        "jsx-text": "Task Plan Decomposition Panel"
+        "jsx-text": "任务计划拆解面板"
       },
       "toggle_cloud_sync_experimental_s": {
-        "attr_aria-label": "Toggle cloud sync experimental setting"
+        "attr_aria-label": "切换云同步实验设置"
       },
       "toggle_environments_experimental": {
-        "attr_aria-label": "Toggle environments experimental setting"
+        "attr_aria-label": "切换环境实验设置"
       },
       "toggle_guarded_dev_server_auto_r": {
-        "attr_aria-label": "Toggle guarded dev-server auto-restart"
+        "attr_aria-label": "切换受保护的开发服务器自动重启"
       },
       "toggle_isolated_workspaces_exper": {
-        "attr_aria-label": "Toggle isolated workspaces experimental setting"
+        "attr_aria-label": "切换隔离工作区实验设置"
       },
       "toggle_streamlined_left_navigati": {
-        "attr_aria-label": "Toggle streamlined left navigation experimental setting"
+        "attr_aria-label": "切换精简左侧导航实验设置"
       },
       "toggle_task_graph_liveness_auto_": {
-        "attr_aria-label": "Toggle task graph liveness auto-recovery"
+        "attr_aria-label": "切换任务图活性自动恢复"
       },
       "toggle_task_plan_decomposition_p": {
-        "attr_aria-label": "Toggle task plan decomposition panel experimental setting"
+        "attr_aria-label": "切换任务计划拆解面板实验设置"
       },
       "instance_settings": {
         "breadcrumb": "实例设置"
       },
       "lookback_hours_invalid": {
         "error": "回看小时数必须是 1 到 720 之间的整数。"
+      },
+      "recovery_preview_summary": {
+        "text": "{{count}} 个恢复任务匹配最近 {{hours}} 小时。"
+      },
+      "checking_recovery_candidates": {
+        "text": "启用前正在检查恢复候选项。"
+      },
+      "skipped_outside_lookback": {
+        "text": "{{count}} 个当前发现位于配置的回看窗口外，不会被处理。"
+      },
+      "enable_and_create": {
+        "jsx-text": "启用并创建 {{count}} 个"
+      },
+      "enable": {
+        "jsx-text": "启用"
+      },
+      "current_window_last_hours": {
+        "jsx-text": "当前窗口：最近 {{count}} 小时。"
       }
     },
     "instancegeneralsettings": {
       "ai_feedback_sharing": {
-        "jsx-text": "AI feedback sharing"
+        "jsx-text": "AI 反馈共享"
       },
       "auth_readiness": {
-        "attr_label": "Auth readiness"
+        "attr_label": "认证就绪状态"
       },
       "backup_retention": {
-        "jsx-text": "Backup retention"
+        "jsx-text": "备份保留"
       },
       "bootstrap_invite": {
-        "attr_label": "Bootstrap invite"
+        "attr_label": "Bootstrap 邀请"
       },
       "bootstrap_status": {
-        "attr_label": "Bootstrap status"
+        "attr_label": "Bootstrap 状态"
       },
       "both_mean_no_default_has_been_ch": {
-        "jsx-text": " both mean无 default has been chosen yet.\n          "
+        "jsx-text": " 都表示尚未选择默认值。\n          "
       },
       "censor_username_in_logs": {
-        "jsx-text": "Censor username in logs"
+        "jsx-text": "在日志中隐藏用户名"
       },
       "configure_how_long_automatic_dat": {
-        "jsx-text": "\n              Configure how long automatic database backups are retained. Backups run roughly every hour and are compressed with gzip. Within the daily window全部 backups are kept; beyond that, one backup per week and one per month are preserved.\n            "
+        "jsx-text": "\n              配置自动数据库备份的保留时长。备份大约每小时运行一次，并使用 gzip 压缩。在每日窗口内保留全部备份；超过该窗口后，每周保留一个备份，每月保留一个备份。\n            "
       },
       "configure_instance_wide_preferen": {
-        "jsx-text": "\n          Configure instance-wide preferences including log display, keyboard shortcuts, backup retention, and data sharing.\n        "
+        "jsx-text": "\n          配置实例级偏好，包括日志显示、键盘快捷键、备份保留和数据共享。\n        "
       },
       "control_whether_thumbs_up_and_th": {
-        "jsx-text": "\n              Control whether thumbs up and thumbs down votes can send the voted AI output to Paperclip Labs. Votes are always saved locally.\n            "
+        "jsx-text": "\n              控制点赞和点踩是否可以将被投票的 AI 输出发送到 Paperclip Labs。投票始终会保存在本地。\n            "
       },
       "daily": {
-        "jsx-text": "Daily"
+        "jsx-text": "每日"
       },
       "days": {
-        "jsx-text": " days"
+        "jsx-text": " 天"
       },
       "deployment_and_auth": {
-        "jsx-text": "Deployment and auth"
+        "jsx-text": "部署与认证"
       },
       "enable_app_keyboard_shortcuts_in": {
-        "jsx-text": "\n              Enable app keyboard shortcuts, including inbox navigation and global shortcuts like creating tasks or toggling panels. This is off by default.\n            "
+        "jsx-text": "\n              启用应用键盘快捷键，包括 inbox 导航以及创建任务或切换面板等全局快捷键。默认关闭。\n            "
       },
       "feedbackdatasharingpreference": {
         "jsx-text": "feedbackDataSharingPreference"
@@ -11672,55 +11794,55 @@
         "breadcrumb": "通用"
       },
       "hide_the_username_segment_in_hom": {
-        "jsx-text": "\n              Hide the username segment in home-directory paths and similar operator-visible log output. Standalone username mentions outside of paths are not yet masked in the live transcript view. This is off by default.\n            "
+        "jsx-text": "\n              隐藏主目录路径和类似操作者可见日志输出中的用户名片段。实时 transcript 中路径外的独立用户名暂未遮蔽。默认关闭。\n            "
       },
       "instance_settings_general": {
         "jsx-text": "instance_settings.general"
       },
       "json_row_for_this_instance_or_se": {
-        "jsx-text": " JSON row for this instance, or set it back to"
+        "jsx-text": " JSON 行中移除，或将其设回"
       },
       "key_from_the": {
-        "jsx-text": " key from the"
+        "jsx-text": " key，从"
       },
       "keyboard_shortcuts": {
-        "jsx-text": "Keyboard shortcuts"
+        "jsx-text": "键盘快捷键"
       },
       "loading_general_settings": {
-        "jsx-text": "Loading general settings..."
+        "jsx-text": "正在加载常规设置..."
       },
       "monthly": {
-        "jsx-text": "Monthly"
+        "jsx-text": "每月"
       },
       "no_default_is_saved_yet_the_next": {
-        "jsx-text": "\n             无 default is saved yet. The next thumbs up or thumbs down choice will ask once and then保存 the answer here.\n            "
+        "jsx-text": "\n              尚未保存默认值。下一次点赞或点踩时会询问一次，然后把答案保存在这里。\n            "
       },
       "prompt": {
         "jsx-text": "\"prompt\""
       },
       "read_our_terms_of_service": {
-        "jsx-text": "\n                Read our terms of service\n              "
+        "jsx-text": "\n                阅读服务条款\n              "
       },
       "sign_out_of_this_paperclip_insta": {
-        "jsx-text": "\n              Sign out of this Paperclip instance. You will be redirected to the login page.\n            "
+        "jsx-text": "\n              退出此 Paperclip 实例。你将被重定向到登录页面。\n            "
       },
       "sign_out": {
-        "jsx-text": "退出"
+        "jsx-text": "退出登录"
       },
       "to_retest_the_first_use_prompt_i": {
-        "jsx-text": "\n            To retest the first-use prompt in local dev,移除 the"
+        "jsx-text": "\n            如需在本地开发中重新测试首次使用提示，请移除"
       },
       "toggle_keyboard_shortcuts": {
-        "attr_aria-label": "Toggle keyboard shortcuts"
+        "attr_aria-label": "切换键盘快捷键"
       },
       "toggle_username_log_censoring": {
-        "attr_aria-label": "Toggle username log censoring"
+        "attr_aria-label": "切换用户名日志遮蔽"
       },
       "unset_and": {
-        "jsx-text": ". Unset and "
+        "jsx-text": "。未设置和 "
       },
       "weekly": {
-        "jsx-text": "Weekly"
+        "jsx-text": "每周"
       },
       "failed_to_sign_out": {
         "error": "退出登录失败。"
@@ -11739,26 +11861,62 @@
       },
       "keep_voted_outputs_local": {
         "option_description": "已投票的 AI 输出仅保存在本地。"
+      },
+      "local_trusted_mode_description": {
+        "text": "本地信任模式针对本地操作者优化。浏览器请求会以本地看板上下文运行，不需要登录。"
+      },
+      "authenticated_public_mode_description": {
+        "text": "认证公开模式要求登录后才能访问看板，适用于公开 URL。"
+      },
+      "authenticated_private_mode_description": {
+        "text": "认证私有模式要求登录，适用于 LAN、VPN 或其他私有网络部署。"
+      },
+      "ready": {
+        "status": "就绪"
+      },
+      "not_ready": {
+        "status": "未就绪"
+      },
+      "setup_required": {
+        "status": "需要设置"
+      },
+      "active": {
+        "status": "有效"
+      },
+      "none": {
+        "status": "无"
+      },
+      "days_count": {
+        "jsx-text": "{{count}} 天"
+      },
+      "weeks_count": {
+        "jsx-text": "{{count}} 周"
+      },
+      "months_count": {
+        "jsx-text": "{{count}} 个月"
+      },
+      "signing_out": {
+        "jsx-text": "正在退出..."
       }
     },
     "instancesettings": {
       "active": {
-        "jsx-text": " active"
+        "jsx-text": " 活跃"
       },
       "agents_with_a_timer_heartbeat_en": {
-        "jsx-text": "\n          Agents with a timer heartbeat enabled across全部 of your companies.\n        "
+        "jsx-text": "\n          你所有公司中启用了定时心跳的智能体。\n        "
       },
       "disabled": {
-        "jsx-text": " disabled"
+        "jsx-text": " 已禁用"
       },
       "full_agent_config": {
-        "attr_title": "Full agent config"
+        "attr_title": "完整智能体配置"
       },
       "loading_scheduler_heartbeats": {
-        "jsx-text": "Loading scheduler heartbeats..."
+        "jsx-text": "正在加载调度器心跳..."
       },
       "scheduler_heartbeats": {
-        "jsx-text": "Scheduler Heartbeats"
+        "jsx-text": "调度器心跳"
       },
       "no_scheduler_heartbeats_match": {
         "jsx-text": "没有调度器心跳匹配当前条件。"
@@ -11767,7 +11925,7 @@
         "breadcrumb": "实例设置"
       },
       "heartbeats": {
-        "breadcrumb": "Heartbeats"
+        "breadcrumb": "心跳"
       },
       "failed_to_update_heartbeat": {
         "error": "更新 heartbeat 失败。"
@@ -11777,6 +11935,33 @@
       },
       "failed_to_disable_timer_heartbeats": {
         "error": "禁用 {{total}} 个定时 heartbeat 中的 {{failures}} 个失败。首个错误：{{detail}}"
+      },
+      "company_count": {
+        "jsx-text": "{{count}} 个公司"
+      },
+      "disable_all_confirm": {
+        "message": "为全部 {{count}} 个已启用智能体禁用定时心跳？"
+      },
+      "disabling": {
+        "jsx-text": "正在禁用..."
+      },
+      "disable_all": {
+        "jsx-text": "全部禁用"
+      },
+      "on": {
+        "jsx-text": "开"
+      },
+      "off": {
+        "jsx-text": "关"
+      },
+      "never": {
+        "jsx-text": "从未"
+      },
+      "disable_timer_heartbeat": {
+        "jsx-text": "禁用定时心跳"
+      },
+      "enable_timer_heartbeat": {
+        "jsx-text": "启用定时心跳"
       }
     },
     "invitelanding": {
@@ -12918,40 +13103,41 @@
         "jsx-text": "\n              Are you sure you want to uninstall "
       },
       "available_plugins": {
-        "jsx-text": "Available Plugins"
+        "jsx-text": "可用插件"
       },
       "bundled": {
-        "jsx-text": "Bundled"
+        "jsx-text": "内置"
       },
       "cancel": {
         "jsx-text": "取消"
       },
       "close": {
-        "jsx-text": "\n              Close\n            "
+        "jsx-text": "\n              关闭\n            "
       },
       "configure": {
-        "jsx-text": "\n                          Configure\n                        "
+        "jsx-text": "\n                          配置\n                        "
       },
       "enable": {
-        "jsx-text": "\n                              Enable\n                            "
+        "jsx-text": "\n                              启用\n                            ",
+        "attr_title": "启用"
       },
       "enter_the_npm_package_name_of_th": {
-        "jsx-text": "\n                Enter the npm package name of the plugin you wish to install.\n              "
+        "jsx-text": "\n                输入要安装的插件 npm 包名。\n              "
       },
       "error_details": {
-        "jsx-text": "Error Details"
+        "jsx-text": "错误详情"
       },
       "experimental": {
-        "jsx-text": "\n      Experimental\n    "
+        "jsx-text": "\n      实验性\n    "
       },
       "failed_to_load_bundled_plugins": {
-        "jsx-text": "Failed to load bundled plugins."
+        "jsx-text": "加载内置插件失败。"
       },
       "failed_to_load_plugins": {
-        "jsx-text": "Failed to load plugins."
+        "jsx-text": "加载插件失败。"
       },
       "full_error_output": {
-        "jsx-text": "Full error output"
+        "jsx-text": "完整错误输出"
       },
       "hit_an_error_state": {
         "jsx-text": " hit an error state.\n            "
@@ -12960,16 +13146,16 @@
         "jsx-text": "\n                Install a plugin to extend functionality.\n              "
       },
       "install_plugin": {
-        "jsx-text": "\n              Install Plugin\n            "
+        "jsx-text": "\n              安装插件\n            "
       },
       "installed_plugins": {
         "jsx-text": "Installed Plugins"
       },
       "loading_bundled_plugins": {
-        "jsx-text": "Loading bundled plugins..."
+        "jsx-text": "正在加载内置插件..."
       },
       "loading_plugins": {
-        "jsx-text": "Loading plugins..."
+        "jsx-text": "正在加载插件..."
       },
       "no_bundled_plugins_were_found_in": {
         "jsx-text": "\n           无 bundled plugins were found in this checkout.\n          "
@@ -12978,7 +13164,7 @@
         "jsx-text": "No plugins installed"
       },
       "not_installed": {
-        "jsx-text": "Not installed"
+        "jsx-text": "未安装"
       },
       "npm_package_name": {
         "jsx-text": "npm Package Name"
@@ -12990,13 +13176,13 @@
         "jsx-text": "Plugin error"
       },
       "plugin_manager": {
-        "jsx-text": "Plugin Manager"
+        "jsx-text": "插件管理器"
       },
       "plugins_are_alpha": {
-        "jsx-text": "Plugins are alpha."
+        "jsx-text": "插件仍处于 alpha。"
       },
       "the_plugin_runtime_and_api_surfa": {
-        "jsx-text": "\n              The plugin runtime and API surface are still changing. Expect breaking changes while this feature settles.\n            "
+        "jsx-text": "\n              插件运行时和 API 表面仍在变化。此功能稳定前可能出现破坏性变更。\n            "
       },
       "this_action_cannot_be_undone": {
         "jsx-text": "? This action cannot be undone.\n            "
@@ -13005,7 +13191,8 @@
         "jsx-text": "Uninstall Plugin"
       },
       "uninstall": {
-        "attr_title": "Uninstall"
+        "attr_title": "Uninstall",
+        "jsx-text": "卸载"
       },
       "v": {
         "jsx-text": " · v"
@@ -13048,6 +13235,66 @@
       },
       "plugins": {
         "breadcrumb": "插件"
+      },
+      "first_party": {
+        "jsx-text": "第一方"
+      },
+      "example": {
+        "jsx-text": "示例"
+      },
+      "installing": {
+        "jsx-text": "正在安装..."
+      },
+      "install": {
+        "jsx-text": "安装"
+      },
+      "open_settings": {
+        "jsx-text": "打开设置"
+      },
+      "review": {
+        "jsx-text": "查看"
+      },
+      "no_description_provided": {
+        "jsx-text": "未提供描述。"
+      },
+      "disable": {
+        "attr_title": "禁用"
+      },
+      "uninstalling": {
+        "jsx-text": "正在卸载..."
+      },
+      "plugin": {
+        "jsx-text": "插件"
+      },
+      "no_error_summary_available": {
+        "jsx-text": "无可用错误摘要。"
+      },
+      "no_stored_error_message": {
+        "jsx-text": "无已存储错误消息。"
+      },
+      "plugin_status": {
+        "ready": "就绪",
+        "error": "错误",
+        "disabled": "已禁用",
+        "installing": "安装中"
+      },
+      "bundled_description": {
+        "paperclipai_plugin_cloudflare_sandbox": "第一方 sandbox provider 插件，通过操作者部署的 Worker bridge 创建 Cloudflare sandbox。",
+        "paperclipai_plugin_daytona": "第一方 sandbox provider 插件，将 Daytona sandbox 作为 Paperclip 执行环境创建。",
+        "paperclipai_plugin_e2b": "第一方 sandbox provider 插件，将 E2B 云端 sandbox 作为 Paperclip 执行环境创建。",
+        "paperclipai_plugin_exe_dev": "Sandbox provider 插件，将 exe.dev VM 作为 Paperclip 执行环境创建。",
+        "paperclipai_plugin_fake_sandbox": "第一方确定性 sandbox provider 插件，用于在无外部基础设施时演练 Paperclip provider-plugin 集成。",
+        "paperclipai_plugin_llm_wiki": "本地文件 LLM Wiki 插件，用于源码摄取、wiki 浏览、查询、lint 和维护工作流。",
+        "paperclipai_plugin_modal": "第一方 sandbox provider 插件，将 Modal sandbox 作为 Paperclip 执行环境创建。"
+      },
+      "bundled_name": {
+        "paperclipai_plugin_cloudflare_sandbox": "Cloudflare Sandbox 提供商",
+        "paperclipai_plugin_daytona": "Daytona Sandbox 提供商",
+        "paperclipai_plugin_e2b": "E2B Sandbox 提供商",
+        "paperclipai_plugin_exe_dev": "exe.dev Sandbox 提供商",
+        "paperclipai_plugin_fake_sandbox": "Fake Sandbox 提供商",
+        "paperclipai_plugin_llm_wiki": "LLM Wiki",
+        "paperclipai_plugin_modal": "Modal Sandbox 提供商"
       }
     },
     "pluginpage": {
@@ -13280,32 +13527,32 @@
         "attr_placeholder": "Board"
       },
       "click_the_avatar_to_upload_a_new": {
-        "jsx-text": "\n                  Click the avatar to upload a new image. "
+        "jsx-text": "\n                  点击头像上传新图片。"
       },
       "control_how_your_account_appears": {
-        "jsx-text": "\n          Control how your account appears in the sidebar and other board surfaces.\n        "
+        "jsx-text": "\n          控制你的账号在侧边栏和其他看板界面中的显示方式。\n        "
       },
       "display_name": {
         "jsx-text": "显示名称"
       },
       "email_is_managed_by_your_auth_se": {
-        "jsx-text": "\n              Email is managed by your auth session and is read-only here.\n            "
+        "jsx-text": "\n              邮箱由你的认证会话管理，此处只读。\n            "
       },
       "email": {
         "jsx-text": "邮箱"
       },
       "loading_profile": {
-        "jsx-text": "Loading profile..."
+        "jsx-text": "正在加载个人资料..."
       },
       "profile": {
         "jsx-text": "个人资料",
         "breadcrumb": "个人资料"
       },
       "remove": {
-        "jsx-text": "\n                      Remove\n                    "
+        "jsx-text": "\n                      移除\n                    "
       },
       "shown_in_the_sidebar_account_foo": {
-        "jsx-text": "\n              Shown in the sidebar account footer and comment author surfaces.\n            "
+        "jsx-text": "\n              显示在侧边栏账号页脚和评论作者信息中。\n            "
       },
       "instance_settings": {
         "breadcrumb": "实例设置"
@@ -13321,6 +13568,24 @@
       },
       "failed_to_remove_avatar": {
         "error": "移除头像失败。"
+      },
+      "stored_in_paperclip_file_storage": {
+        "text": "存储在 {{companyName}} 的 Paperclip 文件存储中。"
+      },
+      "select_a_company_to_upload_avatar": {
+        "text": "请选择公司后再将头像上传到 Paperclip 存储。"
+      },
+      "change_photo": {
+        "jsx-text": "更换照片"
+      },
+      "upload_photo": {
+        "jsx-text": "上传照片"
+      },
+      "saving": {
+        "jsx-text": "保存中..."
+      },
+      "save_profile": {
+        "jsx-text": "保存个人资料"
       }
     },
     "projectdetail": {

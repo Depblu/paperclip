@@ -6545,6 +6545,17 @@
       "budget_monthly_cents": {
         "help": "Monthly spending limit in cents. 0 means no limit."
       }
+    },
+    "modebadge": {
+      "local_trusted": {
+        "jsx-text": "Local trusted"
+      },
+      "authenticated_public": {
+        "jsx-text": "Authenticated public"
+      },
+      "authenticated_private": {
+        "jsx-text": "Authenticated private"
+      }
     }
   },
   "misc": {
@@ -6880,6 +6891,57 @@
       },
       "settings": {
         "breadcrumb": "Settings"
+      },
+      "external": {
+        "jsx-text": "External"
+      },
+      "built_in": {
+        "jsx-text": "Built-in"
+      },
+      "hidden_from_menus": {
+        "jsx-text": "Hidden from menus"
+      },
+      "show_in_agent_menus": {
+        "attr_title": "Show in agent menus"
+      },
+      "hide_from_agent_menus": {
+        "attr_title": "Hide from agent menus"
+      },
+      "unknown": {
+        "jsx-text": "unknown"
+      },
+      "checking": {
+        "jsx-text": "checking..."
+      },
+      "unavailable": {
+        "jsx-text": "unavailable"
+      },
+      "reinstalling": {
+        "jsx-text": "Reinstalling..."
+      },
+      "reinstall": {
+        "jsx-text": "Reinstall"
+      },
+      "installing": {
+        "jsx-text": "Installing..."
+      },
+      "install": {
+        "jsx-text": "Install"
+      },
+      "pause_external_override": {
+        "attr_title": "Pause external override"
+      },
+      "resume_external_override": {
+        "attr_title": "Resume external override"
+      },
+      "override_paused": {
+        "jsx-text": "Override paused"
+      },
+      "removing": {
+        "jsx-text": "Removing..."
+      },
+      "remove": {
+        "jsx-text": "Remove"
       }
     },
     "agentdetail": {
@@ -11502,6 +11564,48 @@
       },
       "access": {
         "breadcrumb": "Access"
+      },
+      "active_company_memberships_count": {
+        "jsx-text": "{{count}} active company memberships"
+      },
+      "remove_instance_admin": {
+        "jsx-text": "Remove instance admin"
+      },
+      "promote_to_instance_admin": {
+        "jsx-text": "Promote to instance admin"
+      },
+      "saving": {
+        "jsx-text": "Saving…"
+      },
+      "save_company_access": {
+        "jsx-text": "Save company access"
+      },
+      "role_owner": {
+        "jsx-text": "owner"
+      },
+      "role_admin": {
+        "jsx-text": "admin"
+      },
+      "role_operator": {
+        "jsx-text": "operator"
+      },
+      "role_viewer": {
+        "jsx-text": "viewer"
+      },
+      "unset": {
+        "jsx-text": "unset"
+      },
+      "status_active": {
+        "jsx-text": "active"
+      },
+      "status_pending": {
+        "jsx-text": "pending"
+      },
+      "status_suspended": {
+        "jsx-text": "suspended"
+      },
+      "status_archived": {
+        "jsx-text": "archived"
       }
     },
     "instanceexperimentalsettings": {
@@ -11619,6 +11723,24 @@
       },
       "lookback_hours_invalid": {
         "error": "Lookback hours must be a whole number from 1 to 720."
+      },
+      "recovery_preview_summary": {
+        "text": "{{count}} recovery tasks match the last {{hours}} hours."
+      },
+      "checking_recovery_candidates": {
+        "text": "Checking recovery candidates before enabling."
+      },
+      "skipped_outside_lookback": {
+        "text": "{{count}} current findings are outside the configured lookback and will not be touched."
+      },
+      "enable_and_create": {
+        "jsx-text": "Enable and create {{count}}"
+      },
+      "enable": {
+        "jsx-text": "Enable"
+      },
+      "current_window_last_hours": {
+        "jsx-text": "Current window: last {{count}} hours."
       }
     },
     "instancegeneralsettings": {
@@ -11739,6 +11861,42 @@
       },
       "keep_voted_outputs_local": {
         "option_description": "Keep voted AI outputs local only."
+      },
+      "local_trusted_mode_description": {
+        "text": "Local trusted mode is optimized for a local operator. Browser requests run as local board context and no sign-in is required."
+      },
+      "authenticated_public_mode_description": {
+        "text": "Authenticated public mode requires sign-in for board access and is intended for public URLs."
+      },
+      "authenticated_private_mode_description": {
+        "text": "Authenticated private mode requires sign-in and is intended for LAN, VPN, or other private-network deployments."
+      },
+      "ready": {
+        "status": "Ready"
+      },
+      "not_ready": {
+        "status": "Not ready"
+      },
+      "setup_required": {
+        "status": "Setup required"
+      },
+      "active": {
+        "status": "Active"
+      },
+      "none": {
+        "status": "None"
+      },
+      "days_count": {
+        "jsx-text": "{{count}} days"
+      },
+      "weeks_count": {
+        "jsx-text": "{{count}} weeks"
+      },
+      "months_count": {
+        "jsx-text": "{{count}} months"
+      },
+      "signing_out": {
+        "jsx-text": "Signing out..."
       }
     },
     "instancesettings": {
@@ -11777,6 +11935,33 @@
       },
       "failed_to_disable_timer_heartbeats": {
         "error": "Failed to disable {{failures}} of {{total}} timer heartbeats. First error: {{detail}}"
+      },
+      "company_count": {
+        "jsx-text": "{{count}} companies"
+      },
+      "disable_all_confirm": {
+        "message": "Disable timer heartbeats for all {{count}} enabled agents?"
+      },
+      "disabling": {
+        "jsx-text": "Disabling..."
+      },
+      "disable_all": {
+        "jsx-text": "Disable All"
+      },
+      "on": {
+        "jsx-text": "On"
+      },
+      "off": {
+        "jsx-text": "Off"
+      },
+      "never": {
+        "jsx-text": "never"
+      },
+      "disable_timer_heartbeat": {
+        "jsx-text": "Disable Timer Heartbeat"
+      },
+      "enable_timer_heartbeat": {
+        "jsx-text": "Enable Timer Heartbeat"
       }
     },
     "invitelanding": {
@@ -12933,7 +13118,8 @@
         "jsx-text": "\n                          Configure\n                        "
       },
       "enable": {
-        "jsx-text": "\n                              Enable\n                            "
+        "jsx-text": "\n                              Enable\n                            ",
+        "attr_title": "Enable"
       },
       "enter_the_npm_package_name_of_th": {
         "jsx-text": "\n                Enter the npm package name of the plugin you wish to install.\n              "
@@ -13005,7 +13191,8 @@
         "jsx-text": "Uninstall Plugin"
       },
       "uninstall": {
-        "attr_title": "Uninstall"
+        "attr_title": "Uninstall",
+        "jsx-text": "Uninstall"
       },
       "v": {
         "jsx-text": " · v"
@@ -13048,6 +13235,66 @@
       },
       "plugins": {
         "breadcrumb": "Plugins"
+      },
+      "first_party": {
+        "jsx-text": "First-party"
+      },
+      "example": {
+        "jsx-text": "Example"
+      },
+      "installing": {
+        "jsx-text": "Installing..."
+      },
+      "install": {
+        "jsx-text": "Install"
+      },
+      "open_settings": {
+        "jsx-text": "Open Settings"
+      },
+      "review": {
+        "jsx-text": "Review"
+      },
+      "no_description_provided": {
+        "jsx-text": "No description provided."
+      },
+      "disable": {
+        "attr_title": "Disable"
+      },
+      "uninstalling": {
+        "jsx-text": "Uninstalling..."
+      },
+      "plugin": {
+        "jsx-text": "Plugin"
+      },
+      "no_error_summary_available": {
+        "jsx-text": "No error summary available."
+      },
+      "no_stored_error_message": {
+        "jsx-text": "No stored error message."
+      },
+      "plugin_status": {
+        "ready": "ready",
+        "error": "error",
+        "disabled": "disabled",
+        "installing": "installing"
+      },
+      "bundled_description": {
+        "paperclipai_plugin_cloudflare_sandbox": "First-party sandbox provider plugin that provisions Cloudflare sandboxes through an operator-deployed Worker bridge.",
+        "paperclipai_plugin_daytona": "First-party sandbox provider plugin that provisions Daytona sandboxes as Paperclip execution environments.",
+        "paperclipai_plugin_e2b": "First-party sandbox provider plugin that provisions E2B cloud sandboxes as Paperclip execution environments.",
+        "paperclipai_plugin_exe_dev": "Sandbox provider plugin that provisions exe.dev VMs as Paperclip execution environments.",
+        "paperclipai_plugin_fake_sandbox": "First-party deterministic sandbox provider plugin for exercising Paperclip provider-plugin integration without external infrastructure.",
+        "paperclipai_plugin_llm_wiki": "Local-file LLM Wiki plugin for source ingestion, wiki browsing, query, lint, and maintenance workflows.",
+        "paperclipai_plugin_modal": "First-party sandbox provider plugin that provisions Modal sandboxes as Paperclip execution environments."
+      },
+      "bundled_name": {
+        "paperclipai_plugin_cloudflare_sandbox": "Cloudflare Sandbox Provider",
+        "paperclipai_plugin_daytona": "Daytona Sandbox Provider",
+        "paperclipai_plugin_e2b": "E2B Sandbox Provider",
+        "paperclipai_plugin_exe_dev": "exe.dev Sandbox Provider",
+        "paperclipai_plugin_fake_sandbox": "Fake Sandbox Provider",
+        "paperclipai_plugin_llm_wiki": "LLM Wiki",
+        "paperclipai_plugin_modal": "Modal Sandbox Provider"
       }
     },
     "pluginpage": {
@@ -13321,6 +13568,24 @@
       },
       "failed_to_remove_avatar": {
         "error": "Failed to remove avatar."
+      },
+      "stored_in_paperclip_file_storage": {
+        "text": "Stored in Paperclip file storage for {{companyName}}."
+      },
+      "select_a_company_to_upload_avatar": {
+        "text": "Select a company to upload an avatar into Paperclip storage."
+      },
+      "change_photo": {
+        "jsx-text": "Change photo"
+      },
+      "upload_photo": {
+        "jsx-text": "Upload photo"
+      },
+      "saving": {
+        "jsx-text": "Saving..."
+      },
+      "save_profile": {
+        "jsx-text": "Save profile"
       }
     },
     "projectdetail": {
