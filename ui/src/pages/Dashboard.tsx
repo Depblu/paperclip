@@ -225,7 +225,7 @@ const { t } = useTranslation();
                 <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
                 <div>
                   <p className="text-sm font-medium text-red-50">
-                    {data.budgets.activeIncidents} {t("pages.dashboard.active_budget_incident.jsx-text", { defaultValue: " active budget incident" })}{data.budgets.activeIncidents === 1 ? "" : "s"}
+                    {data.budgets.activeIncidents} {t("pages.dashboard.active_budget_incident.jsx-text", { defaultValue: " active budget incident" })}{data.budgets.activeIncidents === 1 ? "" : t("pages.dashboard.active_budget_incident_plural_suffix.jsx-text", { defaultValue: "s" })}
                   </p>
                   <p className="text-xs text-red-100/70">
                     {data.budgets.pausedAgents} {t("pages.dashboard.agents_paused.jsx-text", { defaultValue: " agents paused · " })}{data.budgets.pausedProjects} {t("pages.dashboard.projects_paused.jsx-text", { defaultValue: " projects paused · " })}{data.budgets.pendingApprovals} {t("pages.dashboard.pending_budget_approvals.jsx-text", { defaultValue: " pending budget approvals\n                  " })}</p>
@@ -257,7 +257,7 @@ const { t } = useTranslation();
               description={
                 <span>
                   {data.tasks.open} {t("pages.dashboard.open.jsx-text", { defaultValue: " open" })}{", "}
-                  {data.tasks.blocked} blocked
+                  {data.tasks.blocked} {t("pages.dashboard.blocked.jsx-text", { defaultValue: " blocked" })}
                 </span>
               }
             />

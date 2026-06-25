@@ -160,28 +160,30 @@ status 流转: pending → approved_by_manager → fulfilled 或 denied
 
 ### Sprint 1: W1-W2 — 搭骨架
 
-**Week 1: 基础设施 + 认证 + 数据模型**
+**Week 1: 基础设施 + 认证 + 数据模型** ✅
 
-- [ ] Next.js 项目脚手架, Tailwind + shadcn/ui 配置
-- [ ] Turso 数据库初始化, Drizzle schema 定义全部实体
-- [ ] Auth.js 集成 (credentials provider), 注册/登录/登出页面
-- [ ] 组织创建流程（管理员注册即建组织）
-- [ ] 扁平 RBAC middleware + session 注入
-- [ ] AuditLog middleware (Drizzle hook)
-- [ ] Vercel 部署 + 自定义域名 + HTTPS
-- [ ] Sentry 集成 + 基础错误边界
+- [x] Next.js 项目脚手架, Tailwind CSS v4 配置, Tailwind 主题系统
+- [x] Turso/SQLite 数据库初始化, Drizzle schema 定义全部实体 (users, orgs, invitations, audit_logs)
+- [x] Auth.js v5 集成 (credentials provider), 注册/登录/登出页面
+- [x] 组织创建流程（管理员注册即建组织）
+- [x] 扁平 RBAC middleware + session 注入 (admin/manager/user)
+- [x] AuditLog — 注册时写入审计日志
+- [ ] Vercel 部署 + 自定义域名 + HTTPS (待部署)
+- [x] Sentry 集成配置 + 全局错误边界
 
-**Week 2: 基础 UI + 用户管理**
+**Week 2: 基础 UI + 用户管理** ✅
 
-- [ ] 用户邀请流程（admin 发送 invite email → 用户接收 → 注册加入组织）
-- [ ] 组织设置页面（基本信息）
-- [ ] 基础布局 (Sidebar + Topbar), 导航
-- [ ] 用户管理页面（查看/禁用成员）
-- [ ] Playwright 冒烟测试: 注册 → 登录 → 邀请 → 退出
-- [ ] GitHub Actions CI (lint + test + build)
-- [ ] PostHog 集成 (产品分析)
+- [x] 用户邀请流程（admin 发送 invite → 创建 invitation 记录, 7天过期）
+- [x] 组织设置页面（查看/编辑组织名称）
+- [x] 基础布局 (Sidebar + Topbar), 导航
+- [x] 用户管理页面（查看成员列表, admin 可禁用/启用）
+- [x] Playwright 冒烟测试: 注册 → 登录 → 邀请 → 退出 (3 tests, all pass)
+- [x] GitHub Actions CI (lint + test + build) — 配置完成, 生产构建已验证通过
+- [x] PostHog 集成 (客户端 + 服务端, pageview 追踪)
 
-**W2 末可见 demo**: admin 注册, 邀请成员, 成员登录, 看到空组织首页。
+**W2 末可见 demo**: admin 注册, 邀请成员, 成员登录, 看到空组织首页 ✅
+
+**W2 已知问题**: Vercel 部署待完成 (需域名配置); shadcn/ui 未安装 (使用 tailwind 原生组件 + 自定义主题)。
 
 ---
 

@@ -123,7 +123,7 @@
     }
   },
   "nav": {
-    "dashboard": "看板",
+    "dashboard": "仪表盘",
     "agents": "智能体",
     "projects": "项目",
     "issues": "任务",
@@ -282,6 +282,9 @@
     "activeagentspanel": {
       "agents": {
         "jsx-text": "智能体"
+      },
+      "no_recent_agent_runs": {
+        "jsx-text": "暂无最近智能体运行。"
       },
       "more_active_recent_run": {
         "jsx-text": " more active/recent run"
@@ -1111,7 +1114,7 @@
         "jsx-text": "\n           创建 new task\n            "
       },
       "dashboard": {
-        "jsx-text": "\n            Dashboard\n          "
+        "jsx-text": "\n            仪表盘\n          "
       },
       "goals": {
         "jsx-text": "\n            Goals\n          "
@@ -5703,7 +5706,7 @@
         "attr_label": "成本"
       },
       "dashboard": {
-        "attr_label": "看板"
+        "attr_label": "仪表盘"
       },
       "goals": {
         "attr_label": "目标"
@@ -7383,8 +7386,8 @@
         "tab_label": "预算"
       },
       "dashboard": {
-        "breadcrumb": "看板",
-        "tab_label": "看板"
+        "breadcrumb": "仪表盘",
+        "tab_label": "仪表盘"
       },
       "skills": {
         "tab_label": "技能"
@@ -9989,19 +9992,22 @@
     },
     "dashboard": {
       "active_budget_incident": {
-        "jsx-text": " active budget incident"
+        "jsx-text": " 个活跃预算事件"
+      },
+      "active_budget_incident_plural_suffix": {
+        "jsx-text": ""
       },
       "agents_enabled": {
         "attr_label": "已启用的智能体"
       },
       "agents_paused": {
-        "jsx-text": " agents paused · "
+        "jsx-text": " 个智能体已暂停 · "
       },
       "create_one_here": {
-        "jsx-text": "\n           创建 one here\n          "
+        "jsx-text": "\n            在这里创建一个\n          "
       },
       "errors": {
-        "jsx-text": " errors\n                "
+        "jsx-text": " 个错误\n                "
       },
       "middot": {
         "jsx-text": "·"
@@ -10010,25 +10016,28 @@
         "attr_label": "本月支出"
       },
       "no_tasks_yet": {
-        "jsx-text": "No tasks yet."
+        "jsx-text": "暂无任务。"
       },
       "open_budgets": {
-        "jsx-text": "\n                Open budgets\n              "
+        "jsx-text": "\n                打开预算\n              "
       },
       "open": {
-        "jsx-text": " open"
+        "jsx-text": " 个待处理"
+      },
+      "blocked": {
+        "jsx-text": " 个已阻塞"
       },
       "paused": {
-        "jsx-text": " paused"
+        "jsx-text": " 个已暂停"
       },
       "pending_approvals": {
         "attr_label": "待审批"
       },
       "pending_budget_approvals": {
-        "jsx-text": " pending budget approvals\n                  "
+        "jsx-text": " 个预算审批待处理\n                  "
       },
       "projects_paused": {
-        "jsx-text": " projects paused · "
+        "jsx-text": " 个项目已暂停 · "
       },
       "recent_activity": {
         "jsx-text": "\n                  最近活动\n                "
@@ -10040,7 +10049,7 @@
         "attr_title": "运行活动"
       },
       "running": {
-        "jsx-text": " running"
+        "jsx-text": " 个运行中"
       },
       "success_rate": {
         "attr_title": "成功率"
@@ -10055,7 +10064,7 @@
         "attr_label": "进行中任务"
       },
       "you_have_no_agents": {
-        "jsx-text": "\n              You have无 agents.\n            "
+        "jsx-text": "\n              你还没有智能体。\n            "
       },
       "percent_of_budget": {
         "jsx-text": "{{budget}} 预算的 {{percent}}%"
@@ -10064,22 +10073,22 @@
         "jsx-text": "无限预算"
       },
       "budget_overrides_awaiting_boar": {
-        "jsx-text": "{{count}} 个预算覆盖待看板 review"
+        "jsx-text": "{{count}} 个预算覆盖等待审核"
       },
       "awaiting_board_review": {
-        "jsx-text": "等待看板 review"
+        "jsx-text": "等待审核"
       },
       "last_14_days": {
         "attr_subtitle": "最近 14 天"
       },
       "welcome_to_paperclip_set_up": {
-        "jsx-text": "欢迎使用 Paperclip。设置第一个公司和 agent 以开始使用。"
+        "jsx-text": "欢迎使用 Paperclip。设置第一个公司和智能体即可开始。"
       },
       "get_started": {
         "jsx-text": "开始"
       },
       "create_or_select_a_company_t": {
-        "jsx-text": "创建或选择公司以查看看板。"
+        "jsx-text": "创建或选择公司以查看仪表盘。"
       },
       "dashboard": {
         "breadcrumb": "仪表盘"
@@ -10093,8 +10102,8 @@
         "jsx-text": "\n            Active runs first, followed by the most recent completed runs.\n          "
       },
       "dashboard": {
-        "jsx-text": "\n            Dashboard\n          ",
-        "breadcrumb": "看板"
+        "jsx-text": "\n            仪表盘\n          ",
+        "breadcrumb": "仪表盘"
       },
       "live_agent_runs": {
         "jsx-text": "Live agent runs"
@@ -10342,7 +10351,7 @@
         "jsx-text": "⌘D"
       },
       "dashboard": {
-        "jsx-text": "\n                  Dashboard\n                "
+        "jsx-text": "\n                  仪表盘\n                "
       },
       "default_input": {
         "attr_placeholder": "Default input"

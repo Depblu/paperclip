@@ -283,6 +283,9 @@
       "agents": {
         "jsx-text": "Agents"
       },
+      "no_recent_agent_runs": {
+        "jsx-text": "No recent agent runs."
+      },
       "more_active_recent_run": {
         "jsx-text": " more active/recent run"
       },
@@ -9991,6 +9994,9 @@
       "active_budget_incident": {
         "jsx-text": " active budget incident"
       },
+      "active_budget_incident_plural_suffix": {
+        "jsx-text": "s"
+      },
       "agents_enabled": {
         "attr_label": "Agents Enabled"
       },
@@ -10017,6 +10023,9 @@
       },
       "open": {
         "jsx-text": " open"
+      },
+      "blocked": {
+        "jsx-text": " blocked"
       },
       "paused": {
         "jsx-text": " paused"

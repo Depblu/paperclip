@@ -79,12 +79,13 @@ export function ActiveAgentsPanel({
   cardLimit = DASHBOARD_RUN_CARD_LIMIT,
   gridClassName,
   cardClassName,
-  emptyMessage = "No recent agent runs.",
+  emptyMessage,
   queryScope = "dashboard",
   showMoreLink = true,
 }: ActiveAgentsPanelProps) {
 const { t } = useTranslation();
   const heading = title ?? t("components.activeagentspanel.agents.jsx-text", { defaultValue: "Agents" });
+  const resolvedEmptyMessage = emptyMessage ?? t("components.activeagentspanel.no_recent_agent_runs.jsx-text", { defaultValue: "No recent agent runs." });
 
   const { data: liveRuns } = useQuery({
     queryKey: [...queryKeys.liveRuns(companyId), queryScope, { minRunCount, fetchLimit }],
@@ -133,7 +134,7 @@ const { t } = useTranslation();
       </h3>
       {runs.length === 0 ? (
         <div className="rounded-xl border border-border p-4">
-          <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+          <p className="text-sm text-muted-foreground">{resolvedEmptyMessage}</p>
         </div>
       ) : (
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4", gridClassName)}>
