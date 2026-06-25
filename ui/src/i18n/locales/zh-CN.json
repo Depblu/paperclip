@@ -1616,66 +1616,57 @@
       }
     },
     "financebillercard": {
-      "across": {
-        "jsx-text": " across "
-      },
       "credits": {
-        "jsx-text": "credits"
+        "jsx-text": "贷记"
       },
       "debits": {
-        "jsx-text": "debits"
+        "jsx-text": "借记"
       },
       "estimated": {
-        "jsx-text": "estimated"
+        "jsx-text": "预估"
       },
-      "event": {
-        "jsx-text": " event"
-      },
-      "kind": {
-        "jsx-text": " kind"
+      "event_kind_count": {
+        "jsx-text": "{{eventCount}} 个事件，共 {{kindCount}} 种类型"
       },
       "net": {
-        "jsx-text": "net"
+        "jsx-text": "净额"
       }
     },
     "financekindcard": {
       "account_level_charges_grouped_by": {
-        "jsx-text": "Account-level charges grouped by event kind."
-      },
-      "biller": {
-        "jsx-text": " biller"
+        "jsx-text": "按事件类型分组的账户级费用。"
       },
       "debits": {
-        "jsx-text": " debits\n                "
+        "jsx-text": " 借记\n                "
       },
-      "event": {
-        "jsx-text": " event"
+      "event_biller_count": {
+        "jsx-text": "{{eventCount}} 个事件 · {{billerCount}} 个计费方"
       },
       "financial_event_mix": {
-        "jsx-text": "Financial event mix"
+        "jsx-text": "财务事件构成"
       },
       "no_finance_events_in_this_period": {
-        "jsx-text": "No finance events in this period."
+        "jsx-text": "此周期内没有财务事件。"
       }
     },
     "financetimelinecard": {
       "estimated": {
-        "jsx-text": "estimated"
+        "jsx-text": "预估"
       },
       "invoice": {
-        "jsx-text": "invoice "
+        "jsx-text": "发票 "
       },
       "recent_financial_events": {
-        "jsx-text": "Recent financial events"
+        "jsx-text": "最近财务事件"
       },
       "region": {
-        "jsx-text": "region "
+        "jsx-text": "区域 "
       },
       "tier": {
-        "jsx-text": "tier "
+        "jsx-text": "层级 "
       },
       "top_ups_fees_credits_commitments": {
-        "jsx-text": "Top-ups, fees, credits, commitments, and other non-request charges."
+        "jsx-text": "充值、费用、额度、承诺消费和其他非请求级费用。"
       }
     },
     "goalproperties": {
@@ -9536,144 +9527,162 @@
         "jsx-expr": " · "
       },
       "account_level_charges_that_do_no": {
-        "jsx-text": "\n          Account-level charges that do not map to a single inference request.\n        "
+        "jsx-text": "\n          不对应单次推理请求的账户级费用。\n        "
       },
       "account_level_financial_events_g": {
-        "jsx-text": "Account-level financial events grouped by who charged or credited them."
+        "jsx-text": "按扣费或入账方分组的账户级财务事件。"
       },
       "active_incidents": {
-        "attr_label": "Active incidents",
-        "jsx-text": "Active incidents"
+        "attr_label": "活跃事件",
+        "jsx-text": "活跃事件"
       },
       "all_billers": {
-        "jsx-text": "All billers"
+        "jsx-text": "所有计费方"
+      },
+      "all_time": {
+        "jsx-text": "全部时间"
       },
       "all_providers": {
-        "jsx-text": "All providers"
+        "jsx-text": "所有供应商"
+      },
+      "api_run_count": {
+        "jsx-text": "{{count}} 次 API"
       },
       "billers": {
-        "jsx-text": "Billers"
+        "jsx-text": "计费方"
       },
       "budget_control_plane": {
-        "jsx-text": "Budget control plane"
+        "jsx-text": "预算控制面板"
       },
       "budget": {
-        "attr_label": "Budget"
+        "attr_label": "预算"
       },
       "budgets": {
-        "jsx-text": "Budgets"
+        "jsx-text": "预算"
       },
       "by_agent": {
-        "jsx-text": "By agent"
+        "jsx-text": "按智能体"
       },
       "by_biller": {
-        "jsx-text": "By biller"
+        "jsx-text": "按计费方"
       },
       "by_project": {
-        "jsx-text": "By project"
+        "jsx-text": "按项目"
       },
       "costs": {
         "jsx-text": "成本",
         "breadcrumb": "成本"
       },
       "credits": {
-        "attr_label": "Credits"
+        "attr_label": "贷记"
+      },
+      "custom": {
+        "jsx-text": "自定义"
       },
       "debits": {
-        "attr_label": "Debits"
+        "attr_label": "借记"
       },
       "estimated": {
-        "attr_label": "Estimated"
+        "attr_label": "预估"
       },
       "finance_events": {
-        "attr_label": "Finance events"
+        "attr_label": "财务事件"
       },
       "finance_ledger": {
-        "jsx-text": "Finance ledger"
+        "jsx-text": "财务账本"
       },
       "finance_net": {
-        "attr_label": "Finance net"
+        "attr_label": "财务净额"
       },
       "finance": {
-        "jsx-text": "Finance"
+        "jsx-text": "财务"
       },
       "hard_stop_spend_limits_for_agent": {
-        "jsx-text": "\n                    Hard-stop spend limits for agents and projects. Provider subscription quota stays separate and appears under Providers.\n                  "
+        "jsx-text": "\n                    智能体和项目的硬停止支出上限。供应商订阅额度单独统计，并显示在供应商下。\n                  "
       },
       "in": {
-        "jsx-text": "\n                                  in "
+        "jsx-text": "\n                                  输入 "
       },
       "inference_ledger": {
-        "jsx-text": "Inference ledger"
+        "jsx-text": "推理账本"
       },
       "inference_spend_platform_fees_cr": {
-        "jsx-text": "\n                  Inference spend, platform fees, credits, and live quota windows.\n                "
+        "jsx-text": "\n                  推理支出、平台费用、额度和实时配额窗口。\n                "
       },
       "inference_spend": {
-        "attr_label": "Inference spend"
+        "attr_label": "推理支出"
+      },
+      "last_30_days": {
+        "jsx-text": "最近 30 天"
+      },
+      "last_7_days": {
+        "jsx-text": "最近 7 天"
+      },
+      "month_to_date": {
+        "jsx-text": "本月至今"
       },
       "net": {
-        "attr_label": "Net"
+        "attr_label": "净额"
       },
       "no_billable_events_in_this_perio": {
-        "jsx-text": "No billable events in this period."
+        "jsx-text": "此周期内没有可计费事件。"
       },
       "no_budget_policies_yet_set_agent": {
-        "jsx-text": "\n                     无 budget policies yet. Set agent and project budgets from their detail pages, or use the existing company monthly budget control.\n                    "
+        "jsx-text": "\n                      暂无预算策略。可在智能体和项目详情页设置预算，或使用现有公司月度预算控制。\n                    "
       },
       "no_cost_events_in_this_period": {
-        "jsx-text": "No cost events in this period."
+        "jsx-text": "此周期内没有成本事件。"
       },
       "no_cost_events_yet": {
-        "jsx-text": "No cost events yet."
+        "jsx-text": "暂无成本事件。"
       },
       "no_finance_events_yet": {
-        "jsx-text": "No finance events yet."
+        "jsx-text": "暂无财务事件。"
       },
       "no_project_attributed_run_costs_": {
-        "jsx-text": "No project-attributed run costs yet."
+        "jsx-text": "暂无归属到项目的运行成本。"
       },
       "of_monthly_budget_consumed_in_th": {
-        "jsx-text": "% of monthly budget consumed in this range.\n                        "
+        "jsx-text": "% 的月度预算已在此区间消耗。\n                        "
       },
       "out": {
-        "jsx-text": " · out "
+        "jsx-text": " · 输出 "
       },
       "overview": {
         "jsx-text": "概览"
       },
       "paused_agents": {
-        "attr_label": "Paused agents"
+        "attr_label": "已暂停智能体"
       },
       "paused_projects": {
-        "attr_label": "Paused projects"
+        "attr_label": "已暂停项目"
       },
       "pending_approvals": {
         "attr_label": "待审批"
       },
       "providers": {
-        "jsx-text": "Providers"
+        "jsx-text": "供应商"
       },
       "request_scoped_inference_spend_f": {
-        "jsx-text": "\n                      Request-scoped inference spend for the selected period.\n                    "
+        "jsx-text": "\n                      所选周期内按请求统计的推理支出。\n                    "
       },
       "resolve_hard_stops_here_by_raisi": {
-        "jsx-text": "\n                      Resolve hard stops here by raising the budget or explicitly keeping the scope paused.\n                    "
+        "jsx-text": "\n                      可在此通过提高预算或明确保持范围暂停来处理硬停止。\n                    "
       },
       "run_costs_attributed_through_pro": {
-        "jsx-text": "Run costs attributed through project-linked tasks."
+        "jsx-text": "通过已关联项目的任务归属运行成本。"
       },
       "select_a_start_and_end_date_to_l": {
-        "jsx-text": "Select a start and end date to load data."
+        "jsx-text": "选择开始和结束日期以加载数据。"
       },
       "tok": {
-        "jsx-text": " tok\n                                        "
+        "jsx-text": " token\n                                        "
       },
       "usage": {
-        "jsx-text": "usage"
+        "jsx-text": "用量"
       },
       "what_each_agent_consumed_in_the_": {
-        "jsx-text": "What each agent consumed in the selected period."
+        "jsx-text": "所选周期内各智能体的消耗。"
       },
       "select_a_company_to_view_costs": {
         "jsx-text": "选择公司以查看成本。"
@@ -9688,7 +9697,7 @@
         "jsx-text": "开放"
       },
       "agents_projects_paused": {
-        "jsx-text": "{{agents}} 个 agent 已暂停 · {{projects}} 个项目已暂停"
+        "jsx-text": "{{agents}} 个智能体已暂停 · {{projects}} 个项目已暂停"
       },
       "spend_of_budget": {
         "jsx-text": "{{spend}} / {{budget}}"
@@ -9709,7 +9718,7 @@
         "jsx-text": "无限预算"
       },
       "no_finance_events_yet_add_acco": {
-        "jsx-text": "暂无财务事件。收到 biller 发票或额度后，可添加账户级费用。"
+        "jsx-text": "暂无财务事件。收到计费方发票或额度后，可添加账户级费用。"
       },
       "open_soft_or_hard_threshold": {
         "jsx-text": "打开的软阈值或硬阈值事件"
@@ -9718,7 +9727,7 @@
         "jsx-text": "等待看板处理的预算覆盖审批"
       },
       "agent_heartbeats_blocked_by_b": {
-        "jsx-text": "因预算阻止的 agent 心跳"
+        "jsx-text": "因预算阻止的智能体心跳"
       },
       "project_execution_blocked_by_": {
         "jsx-text": "因预算阻止的项目执行"
@@ -9734,6 +9743,15 @@
       },
       "estimated_debits_that_are_no": {
         "jsx-text": "尚未由发票确认的预估借记"
+      },
+      "subscription_run_count": {
+        "jsx-text": "{{count}} 次订阅"
+      },
+      "unattributed": {
+        "jsx-text": "未归属"
+      },
+      "year_to_date": {
+        "jsx-text": "今年至今"
       }
     },
     "dashboard": {
@@ -12725,24 +12743,24 @@
     },
     "orgchart": {
       "export_company": {
-        "jsx-text": "\n            Export company\n          "
+        "jsx-text": "\n            导出公司\n          "
       },
       "fit_chart_to_screen": {
-        "attr_aria-label": "Fit chart to screen"
+        "attr_aria-label": "适配组织图到屏幕"
       },
       "fit_to_screen": {
-        "attr_title": "Fit to screen"
+        "attr_title": "适配到屏幕"
       },
       "import_company": {
-        "jsx-text": "\n            Import company\n          "
+        "jsx-text": "\n            导入公司\n          "
       },
       "zoom_in": {
-        "attr_aria-label": "Zoom in",
-        "attr_title": "Zoom in"
+        "attr_aria-label": "放大",
+        "attr_title": "放大"
       },
       "zoom_out": {
-        "attr_aria-label": "Zoom out",
-        "attr_title": "Zoom out"
+        "attr_aria-label": "缩小",
+        "attr_title": "缩小"
       },
       "select_a_company_to_view_the_o": {
         "jsx-text": "选择公司以查看组织图。"
@@ -15382,6 +15400,74 @@
         "suffix": "，另有 {{count}} 个"
       }
     },
+    "utils": {
+      "billing_type_metered_api": {
+        "label": "按量 API"
+      },
+      "billing_type_subscription_included": {
+        "label": "订阅"
+      },
+      "billing_type_subscription_overage": {
+        "label": "订阅超额"
+      },
+      "billing_type_credits": {
+        "label": "额度"
+      },
+      "billing_type_fixed": {
+        "label": "固定费用"
+      },
+      "billing_type_unknown": {
+        "label": "未知"
+      },
+      "finance_event_kind_inference_charge": {
+        "label": "推理费用"
+      },
+      "finance_event_kind_platform_fee": {
+        "label": "平台费用"
+      },
+      "finance_event_kind_credit_purchase": {
+        "label": "额度购买"
+      },
+      "finance_event_kind_credit_refund": {
+        "label": "额度退款"
+      },
+      "finance_event_kind_credit_expiry": {
+        "label": "额度过期"
+      },
+      "finance_event_kind_byok_fee": {
+        "label": "BYOK 费用"
+      },
+      "finance_event_kind_gateway_overhead": {
+        "label": "网关开销"
+      },
+      "finance_event_kind_log_storage_charge": {
+        "label": "日志存储"
+      },
+      "finance_event_kind_logpush_charge": {
+        "label": "Logpush"
+      },
+      "finance_event_kind_provisioned_capacity_charge": {
+        "label": "预置容量"
+      },
+      "finance_event_kind_training_charge": {
+        "label": "训练"
+      },
+      "finance_event_kind_custom_model_import_charge": {
+        "label": "自定义模型导入"
+      },
+      "finance_event_kind_custom_model_storage_charge": {
+        "label": "自定义模型存储"
+      },
+      "finance_event_kind_manual_adjustment": {
+        "label": "手动调整"
+      },
+      "finance_direction_credit": {
+        "label": "贷记"
+      },
+      "finance_direction_debit": {
+        "label": "借记"
+      }
+    },
     "trustpolicyui": {
       "project_boundary": "项目 {{id}}",
       "root_issue_boundary": "根任务 {{id}}",
@@ -15761,6 +15847,12 @@
       },
       "http": {
         "description": "内部 HTTP 适配器"
+      },
+      "local": {
+        "suffix": "本地"
+      },
+      "gateway": {
+        "suffix": "网关"
       },
       "external_with_suffix": {
         "description": "外部 {{suffix}} 适配器"

@@ -39,9 +39,9 @@ const { t } = useTranslation();
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">{financeEventKindDisplayName(row.eventKind)}</Badge>
+                    <Badge variant="secondary">{financeEventKindDisplayName(row.eventKind, t)}</Badge>
                     <Badge variant={row.direction === "credit" ? "outline" : "secondary"}>
-                      {financeDirectionDisplayName(row.direction)}
+                      {financeDirectionDisplayName(row.direction, t)}
                     </Badge>
                     <span className="text-xs text-muted-foreground">{formatDateTime(row.occurredAt)}</span>
                   </div>

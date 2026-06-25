@@ -602,7 +602,7 @@ const { t } = useTranslation();
                     </span>
                     {agent && (
                       <span className="text-[10px] text-muted-foreground/60 font-mono leading-tight mt-1">
-                        {getAdapterLabel(agent.adapterType)}
+                        {getAdapterLabel(agent.adapterType, t)}
                       </span>
                     )}
                     {agent && agent.capabilities && (

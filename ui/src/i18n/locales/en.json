@@ -1616,9 +1616,6 @@
       }
     },
     "financebillercard": {
-      "across": {
-        "jsx-text": " across "
-      },
       "credits": {
         "jsx-text": "credits"
       },
@@ -1628,11 +1625,8 @@
       "estimated": {
         "jsx-text": "estimated"
       },
-      "event": {
-        "jsx-text": " event"
-      },
-      "kind": {
-        "jsx-text": " kind"
+      "event_kind_count": {
+        "jsx-text": "Events: {{eventCount}} · Kinds: {{kindCount}}"
       },
       "net": {
         "jsx-text": "net"
@@ -1642,14 +1636,11 @@
       "account_level_charges_grouped_by": {
         "jsx-text": "Account-level charges grouped by event kind."
       },
-      "biller": {
-        "jsx-text": " biller"
-      },
       "debits": {
         "jsx-text": " debits\n                "
       },
-      "event": {
-        "jsx-text": " event"
+      "event_biller_count": {
+        "jsx-text": "Events: {{eventCount}} · Billers: {{billerCount}}"
       },
       "financial_event_mix": {
         "jsx-text": "Financial event mix"
@@ -9548,8 +9539,14 @@
       "all_billers": {
         "jsx-text": "All billers"
       },
+      "all_time": {
+        "jsx-text": "All Time"
+      },
       "all_providers": {
         "jsx-text": "All providers"
+      },
+      "api_run_count": {
+        "jsx-text": "{{count}} api"
       },
       "billers": {
         "jsx-text": "Billers"
@@ -9578,6 +9575,9 @@
       },
       "credits": {
         "attr_label": "Credits"
+      },
+      "custom": {
+        "jsx-text": "Custom"
       },
       "debits": {
         "attr_label": "Debits"
@@ -9611,6 +9611,15 @@
       },
       "inference_spend": {
         "attr_label": "Inference spend"
+      },
+      "last_30_days": {
+        "jsx-text": "Last 30 Days"
+      },
+      "last_7_days": {
+        "jsx-text": "Last 7 Days"
+      },
+      "month_to_date": {
+        "jsx-text": "Month to Date"
       },
       "net": {
         "attr_label": "Net"
@@ -9692,6 +9701,15 @@
       },
       "spend_of_budget": {
         "jsx-text": "{{spend}} of {{budget}}"
+      },
+      "subscription_run_count": {
+        "jsx-text": "{{count}} subscription"
+      },
+      "unattributed": {
+        "jsx-text": "Unattributed"
+      },
+      "year_to_date": {
+        "jsx-text": "Year to Date"
       },
       "no_monthly_cap_configured": {
         "jsx-text": "No monthly cap configured"
@@ -15382,6 +15400,74 @@
         "suffix": ", +{{count}} more"
       }
     },
+    "utils": {
+      "billing_type_metered_api": {
+        "label": "Metered API"
+      },
+      "billing_type_subscription_included": {
+        "label": "Subscription"
+      },
+      "billing_type_subscription_overage": {
+        "label": "Subscription overage"
+      },
+      "billing_type_credits": {
+        "label": "Credits"
+      },
+      "billing_type_fixed": {
+        "label": "Fixed"
+      },
+      "billing_type_unknown": {
+        "label": "Unknown"
+      },
+      "finance_event_kind_inference_charge": {
+        "label": "Inference charge"
+      },
+      "finance_event_kind_platform_fee": {
+        "label": "Platform fee"
+      },
+      "finance_event_kind_credit_purchase": {
+        "label": "Credit purchase"
+      },
+      "finance_event_kind_credit_refund": {
+        "label": "Credit refund"
+      },
+      "finance_event_kind_credit_expiry": {
+        "label": "Credit expiry"
+      },
+      "finance_event_kind_byok_fee": {
+        "label": "BYOK fee"
+      },
+      "finance_event_kind_gateway_overhead": {
+        "label": "Gateway overhead"
+      },
+      "finance_event_kind_log_storage_charge": {
+        "label": "Log storage"
+      },
+      "finance_event_kind_logpush_charge": {
+        "label": "Logpush"
+      },
+      "finance_event_kind_provisioned_capacity_charge": {
+        "label": "Provisioned capacity"
+      },
+      "finance_event_kind_training_charge": {
+        "label": "Training"
+      },
+      "finance_event_kind_custom_model_import_charge": {
+        "label": "Custom model import"
+      },
+      "finance_event_kind_custom_model_storage_charge": {
+        "label": "Custom model storage"
+      },
+      "finance_event_kind_manual_adjustment": {
+        "label": "Manual adjustment"
+      },
+      "finance_direction_credit": {
+        "label": "Credit"
+      },
+      "finance_direction_debit": {
+        "label": "Debit"
+      }
+    },
     "trustpolicyui": {
       "project_boundary": "Project {{id}}",
       "root_issue_boundary": "Root issue {{id}}",
@@ -15761,6 +15847,12 @@
       },
       "http": {
         "description": "Internal HTTP adapter"
+      },
+      "local": {
+        "suffix": "local"
+      },
+      "gateway": {
+        "suffix": "gateway"
       },
       "external_with_suffix": {
         "description": "External {{suffix}} adapter"

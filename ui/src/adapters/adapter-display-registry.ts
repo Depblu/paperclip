@@ -35,8 +35,19 @@ function getTypeSuffix(type: string): string | null {
   return null;
 }
 
-function withSuffix(label: string, suffix: string | null): string {
-  return suffix ? `${label} (${suffix})` : label;
+function suffixLabel(suffix: string, t: TranslateFn): string {
+  switch (suffix) {
+    case "local":
+      return t("adapters.display.local.suffix", { defaultValue: "local" });
+    case "gateway":
+      return t("adapters.display.gateway.suffix", { defaultValue: "gateway" });
+    default:
+      return suffix;
+  }
+}
+
+function withSuffix(label: string, suffix: string | null, t: TranslateFn = translate): string {
+  return suffix ? `${label} (${suffixLabel(suffix, t)})` : label;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,15 +187,15 @@ function humanizeType(type: string): string {
   return base.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function getAdapterLabel(type: string): string {
+export function getAdapterLabel(type: string, t: TranslateFn = translate): string {
   const base = adapterDisplayMap[type]?.label ?? humanizeType(type);
-  return withSuffix(base, getTypeSuffix(type));
+  return withSuffix(base, getTypeSuffix(type), t);
 }
 
-export function getAdapterLabels(): Record<string, string> {
+export function getAdapterLabels(t: TranslateFn = translate): Record<string, string> {
   const suffixed: Record<string, string> = {};
   for (const [type, info] of Object.entries(adapterDisplayMap)) {
-    suffixed[type] = withSuffix(info.label, getTypeSuffix(type));
+    suffixed[type] = withSuffix(info.label, getTypeSuffix(type), t);
   }
   return suffixed;
 }
@@ -202,7 +213,7 @@ export function getAdapterDisplay(type: string, t: TranslateFn = translate): Ada
     };
   }
 
-  const label = withSuffix(humanizeType(type), suffix);
+  const label = withSuffix(humanizeType(type), suffix, t);
   return {
     label,
     description: adapterDescription(type, suffix, t),

@@ -4,6 +4,8 @@ import { deriveAgentUrlKey, deriveProjectUrlKey, normalizeProjectUrlKey, hasNonA
 import type { BillingType, FinanceDirection, FinanceEventKind } from "@paperclipai/shared";
 import i18n from "i18next";
 
+type TranslateFn = typeof i18n.t;
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -135,14 +137,14 @@ export function providerDisplayName(provider: string): string {
   return map[provider.toLowerCase()] ?? provider;
 }
 
-export function billingTypeDisplayName(billingType: BillingType): string {
+export function billingTypeDisplayName(billingType: BillingType, t: TranslateFn = i18n.t): string {
   const map: Record<BillingType, string> = {
-    metered_api: "Metered API",
-    subscription_included: "Subscription",
-    subscription_overage: "Subscription overage",
-    credits: "Credits",
-    fixed: "Fixed",
-    unknown: "Unknown",
+    metered_api: t("lib.utils.billing_type_metered_api.label", { defaultValue: "Metered API" }),
+    subscription_included: t("lib.utils.billing_type_subscription_included.label", { defaultValue: "Subscription" }),
+    subscription_overage: t("lib.utils.billing_type_subscription_overage.label", { defaultValue: "Subscription overage" }),
+    credits: t("lib.utils.billing_type_credits.label", { defaultValue: "Credits" }),
+    fixed: t("lib.utils.billing_type_fixed.label", { defaultValue: "Fixed" }),
+    unknown: t("lib.utils.billing_type_unknown.label", { defaultValue: "Unknown" }),
   };
   return map[billingType];
 }
@@ -190,28 +192,30 @@ export function visibleRunCostUsd(
   return readRunCostUsd(usage) || readRunCostUsd(result);
 }
 
-export function financeEventKindDisplayName(eventKind: FinanceEventKind): string {
+export function financeEventKindDisplayName(eventKind: FinanceEventKind, t: TranslateFn = i18n.t): string {
   const map: Record<FinanceEventKind, string> = {
-    inference_charge: "Inference charge",
-    platform_fee: "Platform fee",
-    credit_purchase: "Credit purchase",
-    credit_refund: "Credit refund",
-    credit_expiry: "Credit expiry",
-    byok_fee: "BYOK fee",
-    gateway_overhead: "Gateway overhead",
-    log_storage_charge: "Log storage",
-    logpush_charge: "Logpush",
-    provisioned_capacity_charge: "Provisioned capacity",
-    training_charge: "Training",
-    custom_model_import_charge: "Custom model import",
-    custom_model_storage_charge: "Custom model storage",
-    manual_adjustment: "Manual adjustment",
+    inference_charge: t("lib.utils.finance_event_kind_inference_charge.label", { defaultValue: "Inference charge" }),
+    platform_fee: t("lib.utils.finance_event_kind_platform_fee.label", { defaultValue: "Platform fee" }),
+    credit_purchase: t("lib.utils.finance_event_kind_credit_purchase.label", { defaultValue: "Credit purchase" }),
+    credit_refund: t("lib.utils.finance_event_kind_credit_refund.label", { defaultValue: "Credit refund" }),
+    credit_expiry: t("lib.utils.finance_event_kind_credit_expiry.label", { defaultValue: "Credit expiry" }),
+    byok_fee: t("lib.utils.finance_event_kind_byok_fee.label", { defaultValue: "BYOK fee" }),
+    gateway_overhead: t("lib.utils.finance_event_kind_gateway_overhead.label", { defaultValue: "Gateway overhead" }),
+    log_storage_charge: t("lib.utils.finance_event_kind_log_storage_charge.label", { defaultValue: "Log storage" }),
+    logpush_charge: t("lib.utils.finance_event_kind_logpush_charge.label", { defaultValue: "Logpush" }),
+    provisioned_capacity_charge: t("lib.utils.finance_event_kind_provisioned_capacity_charge.label", { defaultValue: "Provisioned capacity" }),
+    training_charge: t("lib.utils.finance_event_kind_training_charge.label", { defaultValue: "Training" }),
+    custom_model_import_charge: t("lib.utils.finance_event_kind_custom_model_import_charge.label", { defaultValue: "Custom model import" }),
+    custom_model_storage_charge: t("lib.utils.finance_event_kind_custom_model_storage_charge.label", { defaultValue: "Custom model storage" }),
+    manual_adjustment: t("lib.utils.finance_event_kind_manual_adjustment.label", { defaultValue: "Manual adjustment" }),
   };
   return map[eventKind];
 }
 
-export function financeDirectionDisplayName(direction: FinanceDirection): string {
-  return direction === "credit" ? "Credit" : "Debit";
+export function financeDirectionDisplayName(direction: FinanceDirection, t: TranslateFn = i18n.t): string {
+  return direction === "credit"
+    ? t("lib.utils.finance_direction_credit.label", { defaultValue: "Credit" })
+    : t("lib.utils.finance_direction_debit.label", { defaultValue: "Debit" });
 }
 
 /** Build an issue URL using the human-readable identifier when available. */

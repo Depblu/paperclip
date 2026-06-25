@@ -27,7 +27,7 @@ import { ProviderQuotaCard } from "../components/ProviderQuotaCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCompany } from "../context/CompanyContext";
-import { useDateRange, PRESET_KEYS, PRESET_LABELS } from "../hooks/useDateRange";
+import { useDateRange, PRESET_KEYS, type DatePreset } from "../hooks/useDateRange";
 import { queryKeys } from "../lib/queryKeys";
 import { billingTypeDisplayName, cn, formatCents, formatTokens, providerDisplayName } from "../lib/utils";
 import { Button } from "@/components/ui/button";
@@ -176,6 +176,14 @@ const { t } = useTranslation();
     to,
     customReady,
   } = useDateRange();
+  const presetLabels: Record<DatePreset, string> = {
+    mtd: t("pages.costs.month_to_date.jsx-text", { defaultValue: "Month to Date" }),
+    "7d": t("pages.costs.last_7_days.jsx-text", { defaultValue: "Last 7 Days" }),
+    "30d": t("pages.costs.last_30_days.jsx-text", { defaultValue: "Last 30 Days" }),
+    ytd: t("pages.costs.year_to_date.jsx-text", { defaultValue: "Year to Date" }),
+    all: t("pages.costs.all_time.jsx-text", { defaultValue: "All Time" }),
+    custom: t("pages.costs.custom.jsx-text", { defaultValue: "Custom" }),
+  };
 
   useEffect(() => {
     setBreadcrumbs([{ label: t("pages.costs.costs.breadcrumb", { defaultValue: "Costs" }) }]);
@@ -564,7 +572,7 @@ const { t } = useTranslation();
                   size="sm"
                   onClick={() => setPreset(key)}
                 >
-                  {PRESET_LABELS[key]}
+                  {presetLabels[key]}
                 </Button>
               ))}
             </div>
@@ -758,11 +766,13 @@ const { t } = useTranslation();
                                 </div>
                                 {(row.apiRunCount > 0 || row.subscriptionRunCount > 0) ? (
                                   <div className="text-xs text-muted-foreground">
-                                    {row.apiRunCount > 0 ? `${row.apiRunCount} api` : "0 api"}
+                                    {row.apiRunCount > 0
+                                      ? t("pages.costs.api_run_count.jsx-text", { count: row.apiRunCount, defaultValue: "{{count}} api" })
+                                      : t("pages.costs.api_run_count.jsx-text", { count: 0, defaultValue: "{{count}} api" })}
                                     {t("pages.costs..jsx-expr", { defaultValue: " · " })}
                                     {row.subscriptionRunCount > 0
-                                      ? `${row.subscriptionRunCount} subscription`
-                                      : "0 subscription"}
+                                      ? t("pages.costs.subscription_run_count.jsx-text", { count: row.subscriptionRunCount, defaultValue: "{{count}} subscription" })
+                                      : t("pages.costs.subscription_run_count.jsx-text", { count: 0, defaultValue: "{{count}} subscription" })}
                                   </div>
                                 ) : null}
                               </div>
@@ -784,7 +794,7 @@ const { t } = useTranslation();
                                           <span className="font-mono">{modelRow.model}</span>
                                         </div>
                                         <div className="truncate text-muted-foreground">
-                                          {providerDisplayName(modelRow.biller)} · {billingTypeDisplayName(modelRow.billingType)}
+                                          {providerDisplayName(modelRow.biller)} · {billingTypeDisplayName(modelRow.billingType, t)}
                                         </div>
                                       </div>
                                       <div className="text-right tabular-nums">
@@ -822,7 +832,7 @@ const { t } = useTranslation();
                             key={row.projectId ?? `unattributed-${index}`}
                             className="flex items-center justify-between gap-3 border border-border px-3 py-2 text-sm"
                           >
-                            <span className="truncate">{row.projectName ?? row.projectId ?? "Unattributed"}</span>
+                            <span className="truncate">{row.projectName ?? row.projectId ?? t("pages.costs.unattributed.jsx-text", { defaultValue: "Unattributed" })}</span>
                             <span className="font-medium tabular-nums">{formatCents(row.costCents)}</span>
                           </div>
                         ))

@@ -17,7 +17,11 @@ const { t } = useTranslation();
           <div>
             <CardTitle className="text-base">{providerDisplayName(row.biller)}</CardTitle>
             <CardDescription className="mt-1 text-xs">
-              {row.eventCount} {t("components.financebillercard.event.jsx-text", { defaultValue: " event" })}{row.eventCount === 1 ? "" : "s"} {t("components.financebillercard.across.jsx-text", { defaultValue: " across " })}{row.kindCount} {t("components.financebillercard.kind.jsx-text", { defaultValue: " kind" })}{row.kindCount === 1 ? "" : "s"}
+              {t("components.financebillercard.event_kind_count.jsx-text", {
+                eventCount: row.eventCount,
+                kindCount: row.kindCount,
+                defaultValue: "Events: {{eventCount}} · Kinds: {{kindCount}}",
+              })}
             </CardDescription>
           </div>
           <div className="text-right">
