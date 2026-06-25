@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate, useNavigationType, useParams } from "@/lib/router";
@@ -46,6 +46,15 @@ import { NotFoundPage } from "../pages/NotFound";
 import { PluginSlotMount, resolveRouteSidebarSlot, usePluginSlots } from "../plugins/slots";
 
 const INSTANCE_SETTINGS_MEMORY_KEY = "paperclip.lastInstanceSettingsPath";
+const SIDEBAR_RAIL_WIDTH = 64;
+
+function SecondarySidebar({ children }: { children: ReactNode }) {
+  return (
+    <div data-secondary-sidebar="" className="h-full w-60 shrink-0 overflow-y-auto border-r border-border bg-background">
+      {children}
+    </div>
+  );
+}
 
 function getCompanyRouteSegment(pathname: string, companyPrefix: string | undefined): string | null {
   if (!companyPrefix) return null;
@@ -123,16 +132,22 @@ const { t } = useTranslation();
     }),
     [routeSidebarCompanyId, routeSidebarCompanyPrefix],
   );
-  const companySidebar = routeSidebarSlot ? (
+  const routeSidebar = routeSidebarSlot ? (
     <PluginSlotMount
       slot={routeSidebarSlot}
       context={sidebarContext}
       className="h-full w-full"
       missingBehavior="placeholder"
     />
+  ) : null;
+  const secondarySidebar = isInstanceSettingsRoute ? (
+    <InstanceSidebar />
+  ) : isCompanySettingsRoute ? (
+    <CompanySettingsSidebar />
   ) : (
-    <Sidebar />
+    routeSidebar
   );
+  const hasSecondarySidebar = secondarySidebar != null;
   const { data: health } = useQuery({
     queryKey: queryKeys.health,
     queryFn: () => healthApi.get(),
@@ -389,8 +404,10 @@ const { t } = useTranslation();
                   <InstanceSidebar />
                 ) : isCompanySettingsRoute ? (
                   <CompanySettingsSidebar />
+                ) : routeSidebar ? (
+                  routeSidebar
                 ) : (
-                  companySidebar
+                  <Sidebar />
                 )}
               </div>
             </div>
@@ -401,16 +418,18 @@ const { t } = useTranslation();
             />
           </div>
         ) : (
-          <div className="flex h-full flex-col shrink-0">
+          <div
+            className={cn("flex h-full flex-col shrink-0", hasSecondarySidebar && "overflow-hidden")}
+            style={hasSecondarySidebar ? { width: SIDEBAR_RAIL_WIDTH } : undefined}
+          >
             <div className="flex flex-1 min-h-0">
-              <ResizableSidebarPane open={sidebarOpen} resizable className="h-full shrink-0">
-                {isInstanceSettingsRoute ? (
-                  <InstanceSidebar />
-                ) : isCompanySettingsRoute ? (
-                  <CompanySettingsSidebar />
-                ) : (
-                  companySidebar
-                )}
+              <ResizableSidebarPane
+                open={sidebarOpen}
+                resizable={!hasSecondarySidebar}
+                className="h-full shrink-0"
+                fixedWidth={hasSecondarySidebar ? SIDEBAR_RAIL_WIDTH : undefined}
+              >
+                <Sidebar />
               </ResizableSidebarPane>
             </div>
             <SidebarAccountMenu
@@ -420,6 +439,10 @@ const { t } = useTranslation();
             />
           </div>
         )}
+
+        {!isMobile && hasSecondarySidebar ? (
+          <SecondarySidebar>{secondarySidebar}</SecondarySidebar>
+        ) : null}
 
         <div className={cn("flex min-w-0 flex-col", isMobile ? "w-full" : "h-full flex-1")}>
           <div

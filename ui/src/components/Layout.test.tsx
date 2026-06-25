@@ -326,9 +326,10 @@ describe("Layout", () => {
     await flushReact();
 
     expect(container.textContent).toContain("Company settings sidebar");
+    expect(container.textContent).toContain("Main company nav");
+    expect(container.querySelector("[data-secondary-sidebar]")).not.toBeNull();
     expect(container.textContent).not.toContain("Company rail");
     expect(container.textContent).not.toContain("Instance sidebar");
-    expect(container.textContent).not.toContain("Main company nav");
     expect(container.textContent).not.toContain("Plugin route sidebar");
 
     await act(async () => {
@@ -358,12 +359,14 @@ describe("Layout", () => {
     const selector = container.querySelector("select");
     expect(selector).not.toBeNull();
     expect(selector?.value).toBe("secrets");
-    expect(selector?.textContent).toContain("General");
-    expect(selector?.textContent).toContain("Environments");
-    expect(selector?.textContent).toContain("Cloud upstream");
-    expect(selector?.textContent).toContain("Members");
-    expect(selector?.textContent).toContain("Invites");
-    expect(selector?.textContent).toContain("Secrets");
+    expect(Array.from(selector?.querySelectorAll("option") ?? []).map((option) => option.value)).toEqual([
+      "general",
+      "environments",
+      "cloud-upstream",
+      "members",
+      "invites",
+      "secrets",
+    ]);
 
     await act(async () => {
       root.unmount();
@@ -388,9 +391,10 @@ describe("Layout", () => {
     await flushReact();
 
     expect(container.textContent).toContain("Instance sidebar");
+    expect(container.textContent).toContain("Main company nav");
+    expect(container.querySelector("[data-secondary-sidebar]")).not.toBeNull();
     expect(container.textContent).not.toContain("Company rail");
     expect(container.textContent).not.toContain("Company settings sidebar");
-    expect(container.textContent).not.toContain("Main company nav");
     expect(container.textContent).not.toContain("Plugin route sidebar");
 
     await act(async () => {
@@ -441,7 +445,7 @@ describe("Layout", () => {
 
     expect(container.textContent).toContain("Plugin route sidebar: Wiki Sidebar");
     expect(container.querySelector("[data-plugin-slot-class='h-full w-full']")).not.toBeNull();
-    expect(container.textContent).not.toContain("Main company nav");
+    expect(container.textContent).toContain("Main company nav");
     expect(container.textContent).not.toContain("Company settings sidebar");
     expect(container.textContent).not.toContain("Instance sidebar");
 
@@ -498,7 +502,7 @@ describe("Layout", () => {
       }),
     );
     expect(container.textContent).toContain("Plugin route sidebar: Wiki Sidebar");
-    expect(container.textContent).not.toContain("Main company nav");
+    expect(container.textContent).toContain("Main company nav");
 
     await act(async () => {
       root.unmount();
@@ -566,6 +570,7 @@ describe("Layout", () => {
       companyId: "company-1",
       companyPrefix: "PAP",
     });
+    expect(container.textContent).toContain("Main company nav");
 
     await act(async () => {
       root.unmount();

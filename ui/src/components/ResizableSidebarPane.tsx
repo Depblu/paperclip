@@ -50,6 +50,7 @@ type ResizableSidebarPaneProps = {
   resizable?: boolean;
   storageKey?: string;
   className?: string;
+  fixedWidth?: number;
 };
 
 export function ResizableSidebarPane({
@@ -58,6 +59,7 @@ export function ResizableSidebarPane({
   resizable = false,
   storageKey = "paperclip.sidebar.width",
   className,
+  fixedWidth,
 }: ResizableSidebarPaneProps) {
 const { t } = useTranslation();
 
@@ -72,7 +74,7 @@ const { t } = useTranslation();
     setWidth(storedWidth);
   }, [storageKey]);
 
-  const visibleWidth = open ? width : 0;
+  const visibleWidth = open ? fixedWidth ?? width : 0;
   const paneStyle = useMemo(
     () => ({ width: `${visibleWidth}px` }),
     [visibleWidth],
