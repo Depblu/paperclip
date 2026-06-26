@@ -402,6 +402,35 @@ describe("Layout", () => {
     });
   });
 
+  it("keeps the desktop app rail visible on instance settings routes when the sidebar is closed", async () => {
+    currentPathname = "/instance/settings/profile";
+    mockSidebarState.sidebarOpen = false;
+    const root = createRoot(container);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <Layout />
+        </QueryClientProvider>,
+      );
+    });
+    await flushReact();
+    await flushReact();
+
+    expect(container.textContent).toContain("Instance sidebar");
+    expect(container.textContent).toContain("Main company nav");
+    expect(container.querySelector("[data-secondary-sidebar]")).not.toBeNull();
+    expect(container.querySelector<HTMLElement>("[data-secondary-sidebar]")?.previousElementSibling).not.toBeNull();
+    expect((container.querySelector("[data-secondary-sidebar]")?.previousElementSibling as HTMLElement).style.width).toBe("64px");
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
   it("renders a route-scoped plugin sidebar for a matching plugin page route", async () => {
     currentPathname = "/PAP/wiki";
     mockPluginSlots.slots = [

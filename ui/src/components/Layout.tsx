@@ -74,7 +74,7 @@ function readRememberedInstanceSettingsPath(): string {
 }
 
 export function Layout() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { sidebarOpen, setSidebarOpen, toggleSidebar, isMobile } = useSidebar();
   const { openNewIssue, openOnboarding } = useDialogActions();
@@ -148,6 +148,7 @@ const { t } = useTranslation();
     routeSidebar
   );
   const hasSecondarySidebar = secondarySidebar != null;
+  const desktopSidebarOpen = hasSecondarySidebar ? true : sidebarOpen;
   const { data: health } = useQuery({
     queryKey: queryKeys.health,
     queryFn: () => healthApi.get(),
@@ -424,7 +425,7 @@ const { t } = useTranslation();
           >
             <div className="flex flex-1 min-h-0">
               <ResizableSidebarPane
-                open={sidebarOpen}
+                open={desktopSidebarOpen}
                 resizable={!hasSecondarySidebar}
                 className="h-full shrink-0"
                 fixedWidth={hasSecondarySidebar ? SIDEBAR_RAIL_WIDTH : undefined}

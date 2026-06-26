@@ -1222,23 +1222,22 @@ const { t } = useTranslation();
   );
 }
 
-function LatestRunCard({ runs, agentId }: { runs: HeartbeatRun[]; agentId: string }) {
-const { t } = useTranslation();
+export function LatestRunCard({ runs, agentId }: { runs: HeartbeatRun[]; agentId: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  if (runs.length === 0) return null;
-
-  const sorted = [...runs].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  const sorted = useMemo(
+    () => [...runs].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ),
+    [runs],
   );
 
   const liveRun = sorted.find((r) => r.status === "running" || r.status === "queued");
   const run = liveRun ?? sorted[0];
-  const isLive = run.status === "running" || run.status === "queued";
-  const statusInfo = runStatusIcons[run.status] ?? { icon: Clock, color: "text-neutral-400" };
-  const StatusIcon = statusInfo.icon;
-  const summaryRaw = run.resultJson
+  const summaryRaw = run?.resultJson
     ? String((run.resultJson as Record<string, unknown>).summary ?? (run.resultJson as Record<string, unknown>).result ?? "")
-    : run.error ?? "";
+    : run?.error ?? "";
 
   // Extract a clean 2-3 line excerpt: first non-empty, non-header, non-list-mark lines
   const summary = useMemo(() => {
@@ -1257,6 +1256,18 @@ const { t } = useTranslation();
     }
     return excerpt.join(" ");
   }, [summaryRaw]);
+
+  if (!run) return null;
+
+  const isLive = run.status === "running" || run.status === "queued";
+  const statusInfo = runStatusIcons[run.status] ?? { icon: Clock, color: "text-neutral-400" };
+  const StatusIcon = statusInfo.icon;
+  const runHref = `/agents/${agentId}/runs/${run.id}`;
+  const openRunOnCardClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented) return;
+    if (event.target instanceof Element && event.target.closest("a,button")) return;
+    navigate(runHref);
+  };
 
   return (
     <div className="space-y-3">
@@ -1279,8 +1290,17 @@ const { t } = useTranslation();
           {t("pages.agentdetail.view_details_rarr.jsx-text", { defaultValue: "\n          View details &rarr;\n        " })}</Link>
       </div>
 
-      <Link
-        to={`/agents/${agentId}/runs/${run.id}`}
+      <div
+        role="link"
+        tabIndex={0}
+        onClick={openRunOnCardClick}
+        onKeyDown={(event) => {
+          if (event.target instanceof Element && event.target !== event.currentTarget && event.target.closest("a,button")) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            navigate(runHref);
+          }
+        }}
         className={cn(
           "block border rounded-lg p-4 space-y-2 w-full no-underline transition-colors hover:bg-muted/50 cursor-pointer",
           isLive ? "border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.08)]" : "border-border"
@@ -1307,7 +1327,7 @@ const { t } = useTranslation();
             <MarkdownBody className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">{summary}</MarkdownBody>
           </div>
         )}
-      </Link>
+      </div>
     </div>
   );
 }
