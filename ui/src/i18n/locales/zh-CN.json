@@ -1951,7 +1951,7 @@
         "jsx-text": " is paused. New runs will not start until the agent is resumed. "
       },
       "jump_to_latest": {
-        "jsx-text": "\n              Jump to latest\n            "
+        "jsx-text": "\n              跳到最新\n            "
       },
       "legacy_recovery_task_newer_recov": {
         "jsx-text": "\n                          Legacy recovery task. Newer recovery actions live on the source task\n                          "
@@ -1995,7 +1995,7 @@
         "jsx-text": "run"
       },
       "running": {
-        "jsx-text": "\n                  Running\n                "
+        "jsx-text": "\n                  运行中\n                "
       },
       "save_your_feedback_sharing_prefe": {
         "jsx-text": "Save your feedback sharing preference"
@@ -12530,7 +12530,7 @@
     },
     "issuedetail": {
       "activity": {
-        "jsx-text": "\n            Activity\n          "
+        "jsx-text": "\n            活动\n          "
       },
       "add_a_description": {
         "attr_placeholder": "添加描述..."
@@ -12556,7 +12556,7 @@
         "jsx-text": "\n                Cancelling a subtree is destructive. Non-terminal tasks will be marked cancelled, and running or queued work will be interrupted where possible.\n              "
       },
       "chat": {
-        "jsx-text": "\n            Chat\n          "
+        "jsx-text": "\n            聊天\n          "
       },
       "close": {
         "jsx-text": "\n              Close\n            "
@@ -12632,7 +12632,7 @@
         "jsx-text": "\n                Reason (optional)\n              "
       },
       "related_work": {
-        "jsx-text": "\n            Related work\n          "
+        "jsx-text": "\n            相关工作\n          "
       },
       "restore_subtree": {
         "jsx-text": "\n                      Restore subtree...\n                    ",
