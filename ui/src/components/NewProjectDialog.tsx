@@ -37,8 +37,8 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "../lib/utils";
 import { MarkdownEditor, type MarkdownEditorRef, type MentionOption } from "./MarkdownEditor";
-import { StatusBadge } from "./StatusBadge";
 import { ChoosePathButton } from "./PathInstructionsModal";
+import { statusBadge, statusBadgeDefault } from "../lib/status-colors";
 
 const projectStatuses = ["backlog", "planned", "in_progress", "completed", "cancelled"] as const;
 
@@ -53,8 +53,21 @@ function projectStatusLabel(status: string, t: TFunction) {
   }
 }
 
+function ProjectStatusBadge({ status, t }: { status: string; t: TFunction }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap shrink-0",
+        statusBadge[status] ?? statusBadgeDefault,
+      )}
+    >
+      {projectStatusLabel(status, t)}
+    </span>
+  );
+}
+
 export function NewProjectDialog() {
-const { t } = useTranslation();
+const { t, i18n } = useTranslation();
 
   const { newProjectOpen, closeNewProject } = useDialog();
   const { selectedCompanyId, selectedCompany } = useCompany();
@@ -347,7 +360,7 @@ const { t } = useTranslation();
           <Popover open={statusOpen} onOpenChange={setStatusOpen}>
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
-                <StatusBadge status={status} />
+                <ProjectStatusBadge status={status} t={t} />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="start">
@@ -376,7 +389,10 @@ const { t } = useTranslation();
               <button
                 className="text-muted-foreground hover:text-foreground"
                 onClick={() => setGoalIds((prev) => prev.filter((id) => id !== goal.id))}
-                aria-label={`Remove goal ${goal.title}`}
+                aria-label={t("components.newprojectdialog.remove_goal.attr_aria-label", {
+                  title: goal.title,
+                  defaultValue: "Remove goal {{title}}",
+                })}
                 type="button"
               >
                 <X className="h-3 w-3" />
@@ -391,7 +407,9 @@ const { t } = useTranslation();
                 disabled={selectedGoals.length > 0 && availableGoals.length === 0}
               >
                 {selectedGoals.length > 0 ? <Plus className="h-3 w-3 text-muted-foreground" /> : <Target className="h-3 w-3 text-muted-foreground" />}
-                {selectedGoals.length > 0 ? "+ Goal" : "Goal"}
+                {selectedGoals.length > 0
+                  ? t("components.newprojectdialog.add_goal.jsx-text", { defaultValue: "+ Goal" })
+                  : t("components.newprojectdialog.goal.jsx-text", { defaultValue: "Goal" })}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-1" align="start">
@@ -424,13 +442,21 @@ const { t } = useTranslation();
           {/* Target date */}
           <div className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs">
             <Calendar className="h-3 w-3 text-muted-foreground" />
-            <input
-              type="date"
-              className="bg-transparent outline-none text-xs w-24"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-              placeholder={t("components.newprojectdialog.target_date.attr_placeholder", { defaultValue: "Target date" })}
-            />
+            <span className="relative inline-flex w-24">
+              <input
+                type="date"
+                lang={i18n.resolvedLanguage ?? i18n.language}
+                className={cn("w-full bg-transparent outline-none text-xs", !targetDate && "text-transparent")}
+                value={targetDate}
+                onChange={(e) => setTargetDate(e.target.value)}
+                placeholder={t("components.newprojectdialog.target_date.attr_placeholder", { defaultValue: "Target date" })}
+              />
+              {!targetDate ? (
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center text-xs text-muted-foreground/70">
+                  {t("components.newprojectdialog.target_date.attr_placeholder", { defaultValue: "Target date" })}
+                </span>
+              ) : null}
+            </span>
           </div>
         </div>
 
@@ -446,7 +472,9 @@ const { t } = useTranslation();
             disabled={!name.trim() || createProject.isPending}
             onClick={handleSubmit}
           >
-            {createProject.isPending ? "Creating…" : "Create project"}
+            {createProject.isPending
+              ? t("components.newprojectdialog.creating.action", { defaultValue: "Creating..." })
+              : t("components.newprojectdialog.create_project.action", { defaultValue: "Create project" })}
           </Button>
         </div>
       </DialogContent>

@@ -4220,16 +4220,28 @@
     },
     "newprojectdialog": {
       "add_description": {
-        "attr_placeholder": "Add description..."
+        "attr_placeholder": "添加描述..."
       },
       "all_goals_already_selected": {
-        "jsx-text": "\n                 全部 goals already selected.\n                "
+        "jsx-text": "\n                  所有目标均已选择。\n                "
+      },
+      "add_goal": {
+        "jsx-text": "+ 目标"
+      },
+      "create_project": {
+        "action": "创建项目"
+      },
+      "creating": {
+        "action": "创建中..."
       },
       "failed_to_create_project": {
-        "jsx-text": "Failed to创建 project."
+        "jsx-text": "创建项目失败。"
+      },
+      "goal": {
+        "jsx-text": "目标"
       },
       "link_a_github_repository_so_agen": {
-        "jsx-text": "\n                  Link a GitHub repository so agents can clone, read, and push code for this project.\n                "
+        "jsx-text": "\n                  关联 GitHub 仓库，让智能体可以为此项目 clone、读取并推送代码。\n                "
       },
       "local_folder": {
         "jsx-text": "本地文件夹"
@@ -4241,7 +4253,7 @@
         "jsx-text": "新建项目"
       },
       "no_goal": {
-        "jsx-text": "\n                 无 goal\n                "
+        "jsx-text": "\n                  无目标\n                "
       },
       "optional": {
         "jsx-text": "可选"
@@ -4250,16 +4262,19 @@
         "attr_placeholder": "项目名称"
       },
       "repo_url": {
-        "jsx-text": "Repo URL"
+        "jsx-text": "仓库 URL"
+      },
+      "remove_goal": {
+        "attr_aria-label": "移除目标 {{title}}"
       },
       "rsaquo": {
         "jsx-text": "›"
       },
       "set_an_absolute_path_on_this_mac": {
-        "jsx-text": "\n                  Set an absolute path on this machine where local agents will read and write files for this project.\n                "
+        "jsx-text": "\n                  设置此机器上的绝对路径，本地智能体会在这里读取和写入此项目的文件。\n                "
       },
       "target_date": {
-        "attr_placeholder": "Target date"
+        "attr_placeholder": "目标日期"
       },
       "times": {
         "jsx-text": "×"
@@ -4269,10 +4284,10 @@
         "error": "本地文件夹必须是完整绝对路径。"
       },
       "repo_valid_github": {
-        "error": "Repo 必须使用有效的 GitHub 或 GitHub Enterprise repo URL。"
+        "error": "仓库必须使用有效的 GitHub 或 GitHub Enterprise 仓库 URL。"
       },
       "backlog": {
-        "status_label": "Backlog"
+        "status_label": "待办池"
       },
       "planned": {
         "status_label": "已计划"
@@ -4580,16 +4595,55 @@
     },
     "pathinstructionsmodal": {
       "choose": {
-        "jsx-text": "\n        Choose\n      "
+        "jsx-text": "\n        选择\n      "
       },
       "how_to_get_a_full_path": {
-        "jsx-text": "How to get a full path"
+        "jsx-text": "如何获取完整路径"
       },
       "into_the_input_field": {
-        "jsx-text": "\n            ) into the input field.\n          "
+        "jsx-text": "\n            ) 粘贴到输入框。\n          "
+      },
+      "linux_copy_output": {
+        "step": "复制输出并粘贴到这里。"
+      },
+      "linux_file_manager_tip": {
+        "tip": "大多数文件管理器可用 Ctrl+L 在地址栏显示完整路径。"
+      },
+      "linux_open_terminal": {
+        "step": "打开终端，并用 cd 进入该目录。"
+      },
+      "linux_run_pwd": {
+        "step": "运行 pwd 输出完整路径。"
+      },
+      "mac_copy_pathname": {
+        "step": "点击“复制为路径名”，然后粘贴到这里。"
+      },
+      "mac_hold_option": {
+        "step": "按住 Option (⌥) 键，“复制”会变为“复制为路径名”。"
+      },
+      "mac_open_finder": {
+        "step": "打开 Finder 并进入该文件夹。"
+      },
+      "mac_right_click": {
+        "step": "右键点击（或按住 Control 点击）该文件夹。"
+      },
+      "mac_terminal_tip": {
+        "tip": "也可以打开终端，输入 cd，把文件夹拖入终端窗口并按 Enter。然后输入 pwd 查看完整路径。"
       },
       "paste_the_absolute_path_e_g": {
-        "jsx-text": "\n            Paste the absolute path (e.g."
+        "jsx-text": "\n            将绝对路径（例如"
+      },
+      "windows_address_bar": {
+        "step": "点击顶部地址栏，会显示完整路径。"
+      },
+      "windows_copy_path": {
+        "step": "复制路径并粘贴到这里。"
+      },
+      "windows_open_explorer": {
+        "step": "打开文件资源管理器并进入该文件夹。"
+      },
+      "windows_shift_tip": {
+        "tip": "也可以按住 Shift 并右键点击该文件夹，然后选择“复制为路径”。"
       }
     },
     "productivityreviewbadge": {

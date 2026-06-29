@@ -4225,8 +4225,20 @@
       "all_goals_already_selected": {
         "jsx-text": "\n                  All goals already selected.\n                "
       },
+      "add_goal": {
+        "jsx-text": "+ Goal"
+      },
+      "create_project": {
+        "action": "Create project"
+      },
+      "creating": {
+        "action": "Creating..."
+      },
       "failed_to_create_project": {
         "jsx-text": "Failed to create project."
+      },
+      "goal": {
+        "jsx-text": "Goal"
       },
       "link_a_github_repository_so_agen": {
         "jsx-text": "\n                  Link a GitHub repository so agents can clone, read, and push code for this project.\n                "
@@ -4248,6 +4260,9 @@
       },
       "project_name": {
         "attr_placeholder": "Project name"
+      },
+      "remove_goal": {
+        "attr_aria-label": "Remove goal {{title}}"
       },
       "repo_url": {
         "jsx-text": "Repo URL"
@@ -4588,8 +4603,47 @@
       "into_the_input_field": {
         "jsx-text": "\n            ) into the input field.\n          "
       },
+      "linux_copy_output": {
+        "step": "Copy the output and paste here."
+      },
+      "linux_file_manager_tip": {
+        "tip": "In most file managers, Ctrl+L reveals the full path in the address bar."
+      },
+      "linux_open_terminal": {
+        "step": "Open a terminal and navigate to the directory with cd."
+      },
+      "linux_run_pwd": {
+        "step": "Run pwd to print the full path."
+      },
+      "mac_copy_pathname": {
+        "step": "Click \"Copy as Pathname\", then paste here."
+      },
+      "mac_hold_option": {
+        "step": "Hold the Option (⌥) key — \"Copy\" changes to \"Copy as Pathname\"."
+      },
+      "mac_open_finder": {
+        "step": "Open Finder and navigate to the folder."
+      },
+      "mac_right_click": {
+        "step": "Right-click (or Control-click) the folder."
+      },
+      "mac_terminal_tip": {
+        "tip": "You can also open Terminal, type cd, drag the folder into the terminal window, and press Enter. Then type pwd to see the full path."
+      },
       "paste_the_absolute_path_e_g": {
         "jsx-text": "\n            Paste the absolute path (e.g."
+      },
+      "windows_address_bar": {
+        "step": "Click in the address bar at the top — the full path will appear."
+      },
+      "windows_copy_path": {
+        "step": "Copy the path, then paste here."
+      },
+      "windows_open_explorer": {
+        "step": "Open File Explorer and navigate to the folder."
+      },
+      "windows_shift_tip": {
+        "tip": "Alternatively, hold Shift and right-click the folder, then select \"Copy as path\"."
       }
     },
     "productivityreviewbadge": {

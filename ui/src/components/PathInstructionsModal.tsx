@@ -18,31 +18,40 @@ const platforms: { id: Platform; label: string; icon: typeof Apple }[] = [
   { id: "linux", label: "Linux", icon: Terminal },
 ];
 
-const instructions: Record<Platform, { steps: string[]; tip?: string }> = {
+const instructions: Record<Platform, { steps: { key: string; defaultValue: string }[]; tip?: { key: string; defaultValue: string } }> = {
   mac: {
     steps: [
-      "Open Finder and navigate to the folder.",
-      "Right-click (or Control-click) the folder.",
-      "Hold the Option (⌥) key — \"Copy\" changes to \"Copy as Pathname\".",
-      "Click \"Copy as Pathname\", then paste here.",
+      { key: "components.pathinstructionsmodal.mac_open_finder.step", defaultValue: "Open Finder and navigate to the folder." },
+      { key: "components.pathinstructionsmodal.mac_right_click.step", defaultValue: "Right-click (or Control-click) the folder." },
+      { key: "components.pathinstructionsmodal.mac_hold_option.step", defaultValue: "Hold the Option (⌥) key — \"Copy\" changes to \"Copy as Pathname\"." },
+      { key: "components.pathinstructionsmodal.mac_copy_pathname.step", defaultValue: "Click \"Copy as Pathname\", then paste here." },
     ],
-    tip: "You can also open Terminal, type cd, drag the folder into the terminal window, and press Enter. Then type pwd to see the full path.",
+    tip: {
+      key: "components.pathinstructionsmodal.mac_terminal_tip.tip",
+      defaultValue: "You can also open Terminal, type cd, drag the folder into the terminal window, and press Enter. Then type pwd to see the full path.",
+    },
   },
   windows: {
     steps: [
-      "Open File Explorer and navigate to the folder.",
-      "Click in the address bar at the top — the full path will appear.",
-      "Copy the path, then paste here.",
+      { key: "components.pathinstructionsmodal.windows_open_explorer.step", defaultValue: "Open File Explorer and navigate to the folder." },
+      { key: "components.pathinstructionsmodal.windows_address_bar.step", defaultValue: "Click in the address bar at the top — the full path will appear." },
+      { key: "components.pathinstructionsmodal.windows_copy_path.step", defaultValue: "Copy the path, then paste here." },
     ],
-    tip: "Alternatively, hold Shift and right-click the folder, then select \"Copy as path\".",
+    tip: {
+      key: "components.pathinstructionsmodal.windows_shift_tip.tip",
+      defaultValue: "Alternatively, hold Shift and right-click the folder, then select \"Copy as path\".",
+    },
   },
   linux: {
     steps: [
-      "Open a terminal and navigate to the directory with cd.",
-      "Run pwd to print the full path.",
-      "Copy the output and paste here.",
+      { key: "components.pathinstructionsmodal.linux_open_terminal.step", defaultValue: "Open a terminal and navigate to the directory with cd." },
+      { key: "components.pathinstructionsmodal.linux_run_pwd.step", defaultValue: "Run pwd to print the full path." },
+      { key: "components.pathinstructionsmodal.linux_copy_output.step", defaultValue: "Copy the output and paste here." },
     ],
-    tip: "In most file managers, Ctrl+L reveals the full path in the address bar.",
+    tip: {
+      key: "components.pathinstructionsmodal.linux_file_manager_tip.tip",
+      defaultValue: "In most file managers, Ctrl+L reveals the full path in the address bar.",
+    },
   },
 };
 
@@ -106,14 +115,14 @@ const { t } = useTranslation();
               <span className="text-muted-foreground font-mono text-xs mt-0.5 shrink-0">
                 {i + 1}.
               </span>
-              <span>{step}</span>
+              <span>{t(step.key, { defaultValue: step.defaultValue })}</span>
             </li>
           ))}
         </ol>
 
         {current.tip && (
           <p className="text-xs text-muted-foreground border-l-2 border-border pl-3">
-            {current.tip}
+            {t(current.tip.key, { defaultValue: current.tip.defaultValue })}
           </p>
         )}
       </DialogContent>
