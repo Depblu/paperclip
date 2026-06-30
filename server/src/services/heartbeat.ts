@@ -2268,7 +2268,9 @@ const INTERACTION_CONTINUATION_CONTEXT_KEYS = [
 ] as const;
 
 function isInteractionResolutionWakePayload(payload: Record<string, unknown> | null | undefined) {
-  return readNonEmptyString(payload?.mutation) === "interaction";
+  if (readNonEmptyString(payload?.mutation) !== "interaction") return false;
+  const status = readNonEmptyString(payload?.interactionStatus);
+  return status === "accepted" || status === "rejected" || status === "answered" || status === "cancelled";
 }
 
 function clearInteractionContinuationWakeContext(contextSnapshot: Record<string, unknown>) {
@@ -10227,8 +10229,12 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
             shouldQueueFollowupForRunningIssueWake({ contextSnapshot: enrichedContextSnapshot, wakeCommentId }) &&
             activeExecutionRun.status === "running" &&
             isSameExecutionAgent;
+          const shouldDeferInteractionResolutionWake =
+            isInteractionResolutionWakePayload(payload) &&
+            activeExecutionRun.status === "running" &&
+            isSameExecutionAgent;
 
-          if (isSameExecutionAgent && !shouldQueueFollowupForRunningWake) {
+          if (isSameExecutionAgent && !shouldQueueFollowupForRunningWake && !shouldDeferInteractionResolutionWake) {
             const mergedContextSnapshot = mergeCoalescedContextSnapshot(
               activeExecutionRun.contextSnapshot,
               enrichedContextSnapshot,
@@ -10415,11 +10421,15 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       Boolean(sameScopeRunningRun) &&
       !sameScopeQueuedRun &&
       shouldQueueFollowupForRunningIssueWake({ contextSnapshot: enrichedContextSnapshot, wakeCommentId });
+    const shouldDeferInteractionResolutionWake =
+      Boolean(sameScopeRunningRun) &&
+      !sameScopeQueuedRun &&
+      isInteractionResolutionWakePayload(payload);
 
     const coalescedTargetRun =
       sameScopeQueuedRun ??
       sameScopeScheduledRetryRun ??
-      (shouldQueueFollowupForRunningWake ? null : sameScopeRunningRun ?? null);
+      (shouldQueueFollowupForRunningWake || shouldDeferInteractionResolutionWake ? null : sameScopeRunningRun ?? null);
 
     if (coalescedTargetRun) {
       const mergedContextSnapshot = mergeCoalescedContextSnapshot(

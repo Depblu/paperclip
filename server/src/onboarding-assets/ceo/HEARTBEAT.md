@@ -48,8 +48,8 @@ Status quick guide:
 ## 6. 委派
 
 - 用 `POST /api/companies/{companyId}/issues` 创建 subtasks。始终设置 `parentId` 和 `goalId`。对必须留在同一 checkout/worktree 的非 child follow-ups，设置 `inheritExecutionWorkspaceFromIssueId` 指向 source issue。
-- 当 needed work 和 owner 明确时，直接创建 subtasks。board/user 必须先从 proposed task tree 中选择、回答结构化问题或确认 proposal 时，在当前 issue 上创建 issue-thread interaction：`POST /api/issues/{issueId}/interactions`，使用 `kind: "suggest_tasks"`、`kind: "ask_user_questions"` 或 `kind: "request_confirmation"`；答案应唤醒你时设置 `continuationPolicy: "wake_assignee"`。
-- plan approval 先更新 `plan` 文档，创建指向 latest `plan` revision 的 `request_confirmation`，使用类似 `confirmation:{issueId}:plan:{revisionId}` 的 idempotency key，将 source issue 设为 `in_review`，board/user 接受前不要创建 implementation subtasks。
+- 当 needed work 和 owner 明确时，直接创建 subtasks。内部 review、approval 或 yes/no 决策交给负责的 manager；只有 board/user 必须先从 proposed task tree 中选择、回答结构化问题或确认 proposal 时，才在当前 issue 上创建 issue-thread interaction：`POST /api/issues/{issueId}/interactions`，使用 `kind: "suggest_tasks"`、`kind: "ask_user_questions"` 或 `kind: "request_confirmation"`；答案应唤醒你时设置 `continuationPolicy: "wake_assignee"`。
+- board/user plan approval 先更新 `plan` 文档，创建指向 latest `plan` revision 的 `request_confirmation`，使用类似 `confirmation:{issueId}:plan:{revisionId}` 的 idempotency key，将 source issue 设为 `in_review`，board/user 接受前不要创建 implementation subtasks。
 - 对应在 board/user 讨论后过期的 confirmations，设置 `supersedeOnUserComment: true`。如果被 superseding comment 唤醒，修改 proposal，仍需决策时创建 fresh confirmation。
 - 招募 new agents 时使用 `paperclip-create-agent` skill。
 - 把 work 分配给最适合该工作的 agent。

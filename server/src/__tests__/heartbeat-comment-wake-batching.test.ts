@@ -270,6 +270,129 @@ describe("heartbeat comment wake batching", () => {
     expect(runs[0]?.id).toBe(runId);
   });
 
+  it("defers resolved interaction wakes for a running issue so acceptance is consumed after the run", async () => {
+    const companyId = randomUUID();
+    const agentId = randomUUID();
+    const issueId = randomUUID();
+    const runId = randomUUID();
+    const interactionId = randomUUID();
+    const issuePrefix = `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+    const heartbeat = heartbeatService(db);
+
+    await db.insert(companies).values({
+      id: companyId,
+      name: "Paperclip",
+      issuePrefix,
+      requireBoardApprovalForNewAgents: false,
+    });
+
+    await db.insert(agents).values({
+      id: agentId,
+      companyId,
+      name: "SoftwareArchitect",
+      role: "engineer",
+      status: "running",
+      adapterType: "process",
+      adapterConfig: {},
+      runtimeConfig: {},
+      permissions: {},
+    });
+
+    await db.insert(heartbeatRuns).values({
+      id: runId,
+      companyId,
+      agentId,
+      invocationSource: "assignment",
+      triggerDetail: "system",
+      status: "running",
+      contextSnapshot: {
+        issueId,
+        taskId: issueId,
+        wakeReason: "issue_assigned",
+      },
+    });
+
+    await db.insert(issues).values({
+      id: issueId,
+      companyId,
+      title: "Review architecture",
+      status: "in_review",
+      priority: "medium",
+      assigneeAgentId: agentId,
+      executionRunId: runId,
+      executionAgentNameKey: "softwarearchitect",
+      executionLockedAt: new Date(),
+      issueNumber: 2,
+      identifier: `${issuePrefix}-2`,
+    });
+
+    const followupRun = await heartbeat.wakeup(agentId, {
+      source: "automation",
+      triggerDetail: "system",
+      reason: "issue_commented",
+      payload: {
+        issueId,
+        interactionId,
+        interactionKind: "request_confirmation",
+        interactionStatus: "accepted",
+        mutation: "interaction",
+      },
+      contextSnapshot: {
+        issueId,
+        taskId: issueId,
+        interactionId,
+        interactionKind: "request_confirmation",
+        interactionStatus: "accepted",
+        wakeReason: "issue_commented",
+      },
+      requestedByActorType: "user",
+      requestedByActorId: "local-board",
+    });
+
+    expect(followupRun).toBeNull();
+
+    const deferred = await db
+      .select()
+      .from(agentWakeupRequests)
+      .where(
+        and(
+          eq(agentWakeupRequests.companyId, companyId),
+          eq(agentWakeupRequests.agentId, agentId),
+          eq(agentWakeupRequests.status, "deferred_issue_execution"),
+        ),
+      )
+      .then((rows) => rows[0] ?? null);
+
+    expect(deferred).not.toBeNull();
+    expect(deferred?.reason).toBe("issue_execution_deferred");
+    expect(deferred?.payload).toMatchObject({
+      issueId,
+      interactionId,
+      interactionStatus: "accepted",
+      mutation: "interaction",
+    });
+    expect((deferred?.payload as Record<string, unknown>)._paperclipWakeContext).toMatchObject({
+      issueId,
+      taskId: issueId,
+      interactionId,
+      interactionKind: "request_confirmation",
+      interactionStatus: "accepted",
+      wakeReason: "issue_commented",
+    });
+
+    const coalesced = await db
+      .select()
+      .from(agentWakeupRequests)
+      .where(
+        and(
+          eq(agentWakeupRequests.companyId, companyId),
+          eq(agentWakeupRequests.agentId, agentId),
+          eq(agentWakeupRequests.status, "coalesced"),
+        ),
+      );
+    expect(coalesced).toHaveLength(0);
+  });
+
   it("batches deferred comment wakes and forwards the ordered batch to the next run", async () => {
     const gateway = await createControlledGatewayServer();
     const companyId = randomUUID();

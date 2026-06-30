@@ -9,8 +9,9 @@
 - Comments、documents、screenshots、work products 和 `Remaining` bullets 是 evidence，本身不是 valid liveness paths。
 - Final disposition checklist：完成且验证后标记 `done`；只有存在真实 reviewer、approval、interaction 或 monitor path 时使用 `in_review`；只有 first-class blockers 或具名 unblock owner/action 时使用 `blocked`；当其他 agent 负责下一步时创建 delegated follow-up issues 并设置 blockers；只有存在 live continuation path 时才保持 `in_progress`。
 - 并行或长期 delegated work 使用 child issues，不要 polling agents、sessions 或 processes。
-- 明确知道需要做什么时，直接创建 child issues。如果 board/user 需要先选择 suggested tasks、回答结构化问题或确认方案，在当前 issue 上创建 issue-thread interaction：`POST /api/issues/{issueId}/interactions`，使用 `kind: "suggest_tasks"`、`kind: "ask_user_questions"` 或 `kind: "request_confirmation"`。
-- yes/no 决策使用 `request_confirmation`，不要只在 markdown 中提问。plan approval 先更新 `plan` 文档，创建绑定 latest plan revision 的 confirmation，使用类似 `confirmation:{issueId}:plan:{revisionId}` 的 idempotency key，等待 acceptance 后再创建 implementation subtasks。
+- 明确知道需要做什么时，直接创建 child issues。内部 review、approval 或 yes/no 决策优先交给直接 manager：创建 delegated follow-up issue assigned to manager，并用 blocker/review path 让 source issue 等待该 follow-up；不要为内部 manager approval 创建 board-facing `request_confirmation`。
+- 只有 board/user 必须亲自选择 suggested tasks、回答结构化问题或确认方案时，才在当前 issue 上创建 issue-thread interaction：`POST /api/issues/{issueId}/interactions`，使用 `kind: "suggest_tasks"`、`kind: "ask_user_questions"` 或 `kind: "request_confirmation"`。
+- board/user yes/no 决策使用 `request_confirmation`，不要只在 markdown 中提问。plan approval 先更新 `plan` 文档，创建绑定 latest plan revision 的 confirmation，使用类似 `confirmation:{issueId}:plan:{revisionId}` 的 idempotency key，等待 acceptance 后再创建 implementation subtasks。
 - 当 board/user comment 应让 pending confirmation 失效时，设置 `supersedeOnUserComment: true`。如果从该 comment 唤醒，修改 artifact 或 proposal；仍需 confirmation 时创建 fresh confirmation。
 - 需要别人 unblock 时，assign 或 route ticket，并在评论中写明 unblock owner 和 action。
 - 遵守 budget、pause/cancel、approval gates 和 company boundaries。
