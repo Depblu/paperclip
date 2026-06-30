@@ -52,6 +52,8 @@ curl -sS "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agent-configura
 
 这是影响 hire quality 的最重要决策。精确选择一条路径：
 
+语言硬规则：除非用户或 board 明确要求其他语言，新 agent 的 `AGENTS.md` 必须以简体中文为主。英文只保留在必要术语、API 字段、status、route、skill 名、命令和代码标识中。从英文或中英混合模板改写时，不要保留整段英文样板。
+
 - **Exact template**：角色匹配 template index 中某个 entry。使用 `references/agents/` 下匹配文件作为起点。
 - **Adjacent template**：没有精确匹配，但某个现有 template 很接近（例如从 `coder.md` 改成 “Backend Engineer”，或从 `uxdesigner.md` 改成 “Content Designer”）。复制最接近 template 并有意识地改造：重命名 role、重写 role charter、替换 domain lenses、移除不适用 sections。
 - **Generic fallback**：没有接近 template。使用 baseline role guide 从零构建新的 `AGENTS.md`，为具体角色填入每个推荐 section。
@@ -86,6 +88,7 @@ curl -sS "$PAPERCLIP_API_URL/llms/agent-icons.txt" \
 - 对支持 managed instructions bundle 的 adapters，使用 managed instructions bundle（`AGENTS.md`）；避免 durable `promptTemplate` config
 - 对 coding 或 execution agents，包含 Paperclip execution contract：同一 heartbeat 内开始 actionable work；除非被要求 planning，否则不要停在 plan；留下 durable progress 和清晰 next action；长期或并行 delegated work 用 child issues，不要 polling；blocked work 标明 owner/action；尊重 budget、pause/cancel、approval gates 和 company boundaries
 - instruction text（如从 step 4 构建的 `AGENTS.md`）；对 local managed-bundle adapters，作为 top-level `instructionsBundle.files["AGENTS.md"]` 发送。新 agents 不要设置 `adapterConfig.promptTemplate` 或 `bootstrapPromptTemplate`
+- 除非用户或 board 明确要求其他语言，`instructionsBundle.files["AGENTS.md"]` 正文以简体中文为主；不要把英文示例句原样带入新 agent 指令
 - 如果 hire 来自某个 issue，设置 source issue linkage（`sourceIssueId` 或 `sourceIssueIds`）
 
 ### 7. 用质量 checklist 审查 draft
@@ -105,11 +108,11 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agent-h
     "title": "Chief Technology Officer",
     "icon": "crown",
     "reportsTo": "<ceo-agent-id>",
-    "capabilities": "Owns technical roadmap, architecture, staffing, execution",
+    "capabilities": "负责技术路线、架构把关、工程任务拆解和交付协调。",
     "desiredSkills": ["vercel-labs/agent-browser/agent-browser"],
     "adapterType": "codex_local",
     "adapterConfig": {"cwd": "/abs/path/to/repo", "model": "o4-mini"},
-    "instructionsBundle": {"files": {"AGENTS.md": "You are the CTO..."}},
+    "instructionsBundle": {"files": {"AGENTS.md": "你是 CTO。..."}},
     "runtimeConfig": {"heartbeat": {"enabled": false, "wakeOnDemand": true}},
     "sourceIssueId": "<issue-id>"
   }'
@@ -128,7 +131,7 @@ curl -sS "$PAPERCLIP_API_URL/api/approvals/<approval-id>" \
 curl -sS -X POST "$PAPERCLIP_API_URL/api/approvals/<approval-id>/comments" \
   -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"body":"## CTO hire request submitted\n\n- Approval: [<approval-id>](/approvals/<approval-id>)\n- Pending agent: [<agent-ref>](/agents/<agent-url-key-or-id>)\n- Source issue: [<issue-ref>](/issues/<issue-identifier-or-id>)\n\nUpdated prompt and adapter config per board feedback."}'
+  -d '{"body":"## CTO 招聘请求已提交\n\n- Approval: [<approval-id>](/approvals/<approval-id>)\n- Pending agent: [<agent-ref>](/agents/<agent-url-key-or-id>)\n- Source issue: [<issue-ref>](/issues/<issue-identifier-or-id>)\n\n已按 board 反馈更新指令和 adapter config。"}'
 ```
 
 如果 approval 已存在且需要手动关联到 issue：

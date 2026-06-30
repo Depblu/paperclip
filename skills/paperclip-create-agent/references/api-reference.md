@@ -37,7 +37,7 @@
   "title": "Chief Technology Officer",
   "icon": "crown",
   "reportsTo": "uuid-or-null",
-  "capabilities": "Owns architecture and engineering execution",
+  "capabilities": "负责架构把关和工程交付协调。",
   "desiredSkills": ["vercel-labs/agent-browser/agent-browser"],
   "adapterType": "claude_local",
   "adapterConfig": {
@@ -47,7 +47,7 @@
   "instructionsBundle": {
     "entryFile": "AGENTS.md",
     "files": {
-      "AGENTS.md": "You are CTO..."
+      "AGENTS.md": "你是 CTO。..."
     }
   },
   "runtimeConfig": {

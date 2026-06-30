@@ -189,7 +189,9 @@
     "inDays_other": "in {{count}} days",
     "minutesAgo": "{{count}}m ago",
     "hoursAgo": "{{count}}h ago",
-    "daysAgo": "{{count}}d ago"
+    "daysAgo": "{{count}}d ago",
+    "weeksAgo": "{{count}}w ago",
+    "monthsAgo": "{{count}}mo ago"
   },
   "errors": {
     "generic": "Something went wrong.",
@@ -2067,6 +2069,12 @@
       },
       "pick_assignee_or_send_again": {
         "body": "Pick an assignee or click Send again to post without one."
+      },
+      "posting": {
+        "jsx-text": "Posting..."
+      },
+      "send": {
+        "jsx-text": "Send"
       }
     },
     "issuecolumns": {
@@ -2075,6 +2083,38 @@
       },
       "desktop_task_rows": {
         "jsx-text": "\n              Desktop task rows\n            "
+      },
+      "status": {
+        "column_label": "Status",
+        "column_description": "Task state chip on the left edge."
+      },
+      "id": {
+        "column_label": "ID",
+        "column_description": "Ticket identifier like PAP-1009."
+      },
+      "assignee": {
+        "column_label": "Assignee",
+        "column_description": "Assigned agent or board user."
+      },
+      "project": {
+        "column_label": "Project",
+        "column_description": "Linked project pill with its color."
+      },
+      "workspace": {
+        "column_label": "Workspace",
+        "column_description": "Execution or project workspace used for the task."
+      },
+      "parent": {
+        "column_label": "Parent task",
+        "column_description": "Parent task identifier and title."
+      },
+      "labels": {
+        "column_label": "Tags",
+        "column_description": "Task labels and tags."
+      },
+      "updated": {
+        "column_label": "Last updated",
+        "column_description": "Latest visible activity time."
       },
       "filter_by_workspace": {
         "jsx-text": "\n                    Filter by workspace\n                  "
@@ -3183,7 +3223,8 @@
         "jsx-text": "All sub-tasks done"
       },
       "assignee": {
-        "jsx-text": "\n                                          Assignee\n                                        "
+        "jsx-text": "\n                                          Assignee\n                                        ",
+        "group_label": "Assignee"
       },
       "board_view": {
         "attr_title": "Board view"
@@ -3193,6 +3234,24 @@
       },
       "choose_which_task_columns_stay_v": {
         "attr_title": "Choose which task columns stay visible"
+      },
+      "disable_parent_child_nesting": {
+        "attr_title": "Disable parent-child nesting"
+      },
+      "enable_parent_child_nesting": {
+        "attr_title": "Enable parent-child nesting"
+      },
+      "use_comfortable_cards": {
+        "attr_title": "Use comfortable cards"
+      },
+      "use_compact_cards": {
+        "attr_title": "Use compact cards"
+      },
+      "expand_cold_lanes": {
+        "attr_title": "Expand cold lanes"
+      },
+      "collapse_cold_lanes": {
+        "attr_title": "Collapse cold lanes"
       },
       "group": {
         "attr_title": "Group"
@@ -3228,7 +3287,8 @@
         "jsx-text": "\n                                  Paused\n                                "
       },
       "per_column": {
-        "jsx-text": " per column"
+        "jsx-text": " per column",
+        "option_label": "{{count}} per column"
       },
       "reset_board_density": {
         "attr_title": "Reset board density"
@@ -3261,6 +3321,38 @@
       },
       "sort": {
         "attr_title": "Sort"
+      },
+      "workflow": {
+        "sort_label": "Workflow"
+      },
+      "status": {
+        "sort_label": "Status",
+        "group_label": "Status"
+      },
+      "priority": {
+        "sort_label": "Priority",
+        "group_label": "Priority"
+      },
+      "title": {
+        "sort_label": "Title"
+      },
+      "created": {
+        "sort_label": "Created"
+      },
+      "updated": {
+        "sort_label": "Updated"
+      },
+      "project": {
+        "group_label": "Project"
+      },
+      "workspace": {
+        "group_label": "Workspace"
+      },
+      "parent_task": {
+        "group_label": "Parent Task"
+      },
+      "none": {
+        "group_label": "None"
       },
       "sub_task": {
         "jsx-text": " sub-task"

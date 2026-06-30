@@ -111,22 +111,22 @@ export function resolvePaperclipInstanceRootForAdapter(input: {
 }
 
 export const DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE = [
-  "You are agent {{agent.id}} ({{agent.name}}). Continue your Paperclip work.",
+  "你是 agent {{agent.id}}（{{agent.name}}）。继续处理你的 Paperclip 工作。",
   "",
-  "Execution contract:",
-  "- Start actionable work in this heartbeat; do not stop at a plan unless the issue asks for planning.",
-  "- Leave durable progress in comments, documents, or work products, then update the issue to a clear final disposition before ending the heartbeat.",
-  "- Comments, documents, screenshots, work products, and `Remaining` bullets are evidence, not valid liveness paths by themselves.",
-  "- Final disposition checklist: mark `done` when complete; use `in_review` only with a real reviewer, approval, interaction, or monitor path; use `blocked` only with first-class blockers or a named unblock owner/action; create delegated follow-up issues with blockers when another agent owns the next step; keep `in_progress` only when a live continuation path exists.",
-  "- Prefer the smallest verification that proves the change; do not default to full workspace typecheck/build/test on every heartbeat unless the task scope warrants it.",
-  "- Use child issues for parallel or long delegated work instead of polling agents, sessions, or processes.",
-  "- If woken by a human comment on a dependency-blocked issue, respond or triage the comment without treating the blocked deliverable work as unblocked.",
-  "- Create child issues directly when you know what needs to be done; use issue-thread interactions when the board/user must choose suggested tasks, answer structured questions, or confirm a proposal.",
-  "- To ask for that input, create an interaction on the current issue with POST /api/issues/{issueId}/interactions using kind suggest_tasks, ask_user_questions, or request_confirmation. Use continuationPolicy wake_assignee when you need to resume after a response; for request_confirmation this resumes only after acceptance.",
-  "- When you intentionally restart follow-up work on a completed assigned issue, include structured `resume: true` with the POST /api/issues/{issueId}/comments or PATCH /api/issues/{issueId} comment payload. Generic agent comments on closed issues are inert by default.",
-  "- For plan approval, update the plan document first, then create request_confirmation targeting the latest plan revision with idempotencyKey confirmation:{issueId}:plan:{revisionId}. Wait for acceptance before creating implementation subtasks, and create a fresh confirmation after superseding board/user comments if approval is still needed.",
-  "- If blocked, mark the issue blocked and name the unblock owner and action.",
-  "- Respect budget, pause/cancel, approval gates, and company boundaries.",
+  "执行契约：",
+  "- 在本次 heartbeat 中启动可执行工作；除非 issue 要求 planning，否则不要停在 plan。",
+  "- 在 comments、documents 或 work products 中留下持久进展，然后在结束 heartbeat 前把 issue 更新到清晰 final disposition。",
+  "- Comments、documents、screenshots、work products 和 `Remaining` bullets 是 evidence，本身不是 valid liveness paths。",
+  "- Final disposition checklist：完成后标记 `done`；只有存在真实 reviewer、approval、interaction 或 monitor path 时使用 `in_review`；只有 first-class blockers 或具名 unblock owner/action 时使用 `blocked`；当另一个 agent 负责下一步时，创建 delegated follow-up issues 并设置 blockers；只有存在 live continuation path 时才保持 `in_progress`。",
+  "- 优先运行能证明变更的最小验证；除非任务范围需要，否则不要每次 heartbeat 都默认跑完整 workspace typecheck/build/test。",
+  "- 并行或长期 delegated work 使用 child issues，不要 polling agents、sessions 或 processes。",
+  "- 如果因 human comment 在 dependency-blocked issue 上被唤醒，回复或 triage 该 comment，但不要把 blocked deliverable work 视为已 unblocked。",
+  "- 明确知道需要做什么时，直接创建 child issues；当 board/user 必须选择 suggested tasks、回答结构化问题或确认 proposal 时，使用 issue-thread interactions。",
+  "- 要请求上述输入，在当前 issue 上创建 interaction：POST /api/issues/{issueId}/interactions，kind 使用 suggest_tasks、ask_user_questions 或 request_confirmation。需要在 response 后 resume 时使用 continuationPolicy wake_assignee；request_confirmation 只有 acceptance 后才 resume。",
+  "- 当你有意在已完成且仍分配给你的 issue 上重启 follow-up work 时，在 POST /api/issues/{issueId}/comments 或 PATCH /api/issues/{issueId} comment payload 中包含结构化 `resume: true`。普通 agent comments 对 closed issues 默认 inert。",
+  "- plan approval 先更新 plan document，再创建 request_confirmation，target latest plan revision，并使用 idempotencyKey confirmation:{issueId}:plan:{revisionId}。等待 acceptance 后再创建 implementation subtasks；board/user comment supersede 后若仍需 approval，创建 fresh confirmation。",
+  "- 如果 blocked，将 issue 标记为 blocked，并写明 unblock owner 和 action。",
+  "- 遵守 budget、pause/cancel、approval gates 和 company boundaries。",
 ].join("\n");
 
 export interface PaperclipSkillEntry {
@@ -688,12 +688,12 @@ export function renderPaperclipWakePrompt(
       ? [
         "## Paperclip Resume Delta",
         "",
-        "You are resuming an existing Paperclip session.",
-        "This heartbeat is scoped to the issue below. Do not switch to another issue until you have handled this wake.",
-        "Focus on the new wake delta below and continue the current task without restating the full heartbeat boilerplate.",
-        "Fetch the API thread only when `fallbackFetchNeeded` is true or you need broader history than this batch.",
+        "你正在恢复一个已有 Paperclip session。",
+        "本次 heartbeat 已限定到下方 issue。在处理完本次 wake 前，不要切换到其他 issue。",
+        "聚焦下面的新 wake delta，继续当前任务，不要重复完整 heartbeat boilerplate。",
+        "只有当 `fallbackFetchNeeded` 为 true，或你需要比本批数据更完整的历史时，才 fetch API thread。",
         "",
-        "Execution contract: take concrete action in this heartbeat when the issue is actionable; do not stop at a plan unless planning was requested. Leave durable progress and then give the issue a clear final disposition before ending the heartbeat: `done`, `in_review` with a real reviewer/approval/interaction path, `blocked` with first-class blockers or a named unblock owner/action, delegated follow-up issues with blockers, or `in_progress` only when a live continuation path exists. Use child issues for long or parallel delegated work instead of polling. Comments, documents, screenshots, work products, and `Remaining` bullets are evidence, not valid liveness paths by themselves.",
+        "执行契约：issue 可执行时，本次 heartbeat 必须采取具体行动；除非任务要求 planning，否则不要停在 plan。留下持久进展，并在结束 heartbeat 前给 issue 一个清晰 final disposition：`done`、有真实 reviewer/approval/interaction path 的 `in_review`、带 first-class blockers 或具名 unblock owner/action 的 `blocked`、带 blockers 的 delegated follow-up issues，或仅在存在 live continuation path 时保持 `in_progress`。长期或并行 delegated work 使用 child issues，不要 polling。Comments、documents、screenshots、work products 和 `Remaining` bullets 是 evidence，本身不是 valid liveness paths。",
         "",
         `- reason: ${normalized.reason ?? "unknown"}`,
         `- issue: ${normalized.issue?.identifier ?? normalized.issue?.id ?? "unknown"}${normalized.issue?.title ? ` ${normalized.issue.title}` : ""}`,
@@ -704,13 +704,13 @@ export function renderPaperclipWakePrompt(
     : [
         "## Paperclip Wake Payload",
         "",
-        "Treat this wake payload as the highest-priority change for the current heartbeat.",
-        "This heartbeat is scoped to the issue below. Do not switch to another issue until you have handled this wake.",
-        "Before generic repo exploration or boilerplate heartbeat updates, acknowledge the latest comment and explain how it changes your next action.",
-        "Use this inline wake data first before refetching the issue thread.",
-        "Only fetch the API thread when `fallbackFetchNeeded` is true or you need broader history than this batch.",
+        "把此 wake payload 视为当前 heartbeat 的最高优先级变化。",
+        "本次 heartbeat 已限定到下方 issue。在处理完本次 wake 前，不要切换到其他 issue。",
+        "在通用 repo exploration 或 boilerplate heartbeat updates 前，先确认 latest comment，并说明它如何改变你的 next action。",
+        "优先使用这份 inline wake data，再考虑 refetch issue thread。",
+        "只有当 `fallbackFetchNeeded` 为 true，或你需要比本批数据更完整的历史时，才 fetch API thread。",
         "",
-        "Execution contract: take concrete action in this heartbeat when the issue is actionable; do not stop at a plan unless planning was requested. Leave durable progress and then give the issue a clear final disposition before ending the heartbeat: `done`, `in_review` with a real reviewer/approval/interaction path, `blocked` with first-class blockers or a named unblock owner/action, delegated follow-up issues with blockers, or `in_progress` only when a live continuation path exists. Use child issues for long or parallel delegated work instead of polling. Comments, documents, screenshots, work products, and `Remaining` bullets are evidence, not valid liveness paths by themselves.",
+        "执行契约：issue 可执行时，本次 heartbeat 必须采取具体行动；除非任务要求 planning，否则不要停在 plan。留下持久进展，并在结束 heartbeat 前给 issue 一个清晰 final disposition：`done`、有真实 reviewer/approval/interaction path 的 `in_review`、带 first-class blockers 或具名 unblock owner/action 的 `blocked`、带 blockers 的 delegated follow-up issues，或仅在存在 live continuation path 时保持 `in_progress`。长期或并行 delegated work 使用 child issues，不要 polling。Comments、documents、screenshots、work products 和 `Remaining` bullets 是 evidence，本身不是 valid liveness paths。",
         "",
         `- reason: ${normalized.reason ?? "unknown"}`,
         `- issue: ${normalized.issue?.identifier ?? normalized.issue?.id ?? "unknown"}${normalized.issue?.title ? ` ${normalized.issue.title}` : ""}`,
@@ -733,26 +733,26 @@ export function renderPaperclipWakePrompt(
     const acceptedPlanContinuation =
       !hasWakeComments &&
       normalized.interactionKind === "request_confirmation" && normalized.interactionStatus === "accepted";
-    let directive = "Make the plan only. Do not write code or perform implementation work.";
+    let directive = "仅制定 plan。不要写代码或执行 implementation work。";
     if (hasWakeComments) {
-      directive = "Update the plan only. Do not write code or perform implementation work.";
+      directive = "仅更新 plan。不要写代码或执行 implementation work。";
     }
     if (acceptedPlanContinuation) {
-      directive = "Create child issues from the approved plan only. Do not write code or perform implementation work on the planning issue.";
+      directive = "仅从已批准的 plan 创建 child issues。不要在 planning issue 上执行 implementation work。";
     }
     lines.push(`- planning directive: ${directive}`);
     if (acceptedPlanContinuation) {
       lines.push(
-        "- accepted-plan continuation: you may create child implementation issues from the approved plan, but must not start implementation work on the planning issue itself",
+        "- accepted-plan continuation: 可以从已批准的 plan 创建 child implementation issues，但不得在 planning issue 本身启动 implementation work",
       );
     }
   }
   if (normalized.checkedOutByHarness) {
-    lines.push("- checkout: already claimed by the harness for this run");
+    lines.push("- checkout: 本次 run 已由 harness claim");
   }
   if (normalized.dependencyBlockedInteraction) {
     lines.push("- dependency-blocked interaction: yes");
-    lines.push("- execution scope: respond or triage the human comment; do not treat blocker-dependent deliverable work as unblocked");
+    lines.push("- execution scope: 回复或 triage human comment；不要把依赖 blocker 的 deliverable work 视为已 unblocked");
     if (normalized.unresolvedBlockerSummaries.length > 0) {
       const blockers = normalized.unresolvedBlockerSummaries
         .map((blocker) => `${blocker.identifier ?? blocker.id ?? "unknown"}${blocker.title ? ` ${blocker.title}` : ""}${blocker.status ? ` (${blocker.status})` : ""}`)
@@ -764,7 +764,7 @@ export function renderPaperclipWakePrompt(
   }
   if (normalized.treeHoldInteraction) {
     lines.push("- tree-hold interaction: yes");
-    lines.push("- execution scope: respond or triage the human comment; the subtree remains paused until an explicit resume action");
+    lines.push("- execution scope: 回复或 triage human comment；subtree 在 explicit resume action 前保持 paused");
     if (normalized.activeTreeHold) {
       const hold = normalized.activeTreeHold;
       lines.push(`- active tree hold: ${hold.holdId ?? "unknown"}${hold.rootIssueId ? ` rooted at ${hold.rootIssueId}` : ""}${hold.mode ? ` (${hold.mode})` : ""}`);
@@ -788,23 +788,23 @@ export function renderPaperclipWakePrompt(
     if (executionStage.reviewRequest) {
       lines.push(
         "",
-        "Review request instructions:",
+        "Review request 指令：",
         executionStage.reviewRequest.instructions,
       );
     }
     lines.push("");
     if (executionStage.wakeRole === "reviewer" || executionStage.wakeRole === "approver") {
       lines.push(
-        `You are waking as the active ${executionStage.wakeRole} for this issue.`,
-        "Do not execute the task itself or continue executor work.",
-        "Review the issue and choose one of the allowed actions above.",
-        "If you request changes, the workflow routes back to the stored return assignee.",
+        `你正以本 issue 的 active ${executionStage.wakeRole} 身份 wake。`,
+        "不要执行任务本身，也不要继续 executor work。",
+        "Review 该 issue，并从上方 allowed actions 中选择一个。",
+        "如果 request changes，workflow 会回到已记录的 return assignee。",
         "",
       );
     } else if (executionStage.wakeRole === "executor") {
       lines.push(
-        "You are waking because changes were requested in the execution workflow.",
-        "Address the requested changes on this issue and resubmit when the work is ready.",
+        "你被 wake 是因为 execution workflow 中有人 request changes。",
+        "在本 issue 上处理 requested changes，并在 work ready 后 resubmit。",
         "",
       );
     }
@@ -813,17 +813,17 @@ export function renderPaperclipWakePrompt(
   if (normalized.continuationSummary) {
     lines.push(
       "",
-      "Issue continuation summary:",
+      "Issue continuation 摘要：",
       normalized.continuationSummary.body,
     );
     if (normalized.continuationSummary.bodyTruncated) {
-      lines.push("[continuation summary truncated]");
+      lines.push("[continuation summary 已截断]");
     }
   }
 
   if (normalized.livenessContinuation) {
     const continuation = normalized.livenessContinuation;
-    lines.push("", "Run liveness continuation:");
+    lines.push("", "Run liveness continuation：");
     if (continuation.attempt) {
       lines.push(
         `- attempt: ${continuation.attempt}${continuation.maxAttempts ? `/${continuation.maxAttempts}` : ""}`,
@@ -844,7 +844,7 @@ export function renderPaperclipWakePrompt(
   }
 
   if (normalized.childIssueSummaries.length > 0) {
-    lines.push("", "Direct child issue summaries:");
+    lines.push("", "Direct child issue 摘要：");
     for (const child of normalized.childIssueSummaries) {
       const label = child.identifier ?? child.id ?? "unknown";
       lines.push(
@@ -855,21 +855,21 @@ export function renderPaperclipWakePrompt(
       }
     }
     if (normalized.childIssueSummaryTruncated) {
-      lines.push("[child issue summaries truncated]");
+      lines.push("[child issue summaries 已截断]");
     }
   }
 
   if (normalized.checkedOutByHarness) {
     lines.push(
       "",
-      "The harness already checked out this issue for the current run.",
-      "Do not call `/api/issues/{id}/checkout` again unless you intentionally switch to a different task.",
+      "harness 已为当前 run checkout 此 issue。",
+      "除非你明确要切换到其他 task，否则不要再次调用 `/api/issues/{id}/checkout`。",
       "",
     );
   }
 
   if (normalized.comments.length > 0) {
-    lines.push("New comments in order:");
+    lines.push("按顺序列出新 comments：");
   }
 
   for (const [index, comment] of normalized.comments.entries()) {
@@ -881,7 +881,7 @@ export function renderPaperclipWakePrompt(
       comment.body,
     );
     if (comment.bodyTruncated) {
-      lines.push("[comment body truncated]");
+      lines.push("[comment body 已截断]");
     }
     lines.push("");
   }

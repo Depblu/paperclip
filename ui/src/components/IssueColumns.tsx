@@ -46,6 +46,14 @@ const issueColumnDescriptions: Record<InboxIssueColumn, string> = {
   updated: "Latest visible activity time.",
 };
 
+function issueColumnLabel(column: InboxIssueColumn, t: TranslateFn): string {
+  return t(`components.issuecolumns.${column}.column_label`, { defaultValue: issueColumnLabels[column] });
+}
+
+function issueColumnDescription(column: InboxIssueColumn, t: TranslateFn): string {
+  return t(`components.issuecolumns.${column}.column_description`, { defaultValue: issueColumnDescriptions[column] });
+}
+
 export function issueActivityText(issue: Issue, t: TranslateFn = translate): string {
   return t("components.issuecolumns.updated_time_ago", {
     time: timeAgo(issue.lastActivityAt ?? issue.lastExternalCommentAt ?? issue.updatedAt),
@@ -118,10 +126,10 @@ const { t } = useTranslation();
           >
             <span className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-foreground">
-                {issueColumnLabels[column]}
+                {issueColumnLabel(column, t)}
               </span>
               <span className="text-xs leading-relaxed text-muted-foreground">
-                {issueColumnDescriptions[column]}
+                {issueColumnDescription(column, t)}
               </span>
             </span>
           </DropdownMenuCheckboxItem>

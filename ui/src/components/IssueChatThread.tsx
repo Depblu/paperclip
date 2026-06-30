@@ -3790,7 +3790,9 @@ const { t } = useTranslation();
         ) : null}
 
         <Button size="sm" disabled={!canSubmit} onClick={() => void handleSubmit()}>
-          {submitting ? "Posting..." : "Send"}
+          {submitting
+            ? t("components.issuechatthread.posting.jsx-text", { defaultValue: "Posting..." })
+            : t("components.issuechatthread.send.jsx-text", { defaultValue: "Send" })}
         </Button>
       </div>
     </div>

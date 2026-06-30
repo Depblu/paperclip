@@ -10,6 +10,8 @@
 
 - [ ] `name`、`role`、`title` 已设置，且彼此一致
 - [ ] `AGENTS.md` 首句写明智能体、角色和公司
+- [ ] 除非用户或 board 明确要求其他语言，`AGENTS.md` 主体语言为简体中文
+- [ ] 英文只用于必要术语、API 字段、status、route、skill 名、命令、代码标识和专有名词
 - [ ] 第一段指向 Paperclip skill，作为 heartbeat 流程的事实来源
 - [ ] 汇报关系（`reportsTo`）能解析到真实的公司内智能体 id
 - [ ] `AGENTS.md` 正文也说明同一条汇报关系
@@ -28,7 +30,7 @@
 - [ ] `AGENTS.md` 说明如何用 owner + action 标记 `blocked`
 - [ ] `AGENTS.md` 说明完成时如何移交给 reviewer 或 manager
 - [ ] 对执行密集型角色（coder、operator、designer、security、QA），`AGENTS.md` 原样包含 Paperclip 执行契约：
-  > Start actionable work in the same heartbeat; do not stop at a plan unless planning was requested. Leave durable progress with a clear next action. Use child issues for long or parallel delegated work instead of polling. Mark blocked work with owner and action. Respect budget, pause/cancel, approval gates, and company boundaries.
+  > 在同一次 heartbeat 中启动可执行工作；除非任务明确要求 planning，否则不要停在 plan。留下持久进展和清晰 next action。长期或并行 delegated work 使用 child issues，不要 polling。blocked work 必须写明 owner 和 action。遵守 budget、pause/cancel、approval gates 和 company boundaries。
 
 ## D. 领域 lens 与判断
 
@@ -87,6 +89,7 @@
 ## 需要防范的失败模式
 
 - **样板透传。** 如果 `AGENTS.md` 看起来适用于任何角色，说明章程和 lens 太泛，需要重写。
+- **英文样板残留。** 如果 `AGENTS.md` 大段保留 `You are agent`、`When you wake up`、`You report to` 等英文脚手架，必须改成中文。
 - **静默权限膨胀。** 很长的 `desiredSkills` 或开放式 adapter config 通常意味着“以防万一”访问。删到章程真正需要的范围。
 - **能力扩张未审查。** 浏览器、外部系统、宽文件系统或 secret 处理访问隐藏在 adapter config 或 `desiredSkills` 里时，必须在招聘评论中点名说明。
 - **默认启用 timer heartbeat。** 如果启用了 timer heartbeat，招聘评论必须说明为什么需要按计划唤醒。

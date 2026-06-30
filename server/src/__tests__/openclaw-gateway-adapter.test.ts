@@ -495,10 +495,10 @@ describe("openclaw gateway adapter execute", () => {
       expect(String(payload?.message ?? "")).toContain("PAPERCLIP_TASK_ID=task-123");
       expect(String(payload?.message ?? "")).toContain("## Paperclip Wake Payload");
       expect(String(payload?.message ?? "")).toContain(
-        "Treat this wake payload as the highest-priority change for the current heartbeat.",
+        "把此 wake payload 视为当前 heartbeat 的最高优先级变化。",
       );
       expect(String(payload?.message ?? "")).toContain(
-        "Do not switch to another issue until you have handled this wake.",
+        "在处理完本次 wake 前，不要切换到其他 issue。",
       );
       expect(String(payload?.message ?? "")).toContain("First comment");
       expect(String(payload?.message ?? "")).toContain("\"commentIds\":[\"comment-1\",\"comment-2\"]");

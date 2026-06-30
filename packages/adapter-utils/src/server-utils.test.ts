@@ -601,22 +601,20 @@ describe("runChildProcess", () => {
 
 describe("renderPaperclipWakePrompt", () => {
   it("keeps the default local-agent prompt action-oriented", () => {
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("Start actionable work in this heartbeat");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("do not stop at a plan");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("clear final disposition");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("evidence, not valid liveness paths by themselves");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("keep `in_progress` only when a live continuation path exists");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("Prefer the smallest verification that proves the change");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("Use child issues");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("instead of polling agents, sessions, or processes");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("Create child issues directly when you know what needs to be done");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("在本次 heartbeat 中启动可执行工作");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("不要停在 plan");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("清晰 final disposition");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("本身不是 valid liveness paths");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("只有存在 live continuation path 时才保持 `in_progress`");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("优先运行能证明变更的最小验证");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("使用 child issues");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("不要 polling agents、sessions 或 processes");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("直接创建 child issues");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("POST /api/issues/{issueId}/interactions");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("kind suggest_tasks, ask_user_questions, or request_confirmation");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("confirmation:{issueId}:plan:{revisionId}");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("Wait for acceptance before creating implementation subtasks");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain(
-      "Respect budget, pause/cancel, approval gates, and company boundaries",
-    );
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("等待 acceptance 后再创建 implementation subtasks");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("遵守 budget、pause/cancel、approval gates 和 company boundaries");
   });
 
   it("adds the execution contract to scoped wake prompts", () => {
@@ -638,11 +636,11 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     expect(prompt).toContain("## Paperclip Wake Payload");
-    expect(prompt).toContain("Execution contract: take concrete action in this heartbeat");
-    expect(prompt).toContain("clear final disposition");
-    expect(prompt).toContain("evidence, not valid liveness paths by themselves");
-    expect(prompt).toContain("Use child issues for long or parallel delegated work instead of polling");
-    expect(prompt).toContain("named unblock owner/action");
+    expect(prompt).toContain("执行契约：issue 可执行时，本次 heartbeat 必须采取具体行动");
+    expect(prompt).toContain("清晰 final disposition");
+    expect(prompt).toContain("本身不是 valid liveness paths");
+    expect(prompt).toContain("长期或并行 delegated work 使用 child issues，不要 polling");
+    expect(prompt).toContain("具名 unblock owner/action");
   });
 
   it("preserves Chinese, Japanese, and Hindi issue and comment text in scoped wake prompts", () => {
@@ -705,7 +703,7 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     expect(assignmentPrompt).toContain("- issue work mode: planning");
-    expect(assignmentPrompt).toContain("Make the plan only. Do not write code or perform implementation work.");
+    expect(assignmentPrompt).toContain("仅制定 plan。不要写代码或执行 implementation work。");
 
     const commentPrompt = renderPaperclipWakePrompt({
       reason: "issue_commented",
@@ -723,7 +721,7 @@ describe("renderPaperclipWakePrompt", () => {
       fallbackFetchNeeded: false,
     });
 
-    expect(commentPrompt).toContain("Update the plan only. Do not write code or perform implementation work.");
+    expect(commentPrompt).toContain("仅更新 plan。不要写代码或执行 implementation work。");
   });
 
   it("does not render stale accepted-plan continuation guidance for later planning comment wakes", () => {
@@ -745,9 +743,9 @@ describe("renderPaperclipWakePrompt", () => {
       fallbackFetchNeeded: false,
     });
 
-    expect(prompt).toContain("Update the plan only. Do not write code or perform implementation work.");
+    expect(prompt).toContain("仅更新 plan。不要写代码或执行 implementation work。");
     expect(prompt).not.toContain("accepted-plan continuation");
-    expect(prompt).not.toContain("Create child issues from the approved plan only");
+    expect(prompt).not.toContain("仅从已批准的 plan 创建 child issues");
   });
 
   it("renders accepted-plan continuation guidance for planning issues", () => {
@@ -768,9 +766,9 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     expect(prompt).toContain("accepted-plan continuation");
-    expect(prompt).toContain("Create child issues from the approved plan only");
-    expect(prompt).toContain("may create child implementation issues");
-    expect(prompt).toContain("must not start implementation work on the planning issue itself");
+    expect(prompt).toContain("仅从已批准的 plan 创建 child issues");
+    expect(prompt).toContain("可以从已批准的 plan 创建 child implementation issues");
+    expect(prompt).toContain("不得在 planning issue 本身启动 implementation work");
   });
 
   it("keeps accepted-plan guidance when stale comment ids have no loaded comments", () => {
@@ -793,8 +791,8 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     expect(prompt).toContain("accepted-plan continuation");
-    expect(prompt).toContain("Create child issues from the approved plan only");
-    expect(prompt).not.toContain("Update the plan only");
+    expect(prompt).toContain("仅从已批准的 plan 创建 child issues");
+    expect(prompt).not.toContain("仅更新 plan");
   });
 
   it("renders dependency-blocked interaction guidance", () => {
@@ -829,7 +827,7 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     expect(prompt).toContain("dependency-blocked interaction: yes");
-    expect(prompt).toContain("respond or triage the human comment");
+    expect(prompt).toContain("回复或 triage human comment");
     expect(prompt).toContain("PAP-1723 Finish blocker (todo)");
   });
 
@@ -856,9 +854,9 @@ describe("renderPaperclipWakePrompt", () => {
       fallbackFetchNeeded: false,
     });
 
-    expect(prompt).toContain("Review request instructions:");
+    expect(prompt).toContain("Review request 指令：");
     expect(prompt).toContain("Please focus on edge cases and leave a short risk summary.");
-    expect(prompt).toContain("You are waking as the active reviewer for this issue.");
+    expect(prompt).toContain("你正以本 issue 的 active reviewer 身份 wake。");
   });
 
   it("includes continuation and child issue summaries in structured wake context", () => {
@@ -917,15 +915,15 @@ describe("renderPaperclipWakePrompt", () => {
     });
 
     const prompt = renderPaperclipWakePrompt(payload);
-    expect(prompt).toContain("Issue continuation summary:");
+    expect(prompt).toContain("Issue continuation 摘要：");
     expect(prompt).toContain("Integrate child outputs.");
-    expect(prompt).toContain("Run liveness continuation:");
+    expect(prompt).toContain("Run liveness continuation：");
     expect(prompt).toContain("- attempt: 2/2");
     expect(prompt).toContain("- source run: run-1");
     expect(prompt).toContain("- liveness state: plan_only");
     expect(prompt).toContain("- reason: Run described future work without concrete action evidence");
     expect(prompt).toContain("- instruction: Take the first concrete action now.");
-    expect(prompt).toContain("Direct child issue summaries:");
+    expect(prompt).toContain("Direct child issue 摘要：");
     expect(prompt).toContain("PAP-101 Implement helper (done)");
     expect(prompt).toContain("Added the helper route and tests.");
   });

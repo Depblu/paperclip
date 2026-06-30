@@ -19,7 +19,7 @@ describe("buildPaperclipTaskMarkdown", () => {
     });
 
     expect(assignment).toContain("- Work mode: \"planning\"");
-    expect(assignment).toContain("Make the plan only. Do not write code or perform implementation work.");
+    expect(assignment).toContain("仅制定 plan。不要写代码或执行 implementation work。");
 
     const commentWake = buildPaperclipTaskMarkdown({
       issue: {
@@ -35,7 +35,7 @@ describe("buildPaperclipTaskMarkdown", () => {
       },
     });
 
-    expect(commentWake).toContain("Update the plan only. Do not write code or perform implementation work.");
+    expect(commentWake).toContain("仅更新 plan。不要写代码或执行 implementation work。");
 
     const acceptedConfirmation = buildPaperclipTaskMarkdown({
       issue: {
@@ -51,8 +51,8 @@ describe("buildPaperclipTaskMarkdown", () => {
       },
     });
 
-    expect(acceptedConfirmation).toContain("Create child issues from the approved plan only");
-    expect(acceptedConfirmation).not.toContain("Make the plan only.");
+    expect(acceptedConfirmation).toContain("仅从已批准的 plan 创建 child issues");
+    expect(acceptedConfirmation).not.toContain("仅制定 plan。");
   });
 
   it("adds accepted-plan continuation guidance for standard-work issues when the wake is flagged as a plan continuation", () => {
@@ -67,8 +67,8 @@ describe("buildPaperclipTaskMarkdown", () => {
       acceptedPlanContinuation: true,
     });
 
-    expect(acceptedConfirmation).toContain("Accepted plan directive:");
-    expect(acceptedConfirmation).toContain("Create child issues from the approved plan only");
+    expect(acceptedConfirmation).toContain("Accepted plan 指令：");
+    expect(acceptedConfirmation).toContain("仅从已批准的 plan 创建 child issues");
     expect(acceptedConfirmation).not.toContain("- Work mode: \"planning\"");
   });
 
@@ -91,8 +91,8 @@ describe("buildPaperclipTaskMarkdown", () => {
       },
     });
 
-    expect(commentWake).toContain("Update the plan only. Do not write code or perform implementation work.");
-    expect(commentWake).not.toContain("Create child issues from the approved plan only");
+    expect(commentWake).toContain("仅更新 plan。不要写代码或执行 implementation work。");
+    expect(commentWake).not.toContain("仅从已批准的 plan 创建 child issues");
   });
 });
 

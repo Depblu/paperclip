@@ -867,7 +867,9 @@ const { t } = useTranslation();
     if (currentUserId) {
       options.set(`user:${currentUserId}`, {
         id: `user:${currentUserId}`,
-        label: currentUserId === "local-board" ? "Board" : "Me",
+        label: currentUserId === "local-board"
+          ? t("lib.assignees.board.label", { defaultValue: "Board" })
+          : t("components.issuefilterspopover.me.jsx-text", { defaultValue: "Me" }),
         kind: "user",
         searchText: currentUserId === "local-board" ? "board me human local-board" : `me board human ${currentUserId}`,
       });
@@ -918,7 +920,7 @@ const { t } = useTranslation();
       if (a.kind !== b.kind) return a.kind === "user" ? -1 : 1;
       return a.label.localeCompare(b.label);
     });
-  }, [agents, currentUserId, issues]);
+  }, [agents, currentUserId, issues, t]);
 
   const visibleIssueColumnSet = useMemo(() => new Set(visibleIssueColumns), [visibleIssueColumns]);
   const availableIssueColumns = useMemo(
@@ -1386,7 +1388,9 @@ const { t } = useTranslation();
               size="icon"
               className={cn("hidden h-8 w-8 shrink-0 sm:inline-flex", viewState.nestingEnabled && "bg-accent")}
               onClick={() => updateView({ nestingEnabled: !viewState.nestingEnabled })}
-              title={viewState.nestingEnabled ? "Disable parent-child nesting" : "Enable parent-child nesting"}
+              title={viewState.nestingEnabled
+                ? t("components.issueslist.disable_parent_child_nesting.attr_title", { defaultValue: "Disable parent-child nesting" })
+                : t("components.issueslist.enable_parent_child_nesting.attr_title", { defaultValue: "Enable parent-child nesting" })}
             >
               <ListTree className="h-3.5 w-3.5" />
             </Button>
@@ -1400,7 +1404,9 @@ const { t } = useTranslation();
                 size="icon"
                 className={cn("h-8 w-8 shrink-0", boardCompactCards && "bg-accent")}
                 onClick={() => updateView({ boardCardDensity: boardCompactCards ? "comfortable" : "compact" })}
-                title={boardCompactCards ? "Use comfortable cards" : "Use compact cards"}
+                title={boardCompactCards
+                  ? t("components.issueslist.use_comfortable_cards.attr_title", { defaultValue: "Use comfortable cards" })
+                  : t("components.issueslist.use_compact_cards.attr_title", { defaultValue: "Use compact cards" })}
               >
                 <ChevronsDownUp className="h-3.5 w-3.5" />
               </Button>
@@ -1410,7 +1416,9 @@ const { t } = useTranslation();
                 size="icon"
                 className={cn("h-8 w-8 shrink-0", boardCollapsedStatuses.length > 0 && "bg-accent")}
                 onClick={() => updateView({ boardColdLaneMode: boardCollapsedStatuses.length > 0 ? "expanded" : "collapsed" })}
-                title={boardCollapsedStatuses.length > 0 ? "Expand cold lanes" : "Collapse cold lanes"}
+                title={boardCollapsedStatuses.length > 0
+                  ? t("components.issueslist.expand_cold_lanes.attr_title", { defaultValue: "Expand cold lanes" })
+                  : t("components.issueslist.collapse_cold_lanes.attr_title", { defaultValue: "Collapse cold lanes" })}
               >
                 <PanelTopClose className="h-3.5 w-3.5" />
               </Button>
@@ -1508,12 +1516,12 @@ const { t } = useTranslation();
               <PopoverContent align="end" className="w-48 p-0">
                 <div className="p-2 space-y-0.5">
                   {([
-                    ["workflow", "Workflow"],
-                    ["status", "Status"],
-                    ["priority", "Priority"],
-                    ["title", "Title"],
-                    ["created", "Created"],
-                    ["updated", "Updated"],
+                    ["workflow", t("components.issueslist.workflow.sort_label", { defaultValue: "Workflow" })],
+                    ["status", t("components.issueslist.status.sort_label", { defaultValue: "Status" })],
+                    ["priority", t("components.issueslist.priority.sort_label", { defaultValue: "Priority" })],
+                    ["title", t("components.issueslist.title.sort_label", { defaultValue: "Title" })],
+                    ["created", t("components.issueslist.created.sort_label", { defaultValue: "Created" })],
+                    ["updated", t("components.issueslist.updated.sort_label", { defaultValue: "Updated" })],
                   ] as const).map(([field, label]) => (
                     <button
                       key={field}
@@ -1552,13 +1560,13 @@ const { t } = useTranslation();
               <PopoverContent align="end" className="w-44 p-0">
                 <div className="p-2 space-y-0.5">
                   {([
-                    ["status", "Status"],
-                    ["priority", "Priority"],
-                    ["assignee", "Assignee"],
-                    ["project", "Project"],
-                    ["workspace", "Workspace"],
-                    ["parent", "Parent Task"],
-                    ["none", "None"],
+                    ["status", t("components.issueslist.status.group_label", { defaultValue: "Status" })],
+                    ["priority", t("components.issueslist.priority.group_label", { defaultValue: "Priority" })],
+                    ["assignee", t("components.issueslist.assignee.group_label", { defaultValue: "Assignee" })],
+                    ["project", t("components.issueslist.project.group_label", { defaultValue: "Project" })],
+                    ["workspace", t("components.issueslist.workspace.group_label", { defaultValue: "Workspace" })],
+                    ["parent", t("components.issueslist.parent_task.group_label", { defaultValue: "Parent Task" })],
+                    ["none", t("components.issueslist.none.group_label", { defaultValue: "None" })],
                   ] as const).map(([value, label]) => (
                     <button
                       key={value}

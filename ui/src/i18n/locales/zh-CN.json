@@ -189,7 +189,9 @@
     "inDays_other": "{{count}} 天后",
     "minutesAgo": "{{count}} 分钟前",
     "hoursAgo": "{{count}} 小时前",
-    "daysAgo": "{{count}} 天前"
+    "daysAgo": "{{count}} 天前",
+    "weeksAgo": "{{count}} 周前",
+    "monthsAgo": "{{count}} 个月前"
   },
   "errors": {
     "generic": "出现错误。",
@@ -2067,6 +2069,12 @@
       },
       "pick_assignee_or_send_again": {
         "body": "请选择承接人，或再次点击发送以无承接人发布。"
+      },
+      "posting": {
+        "jsx-text": "发送中..."
+      },
+      "send": {
+        "jsx-text": "发送"
       }
     },
     "issuecolumns": {
@@ -2074,7 +2082,39 @@
         "attr_title": "列"
       },
       "desktop_task_rows": {
-        "jsx-text": "\n              Desktop task rows\n            "
+        "jsx-text": "\n              桌面任务行\n            "
+      },
+      "status": {
+        "column_label": "状态",
+        "column_description": "任务左侧的状态标记。"
+      },
+      "id": {
+        "column_label": "ID",
+        "column_description": "任务编号，例如 PAP-1009。"
+      },
+      "assignee": {
+        "column_label": "负责人",
+        "column_description": "已分配的智能体或看板用户。"
+      },
+      "project": {
+        "column_label": "项目",
+        "column_description": "关联项目标签及其颜色。"
+      },
+      "workspace": {
+        "column_label": "工作区",
+        "column_description": "此任务使用的执行或项目工作区。"
+      },
+      "parent": {
+        "column_label": "父任务",
+        "column_description": "父任务编号和标题。"
+      },
+      "labels": {
+        "column_label": "标签",
+        "column_description": "任务标签。"
+      },
+      "updated": {
+        "column_label": "最后更新",
+        "column_description": "最近可见活动时间。"
       },
       "filter_by_workspace": {
         "jsx-text": "\n                    筛选 by workspace\n                  "
@@ -2086,10 +2126,10 @@
         "jsx-text": "\n             无 project\n            "
       },
       "reset_defaults": {
-        "jsx-text": "\n          Reset defaults\n          "
+        "jsx-text": "\n          重置默认值\n          "
       },
       "status_id_updated": {
-        "jsx-text": "status, id, updated"
+        "jsx-text": "状态、ID、最后更新"
       },
       "sub_task": {
         "jsx-text": "Sub-task"
@@ -2232,13 +2272,13 @@
     },
     "issuefilterspopover": {
       "assignee": {
-        "jsx-text": "Assignee"
+        "jsx-text": "负责人"
       },
       "clear": {
-        "jsx-text": "\n                Clear\n              "
+        "jsx-text": "\n                清除\n              "
       },
       "creator": {
-        "jsx-text": "Creator"
+        "jsx-text": "创建者"
       },
       "filters": {
         "jsx-text": "筛选"
@@ -2250,43 +2290,43 @@
         "jsx-text": "筛选"
       },
       "hide_routine_runs": {
-        "jsx-text": "Hide routine runs"
+        "jsx-text": "隐藏例程运行"
       },
       "labels": {
-        "jsx-text": "Labels"
+        "jsx-text": "标签"
       },
       "live_runs_only": {
-        "jsx-text": "Live runs only"
+        "jsx-text": "仅显示实时运行"
       },
       "me": {
-        "jsx-text": "Me"
+        "jsx-text": "我"
       },
       "no_assignee": {
         "jsx-text": "无承接人"
       },
       "no_creators_match": {
-        "jsx-text": "No creators match."
+        "jsx-text": "没有匹配的创建者。"
       },
       "priority": {
         "jsx-text": "优先级"
       },
       "project": {
-        "jsx-text": "Project"
+        "jsx-text": "项目"
       },
       "quick_filters": {
-        "jsx-text": "Quick filters"
+        "jsx-text": "快速筛选"
       },
       "search_creators": {
-        "attr_placeholder": "Search creators..."
+        "attr_placeholder": "搜索创建者..."
       },
       "status": {
         "jsx-text": "状态"
       },
       "visibility": {
-        "jsx-text": "Visibility"
+        "jsx-text": "可见性"
       },
       "workspace": {
-        "jsx-text": "Workspace"
+        "jsx-text": "工作区"
       }
     },
     "issuelinkquicklook": {
@@ -2365,20 +2405,20 @@
         "jsx-text": "· adapter default "
       },
       "add_blocker": {
-        "jsx-text": "\n     添加 blocker\n    "
+        "jsx-text": "\n      添加阻塞项\n    "
       },
       "add_label": {
         "attr_aria-label": "Add label",
         "attr_title": "Add label"
       },
       "add_sub_task": {
-        "jsx-text": "\n             添加 sub-task\n              "
+        "jsx-text": "\n              添加子任务\n              "
       },
       "agent": {
         "jsx-text": "Agent"
       },
       "approvers": {
-        "attr_label": "Approvers"
+        "attr_label": "审批者"
       },
       "as_a_blocker_for_this_task": {
         "jsx-text": " as a blocker for this task.\n            "
@@ -2388,7 +2428,7 @@
         "option_label": "分配给我"
       },
       "assignee": {
-        "attr_label": "Assignee"
+        "attr_label": "负责人"
       },
       "attempt": {
         "jsx-text": "\n      Attempt "
@@ -2397,7 +2437,7 @@
         "attr_label": "被阻塞于"
       },
       "blocking": {
-        "attr_label": "Blocking"
+        "attr_label": "阻塞"
       },
       "branch": {
         "attr_label": "Branch"
@@ -2452,7 +2492,7 @@
         "attr_label": "文件夹"
       },
       "labels": {
-        "attr_label": "Labels"
+        "attr_label": "标签"
       },
       "last_error": {
         "jsx-text": "Last error"
@@ -2469,7 +2509,7 @@
         "jsx-text": "modelProfile: \"cheap\""
       },
       "monitor": {
-        "attr_label": "Monitor"
+        "attr_label": "监控"
       },
       "new_label": {
         "attr_placeholder": "New label"
@@ -2481,13 +2521,13 @@
         "jsx-text": "\n         无 blockers\n        "
       },
       "no_labels": {
-        "jsx-text": "No labels"
+        "jsx-text": "无标签"
       },
       "no_matching_tasks": {
         "jsx-text": "No matching tasks."
       },
       "no_parent": {
-        "jsx-text": "No parent"
+        "jsx-text": "无父项"
       },
       "no_project": {
         "jsx-text": "无项目"
@@ -2508,7 +2548,7 @@
         "attr_label": "优先级"
       },
       "project": {
-        "attr_label": "Project"
+        "attr_label": "项目"
       },
       "reason": {
         "jsx-text": "Reason"
@@ -2532,7 +2572,7 @@
         "jsx-text": "\n              Retrying…\n            "
       },
       "reviewers": {
-        "attr_label": "Reviewers"
+        "attr_label": "审阅者"
       },
       "schedule": {
         "jsx-text": "\n            Schedule\n          "
@@ -2542,19 +2582,19 @@
         "jsx-text": "已计划重试"
       },
       "search_assignees": {
-        "attr_placeholder": "Search assignees..."
+        "attr_placeholder": "搜索负责人..."
       },
       "search_labels": {
-        "attr_placeholder": "Search labels..."
+        "attr_placeholder": "搜索标签..."
       },
       "search_projects": {
-        "attr_placeholder": "Search projects..."
+        "attr_placeholder": "搜索项目..."
       },
       "search_tasks_to_add_as_blockers": {
-        "attr_aria-label": "Search tasks to添加 as blockers"
+        "attr_aria-label": "搜索要添加为阻塞项的任务"
       },
       "search_tasks": {
-        "attr_placeholder": "Search tasks..."
+        "attr_placeholder": "搜索任务..."
       },
       "searching_tasks": {
         "jsx-text": "Searching tasks..."
@@ -3183,16 +3223,35 @@
         "jsx-text": "All sub-tasks done"
       },
       "assignee": {
-        "jsx-text": "\n                                          Assignee\n                                        "
+        "jsx-text": "\n                                          负责人\n                                        ",
+        "group_label": "负责人"
       },
       "board_view": {
-        "attr_title": "Board view"
+        "attr_title": "看板视图"
       },
       "cards_per_column": {
-        "attr_title": "Cards per column"
+        "attr_title": "每列卡片数"
       },
       "choose_which_task_columns_stay_v": {
-        "attr_title": "Choose which task columns stay visible"
+        "attr_title": "选择任务列表中显示的列"
+      },
+      "disable_parent_child_nesting": {
+        "attr_title": "禁用父子任务嵌套"
+      },
+      "enable_parent_child_nesting": {
+        "attr_title": "启用父子任务嵌套"
+      },
+      "use_comfortable_cards": {
+        "attr_title": "使用舒适卡片"
+      },
+      "use_compact_cards": {
+        "attr_title": "使用紧凑卡片"
+      },
+      "expand_cold_lanes": {
+        "attr_title": "展开冷门列"
+      },
+      "collapse_cold_lanes": {
+        "attr_title": "折叠冷门列"
       },
       "group": {
         "attr_title": "分组"
@@ -3201,13 +3260,13 @@
         "jsx-text": "进行中\n            "
       },
       "list_view": {
-        "attr_title": "List view"
+        "attr_title": "列表视图"
       },
       "matches_refine_the_search_to_nar": {
         "jsx-text": " matches. Refine the 搜索 to narrow further.\n        "
       },
       "me": {
-        "jsx-text": "Me"
+        "jsx-text": "我"
       },
       "needs_next_step": {
         "attr_aria-label": "Needs next step",
@@ -3228,10 +3287,11 @@
         "jsx-text": "\n                                  Paused\n                                "
       },
       "per_column": {
-        "jsx-text": " per column"
+        "jsx-text": " 每列",
+        "option_label": "每列 {{count}} 张"
       },
       "reset_board_density": {
-        "attr_title": "Reset board density"
+        "attr_title": "重置看板密度"
       },
       "runtime": {
         "jsx-text": " runtime\n                "
@@ -3261,6 +3321,38 @@
       },
       "sort": {
         "attr_title": "排序"
+      },
+      "workflow": {
+        "sort_label": "工作流"
+      },
+      "status": {
+        "sort_label": "状态",
+        "group_label": "状态"
+      },
+      "priority": {
+        "sort_label": "优先级",
+        "group_label": "优先级"
+      },
+      "title": {
+        "sort_label": "标题"
+      },
+      "created": {
+        "sort_label": "创建时间"
+      },
+      "updated": {
+        "sort_label": "更新时间"
+      },
+      "project": {
+        "group_label": "项目"
+      },
+      "workspace": {
+        "group_label": "工作区"
+      },
+      "parent_task": {
+        "group_label": "父任务"
+      },
+      "none": {
+        "group_label": "无"
       },
       "sub_task": {
         "jsx-text": " sub-task"
@@ -12692,7 +12784,7 @@
         "attr_title": "More task actions"
       },
       "new_sub_task": {
-        "jsx-text": "\n            New Sub-task\n          "
+        "jsx-text": "\n            新建子任务\n          "
       },
       "no_cost_data_yet": {
         "jsx-text": "No cost data yet."
@@ -12786,7 +12878,7 @@
         "jsx-text": "\n                    Tokens "
       },
       "upload_attachment": {
-        "jsx-text": "Upload attachment"
+        "jsx-text": "上传附件"
       },
       "upload": {
         "jsx-text": "上传"
@@ -16316,8 +16408,8 @@
         "quick_filter_label": "活跃"
       },
       "backlog": {
-        "quick_filter_label": "Backlog",
-        "filter_label": "Backlog"
+        "quick_filter_label": "待办池",
+        "filter_label": "待办池"
       },
       "done": {
         "quick_filter_label": "完成",
@@ -16327,10 +16419,10 @@
         "filter_label": "进行中"
       },
       "todo": {
-        "filter_label": "Todo"
+        "filter_label": "待办"
       },
       "in_review": {
-        "filter_label": "Review 中"
+        "filter_label": "评审中"
       },
       "blocked": {
         "filter_label": "受阻"

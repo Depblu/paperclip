@@ -510,8 +510,8 @@ describeEmbeddedPostgres("accepted plan workspace refresh", () => {
       otherActiveClaimIssueId: otherPlanningIssueId,
       otherActiveClaimIdentifier: "PAP-9302",
     }));
-    expect(adapterInput.context.paperclipTaskMarkdown).toContain("Make the plan only.");
-    expect(adapterInput.context.paperclipTaskMarkdown).not.toContain("Create child issues from the approved plan only");
+    expect(adapterInput.context.paperclipTaskMarkdown).toContain("仅制定 plan。");
+    expect(adapterInput.context.paperclipTaskMarkdown).not.toContain("仅从已批准的 plan 创建 child issues");
   }, 20_000);
 
   it("guards cross-issue accepted-plan retries even when the waking issue is standard work mode", async () => {
@@ -669,7 +669,7 @@ describeEmbeddedPostgres("accepted plan workspace refresh", () => {
       otherActiveClaimIdentifier: "PAP-9402",
     }));
     expect(adapterInput.context.paperclipTaskMarkdown).toContain("Issue: \"PAP-9401\"");
-    expect(adapterInput.context.paperclipTaskMarkdown).not.toContain("Create child issues from the approved plan only");
+    expect(adapterInput.context.paperclipTaskMarkdown).not.toContain("仅从已批准的 plan 创建 child issues");
   }, 20_000);
 
   it("preserves accepted-plan continuation resume state when the wake issue owns the in-flight claim", async () => {
@@ -802,6 +802,6 @@ describeEmbeddedPostgres("accepted plan workspace refresh", () => {
     };
     expect(adapterInput.runtime.sessionId).toBe("accepted-plan-retry-session");
     expect(adapterInput.context.acceptedPlanWakeRouting).toBeUndefined();
-    expect(adapterInput.context.paperclipTaskMarkdown).toContain("Create child issues from the approved plan only");
+    expect(adapterInput.context.paperclipTaskMarkdown).toContain("仅从已批准的 plan 创建 child issues");
   }, 20_000);
 });

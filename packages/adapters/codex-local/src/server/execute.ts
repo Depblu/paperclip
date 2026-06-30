@@ -204,14 +204,14 @@ function buildCodexTransientHandoffNote(input: {
   continuationSummaryBody: string | null;
 }): string {
   return [
-    "Paperclip session handoff:",
-    input.previousSessionId ? `- Previous session: ${input.previousSessionId}` : "",
-    "- Rotation reason: repeated Codex transient remote-compaction failures",
-    `- Fallback mode: ${input.fallbackMode}`,
+    "Paperclip session handoff：",
+    input.previousSessionId ? `- previous session: ${input.previousSessionId}` : "",
+    "- rotation reason：重复的 Codex transient remote-compaction failures",
+    `- fallback mode: ${input.fallbackMode}`,
     input.continuationSummaryBody
-      ? `- Issue continuation summary: ${input.continuationSummaryBody.slice(0, 1_500)}`
+      ? `- Issue continuation summary：${input.continuationSummaryBody.slice(0, 1_500)}`
       : "",
-    "Continue from the current task state. Rebuild only the minimum context you need.",
+    "从当前 task state 继续。只重建你需要的最小 context。",
   ]
     .filter(Boolean)
     .join("\n");

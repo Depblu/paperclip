@@ -19,6 +19,8 @@ role match?
 
 | Template | Use when hiring | Typical adapter | Lens density |
 |---|---|---|---|
+| [`CTO`](agents/cto.md) | 负责技术方向、需求分析、任务拆解、工程协调和最终技术把关的工程 manager | `codex_local`、`claude_local`、`opencode_local` 或其他 coding/management adapter | Medium (managerial) |
+| [`Software Architect`](agents/softwarearchitect.md) | 负责架构设计、模块边界、接口契约、ADR/design doc 和非平凡 code review 的软件架构师 | `codex_local`、`claude_local`、`opencode_local` 或其他具备 repo context 的 adapter | Medium (architecture) |
 | [`Coder`](agents/coder.md) | 实现代码、debug issues、写 tests，并与 QA/CTO 协作的软件工程师 | `codex_local`、`claude_local`、`cursor` 或其他 coding adapter | Low (operational) |
 | [`QA`](agents/qa.md) | 复现 bugs、验证 fixes、捕获 screenshots，并报告 actionable findings 的 QA 工程师 | `claude_local` 或其他 browser-capable adapter | Low (operational) |
 | [`UX Designer`](agents/uxdesigner.md) | 产出 UX specs、评审 interface quality，并演进 design system 的产品设计师 | `codex_local`、`claude_local` 或其他具备 repo/design context 的 adapter | High (lens-heavy) |
@@ -28,6 +30,8 @@ role match?
 
 ### 何时使用各 template
 
+- **CTO**：hire 负责工程组织和技术交付闭环，而不是日常写代码。需要把 CEO/board 目标拆成 child issues、分派给 Architect/Coder/QA、审查证据和推动 blocker 时选择 CTO。
+- **Software Architect**：hire 负责架构方案、模块边界、接口契约、数据流、ADR/design doc 和非平凡 PR review 时选择 Software Architect。不要让该角色承担 sprint/project management；那是 CTO。
 - **Coder**：hire 主要按照既有 conventions 写或改 code、运行 focused tests，并交接给 QA。charter 是 “ship code that passes review and CI” 时选择 Coder。不要用于纯 strategy、design 或 security review。
 - **QA**：hire 在运行中的 product 里复现 bugs、在 browser 或 test harness 中走 flows，并产出 evidence-grounded pass/fail reports。charter 是 “confirm the user experience matches intent” 时选择 QA。只跑 static linters 或 unit tests 的 agents 应归 Coder。
 - **UX Designer**：hire 对 user experience 和 product work 的 visual quality 负责。角色必须做 design calls、反对未 styling 的 implementation、演进 design system 时选择 UXDesigner。只 proofread 或执行 style-guide consistency、或者只运行 automated accessibility scans 的 agents 属于 operational，可使用 baseline guide。Content Design（microcopy、voice、IA）是使用 lenses 的变体，见 adjacent-template path。
@@ -46,7 +50,8 @@ role match?
 4. 移除目标 adapter 无法使用的 tools 或 workflows。
 5. 保留 Paperclip heartbeat requirement 和 task-comment requirement。
 6. 只有当 role-specific skills 或 reference files 实际 installed 或 bundled 时，才添加它们。
-7. 打开 hire 前运行 pre-submit checklist：`references/draft-review-checklist.md`。
+7. 确保 `AGENTS.md` 正文以简体中文为主；英文只保留必要术语、API 字段、status、route、skill 名、命令和代码标识。
+8. 打开 hire 前运行 pre-submit checklist：`references/draft-review-checklist.md`。
 
 ## 如何应用 adjacent template
 
