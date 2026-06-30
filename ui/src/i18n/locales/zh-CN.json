@@ -3898,17 +3898,59 @@
       }
     },
     "newgoaldialog": {
+      "achieved": {
+        "status_label": "已达成"
+      },
+      "active": {
+        "status_label": "活跃"
+      },
       "add_description": {
-        "attr_placeholder": "Add description..."
+        "attr_placeholder": "添加描述..."
+      },
+      "agent": {
+        "level_label": "智能体"
+      },
+      "cancelled": {
+        "status_label": "已取消"
+      },
+      "company": {
+        "level_label": "公司"
+      },
+      "create_goal": {
+        "action": "创建目标"
+      },
+      "create_sub_goal": {
+        "action": "创建子目标"
+      },
+      "creating": {
+        "action": "创建中..."
       },
       "goal_title": {
         "attr_placeholder": "目标标题"
       },
+      "new_goal": {
+        "jsx-text": "新建目标"
+      },
+      "new_sub_goal": {
+        "jsx-text": "新建子目标"
+      },
       "no_parent": {
-        "jsx-text": "\n               无 parent\n              "
+        "jsx-text": "\n                无父目标\n              "
+      },
+      "parent_goal": {
+        "jsx-text": "父目标"
+      },
+      "planned": {
+        "status_label": "已计划"
       },
       "rsaquo": {
         "jsx-text": "›"
+      },
+      "task": {
+        "level_label": "任务"
+      },
+      "team": {
+        "level_label": "团队"
       },
       "times": {
         "jsx-text": "×"
@@ -7689,8 +7731,8 @@
         "jsx-text": "Group by"
       },
       "search_artifacts": {
-        "attr_aria-label": "Search artifacts",
-        "attr_placeholder": "Search artifacts..."
+        "attr_aria-label": "搜索制品",
+        "attr_placeholder": "搜索制品..."
       },
       "select_a_company_to_view_artif": {
         "jsx-text": "选择公司以查看制品。"

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "@/i18n";
+import type { TFunction } from "i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GOAL_STATUSES, GOAL_LEVELS } from "@paperclipai/shared";
 import { useDialog } from "../context/DialogContext";
@@ -25,14 +26,40 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { MarkdownEditor, type MarkdownEditorRef } from "./MarkdownEditor";
-import { StatusBadge } from "./StatusBadge";
+import { statusBadge, statusBadgeDefault } from "../lib/status-colors";
 
-const levelLabels: Record<string, string> = {
-  company: "Company",
-  team: "Team",
-  agent: "Agent",
-  task: "Task",
-};
+function goalStatusLabel(status: string, t: TFunction) {
+  switch (status) {
+    case "planned": return t("components.newgoaldialog.planned.status_label", { defaultValue: "Planned" });
+    case "active": return t("components.newgoaldialog.active.status_label", { defaultValue: "Active" });
+    case "achieved": return t("components.newgoaldialog.achieved.status_label", { defaultValue: "Achieved" });
+    case "cancelled": return t("components.newgoaldialog.cancelled.status_label", { defaultValue: "Cancelled" });
+    default: return status.replace(/_/g, " ");
+  }
+}
+
+function goalLevelLabel(level: string, t: TFunction) {
+  switch (level) {
+    case "company": return t("components.newgoaldialog.company.level_label", { defaultValue: "Company" });
+    case "team": return t("components.newgoaldialog.team.level_label", { defaultValue: "Team" });
+    case "agent": return t("components.newgoaldialog.agent.level_label", { defaultValue: "Agent" });
+    case "task": return t("components.newgoaldialog.task.level_label", { defaultValue: "Task" });
+    default: return level.replace(/_/g, " ");
+  }
+}
+
+function GoalStatusBadge({ status, t }: { status: string; t: TFunction }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap shrink-0",
+        statusBadge[status] ?? statusBadgeDefault,
+      )}
+    >
+      {goalStatusLabel(status, t)}
+    </span>
+  );
+}
 
 export function NewGoalDialog() {
 const { t } = useTranslation();
@@ -131,7 +158,11 @@ const { t } = useTranslation();
               </span>
             )}
             <span className="text-muted-foreground/60">{t("components.newgoaldialog.rsaquo.jsx-text", { defaultValue: "&rsaquo;" })}</span>
-            <span>{newGoalDefaults.parentId ? "New sub-goal" : "New goal"}</span>
+            <span>
+              {newGoalDefaults.parentId
+                ? t("components.newgoaldialog.new_sub_goal.jsx-text", { defaultValue: "New sub-goal" })
+                : t("components.newgoaldialog.new_goal.jsx-text", { defaultValue: "New goal" })}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -192,7 +223,7 @@ const { t } = useTranslation();
           <Popover open={statusOpen} onOpenChange={setStatusOpen}>
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
-                <StatusBadge status={status} />
+                <GoalStatusBadge status={status} t={t} />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="start">
@@ -200,12 +231,12 @@ const { t } = useTranslation();
                 <button
                   key={s}
                   className={cn(
-                    "flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 capitalize",
+                    "flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50",
                     s === status && "bg-accent"
                   )}
                   onClick={() => { setStatus(s); setStatusOpen(false); }}
                 >
-                  {s}
+                  {goalStatusLabel(s, t)}
                 </button>
               ))}
             </PopoverContent>
@@ -216,7 +247,7 @@ const { t } = useTranslation();
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
                 <Layers className="h-3 w-3 text-muted-foreground" />
-                {levelLabels[level] ?? level}
+                {goalLevelLabel(level, t)}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="start">
@@ -229,7 +260,7 @@ const { t } = useTranslation();
                   )}
                   onClick={() => { setLevel(l); setLevelOpen(false); }}
                 >
-                  {levelLabels[l] ?? l}
+                  {goalLevelLabel(l, t)}
                 </button>
               ))}
             </PopoverContent>
@@ -240,7 +271,9 @@ const { t } = useTranslation();
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
                 <Target className="h-3 w-3 text-muted-foreground" />
-                {currentParent ? currentParent.title : "Parent goal"}
+                {currentParent
+                  ? currentParent.title
+                  : t("components.newgoaldialog.parent_goal.jsx-text", { defaultValue: "Parent goal" })}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-48 p-1" align="start">
@@ -275,7 +308,11 @@ const { t } = useTranslation();
             disabled={!title.trim() || createGoal.isPending}
             onClick={handleSubmit}
           >
-            {createGoal.isPending ? "Creating…" : newGoalDefaults.parentId ? "Create sub-goal" : "Create goal"}
+            {createGoal.isPending
+              ? t("components.newgoaldialog.creating.action", { defaultValue: "Creating..." })
+              : newGoalDefaults.parentId
+                ? t("components.newgoaldialog.create_sub_goal.action", { defaultValue: "Create sub-goal" })
+                : t("components.newgoaldialog.create_goal.action", { defaultValue: "Create goal" })}
           </Button>
         </div>
       </DialogContent>

@@ -3898,17 +3898,59 @@
       }
     },
     "newgoaldialog": {
+      "achieved": {
+        "status_label": "Achieved"
+      },
+      "active": {
+        "status_label": "Active"
+      },
       "add_description": {
         "attr_placeholder": "Add description..."
+      },
+      "agent": {
+        "level_label": "Agent"
+      },
+      "cancelled": {
+        "status_label": "Cancelled"
+      },
+      "company": {
+        "level_label": "Company"
+      },
+      "create_goal": {
+        "action": "Create goal"
+      },
+      "create_sub_goal": {
+        "action": "Create sub-goal"
+      },
+      "creating": {
+        "action": "Creating..."
       },
       "goal_title": {
         "attr_placeholder": "Goal title"
       },
+      "new_goal": {
+        "jsx-text": "New goal"
+      },
+      "new_sub_goal": {
+        "jsx-text": "New sub-goal"
+      },
       "no_parent": {
         "jsx-text": "\n                No parent\n              "
       },
+      "parent_goal": {
+        "jsx-text": "Parent goal"
+      },
+      "planned": {
+        "status_label": "Planned"
+      },
       "rsaquo": {
         "jsx-text": "›"
+      },
+      "task": {
+        "level_label": "Task"
+      },
+      "team": {
+        "level_label": "Team"
       },
       "times": {
         "jsx-text": "×"
