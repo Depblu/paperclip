@@ -10,6 +10,7 @@ import {
   buildRuntimeMountedSkillSnapshot,
   buildInvocationEnvForLogs,
   DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE,
+  ensurePaperclipSkillSymlink,
   materializePaperclipSkillCopy,
   refreshPaperclipWorkspaceEnvForExecution,
   renderPaperclipWakePrompt,
@@ -201,6 +202,58 @@ describe("materializePaperclipSkillCopy", () => {
 
       await expect(materializePaperclipSkillCopy(source, target)).resolves.toMatchObject({ copiedFiles: 1 });
       await expect(fs.readFile(path.join(target, "SKILL.md"), "utf8")).resolves.toBe("# skill\n");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("ensurePaperclipSkillSymlink", () => {
+  it("repairs a live symlink that still points at an older Paperclip package skill", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-skill-link-"));
+    try {
+      const current = path.join(root, "current", "skills", "paperclip-create-agent");
+      const old = path.join(
+        root,
+        "old",
+        "node_modules",
+        "@paperclipai",
+        "server",
+        "skills",
+        "paperclip-create-agent",
+      );
+      const skillsHome = path.join(root, "home", ".agents", "skills");
+      const target = path.join(skillsHome, "paperclip-create-agent");
+      await fs.mkdir(current, { recursive: true });
+      await fs.mkdir(old, { recursive: true });
+      await fs.mkdir(skillsHome, { recursive: true });
+      await fs.writeFile(path.join(current, "SKILL.md"), "# current\n", "utf8");
+      await fs.writeFile(path.join(old, "SKILL.md"), "# old\n", "utf8");
+      await fs.symlink(old, target);
+
+      await expect(ensurePaperclipSkillSymlink(current, target)).resolves.toBe("repaired");
+      await expect(fs.realpath(target)).resolves.toBe(await fs.realpath(current));
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves a live symlink to a user-managed skill with the same name", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-skill-link-"));
+    try {
+      const current = path.join(root, "current", "skills", "paperclip-create-agent");
+      const custom = path.join(root, "custom", "paperclip-create-agent");
+      const skillsHome = path.join(root, "home", ".agents", "skills");
+      const target = path.join(skillsHome, "paperclip-create-agent");
+      await fs.mkdir(current, { recursive: true });
+      await fs.mkdir(custom, { recursive: true });
+      await fs.mkdir(skillsHome, { recursive: true });
+      await fs.writeFile(path.join(current, "SKILL.md"), "# current\n", "utf8");
+      await fs.writeFile(path.join(custom, "SKILL.md"), "# custom\n", "utf8");
+      await fs.symlink(custom, target);
+
+      await expect(ensurePaperclipSkillSymlink(current, target)).resolves.toBe("skipped");
+      await expect(fs.realpath(target)).resolves.toBe(await fs.realpath(custom));
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
@@ -611,7 +664,7 @@ describe("renderPaperclipWakePrompt", () => {
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("不要 polling agents、sessions 或 processes");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("直接创建 child issues");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("POST /api/issues/{issueId}/interactions");
-    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("kind suggest_tasks, ask_user_questions, or request_confirmation");
+    expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("kind 使用 suggest_tasks、ask_user_questions 或 request_confirmation");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("confirmation:{issueId}:plan:{revisionId}");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("等待 acceptance 后再创建 implementation subtasks");
     expect(DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE).toContain("遵守 budget、pause/cancel、approval gates 和 company boundaries");

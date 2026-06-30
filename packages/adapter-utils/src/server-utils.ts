@@ -187,6 +187,41 @@ function isMaintainerOnlySkillTarget(candidate: string): boolean {
   return normalizePathSlashes(candidate).includes("/.agents/skills/");
 }
 
+async function fileExists(candidate: string): Promise<boolean> {
+  return fs.stat(candidate).then(() => true).catch(() => false);
+}
+
+async function isLikelyPaperclipRepoRoot(candidate: string): Promise<boolean> {
+  const [hasWorkspace, hasPackageJson, hasServerDir, hasAdapterUtilsDir] = await Promise.all([
+    fileExists(path.join(candidate, "pnpm-workspace.yaml")),
+    fileExists(path.join(candidate, "package.json")),
+    fileExists(path.join(candidate, "server")),
+    fileExists(path.join(candidate, "packages", "adapter-utils")),
+  ]);
+
+  return hasWorkspace && hasPackageJson && hasServerDir && hasAdapterUtilsDir;
+}
+
+async function isLikelyPaperclipRuntimeSkillPath(candidate: string, skillName: string): Promise<boolean> {
+  if (path.basename(candidate) !== skillName) return false;
+  const skillsRoot = path.dirname(candidate);
+  if (path.basename(skillsRoot) !== "skills") return false;
+  if (!(await fileExists(path.join(candidate, "SKILL.md")))) return false;
+
+  const normalized = normalizePathSlashes(candidate);
+  if (normalized.includes("/node_modules/@paperclipai/server/skills/")) return true;
+
+  let cursor = path.dirname(skillsRoot);
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (await isLikelyPaperclipRepoRoot(cursor)) return true;
+    const parent = path.dirname(cursor);
+    if (parent === cursor) break;
+    cursor = parent;
+  }
+
+  return false;
+}
+
 function skillLocationLabel(value: string | null | undefined): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -1819,7 +1854,10 @@ export async function ensurePaperclipSkillSymlink(
   }
 
   const linkedPathExists = await fs.stat(resolvedLinkedPath).then(() => true).catch(() => false);
-  if (linkedPathExists) {
+  if (
+    linkedPathExists &&
+    !(await isLikelyPaperclipRuntimeSkillPath(resolvedLinkedPath, path.basename(target)))
+  ) {
     return "skipped";
   }
 

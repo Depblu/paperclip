@@ -64,6 +64,29 @@ describe("paperclip skill utils", () => {
     await expect(fs.access(path.resolve("scripts/paperclip-upload-artifact.sh"))).rejects.toThrow();
   });
 
+  it("ships Chinese-first create-agent templates for the core engineering team", async () => {
+    const root = path.resolve("skills/paperclip-create-agent/references");
+    const indexBody = await fs.readFile(path.join(root, "agent-instruction-templates.md"), "utf8");
+    const checklistBody = await fs.readFile(path.join(root, "draft-review-checklist.md"), "utf8");
+    const roleTemplates = {
+      cto: await fs.readFile(path.join(root, "agents/cto.md"), "utf8"),
+      softwarearchitect: await fs.readFile(path.join(root, "agents/softwarearchitect.md"), "utf8"),
+      coder: await fs.readFile(path.join(root, "agents/coder.md"), "utf8"),
+      qa: await fs.readFile(path.join(root, "agents/qa.md"), "utf8"),
+    };
+
+    expect(indexBody).toContain("[`CTO`](agents/cto.md)");
+    expect(indexBody).toContain("[`Software Architect`](agents/softwarearchitect.md)");
+    expect(checklistBody).toContain("英文样板残留");
+
+    for (const body of Object.values(roleTemplates)) {
+      expect(body).toContain("你是");
+      expect(body).not.toContain("You are agent");
+      expect(body).not.toContain("When you wake up");
+      expect(body).not.toContain("You report to");
+    }
+  });
+
   it("keeps the create-issue-interaction-ui guide as a maintainer-only skill", async () => {
     const skillPath = path.resolve(".agents/skills/create-issue-interaction-ui/SKILL.md");
     const skillBody = await fs.readFile(skillPath, "utf8");

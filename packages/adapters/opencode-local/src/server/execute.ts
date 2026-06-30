@@ -139,8 +139,8 @@ async function ensureRemoteOpenCodeModelConfiguredAndAvailable(input: {
   }
 }
 
-function claudeSkillsHome(): string {
-  return path.join(os.homedir(), ".claude", "skills");
+function openCodeSkillsHome(): string {
+  return path.join(os.homedir(), ".agents", "skills");
 }
 
 async function ensureOpenCodeSkillsInjected(
@@ -148,7 +148,7 @@ async function ensureOpenCodeSkillsInjected(
   skillsEntries: Array<{ key: string; runtimeName: string; source: string }>,
   desiredSkillNames?: string[],
 ) {
-  const skillsHome = claudeSkillsHome();
+  const skillsHome = openCodeSkillsHome();
   await fs.mkdir(skillsHome, { recursive: true });
   const desiredSet = new Set(desiredSkillNames ?? skillsEntries.map((entry) => entry.key));
   const selectedEntries = skillsEntries.filter((entry) => desiredSet.has(entry.key));
