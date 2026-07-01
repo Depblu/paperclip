@@ -50,6 +50,12 @@ import {
 } from "../components/RoutineRunVariablesDialog";
 import { RoutineVariablesEditor, RoutineVariablesHint } from "../components/RoutineVariablesEditor";
 import { ScheduleEditor, describeSchedule } from "../components/ScheduleEditor";
+import {
+  catchUpPolicyDescription,
+  catchUpPolicyLabel,
+  concurrencyPolicyDescription,
+  concurrencyPolicyLabel,
+} from "./Routines";
 import { RunButton } from "../components/AgentActionButtons";
 import { getRecentAssigneeIds, sortAgentsByRecency, trackRecentAssignee } from "../lib/recent-assignees";
 import { getRecentProjectIds, trackRecentProject } from "../lib/recent-projects";
@@ -80,15 +86,6 @@ const catchUpPolicies = ["skip_missed", "enqueue_missed_with_cap"];
 const triggerKinds = ["schedule", "webhook"];
 const signingModes = ["bearer", "hmac_sha256", "github_hmac", "none"];
 const routineTabs = ["triggers", "runs", "activity", "secrets", "history"] as const;
-const concurrencyPolicyDescriptions: Record<string, string> = {
-  coalesce_if_active: "Keep one follow-up run queued while an active run is still working.",
-  always_enqueue: "Queue every trigger occurrence, even if several runs stack up.",
-  skip_if_active: "Drop overlapping trigger occurrences while the routine is already active.",
-};
-const catchUpPolicyDescriptions: Record<string, string> = {
-  skip_missed: "Ignore schedule windows that were missed while the routine or scheduler was paused.",
-  enqueue_missed_with_cap: "Catch up missed schedule windows in capped batches after recovery.",
-};
 const signingModeDescriptions: Record<string, string> = {
   bearer: "Expect a shared bearer token in the Authorization header.",
   hmac_sha256: "Expect an HMAC SHA-256 signature over the request using the shared secret.",
@@ -200,10 +197,13 @@ const { t } = useTranslation();
         </div>
         <span className="text-xs text-muted-foreground">
           {trigger.kind === "schedule" && trigger.nextRunAt
-            ? `Next: ${new Date(trigger.nextRunAt).toLocaleString()}`
+            ? t("pages.routinedetail.next_run.jsx-text", {
+              time: new Date(trigger.nextRunAt).toLocaleString(),
+              defaultValue: "Next: {{time}}",
+            })
             : trigger.kind === "webhook"
-              ? "Webhook"
-              : "API"}
+              ? t("pages.routinedetail.webhook.trigger_kind", { defaultValue: "Webhook" })
+              : t("pages.routinedetail.api.trigger_kind", { defaultValue: "API" })}
         </span>
       </div>
 
@@ -794,12 +794,12 @@ const { t } = useTranslation();
   const selectedProject = routine.projectId ? (projects?.find((project) => project.id === routine.projectId) ?? null) : null;
   const automationToggleDisabled = updateRoutineStatus.isPending || routine.status === "archived";
   const automationLabel = routine.status === "archived"
-    ? "Archived"
+    ? t("components.routinelist.archived.label", { defaultValue: "Archived" })
     : !routine.assigneeAgentId
-      ? "Draft"
+      ? t("components.routinelist.draft.label", { defaultValue: "Draft" })
       : automationEnabled
-        ? "Active"
-        : "Paused";
+        ? t("common.active", { defaultValue: "Active" })
+        : t("common.paused", { defaultValue: "Paused" });
   const automationLabelClassName = routine.status === "archived"
     ? "text-muted-foreground"
     : automationEnabled
@@ -870,7 +870,9 @@ const { t } = useTranslation();
               updateRoutineStatus.mutate(automationEnabled ? "paused" : "active");
             }}
             disabled={automationToggleDisabled}
-            aria-label={automationEnabled ? "Pause automatic triggers" : "Enable automatic triggers"}
+            aria-label={automationEnabled
+              ? t("pages.routinedetail.pause_automatic_triggers.attr_aria-label", { defaultValue: "Pause automatic triggers" })
+              : t("pages.routinedetail.enable_automatic_triggers.attr_aria-label", { defaultValue: "Enable automatic triggers" })}
           />
           <span className={`min-w-[3.75rem] text-sm font-medium ${automationLabelClassName}`}>
             {automationLabel}
@@ -954,9 +956,9 @@ const { t } = useTranslation();
             options={assigneeOptions}
             recentOptionIds={recentAssigneeIds}
             placeholder={t("pages.routinedetail.assignee.attr_placeholder", { defaultValue: "Assignee" })}
-            noneLabel="No assignee"
-            searchPlaceholder="Search assignees..."
-            emptyMessage="No assignees found."
+            noneLabel={t("pages.routinedetail.no_assignee.option_label", { defaultValue: "No assignee" })}
+            searchPlaceholder={t("pages.routinedetail.search_assignees.attr_placeholder", { defaultValue: "Search assignees..." })}
+            emptyMessage={t("pages.routinedetail.no_assignees_found.empty_message", { defaultValue: "No assignees found." })}
             onChange={(assigneeAgentId) => {
               if (assigneeAgentId) trackRecentAssignee(assigneeAgentId);
               setEditDraft((current) => ({ ...current, assigneeAgentId }));
@@ -1000,9 +1002,9 @@ const { t } = useTranslation();
             options={projectOptions}
             recentOptionIds={recentProjectIds}
             placeholder={t("pages.routinedetail.project.attr_placeholder", { defaultValue: "Project" })}
-            noneLabel="No project"
-            searchPlaceholder="Search projects..."
-            emptyMessage="No projects found."
+            noneLabel={t("pages.routinedetail.no_project.option_label", { defaultValue: "No project" })}
+            searchPlaceholder={t("pages.routinedetail.search_projects.attr_placeholder", { defaultValue: "Search projects..." })}
+            emptyMessage={t("pages.routinedetail.no_projects_found.empty_message", { defaultValue: "No projects found." })}
             onChange={(projectId) => {
               if (projectId) trackRecentProject(projectId);
               setEditDraft((current) => ({ ...current, projectId }));
@@ -1080,11 +1082,11 @@ const { t } = useTranslation();
                 </SelectTrigger>
                 <SelectContent>
                   {concurrencyPolicies.map((value) => (
-                    <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>
+                    <SelectItem key={value} value={value}>{concurrencyPolicyLabel(value, t)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">{concurrencyPolicyDescriptions[editDraft.concurrencyPolicy]}</p>
+              <p className="text-xs text-muted-foreground">{concurrencyPolicyDescription(editDraft.concurrencyPolicy, t)}</p>
             </div>
             <div className="space-y-2">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{t("pages.routinedetail.catch_up.jsx-text", { defaultValue: "Catch-up" })}</p>
@@ -1097,11 +1099,11 @@ const { t } = useTranslation();
                 </SelectTrigger>
                 <SelectContent>
                   {catchUpPolicies.map((value) => (
-                    <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>
+                    <SelectItem key={value} value={value}>{catchUpPolicyLabel(value, t)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">{catchUpPolicyDescriptions[editDraft.catchUpPolicy]}</p>
+              <p className="text-xs text-muted-foreground">{catchUpPolicyDescription(editDraft.catchUpPolicy, t)}</p>
             </div>
           </div>
         </CollapsibleContent>
@@ -1159,7 +1161,9 @@ const { t } = useTranslation();
                   <SelectContent>
                     {triggerKinds.map((kind) => (
                       <SelectItem key={kind} value={kind} disabled={kind === "webhook"}>
-                        {kind}{kind === "webhook" ? " — COMING SOON" : ""}
+                        {kind === "schedule"
+                          ? t("pages.routinedetail.schedule.trigger_kind", { defaultValue: "schedule" })
+                          : t("pages.routinedetail.webhook_coming_soon.trigger_kind", { defaultValue: "webhook — COMING SOON" })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1201,7 +1205,9 @@ const { t } = useTranslation();
             </div>
             <div className="flex items-center justify-end">
               <Button size="sm" onClick={() => createTrigger.mutate()} disabled={createTrigger.isPending}>
-                {createTrigger.isPending ? "Adding..." : "Add trigger"}
+                {createTrigger.isPending
+                  ? t("pages.routinedetail.adding.jsx-text", { defaultValue: "Adding..." })
+                  : t("pages.routinedetail.add_trigger.jsx-text", { defaultValue: "Add trigger" })}
               </Button>
             </div>
           </div>

@@ -50,14 +50,14 @@ import type { RoutineListItem, RoutineVariable } from "@paperclipai/shared";
 const concurrencyPolicies = ["coalesce_if_active", "always_enqueue", "skip_if_active"];
 const catchUpPolicies = ["skip_missed", "enqueue_missed_with_cap"];
 
-function concurrencyPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+export function concurrencyPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
   if (value === "coalesce_if_active") return t("pages.routines.coalesce_if_active.policy_label", { defaultValue: "Coalesce if active" });
   if (value === "always_enqueue") return t("pages.routines.always_enqueue.policy_label", { defaultValue: "Always enqueue" });
   if (value === "skip_if_active") return t("pages.routines.skip_if_active.policy_label", { defaultValue: "Skip if active" });
   return value.replaceAll("_", " ");
 }
 
-function concurrencyPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+export function concurrencyPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
   if (value === "coalesce_if_active") {
     return t("pages.routines.coalesce_if_active.policy_description", { defaultValue: "If a run is already active, keep just one follow-up run queued." });
   }
@@ -70,13 +70,13 @@ function concurrencyPolicyDescription(value: string, t: ReturnType<typeof useTra
   return value.replaceAll("_", " ");
 }
 
-function catchUpPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+export function catchUpPolicyLabel(value: string, t: ReturnType<typeof useTranslation>["t"]) {
   if (value === "skip_missed") return t("pages.routines.skip_missed.policy_label", { defaultValue: "Skip missed" });
   if (value === "enqueue_missed_with_cap") return t("pages.routines.enqueue_missed_with_cap.policy_label", { defaultValue: "Enqueue missed with cap" });
   return value.replaceAll("_", " ");
 }
 
-function catchUpPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
+export function catchUpPolicyDescription(value: string, t: ReturnType<typeof useTranslation>["t"]) {
   if (value === "skip_missed") {
     return t("pages.routines.skip_missed.policy_description", { defaultValue: "Ignore windows that were missed while the scheduler or routine was paused." });
   }

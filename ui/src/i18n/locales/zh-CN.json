@@ -5585,10 +5585,10 @@
         "jsx-text": "Placeholder"
       },
       "placeholders_in_the_instructions": {
-        "jsx-text": "` placeholders in the instructions to prompt for inputs when the routine runs.\n        "
+        "jsx-text": "` 占位符，在例程运行时提示输入。\n        "
       },
       "placeholders_in_the_routine_titl": {
-        "jsx-text": "` placeholders in the routine title and instructions.\n          "
+        "jsx-text": "` 占位符，可放在例程标题和指令中。\n          "
       },
       "prompt_the_user_for_this_value_b": {
         "jsx-text": "\n                Prompt the user for this value before each manual run.\n              "
@@ -5612,7 +5612,7 @@
         "jsx-text": "True"
       },
       "use": {
-        "jsx-text": "\n          Use `"
+        "jsx-text": "\n          使用 `"
       },
       "variables": {
         "jsx-text": "Variables"
@@ -5744,22 +5744,22 @@
         "attr_placeholder": "0 10 * * *"
       },
       "at_minute": {
-        "jsx-text": "at minute"
+        "jsx-text": "在第"
       },
       "at": {
-        "jsx-text": "at"
+        "jsx-text": "在"
       },
       "choose_frequency": {
-        "attr_placeholder": "Choose frequency..."
+        "attr_placeholder": "选择频率..."
       },
       "five_fields_minute_hour_day_of_m": {
-        "jsx-text": "\n            Five fields: minute hour day-of-month month day-of-week\n          "
+        "jsx-text": "\n            五段格式：分钟 小时 月中日期 月份 周中日期\n          "
       },
       "on_day": {
-        "jsx-text": "on day"
+        "jsx-text": "在每月第"
       },
       "on": {
-        "jsx-text": "on"
+        "jsx-text": "在"
       },
       "preset_every_minute": {
         "label": "每分钟"
@@ -14147,153 +14147,187 @@
     },
     "routinedetail": {
       "activity": {
-        "jsx-text": "\n            Activity\n          "
+        "jsx-text": "\n            活动\n          "
+      },
+      "adding": {
+        "jsx-text": "添加中..."
       },
       "add_instructions": {
-        "attr_placeholder": "Add instructions..."
+        "attr_placeholder": "添加指令..."
       },
       "add_trigger": {
-        "jsx-text": "Add trigger"
+        "jsx-text": "添加触发器"
       },
       "advanced_delivery_settings": {
-        "jsx-text": "Advanced delivery settings"
+        "jsx-text": "高级投递设置"
       },
       "assignee": {
-        "attr_placeholder": "Assignee",
-        "jsx-text": "Assignee"
+        "attr_placeholder": "负责人",
+        "jsx-text": "负责人"
+      },
+      "api": {
+        "trigger_kind": "API"
       },
       "catch_up": {
-        "jsx-text": "Catch-up"
+        "jsx-text": "补跑"
       },
       "concurrency": {
-        "jsx-text": "Concurrency"
+        "jsx-text": "并发"
       },
       "default_agent_required_this_rout": {
-        "jsx-text": "\n          Default agent 必填。 This routine can stay as a draft and still run manually, but automation stays paused until you assign a default agent.\n        "
+        "jsx-text": "\n          默认智能体必填。此例程可保留为草稿并手动运行，但在分配默认智能体前自动化会保持暂停。\n        "
       },
       "for": {
-        "jsx-text": "For"
+        "jsx-text": "由"
+      },
+      "enable_automatic_triggers": {
+        "attr_aria-label": "启用自动触发"
       },
       "history": {
-        "jsx-text": "\n            History\n          "
+        "jsx-text": "\n            历史\n          "
       },
       "in": {
-        "jsx-text": "后"
+        "jsx-text": "在"
       },
       "kind": {
-        "jsx-text": "Kind"
+        "jsx-text": "类型"
       },
       "label": {
-        "jsx-text": "Label"
+        "jsx-text": "标签"
       },
       "last": {
-        "jsx-text": "Last: "
+        "jsx-text": "上次："
       },
       "managed_by": {
-        "jsx-text": "\n              Managed by "
+        "jsx-text": "\n              由 "
+      },
+      "next_run": {
+        "jsx-text": "下次：{{time}}"
       },
       "no_activity_yet": {
-        "jsx-text": "No activity yet."
+        "jsx-text": "暂无活动。"
+      },
+      "no_assignee": {
+        "option_label": "无负责人"
+      },
+      "no_assignees_found": {
+        "empty_message": "未找到负责人。"
+      },
+      "no_project": {
+        "option_label": "无项目"
+      },
+      "no_projects_found": {
+        "empty_message": "未找到项目。"
       },
       "no_runs_yet": {
-        "jsx-text": "No runs yet."
+        "jsx-text": "暂无运行。"
       },
       "no_triggers_configured_yet": {
-        "jsx-text": "No triggers configured yet."
+        "jsx-text": "尚未配置触发器。"
       },
       "of": {
-        "jsx-text": " of "
+        "jsx-text": " / "
       },
       "out_of_date": {
-        "jsx-text": "Out of date"
+        "jsx-text": "已过期"
       },
       "paperclip": {
         "jsx-text": "PAPERCLIP_*"
       },
+      "pause_automatic_triggers": {
+        "attr_aria-label": "暂停自动触发"
+      },
       "project": {
-        "attr_placeholder": "Project",
-        "jsx-text": "Project"
+        "attr_placeholder": "项目",
+        "jsx-text": "项目"
       },
       "reload_latest": {
-        "jsx-text": "\n                Reload latest\n              "
+        "jsx-text": "\n                重新加载最新版本\n              "
       },
       "replay_window_seconds": {
-        "jsx-text": "Replay window (seconds)"
+        "jsx-text": "重放窗口（秒）"
       },
       "rotate_secret": {
-        "jsx-text": "\n              Rotate secret\n            "
+        "jsx-text": "\n              轮换密钥\n            "
       },
       "routine_secrets_apply_to_every_t": {
-        "jsx-text": "\n            Routine secrets apply to every task this routine creates. They override matching keys in project and agent env. "
+        "jsx-text": "\n            例程密钥会应用到此例程创建的每个任务。它们会覆盖项目和智能体 env 中同名 key。"
       },
       "routine_title": {
-        "attr_placeholder": "Routine title"
+        "attr_placeholder": "例程标题"
       },
       "runs": {
-        "jsx-text": "\n            Runs\n            "
+        "jsx-text": "\n            运行\n            "
       },
       "save_routine": {
-        "jsx-text": "\n         保存 routine\n        "
+        "jsx-text": "\n          保存例程\n        "
       },
       "save_this_now_paperclip_will_not": {
-        "jsx-text": "Save this now. Paperclip will not show the secret value again."
+        "jsx-text": "请立即保存。Paperclip 不会再次显示该密钥值。"
       },
       "save_trigger": {
-        "jsx-text": "\n           保存 trigger\n          "
+        "jsx-text": "\n            保存触发器\n          "
       },
       "schedule": {
-        "jsx-text": "Schedule"
+        "jsx-text": "计划",
+        "trigger_kind": "计划"
       },
       "secret": {
-        "jsx-text": "\n                    Secret\n                  "
+        "jsx-text": "\n                    密钥\n                  "
       },
       "secrets": {
-        "jsx-text": "\n            Secrets\n          "
+        "jsx-text": "\n            密钥\n          "
       },
       "signing_mode": {
-        "jsx-text": "Signing mode"
+        "jsx-text": "签名模式"
       },
       "this_routine_changed_while_you_w": {
-        "jsx-text": "\n                This routine changed while you were editing. Reload to merge the latest revision before saving again.\n              "
+        "jsx-text": "\n                你编辑期间此例程已发生变更。请重新加载并合并最新修订后再保存。\n              "
       },
       "triggers": {
-        "jsx-text": "\n            Triggers\n          "
+        "jsx-text": "\n            触发器\n          "
       },
       "unsaved_changes": {
-        "jsx-text": "Unsaved changes"
+        "jsx-text": "有未保存更改"
       },
       "variables_are_reserved": {
-        "jsx-text": " variables are reserved.\n          "
+        "jsx-text": " 变量为保留变量。\n          "
       },
       "webhook_trigger": {
-        "jsx-text": "\n                    Webhook trigger "
+        "jsx-text": "\n                    Webhook 触发器 "
       },
       "select_a_company_to_view_rout": {
         "jsx-text": "选择公司以查看例程。"
       },
+      "search_assignees": {
+        "attr_placeholder": "搜索负责人..."
+      },
+      "search_projects": {
+        "attr_placeholder": "搜索项目..."
+      },
       "routine_changed": {
-        "toast_title": "Routine 已变更"
+        "toast_title": "例程已变更"
       },
       "routine_changed_reload": {
-        "toast_body": "其他人更新了此 routine。重新加载以查看最新修订。"
+        "toast_body": "其他人更新了此例程。重新加载以查看最新修订。"
       },
       "failed_to_save_routine": {
-        "toast_title": "保存 routine 失败"
+        "toast_title": "保存例程失败"
       },
       "could_not_save_routine": {
-        "toast_body": "Paperclip 无法保存该 routine。"
+        "toast_body": "Paperclip 无法保存该例程。"
       },
       "routine_run_started": {
-        "toast_title": "Routine run 已启动"
+        "toast_title": "例程运行已启动"
       },
       "routine_run_failed": {
-        "toast_title": "Routine run 失败"
+        "toast_title": "例程运行失败"
       },
       "could_not_start_routine_run": {
-        "toast_body": "Paperclip 无法启动该 routine run。"
+        "toast_body": "Paperclip 无法启动该例程运行。"
       },
       "routine_saved": {
-        "toast_title": "Routine 已保存"
+        "toast_title": "例程已保存"
       },
       "automation_paused": {
         "toast_body": "自动化已暂停。"
@@ -14302,10 +14336,10 @@
         "toast_body": "自动化已启用。"
       },
       "failed_to_update_routine": {
-        "toast_title": "更新 routine 失败"
+        "toast_title": "更新例程失败"
       },
       "could_not_update_routine": {
-        "toast_body": "Paperclip 无法更新该 routine。"
+        "toast_body": "Paperclip 无法更新该例程。"
       },
       "webhook_trigger_created": {
         "secret_title": "Webhook 触发器已创建"
@@ -14314,7 +14348,7 @@
         "toast_title": "触发器已添加"
       },
       "routine_schedule_saved": {
-        "toast_body": "Routine 计划已保存。"
+        "toast_body": "例程计划已保存。"
       },
       "failed_to_add_trigger": {
         "toast_title": "添加触发器失败"
@@ -14326,7 +14360,7 @@
         "toast_title": "触发器已保存"
       },
       "routine_cadence_saved": {
-        "toast_body": "Routine 节奏更新已保存。"
+        "toast_body": "例程节奏更新已保存。"
       },
       "failed_to_update_trigger": {
         "toast_title": "更新触发器失败"
@@ -14344,13 +14378,19 @@
         "toast_body": "Paperclip 无法删除该触发器。"
       },
       "webhook_secret_rotated": {
-        "secret_title": "Webhook secret 已轮换"
+        "secret_title": "Webhook 密钥已轮换"
       },
       "failed_to_rotate_webhook_secret": {
-        "toast_title": "轮换 webhook secret 失败"
+        "toast_title": "轮换 webhook 密钥失败"
       },
       "could_not_rotate_webhook_secret": {
-        "toast_body": "Paperclip 无法轮换 webhook secret。"
+        "toast_body": "Paperclip 无法轮换 webhook 密钥。"
+      },
+      "webhook": {
+        "trigger_kind": "Webhook"
+      },
+      "webhook_coming_soon": {
+        "trigger_kind": "webhook — 即将推出"
       },
       "secret_value_copied": {
         "toast_title": "{{label}} 已复制"
@@ -14365,10 +14405,10 @@
         "breadcrumb": "例程"
       },
       "default_agent_required": {
-        "title": "需要默认 agent"
+        "title": "需要默认智能体"
       },
       "set_default_agent_before_enabling": {
-        "body": "启用此例程前请设置默认 agent。"
+        "body": "启用此例程前请设置默认智能体。"
       },
       "select_company_to_create_secrets": {
         "error": "请选择公司后再创建密钥"

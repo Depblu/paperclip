@@ -14149,6 +14149,9 @@
       "activity": {
         "jsx-text": "\n            Activity\n          "
       },
+      "adding": {
+        "jsx-text": "Adding..."
+      },
       "add_instructions": {
         "attr_placeholder": "Add instructions..."
       },
@@ -14162,6 +14165,9 @@
         "attr_placeholder": "Assignee",
         "jsx-text": "Assignee"
       },
+      "api": {
+        "trigger_kind": "API"
+      },
       "catch_up": {
         "jsx-text": "Catch-up"
       },
@@ -14173,6 +14179,9 @@
       },
       "for": {
         "jsx-text": "For"
+      },
+      "enable_automatic_triggers": {
+        "attr_aria-label": "Enable automatic triggers"
       },
       "history": {
         "jsx-text": "\n            History\n          "
@@ -14192,8 +14201,23 @@
       "managed_by": {
         "jsx-text": "\n              Managed by "
       },
+      "next_run": {
+        "jsx-text": "Next: {{time}}"
+      },
       "no_activity_yet": {
         "jsx-text": "No activity yet."
+      },
+      "no_assignee": {
+        "option_label": "No assignee"
+      },
+      "no_assignees_found": {
+        "empty_message": "No assignees found."
+      },
+      "no_project": {
+        "option_label": "No project"
+      },
+      "no_projects_found": {
+        "empty_message": "No projects found."
       },
       "no_runs_yet": {
         "jsx-text": "No runs yet."
@@ -14209,6 +14233,9 @@
       },
       "paperclip": {
         "jsx-text": "PAPERCLIP_*"
+      },
+      "pause_automatic_triggers": {
+        "attr_aria-label": "Pause automatic triggers"
       },
       "project": {
         "attr_placeholder": "Project",
@@ -14242,7 +14269,8 @@
         "jsx-text": "\n            Save trigger\n          "
       },
       "schedule": {
-        "jsx-text": "Schedule"
+        "jsx-text": "Schedule",
+        "trigger_kind": "schedule"
       },
       "secret": {
         "jsx-text": "\n                    Secret\n                  "
@@ -14270,6 +14298,12 @@
       },
       "select_a_company_to_view_rout": {
         "jsx-text": "Select a company to view routines."
+      },
+      "search_assignees": {
+        "attr_placeholder": "Search assignees..."
+      },
+      "search_projects": {
+        "attr_placeholder": "Search projects..."
       },
       "routine_changed": {
         "toast_title": "Routine changed"
@@ -14351,6 +14385,12 @@
       },
       "could_not_rotate_webhook_secret": {
         "toast_body": "Paperclip could not rotate the webhook secret."
+      },
+      "webhook": {
+        "trigger_kind": "Webhook"
+      },
+      "webhook_coming_soon": {
+        "trigger_kind": "webhook — COMING SOON"
       },
       "secret_value_copied": {
         "toast_title": "{{label}} copied"
