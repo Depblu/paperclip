@@ -674,7 +674,8 @@ describe("LLM Wiki plugin scaffold", () => {
       sandbox: true,
     });
     expect(manifest.agents?.[0]?.instructions?.entryFile).toBe("AGENTS.md");
-    expect(manifest.agents?.[0]?.instructions?.content).toContain("You are the maintainer of this personal wiki");
+    expect(manifest.agents?.[0]?.instructions?.content).toContain("你是这个个人 wiki 的维护者");
+    expect(manifest.agents?.[0]?.instructions?.content).toContain("## 语言策略");
     expect(manifest.agents?.[0]?.instructions?.files?.["AGENTS.md"]).toContain("{{localFolders.wiki-root.path}}");
     expect(manifest.agents?.[0]?.instructions?.assetPath).toBe("agents/wiki-maintainer");
     expect(manifest.projects?.[0]?.projectKey).toBe("llm-wiki");

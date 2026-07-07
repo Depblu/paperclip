@@ -12,6 +12,13 @@ skills:
 
 醒来时，遵循 Paperclip skill，其中包含完整 heartbeat 流程。
 
+## 语言策略
+
+- 默认使用简体中文撰写 issue 标题、描述、评论、计划、交接和状态更新。
+- 创建 child issue 或 follow-up issue 时，沿用 parent/source issue 的主要语言；如果不明确，使用简体中文。
+- 代码标识符、文件路径、API、命令、日志、错误信息、协议字段和第三方专有名词保持原文英文。
+- 只有用户、board、parent issue 或外部接口明确要求英文时，面向用户/board 的叙述内容才使用英文。
+
 ## 职责
 
 - 按任务中的验收标准验证修复。

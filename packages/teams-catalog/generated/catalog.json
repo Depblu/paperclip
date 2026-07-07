@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/teams-catalog",
   "packageVersion": "0.1.0",
-  "generatedAt": "2026-06-30T02:23:10.821Z",
+  "generatedAt": "2026-07-07T01:29:50.474Z",
   "teams": [
     {
       "id": "paperclipai:bundled:company-defaults:core-exec-team",
@@ -102,20 +102,20 @@
         {
           "path": "agents/ceo/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 2237,
-          "sha256": "9dbdc379e4b214291ca0ba984d52b6af8d1b104177dccc6062225531ec2c0a20"
+          "sizeBytes": 2749,
+          "sha256": "cbb1c007762eafe04e8fc7958ce42c8f9d35e2ec654269827358fef92be091f8"
         },
         {
           "path": "agents/cto/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1811,
-          "sha256": "ad0b5b881ab08002f6f08747751db6e5bc4b84d48ab752a34a541f241b660c02"
+          "sizeBytes": 2323,
+          "sha256": "98f07c6b6b017efc8c5b2dd8f79c26c64e8af5927d6356f41b17cacccb0f91ee"
         },
         {
           "path": "agents/qa/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1200,
-          "sha256": "33e6fdd96a0bfcd020f5b6d3f10b992d965a99e030e91dfeaa64d172d7babf54"
+          "sizeBytes": 1712,
+          "sha256": "7312195142885b73605a20f6b9789b5c7092b47a6f0faa8ff3fb16996e50be56"
         },
         {
           "path": "projects/first-project/PROJECT.md",
@@ -132,7 +132,7 @@
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:c6795857795c5b809e5cd292861604ce0f0d3c66a0058cdf5604359e9a5c75f2"
+      "contentHash": "sha256:b917337c6803ae139dfc527848cd1e8adfe4ca4ea58fb7f2fb51fb85833e82ba"
     },
     {
       "id": "paperclipai:bundled:product:product-design",
@@ -218,8 +218,8 @@
         {
           "path": "agents/ux-designer/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 2015,
-          "sha256": "5a55c5728e07cdbfca00197ba6f0e27f9610522f192f36eddfe4157238a2b1d8"
+          "sizeBytes": 2527,
+          "sha256": "9cbeadc98580cd2f2f035003fca83046217d8dbb84d6e8ecb258baaeccabae17"
         },
         {
           "path": "projects/product-design/PROJECT.md",
@@ -236,7 +236,7 @@
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:ddfbbdc6bb8faa5e42b29e0313401193df8afdd22a63adf99caacda00ece76f4"
+      "contentHash": "sha256:7b4d68b9003de80a87c876fc87b0c6bbcb64ae818cddab406a348928a3506c4f"
     },
     {
       "id": "paperclipai:bundled:software-development:product-engineering",
@@ -343,20 +343,20 @@
         {
           "path": "agents/cto/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1866,
-          "sha256": "ceb392b2bab909552cbd56da5e0464334b8cf9749737fc2958f37042c761037e"
+          "sizeBytes": 2378,
+          "sha256": "f4934d36a961aece82b1986ab7493861ff8b69973b048ed0737b2d332b07a2ce"
         },
         {
           "path": "agents/qa/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1100,
-          "sha256": "a46f3654364b28eecc4def3dd0192bdd1eb468c356ed88bd11ba69d985d68a59"
+          "sizeBytes": 1612,
+          "sha256": "e09e1f010e06922375caf022e9047745093fc9ea8b8e5d3b3d3625158928e17e"
         },
         {
           "path": "agents/senior-coder/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1336,
-          "sha256": "adacd48442531823bce10da17f81aa6352f642aa4c637fee35e786ded79853e4"
+          "sizeBytes": 1848,
+          "sha256": "e9b9483a2530d4bdeb3bef566cf1f38fcf43e9e2db594105ace19fc82eb9a09a"
         },
         {
           "path": "projects/product-engineering/PROJECT.md",
@@ -373,7 +373,7 @@
       ],
       "trustLevel": "assets",
       "compatibility": "compatible",
-      "contentHash": "sha256:313de190cfd7f010061e2661da9057b148595f7f819349f34f40644c72109d57"
+      "contentHash": "sha256:b2cff5690d63224cb139ef6f347866a2f71675321848740b0eb91f866f9091d3"
     },
     {
       "id": "paperclipai:optional:content:content-machine",
@@ -437,8 +437,8 @@
         {
           "path": "agents/content-lead/AGENTS.md",
           "kind": "agent",
-          "sizeBytes": 1266,
-          "sha256": "f631050c947c4bb213fd7056f4d90de3a53781c96e6ee8ee15ddb04531657b20"
+          "sizeBytes": 1778,
+          "sha256": "1edfa10e3ca5b1dd2d04b9c0a16cf009bd49476a84d593fefd81e61b6daded3b"
         },
         {
           "path": "projects/content-operations/PROJECT.md",
@@ -461,7 +461,7 @@
       ],
       "trustLevel": "markdown_only",
       "compatibility": "compatible",
-      "contentHash": "sha256:0c4392579dfbbc6aa70b6bc88bbcb132ae9f58827e663f5b3bd078776e563911"
+      "contentHash": "sha256:c8036e17f66f350908d93bcdbbc04fed8f293d8ceeec91a28bc73e463fe675e8"
     }
   ]
 }
