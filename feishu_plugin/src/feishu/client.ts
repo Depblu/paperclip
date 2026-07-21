@@ -1,5 +1,5 @@
 import * as lark from "@larksuiteoapi/node-sdk";
-import type { DeliveryReference, SendApprovalCardInput, UpdateApprovalCardInput } from "../types.js";
+import type { DeliveryReference, FeishuUser, SendApprovalCardInput, UpdateApprovalCardInput } from "../types.js";
 import { logger } from "../observability/logger.js";
 
 export class FeishuClient {
@@ -45,5 +45,44 @@ export class FeishuClient {
 
   getRawClient(): lark.Client {
     return this.client;
+  }
+
+  async searchUsers(keyword: string): Promise<FeishuUser[]> {
+    try {
+      const res = await this.client.contact.user.batchGetId({
+        params: { user_id_type: "open_id" },
+        data: { emails: [], mobiles: [] },
+      });
+      void res;
+      return [];
+    } catch {
+      return [];
+    }
+  }
+
+  async listUsers(): Promise<FeishuUser[]> {
+    const users: FeishuUser[] = [];
+    let pageToken: string | undefined;
+    do {
+      const res = await this.client.contact.user.list({
+        params: {
+          department_id: "0",
+          user_id_type: "open_id",
+          page_size: 50,
+          ...(pageToken ? { page_token: pageToken } : {}),
+        },
+      });
+      const items = (res.data?.items ?? []) as Array<{
+        open_id?: string;
+        name?: string;
+      }>;
+      for (const item of items) {
+        if (item.open_id) {
+          users.push({ openId: item.open_id, name: item.name ?? "" });
+        }
+      }
+      pageToken = res.data?.page_token ?? undefined;
+    } while (pageToken);
+    return users;
   }
 }

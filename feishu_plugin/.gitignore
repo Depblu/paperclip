@@ -1,0 +1,10 @@
+.env.local
+.env.*.local
+config/companies.local.json
+config/bridge-config.json
+config/companies.json
+config/secrets.json
+config/auth-metadata.json
+data/
+node_modules/
+dist/

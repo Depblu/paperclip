@@ -1,0 +1,16 @@
+{
+  "companies": [
+    {
+      "companyId": "REPLACE_WITH_COMPANY_UUID",
+      "name": "My Company",
+      "defaultApprovers": [
+        { "openId": "ou_xxx", "name": "审批人" }
+      ],
+      "routing": {
+        "hire_agent": {
+          "approvers": [{ "openId": "ou_yyy", "name": "HR" }]
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import type { BridgeConfig, PaperclipApproval, VersionSnapshot } from "../types.js";
 import type { PaperclipClient } from "../paperclip/client.js";
-import type { FeishuClient } from "../feishu/client.js";
+import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import type { ActionTokenService } from "./action-token.js";
 import { buildVersionSnapshot, versionMatches } from "./action-token.js";
 import type { DeliveryRepository } from "../storage/repositories.js";
@@ -11,7 +11,7 @@ import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
 export interface ReconciliationDeps {
   config: BridgeConfig;
   paperclip: PaperclipClient;
-  feishu: FeishuClient;
+  feishuRegistry: FeishuClientRegistry;
   tokenService: ActionTokenService;
   deliveryRepo: DeliveryRepository;
 }
@@ -59,7 +59,7 @@ export class Reconciliation {
 
   private async reconcileApproval(
     approvalId: string,
-    deliveries: { messageId: string | null; approvalType: string; approvalUpdatedAt: string; payloadHash: string }[],
+    deliveries: { messageId: string | null; approvalType: string; approvalUpdatedAt: string; payloadHash: string; companyId: string }[],
   ) {
     let approval: PaperclipApproval;
     try {
@@ -68,13 +68,14 @@ export class Reconciliation {
       return;
     }
 
+    const companyId = deliveries[0]?.companyId ?? "";
     const currentVersion: VersionSnapshot = buildVersionSnapshot(approval.updatedAt, approval.payload);
 
     if (["approved", "rejected", "cancelled"].includes(approval.status)) {
       incMetric(METRIC_NAMES.reconciliationRepairs);
       this.deps.tokenService.invalidateByApproval(approvalId);
       const cardContent = renderResultCard(approvalsType(deliveries), approval.status);
-      await this.updateCards(deliveries, cardContent);
+      await this.updateCards(deliveries, cardContent, companyId);
       this.deps.deliveryRepo.setStatus(approvalId, "superseded");
       return;
     }
@@ -83,7 +84,7 @@ export class Reconciliation {
       incMetric(METRIC_NAMES.reconciliationRepairs);
       this.deps.tokenService.invalidateByApproval(approvalId);
       const cardContent = renderResultCard(approvalsType(deliveries), "revision_requested");
-      await this.updateCards(deliveries, cardContent);
+      await this.updateCards(deliveries, cardContent, companyId);
       this.deps.deliveryRepo.setStatus(approvalId, "superseded");
       return;
     }
@@ -107,11 +108,16 @@ export class Reconciliation {
   private async updateCards(
     deliveries: { messageId: string | null }[],
     cardContent: string,
+    companyId: string,
   ) {
+    const feishu = this.deps.feishuRegistry.getForCompany(companyId);
+    if (!feishu) {
+      logger.warn("no feishu client for company, skipping reconciliation card updates", { companyId });
+    }
     for (const d of deliveries) {
-      if (!d.messageId) continue;
+      if (!d.messageId || !feishu) continue;
       try {
-        await this.deps.feishu.updateInteractiveCard(d.messageId, cardContent);
+        await feishu.updateInteractiveCard(d.messageId, cardContent);
       } catch (err) {
         logger.warn("reconciliation card update failed", {
           messageId: d.messageId, error: String(err),

@@ -1,0 +1,25 @@
+{
+  "companies": [
+    {
+      "companyId": "REPLACE_WITH_COMPANY_UUID",
+      "defaultApprovers": [],
+      "routing": {
+        "request_board_approval": {
+          "approvers": [
+            { "openId": "REPLACE_WITH_APPROVER_OPEN_ID", "name": "审批人姓名" }
+          ]
+        },
+        "approve_ceo_strategy": {
+          "approvers": [
+            { "openId": "REPLACE_WITH_APPROVER_OPEN_ID", "name": "审批人姓名" }
+          ]
+        },
+        "hire_agent": {
+          "approvers": [
+            { "openId": "REPLACE_WITH_APPROVER_OPEN_ID", "name": "审批人姓名" }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import type { PaperclipApproval, PaperclipComment, PaperclipIssue } from "../types.js";
+import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipIssue } from "../types.js";
 import { logger } from "../observability/logger.js";
 
 export class PaperclipClientError extends Error {
@@ -103,5 +103,9 @@ export class PaperclipClient {
     } catch {
       return false;
     }
+  }
+
+  async listCompanies(): Promise<PaperclipCompany[]> {
+    return this.request<PaperclipCompany[]>("GET", "/api/companies");
   }
 }

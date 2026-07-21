@@ -9,7 +9,13 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "dev": "tsx src/main.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "config:check": "node scripts/validate-local-config.mjs",
+    "config:check:examples": "node scripts/validate-local-config.mjs --examples",
+    "config:probe": "node scripts/validate-local-config.mjs --probe-paperclip",
+    "dev:local": "bash scripts/start-local.sh dev",
+    "start:local": "bash scripts/start-local.sh prod"
   },
   "dependencies": {
     "@larksuiteoapi/node-sdk": "^1.52.0",
@@ -19,7 +25,8 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
   },
   "engines": {
     "node": ">=20"

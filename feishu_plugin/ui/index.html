@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feishu Bridge 配置管理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f6f8; color: #1f2329; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+h1 { font-size: 22px; margin-bottom: 20px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; }
+.tab { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 14px; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+.tab.active { color: #3370ff; border-bottom-color: #3370ff; font-weight: 600; }
+.panel { display: none; }
+.panel.active { display: block; }
+.card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.card h3 { font-size: 15px; margin-bottom: 12px; }
+label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+input, select { width: 100%; padding: 8px 12px; border: 1px solid #d0d3d6; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
+input:focus, select:focus { outline: none; border-color: #3370ff; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
+.btn-primary { background: #3370ff; color: #fff; }
+.btn-primary:hover { background: #2860e1; }
+.btn-danger { background: #f54a45; color: #fff; }
+.btn-danger:hover { background: #d93a35; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn + .btn { margin-left: 8px; }
+.msg { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+.msg-ok { background: #e8f8e8; color: #1a7a1a; }
+.msg-err { background: #fde8e8; color: #c00; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; }
+th { color: #999; font-weight: 500; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-ok { background: #e8f8e8; color: #1a7a1a; }
+.badge-no { background: #fde8e8; color: #c00; }
+.routing-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.routing-row input { margin-bottom: 0; }
+.approver-tag { display: inline-flex; align-items: center; gap: 4px; background: #f0f2f5; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin: 2px; }
+.approver-tag .remove { cursor: pointer; color: #999; }
+.approver-tag .remove:hover { color: #f54a45; }
+#user-search-results { max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; display: none; }
+#user-search-results div { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+#user-search-results div:hover { background: #f0f5ff; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Feishu Bridge 配置管理</h1>
+<div id="restart-banner" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:6px;margin-bottom:16px;font-size:14px;display:flex;align-items:center;justify-content:space-between">
+  <span>配置已保存，需要重启 Feishu Bridge 才能生效。</span>
+  <button onclick="dismissRestart()" style="background:none;border:1px solid #856404;color:#856404;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px">知道了</button>
+</div>
+<div class="tabs">
+  <button class="tab active" data-tab="connection">Paperclip 连接</button>
+  <button class="tab" data-tab="companies">Company 管理</button>
+  <button class="tab" data-tab="global">全局设置</button>
+</div>
+<div id="msg-area"></div>
+
+<div id="tab-connection" class="panel active">
+  <div class="card" id="auth-status-card">
+    <h3>Paperclip 授权状态</h3>
+    <div id="auth-status-body"><span style="color:#999">加载中...</span></div>
+  </div>
+  <div class="card" id="auth-action-card">
+    <h3>连接 Paperclip</h3>
+    <div id="env-mode-notice" style="display:none;padding:10px 14px;border-radius:6px;background:#e8f4fd;color:#0c5aa6;font-size:13px;margin-bottom:12px">
+      当前为环境变量模式，授权由外部配置管理，无需在此操作。
+    </div>
+    <div id="auth-form">
+      <label>Paperclip 地址</label>
+      <input id="pc-url" placeholder="http://127.0.0.1:3100">
+      <button class="btn btn-primary" id="btn-connect" onclick="startAuth()">连接并授权 Paperclip</button>
+    </div>
+    <div id="auth-pending" style="display:none">
+      <div style="padding:12px 0;font-size:14px">
+        <span id="auth-pending-text">等待授权...</span>
+        <span id="auth-countdown" style="color:#999;margin-left:8px"></span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="reopenApproval()">重新打开授权页面</button>
+      <button class="btn btn-sm" style="background:#eee" onclick="cancelAuth()">取消</button>
+    </div>
+    <div id="auth-connected-actions" style="display:none;margin-top:12px">
+      <button class="btn btn-primary btn-sm" onclick="startAuth()">重新授权</button>
+      <button class="btn btn-danger btn-sm" onclick="revokeAuth()">断开/撤销授权</button>
+      <button class="btn btn-sm" style="background:#eee" onclick="refreshStatus()">重新验证状态</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Paperclip Company 列表</h3>
+    <button class="btn btn-primary btn-sm" id="btn-query-companies" onclick="loadPaperclipCompanies()" disabled>查询 Company</button>
+    <table style="margin-top:8px"><thead><tr><th>ID</th><th>名称</th><th>Issue Prefix</th><th>操作</th></tr></thead>
+    <tbody id="pc-companies"></tbody></table>
+  </div>
+</div>
+
+<div id="tab-companies" class="panel">
+  <div class="card">
+    <h3>已配置 Company</h3>
+    <table><thead><tr><th>Company ID</th><th>名称</th><th>飞书配置</th><th>操作</th></tr></thead>
+    <tbody id="cfg-companies"></tbody></table>
+  </div>
+  <div class="card" id="company-editor" style="display:none">
+    <h3 id="editor-title">编辑 Company</h3>
+    <input type="hidden" id="edit-company-id">
+    <label>显示名称</label>
+    <input id="edit-name" placeholder="Company 名称">
+    <label>飞书 App ID（留空使用全局默认）</label>
+    <input id="edit-feishu-appid" placeholder="cli_...">
+    <label>飞书 App Secret</label>
+    <input id="edit-feishu-secret" type="password" placeholder="留空不修改">
+    <h3>默认审批人</h3>
+    <div id="default-approvers"></div>
+    <input id="approver-search" placeholder="搜索飞书用户..." oninput="searchUsers(this.value)">
+    <div id="user-search-results"></div>
+    <h3>路由规则</h3>
+    <div id="routing-editor"></div>
+    <button class="btn btn-primary" onclick="saveCompany()">保存</button>
+    <button class="btn" onclick="hideEditor()" style="background:#eee">取消</button>
+  </div>
+</div>
+
+<div id="tab-global" class="panel">
+  <div class="card">
+    <h3>全局设置</h3>
+    <label>Paperclip 页面地址（飞书卡片链接）</label>
+    <input id="g-public-url" placeholder="http://localhost:3100">
+    <label>轮询间隔 (ms)</label>
+    <input id="g-poll" type="number" value="5000">
+    <label>对账间隔 (ms)</label>
+    <input id="g-recon" type="number" value="60000">
+    <label>管理端口</label>
+    <input id="g-port" type="number" value="9090">
+    <label>默认飞书 App ID</label>
+    <input id="g-feishu-appid" placeholder="cli_...">
+    <label>默认飞书 App Secret</label>
+    <input id="g-feishu-secret" type="password">
+    <button class="btn btn-primary" onclick="saveGlobal()">保存</button>
+  </div>
+</div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

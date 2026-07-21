@@ -102,10 +102,37 @@ export interface ApprovalTypeRouting {
   approvers: ApproverConfig[];
 }
 
+export interface CompanyFeishuConfig {
+  appId: string;
+  appSecret: string;
+}
+
 export interface CompanyConfig {
   companyId: string;
+  name?: string;
+  feishu?: CompanyFeishuConfig;
   defaultApprovers: ApproverConfig[];
   routing: Record<string, ApprovalTypeRouting>;
+}
+
+export interface BridgeGlobalConfig {
+  paperclipBaseUrl: string;
+  paperclipPublicUrl: string;
+  pollIntervalMs: number;
+  reconciliationIntervalMs: number;
+  scanConcurrency: number;
+  requestTimeoutMs: number;
+  sqlitePath: string;
+  actionTokenTtlMs: number;
+  adminPort: number;
+  adminHost?: string;
+}
+
+export interface SecretsConfig {
+  paperclipApiKey: string;
+  defaultFeishuAppId?: string;
+  defaultFeishuAppSecret?: string;
+  companySecrets?: Record<string, CompanyFeishuConfig>;
 }
 
 export interface BridgeConfig {
@@ -120,7 +147,27 @@ export interface BridgeConfig {
   requestTimeoutMs: number;
   sqlitePath: string;
   actionTokenTtlMs: number;
+  adminPort: number;
   companies: CompanyConfig[];
+}
+
+export interface PaperclipCompany {
+  id: string;
+  name: string;
+  issuePrefix?: string;
+}
+
+export interface FeishuUser {
+  openId: string;
+  name: string;
+}
+
+export interface CompanyConfigPublic {
+  companyId: string;
+  name?: string;
+  hasFeishu: boolean;
+  defaultApprovers: ApproverConfig[];
+  routing: Record<string, ApprovalTypeRouting>;
 }
 
 export interface SendApprovalCardInput {
@@ -149,4 +196,83 @@ export interface FeishuTransport {
   stop(): Promise<void>;
   sendApprovalCard(input: SendApprovalCardInput): Promise<DeliveryReference>;
   updateApprovalCard(input: UpdateApprovalCardInput): Promise<void>;
+}
+
+export type AuthFlowStatus = "pending" | "approved" | "cancelled" | "expired" | "failed";
+
+export type AuthValidity = "valid" | "missing" | "expired" | "revoked_or_invalid" | "unreachable" | "unknown";
+
+export interface AuthMetadata {
+  userId: string;
+  userName: string | null;
+  userEmail: string | null;
+  keyId: string;
+  keyExpiresAt: string | null;
+  connectedAt: string;
+  companyCount: number;
+}
+
+export interface AuthFlowPublic {
+  flowId: string;
+  status: AuthFlowStatus;
+  approvalUrl?: string;
+  expiresAt?: string;
+  suggestedPollIntervalMs?: number;
+  metadata?: AuthMetadata;
+  restartRequired?: boolean;
+  error?: string;
+}
+
+export interface AuthStatusResponse {
+  connected: boolean;
+  validity: AuthValidity;
+  user?: { id: string; name: string | null; email: string | null };
+  companyCount?: number;
+  key?: { id: string; expiresAt: string | null; expired: boolean };
+  lastValidatedAt?: string;
+  mode?: "store" | "env";
+}
+
+export interface CreateChallengeResponse {
+  id: string;
+  token: string;
+  boardApiToken: string;
+  approvalPath: string;
+  approvalUrl: string | null;
+  pollPath: string;
+  expiresAt: string;
+  suggestedPollIntervalMs: number;
+}
+
+export interface ChallengeStatusResponse {
+  id: string;
+  status: "pending" | "approved" | "cancelled" | "expired";
+  command: string;
+  clientName: string | null;
+  requestedAccess: string;
+  requestedCompanyId: string | null;
+  requestedCompanyName: string | null;
+  approvedAt: string | null;
+  cancelledAt: string | null;
+  expiresAt: string;
+  approvedByUser: { id: string; name: string | null; email: string | null } | null;
+}
+
+export interface CliAuthMeResponse {
+  user: { id: string; name: string | null; email: string | null } | null;
+  userId: string;
+  isInstanceAdmin: boolean;
+  companyIds: string[];
+  memberships: Array<{ companyId: string; membershipRole: string | null; status: string }>;
+  source: string;
+  keyId: string | null;
+}
+
+export interface BoardApiKeyEntry {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  revokedAt: string | null;
+  expiresAt: string | null;
 }

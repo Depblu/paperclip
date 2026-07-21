@@ -1,0 +1,11 @@
+{
+  "paperclipBaseUrl": "http://localhost:3100",
+  "paperclipPublicUrl": "http://localhost:3100",
+  "pollIntervalMs": 5000,
+  "reconciliationIntervalMs": 60000,
+  "scanConcurrency": 4,
+  "requestTimeoutMs": 10000,
+  "sqlitePath": "./data/bridge.db",
+  "actionTokenTtlMs": 86400000,
+  "adminPort": 9090
+}

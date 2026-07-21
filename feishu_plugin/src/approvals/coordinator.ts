@@ -1,6 +1,6 @@
 import type { BridgeConfig, PaperclipApproval, PaperclipApprovalWithMeta, VersionSnapshot } from "../types.js";
 import type { PaperclipClient } from "../paperclip/client.js";
-import type { FeishuClient } from "../feishu/client.js";
+import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { ActionTokenService, buildVersionSnapshot } from "./action-token.js";
 import { findCompanyConfig, isActionable, resolveApprovers } from "./routing.js";
 import { renderApprovalCard } from "../feishu/card-renderer.js";
@@ -11,7 +11,7 @@ import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
 export interface CoordinatorDeps {
   config: BridgeConfig;
   paperclip: PaperclipClient;
-  feishu: FeishuClient;
+  feishuRegistry: FeishuClientRegistry;
   tokenService: ActionTokenService;
   deliveryRepo: DeliveryRepository;
 }
@@ -87,7 +87,11 @@ export class ApprovalCoordinator {
     });
 
     try {
-      const ref = await this.deps.feishu.sendInteractiveCard(approver.openId, cardContent);
+      const feishu = this.deps.feishuRegistry.getForCompany(companyId);
+      if (!feishu) {
+        throw new Error(`no feishu client for company ${companyId}`);
+      }
+      const ref = await feishu.sendInteractiveCard(approver.openId, cardContent);
       this.deps.deliveryRepo.upsert({
         approvalId: approval.id,
         companyId,

@@ -6,14 +6,14 @@ import { findCompanyConfig, isAuthorizedApprover } from "../approvals/routing.js
 import { CallbackEventRepository, DeliveryRepository } from "../storage/repositories.js";
 import type { CardActionEvent } from "../feishu/long-connection.js";
 import { renderResultCard } from "../feishu/card-renderer.js";
-import type { FeishuClient } from "../feishu/client.js";
+import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { logger } from "../observability/logger.js";
 import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
 
 export interface CallbackDeps {
   config: BridgeConfig;
   paperclip: PaperclipClient;
-  feishu: FeishuClient;
+  feishuRegistry: FeishuClientRegistry;
   tokenService: ActionTokenService;
   deliveryRepo: DeliveryRepository;
   callbackRepo: CallbackEventRepository;
@@ -101,14 +101,14 @@ export class CallbackHandler {
     if (["approved", "rejected", "cancelled"].includes(approval.status)) {
       this.deps.tokenService.consume(token);
       this.deps.callbackRepo.updateResult(event.eventId, "succeeded", "already_decided", approval.status);
-      await this.updateAllCards(approvalId, approval.status, event.operatorName);
+      await this.updateAllCards(approvalId, approval.status, event.operatorName, rec.companyId);
       return this.toast(`该审批已处理（${approval.status}），请以 Paperclip 状态为准`);
     }
 
     if (approval.status === "revision_requested") {
       this.deps.tokenService.invalidate(token);
       this.deps.callbackRepo.updateResult(event.eventId, "succeeded", "revision_requested", approval.status);
-      await this.updateAllCards(approvalId, approval.status, event.operatorName);
+      await this.updateAllCards(approvalId, approval.status, event.operatorName, rec.companyId);
       return this.toast("该审批已请求修改，当前卡片已失效");
     }
 
@@ -126,7 +126,7 @@ export class CallbackHandler {
       return this.toast("您不是该审批的授权审批人");
     }
 
-    return this.executeDecision(event, action, token, approvalId, approval);
+    return this.executeDecision(event, action, token, approvalId, approval, rec.companyId);
   }
 
   private async executeDecision(
@@ -135,6 +135,7 @@ export class CallbackHandler {
     token: string,
     approvalId: string,
     approval: PaperclipApproval,
+    companyId: string,
   ) {
     incMetric(METRIC_NAMES.decisionRequests);
     const decisionNote = `通过飞书完成审批；审批人：${event.operatorName}；操作：${action}。`;
@@ -146,11 +147,11 @@ export class CallbackHandler {
 
       this.deps.tokenService.consume(token);
       this.deps.callbackRepo.updateResult(event.eventId, "succeeded", undefined, result.status);
-      await this.updateAllCards(approvalId, result.status, event.operatorName, decisionNote);
+      await this.updateAllCards(approvalId, result.status, event.operatorName, companyId, decisionNote);
       logger.info("decision committed", { approvalId, action, status: result.status });
       return this.toast(action === "approve" ? "已同意" : "已拒绝");
     } catch (err) {
-      return this.handleDecisionError(event, action, token, approvalId, err);
+      return this.handleDecisionError(event, action, token, approvalId, companyId, err);
     }
   }
 
@@ -159,6 +160,7 @@ export class CallbackHandler {
     action: string,
     token: string,
     approvalId: string,
+    companyId: string,
     err: unknown,
   ) {
     incMetric(METRIC_NAMES.decisionFailures);
@@ -178,7 +180,7 @@ export class CallbackHandler {
           logger.error("ALERT: decision committed but side effects unknown", {
             approvalId, action, targetStatus,
           });
-          await this.updateAllCards(approvalId, current.status, event.operatorName);
+          await this.updateAllCards(approvalId, current.status, event.operatorName, companyId);
           return this.toast(action === "approve" ? "已同意" : "已拒绝");
         }
       } catch {
@@ -197,17 +199,22 @@ export class CallbackHandler {
     approvalId: string,
     status: string,
     operatorName: string,
+    companyId: string,
     decisionNote?: string,
   ) {
     const deliveries = this.deps.deliveryRepo.findActiveByApproval(approvalId);
     const approval = await this.deps.paperclip.getApproval(approvalId).catch(() => null);
     const approvalType = approval?.type ?? "unknown";
     const cardContent = renderResultCard(approvalType, status, operatorName, decisionNote);
+    const feishu = this.deps.feishuRegistry.getForCompany(companyId);
+    if (!feishu) {
+      logger.warn("no feishu client for company, skipping card updates", { companyId, approvalId });
+    }
 
     for (const d of deliveries) {
-      if (!d.messageId) continue;
+      if (!d.messageId || !feishu) continue;
       try {
-        await this.deps.feishu.updateInteractiveCard(d.messageId, cardContent);
+        await feishu.updateInteractiveCard(d.messageId, cardContent);
       } catch (err) {
         logger.warn("card update failed during callback", {
           messageId: d.messageId, error: String(err),
