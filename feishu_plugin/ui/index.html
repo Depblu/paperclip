@@ -18,7 +18,10 @@ h1 { font-size: 22px; margin-bottom: 20px; }
 .card h3 { font-size: 15px; margin-bottom: 12px; }
 label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
 input, select { width: 100%; padding: 8px 12px; border: 1px solid #d0d3d6; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
+input[type="radio"] { width: auto; padding: 0; border: none; border-radius: 0; margin-bottom: 0; flex-shrink: 0; }
 input:focus, select:focus { outline: none; border-color: #3370ff; }
+.radio-option { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1f2329; margin-bottom: 6px; cursor: pointer; }
+.radio-option.disabled { cursor: not-allowed; color: #999; }
 .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
 .btn-primary { background: #3370ff; color: #fff; }
 .btn-primary:hover { background: #2860e1; }
@@ -35,6 +38,7 @@ th { color: #999; font-weight: 500; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-ok { background: #e8f8e8; color: #1a7a1a; }
 .badge-no { background: #fde8e8; color: #c00; }
+.badge-warn { background: #fff3cd; color: #856404; }
 .routing-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .routing-row input { margin-bottom: 0; }
 .approver-tag { display: inline-flex; align-items: center; gap: 4px; background: #f0f2f5; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin: 2px; }
@@ -43,6 +47,19 @@ th { color: #999; font-weight: 500; }
 #user-search-results { max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; display: none; }
 #user-search-results div { padding: 8px 12px; cursor: pointer; font-size: 13px; }
 #user-search-results div:hover { background: #f0f5ff; }
+.wizard-steps { display: flex; gap: 0; margin-bottom: 20px; }
+.wizard-step { flex: 1; text-align: center; padding: 8px 4px; font-size: 12px; color: #999; border-bottom: 3px solid #e0e0e0; }
+.wizard-step.active { color: #3370ff; border-bottom-color: #3370ff; font-weight: 600; }
+.wizard-step.done { color: #1a7a1a; border-bottom-color: #1a7a1a; }
+.wizard-panel { display: none; }
+.wizard-panel.active { display: block; }
+.company-summary { font-size: 14px; line-height: 2; }
+.verify-result { padding: 12px; border-radius: 6px; margin: 8px 0; font-size: 13px; }
+.verify-ok { background: #e8f8e8; color: #1a7a1a; }
+.verify-fail { background: #fde8e8; color: #c00; }
+.suggestion-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.suggestion-item:hover { background: #f0f5ff; }
+.type-hint { font-size: 11px; color: #999; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -102,23 +119,63 @@ th { color: #999; font-weight: 500; }
     <table><thead><tr><th>Company ID</th><th>名称</th><th>飞书配置</th><th>操作</th></tr></thead>
     <tbody id="cfg-companies"></tbody></table>
   </div>
-  <div class="card" id="company-editor" style="display:none">
-    <h3 id="editor-title">编辑 Company</h3>
-    <input type="hidden" id="edit-company-id">
-    <label>显示名称</label>
-    <input id="edit-name" placeholder="Company 名称">
-    <label>飞书 App ID（留空使用全局默认）</label>
-    <input id="edit-feishu-appid" placeholder="cli_...">
-    <label>飞书 App Secret</label>
-    <input id="edit-feishu-secret" type="password" placeholder="留空不修改">
-    <h3>默认审批人</h3>
-    <div id="default-approvers"></div>
-    <input id="approver-search" placeholder="搜索飞书用户..." oninput="searchUsers(this.value)">
-    <div id="user-search-results"></div>
-    <h3>路由规则</h3>
-    <div id="routing-editor"></div>
-    <button class="btn btn-primary" onclick="saveCompany()">保存</button>
-    <button class="btn" onclick="hideEditor()" style="background:#eee">取消</button>
+  <div class="card" id="company-wizard" style="display:none">
+    <h3 id="wizard-title">Company 配置向导</h3>
+    <div class="wizard-steps" id="wizard-steps"></div>
+    <div id="wiz-step-select" class="wizard-panel">
+      <p style="font-size:13px;color:#666;margin-bottom:12px">从 Paperclip 选择一个 Company 开始配置</p>
+      <table><thead><tr><th>ID</th><th>名称</th><th>操作</th></tr></thead>
+      <tbody id="wiz-company-list"></tbody></table>
+    </div>
+    <div id="wiz-step-summary" class="wizard-panel">
+      <div id="wiz-summary-content" class="company-summary"></div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="wizardNext()">下一步</button>
+        <button class="btn" style="background:#eee" onclick="wizardPrev()">上一步</button>
+      </div>
+    </div>
+    <div id="wiz-step-feishu" class="wizard-panel">
+      <div id="wiz-feishu-binding"></div>
+      <div id="wiz-feishu-inputs" style="display:none">
+        <label>飞书 App ID</label>
+        <input id="wiz-feishu-appid" placeholder="cli_...">
+        <label>飞书 App Secret</label>
+        <input id="wiz-feishu-secret" type="password" placeholder="输入 App Secret">
+        <button class="btn btn-sm" style="background:#eee" onclick="verifyFeishuApp()">验证飞书应用</button>
+        <div id="wiz-verify-result"></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="wizardNext()">下一步</button>
+        <button class="btn" style="background:#eee" onclick="wizardPrev()">上一步</button>
+        <button class="btn" style="background:#eee" onclick="wizardSkipTo('approvers')">跳过</button>
+      </div>
+    </div>
+    <div id="wiz-step-approvers" class="wizard-panel">
+      <h3 style="margin-bottom:8px">选择审批人</h3>
+      <div id="wiz-suggestions" style="max-height:240px;overflow-y:auto;border:1px solid #eee;border-radius:6px;margin-bottom:12px"></div>
+      <label>搜索飞书用户</label>
+      <input id="wiz-approver-search" placeholder="输入姓名或 Open ID..." oninput="wizSearchUsers(this.value)">
+      <div id="wiz-user-results" style="max-height:160px;overflow-y:auto;border:1px solid #eee;border-radius:6px;display:none"></div>
+      <h3 style="margin:12px 0 8px">已选审批人</h3>
+      <div id="wiz-selected-approvers"></div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="wizardNext()">下一步</button>
+        <button class="btn" style="background:#eee" onclick="wizardPrev()">上一步</button>
+      </div>
+    </div>
+    <div id="wiz-step-routing" class="wizard-panel">
+      <h3 style="margin-bottom:8px">路由规则</h3>
+      <p style="font-size:12px;color:#999;margin-bottom:12px">未单独配置的类型将使用默认审批人</p>
+      <div style="margin-bottom:12px">
+        <button class="btn btn-sm" style="background:#eee" onclick="applyDefaultToAll()">将默认审批人应用到所有类型</button>
+      </div>
+      <div id="wiz-routing-editor"></div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="wizardSave()">保存配置</button>
+        <button class="btn" style="background:#eee" onclick="wizardPrev()">上一步</button>
+        <button class="btn" style="background:#eee" onclick="hideWizard()">取消</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -141,6 +198,6 @@ th { color: #999; font-weight: 500; }
   </div>
 </div>
 </div>
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

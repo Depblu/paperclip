@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import type { AddressInfo } from "node:net";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, join, extname } from "node:path";
 import { logger } from "../observability/logger.js";
@@ -29,10 +30,15 @@ export class AdminServer {
   private server: ReturnType<typeof createServer> | null = null;
   private uiDir: string;
   private host: string;
+  private stopHooks: Array<() => void> = [];
 
   constructor(private port: number, uiDir = "./ui", host = "127.0.0.1") {
     this.uiDir = resolve(uiDir);
     this.host = host;
+  }
+
+  addStopHook(hook: () => void): void {
+    this.stopHooks.push(hook);
   }
 
   addRoute(method: string, path: string, handler: RouteHandler): void {
@@ -52,11 +58,25 @@ export class AdminServer {
   start(): void {
     this.server = createServer((req, res) => this.handleRequest(req, res));
     this.server.listen(this.port, this.host, () => {
-      logger.info("admin server started", { host: this.host, port: this.port });
+      logger.info("admin server started", { host: this.host, port: this.getPort() });
     });
   }
 
+  getPort(): number {
+    const addr = this.server?.address();
+    if (addr && typeof addr === "object") return (addr as AddressInfo).port;
+    return this.port;
+  }
+
   stop(): void {
+    for (const hook of this.stopHooks) {
+      try {
+        hook();
+      } catch (err) {
+        logger.warn("admin server stop hook failed", { error: String(err) });
+      }
+    }
+    this.stopHooks = [];
     this.server?.close();
     this.server = null;
   }
@@ -112,7 +132,7 @@ export class AdminServer {
     if (!filePath.startsWith(this.uiDir) || !existsSync(filePath)) {
       const indexPath = join(this.uiDir, "index.html");
       if (existsSync(indexPath)) {
-        res.writeHead(200, { "Content-Type": MIME[".html"] });
+        res.writeHead(200, { "Content-Type": MIME[".html"], "Cache-Control": "no-store" });
         res.end(readFileSync(indexPath));
         return;
       }
@@ -121,7 +141,7 @@ export class AdminServer {
       return;
     }
     const ext = extname(filePath);
-    res.writeHead(200, { "Content-Type": MIME[ext] ?? "application/octet-stream" });
+    res.writeHead(200, { "Content-Type": MIME[ext] ?? "application/octet-stream", "Cache-Control": "no-store" });
     res.end(readFileSync(filePath));
   }
 

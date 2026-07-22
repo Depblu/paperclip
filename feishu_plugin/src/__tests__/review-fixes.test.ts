@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { ConfigStore } from "../config/store.js";
 import { AdminServer } from "../admin/server.js";
@@ -23,8 +23,8 @@ function mockPaperclip(companies: { id: string; name: string }[] | Error): Paper
   } as unknown as PaperclipClient;
 }
 
-describe("P0-2: FeishuClientRegistry no cross-company fallback", () => {
-  it("store mode: getForCompany returns null for unconfigured company", () => {
+describe("P0-4: FeishuClientRegistry explicit binding model", () => {
+  it("store mode: getForCompany returns null for unbound company", () => {
     const dir = makeTmpDir();
     const store = new ConfigStore(dir);
     store.saveSecrets({
@@ -36,7 +36,7 @@ describe("P0-2: FeishuClientRegistry no cross-company fallback", () => {
       },
     });
     store.saveCompanies([
-      { companyId: "company-a", defaultApprovers: [], routing: {} },
+      { companyId: "company-a", feishuBinding: { mode: "company" }, defaultApprovers: [], routing: {} },
       { companyId: "company-b", defaultApprovers: [], routing: {} },
     ]);
 
@@ -46,6 +46,66 @@ describe("P0-2: FeishuClientRegistry no cross-company fallback", () => {
     expect(registry.getForCompany("company-a")).not.toBeNull();
     expect(registry.getForCompany("company-b")).toBeNull();
     expect(registry.getDefault()).not.toBeNull();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("store mode: explicit global binding uses default client", () => {
+    const dir = makeTmpDir();
+    const store = new ConfigStore(dir);
+    store.saveSecrets({
+      paperclipApiKey: "test",
+      defaultFeishuAppId: "cli_default",
+      defaultFeishuAppSecret: "secret_default",
+    });
+    store.saveCompanies([
+      { companyId: "company-g", feishuBinding: { mode: "global" }, defaultApprovers: [], routing: {} },
+      { companyId: "company-none", defaultApprovers: [], routing: {} },
+    ]);
+
+    const registry = new FeishuClientRegistry(store);
+    registry.initFromStore();
+
+    expect(registry.getForCompany("company-g")).toBe(registry.getDefault());
+    expect(registry.getForCompany("company-none")).toBeNull();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("store mode: company binding does not fallback to global", () => {
+    const dir = makeTmpDir();
+    const store = new ConfigStore(dir);
+    store.saveSecrets({
+      paperclipApiKey: "test",
+      defaultFeishuAppId: "cli_default",
+      defaultFeishuAppSecret: "secret_default",
+    });
+    store.saveCompanies([
+      { companyId: "company-c", feishuBinding: { mode: "company" }, defaultApprovers: [], routing: {} },
+    ]);
+
+    const registry = new FeishuClientRegistry(store);
+    registry.initFromStore();
+
+    expect(registry.getForCompany("company-c")).toBeNull();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("store mode: legacy company with feishu secrets but no binding still works", () => {
+    const dir = makeTmpDir();
+    const store = new ConfigStore(dir);
+    store.saveSecrets({
+      paperclipApiKey: "test",
+      companySecrets: {
+        "company-legacy": { appId: "cli_legacy", appSecret: "secret_legacy" },
+      },
+    });
+    store.saveCompanies([
+      { companyId: "company-legacy", defaultApprovers: [], routing: {} },
+    ]);
+
+    const registry = new FeishuClientRegistry(store);
+    registry.initFromStore();
+
+    expect(registry.getForCompany("company-legacy")).not.toBeNull();
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -101,7 +161,7 @@ describe("P0-2: FeishuClientRegistry no cross-company fallback", () => {
   });
 });
 
-describe("P0-2: ConfigStore.getFeishuForCompany no default fallback", () => {
+describe("P0-4: ConfigStore.getFeishuForCompany no default fallback", () => {
   it("returns null when company has no explicit feishu config", () => {
     const dir = makeTmpDir();
     const store = new ConfigStore(dir);
@@ -134,13 +194,15 @@ describe("P0-2: ConfigStore.getFeishuForCompany no default fallback", () => {
 describe("P0-1: Company add validates against Paperclip API", () => {
   let server: AdminServer;
   let port: number;
+  let dir: string;
 
   afterEach(() => {
     server?.stop();
+    if (dir) rmSync(dir, { recursive: true, force: true });
   });
 
   async function setup(companies: { id: string; name: string }[] | Error) {
-    const dir = makeTmpDir();
+    dir = makeTmpDir();
     const store = new ConfigStore(dir);
     const paperclip = mockPaperclip(companies);
     const feishuRegistry = new FeishuClientRegistry(store);
@@ -161,7 +223,7 @@ describe("P0-1: Company add validates against Paperclip API", () => {
   }
 
   it("accepts valid companyId from Paperclip", async () => {
-    const { dir } = await setup([{ id: "real-id", name: "Real Co" }]);
+    await setup([{ id: "real-id", name: "Real Co" }]);
     const res = await fetch(`http://localhost:${port}/api/config/companies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -171,11 +233,10 @@ describe("P0-1: Company add validates against Paperclip API", () => {
     const data = await res.json();
     expect(data.ok).toBe(true);
     expect(data.restartRequired).toBe(true);
-    rmSync(dir, { recursive: true, force: true });
   });
 
   it("rejects fake companyId not in Paperclip", async () => {
-    const { dir } = await setup([{ id: "real-id", name: "Real Co" }]);
+    await setup([{ id: "real-id", name: "Real Co" }]);
     const res = await fetch(`http://localhost:${port}/api/config/companies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -184,23 +245,21 @@ describe("P0-1: Company add validates against Paperclip API", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toContain("not found");
-    rmSync(dir, { recursive: true, force: true });
   });
 
   it("returns 502 when Paperclip query fails", async () => {
-    const { dir } = await setup(new Error("connection refused"));
+    await setup(new Error("connection refused"));
     const res = await fetch(`http://localhost:${port}/api/config/companies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ companyId: "any-id" }),
     });
     expect(res.status).toBe(502);
-    rmSync(dir, { recursive: true, force: true });
   });
 
   it("uses Paperclip name as trusted name", async () => {
-    const { dir } = await setup([{ id: "real-id", name: "Trusted Name" }]);
-    const store = new ConfigStore(dir);
+    const { dir: d } = await setup([{ id: "real-id", name: "Trusted Name" }]);
+    const store = new ConfigStore(d);
     await fetch(`http://localhost:${port}/api/config/companies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -208,12 +267,11 @@ describe("P0-1: Company add validates against Paperclip API", () => {
     });
     const companies = store.getCompanies();
     expect(companies[0].name).toBe("Trusted Name");
-    rmSync(dir, { recursive: true, force: true });
   });
 
   it("PUT rejects companyId change", async () => {
-    const { dir } = await setup([{ id: "real-id", name: "Real Co" }]);
-    const store = new ConfigStore(dir);
+    const { dir: d } = await setup([{ id: "real-id", name: "Real Co" }]);
+    const store = new ConfigStore(d);
     store.addCompany({ companyId: "real-id", name: "Real Co", defaultApprovers: [], routing: {} });
     const res = await fetch(`http://localhost:${port}/api/config/companies/real-id`, {
       method: "PUT",
@@ -223,6 +281,79 @@ describe("P0-1: Company add validates against Paperclip API", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toContain("cannot be changed");
-    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("saves feishuBinding in company config", async () => {
+    const { dir: d } = await setup([{ id: "real-id", name: "Real Co" }]);
+    const store = new ConfigStore(d);
+    store.saveSecrets({
+      paperclipApiKey: "test",
+      defaultFeishuAppId: "cli_global",
+      defaultFeishuAppSecret: "secret_global",
+    });
+    const res = await fetch(`http://localhost:${port}/api/config/companies`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ companyId: "real-id", feishuBinding: { mode: "global" } }),
+    });
+    expect(res.status).toBe(201);
+    const companies = store.getCompanies();
+    expect(companies[0].feishuBinding).toEqual({ mode: "global" });
+  });
+});
+
+describe("P1-6: Feishu user directory recursive traversal", () => {
+  it("listUsers traverses child departments and deduplicates", async () => {
+    const { FeishuClient } = await import("../feishu/client.js");
+    const client = new FeishuClient("cli_test", "secret_test");
+    const rawClient = client.getRawClient();
+
+    let userCallCount = 0;
+    vi.spyOn(rawClient.contact.user, "list").mockImplementation(async (params: Record<string, unknown>) => {
+      userCallCount++;
+      const deptId = (params as { params?: { department_id?: string } }).params?.department_id;
+      if (deptId === "0") {
+        return { data: { items: [{ open_id: "ou_root", name: "Root User" }], page_token: undefined } } as never;
+      }
+      if (deptId === "dept-child") {
+        return { data: { items: [{ open_id: "ou_child", name: "Child User" }, { open_id: "ou_root", name: "Root User" }], page_token: undefined } } as never;
+      }
+      return { data: { items: [], page_token: undefined } } as never;
+    });
+
+    vi.spyOn(rawClient.contact.department, "children").mockImplementation(async (input: Record<string, unknown>) => {
+      const deptId = (input as { path?: { department_id?: string } }).path?.department_id;
+      if (deptId === "0") {
+        return { data: { items: [{ open_department_id: "dept-child" }] } } as never;
+      }
+      return { data: { items: [] } } as never;
+    });
+
+    const users = await client.listUsers();
+    expect(users).toHaveLength(2);
+    expect(users.find(u => u.openId === "ou_root")).toBeDefined();
+    expect(users.find(u => u.openId === "ou_child")).toBeDefined();
+    expect(userCallCount).toBeGreaterThanOrEqual(2);
+    vi.restoreAllMocks();
+  });
+});
+
+describe("P1-8: No inline onclick with external values in UI", () => {
+  it("app.js does not contain onclick with template literal interpolation of external data", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const appJs = readFileSync(resolve(import.meta.dirname, "../../ui/app.js"), "utf-8");
+    const inlineOnclickPattern = /onclick="[^"]*\$\{/g;
+    const matches = appJs.match(inlineOnclickPattern);
+    expect(matches).toBeNull();
+  });
+
+  it("app.js does not use onclick with esc() for dynamic values", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const appJs = readFileSync(resolve(import.meta.dirname, "../../ui/app.js"), "utf-8");
+    const unsafePattern = /onclick="[^"]*esc\(/g;
+    const matches = appJs.match(unsafePattern);
+    expect(matches).toBeNull();
   });
 });

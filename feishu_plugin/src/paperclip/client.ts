@@ -1,4 +1,4 @@
-import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipIssue } from "../types.js";
+import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipCompanyDetail, PaperclipDirectoryUser, PaperclipIssue, UserDirectoryResponse } from "../types.js";
 import { logger } from "../observability/logger.js";
 
 export class PaperclipClientError extends Error {
@@ -107,5 +107,23 @@ export class PaperclipClient {
 
   async listCompanies(): Promise<PaperclipCompany[]> {
     return this.request<PaperclipCompany[]>("GET", "/api/companies");
+  }
+
+  async getCompany(companyId: string): Promise<PaperclipCompanyDetail> {
+    return this.request<PaperclipCompanyDetail>("GET", `/api/companies/${companyId}`);
+  }
+
+  async listCompanyUsers(companyId: string): Promise<PaperclipDirectoryUser[]> {
+    const resp = await this.request<UserDirectoryResponse>(
+      "GET",
+      `/api/companies/${companyId}/user-directory`,
+    );
+    return (resp.users ?? [])
+      .filter((entry) => entry.user !== null)
+      .map((entry) => ({
+        id: entry.user!.id,
+        name: entry.user!.name,
+        email: entry.user!.email,
+      }));
   }
 }

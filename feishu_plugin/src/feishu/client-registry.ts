@@ -24,12 +24,19 @@ export class FeishuClientRegistry {
     }
     const companies = this.store.getCompanies();
     for (const c of companies) {
-      const feishu = this.store.getFeishuForCompany(c.companyId);
-      if (feishu) {
-        this.clients.set(
-          c.companyId,
-          new FeishuClient(feishu.appId, feishu.appSecret),
-        );
+      const binding = c.feishuBinding;
+      if (binding?.mode === "global" && this.defaultClient) {
+        this.clients.set(c.companyId, this.defaultClient);
+      } else if (binding?.mode === "company") {
+        const feishu = this.store.getFeishuForCompany(c.companyId);
+        if (feishu) {
+          this.clients.set(c.companyId, new FeishuClient(feishu.appId, feishu.appSecret));
+        }
+      } else {
+        const feishu = this.store.getFeishuForCompany(c.companyId);
+        if (feishu) {
+          this.clients.set(c.companyId, new FeishuClient(feishu.appId, feishu.appSecret));
+        }
       }
     }
     logger.info("feishu client registry initialized from store", {

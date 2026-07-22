@@ -5,7 +5,9 @@ import { randomBytes } from "node:crypto";
 import type {
   BridgeGlobalConfig,
   CompanyConfig,
+  CompanyFeishuConfig,
   SecretsConfig,
+  SecretsPublic,
   CompanyConfigPublic,
   AuthMetadata,
 } from "../types.js";
@@ -38,6 +40,31 @@ export class ConfigStore {
     this.secretsPath = resolve(this.configDir, "secrets.json");
     this.authMetadataPath = resolve(this.configDir, "auth-metadata.json");
     mkdirSync(this.configDir, { recursive: true });
+    this.migrateLegacyFeishuSecrets();
+  }
+
+  private migrateLegacyFeishuSecrets(): void {
+    if (!existsSync(this.companiesPath)) return;
+    const raw = this.readJson<{ companies: CompanyConfig[] }>(this.companiesPath, { companies: [] });
+    const companies = raw.companies ?? [];
+    const dirty = companies.filter((c) => c.feishu?.appId || c.feishu?.appSecret);
+    if (dirty.length === 0) return;
+    const secrets = this.getSecrets();
+    secrets.companySecrets ??= {};
+    for (const c of dirty) {
+      if (c.feishu?.appId && c.feishu?.appSecret && !secrets.companySecrets[c.companyId]) {
+        secrets.companySecrets[c.companyId] = { appId: c.feishu.appId, appSecret: c.feishu.appSecret };
+      }
+    }
+    this.writeSecretsAtomic(secrets);
+    const stripped = companies.map((c) => {
+      const { feishu: _drop, ...rest } = c;
+      return rest as CompanyConfig;
+    });
+    this.writeJson(this.companiesPath, { companies: stripped });
+    logger.info("migrated legacy feishu secrets from companies.json to secrets.json", {
+      count: dirty.length,
+    });
   }
 
   private readJson<T>(path: string, fallback: T): T {
@@ -95,23 +122,27 @@ export class ConfigStore {
   addCompany(company: CompanyConfig): void {
     const companies = this.getCompanies();
     const idx = companies.findIndex((c) => c.companyId === company.companyId);
+    const sanitized = this.stripSecret(company);
     if (idx >= 0) {
-      companies[idx] = company;
+      companies[idx] = sanitized;
     } else {
-      companies.push(company);
+      companies.push(sanitized);
     }
     this.saveCompanies(companies);
-    this.syncCompanySecret(company);
   }
 
   updateCompany(companyId: string, patch: Partial<CompanyConfig>): CompanyConfig | null {
     const companies = this.getCompanies();
     const idx = companies.findIndex((c) => c.companyId === companyId);
     if (idx < 0) return null;
-    companies[idx] = { ...companies[idx], ...patch, companyId };
+    companies[idx] = this.stripSecret({ ...companies[idx], ...patch, companyId });
     this.saveCompanies(companies);
-    this.syncCompanySecret(companies[idx]);
     return companies[idx];
+  }
+
+  private stripSecret(company: CompanyConfig): CompanyConfig {
+    const { feishu: _drop, ...rest } = company;
+    return rest as CompanyConfig;
   }
 
   removeCompany(companyId: string): boolean {
@@ -127,12 +158,38 @@ export class ConfigStore {
     return true;
   }
 
-  private syncCompanySecret(company: CompanyConfig): void {
-    if (!company.feishu) return;
-    const secrets = this.getSecrets();
-    secrets.companySecrets ??= {};
-    secrets.companySecrets[company.companyId] = { ...company.feishu };
-    this.saveSecrets(secrets);
+  hasDefaultFeishuCredentials(): boolean {
+    const s = this.getSecrets();
+    return !!(s.defaultFeishuAppId && s.defaultFeishuAppSecret);
+  }
+
+  getDefaultFeishuCredentials(): CompanyFeishuConfig | null {
+    const s = this.getSecrets();
+    if (s.defaultFeishuAppId && s.defaultFeishuAppSecret) {
+      return { appId: s.defaultFeishuAppId, appSecret: s.defaultFeishuAppSecret };
+    }
+    return null;
+  }
+
+  hasCompanyFeishuCredentials(companyId: string): boolean {
+    const s = this.getSecrets();
+    const cs = s.companySecrets?.[companyId];
+    return !!(cs?.appId && cs?.appSecret);
+  }
+
+  setCompanyFeishuCredentials(companyId: string, creds: CompanyFeishuConfig): void {
+    const s = this.getSecrets();
+    s.companySecrets ??= {};
+    s.companySecrets[companyId] = { appId: creds.appId, appSecret: creds.appSecret };
+    this.saveSecrets(s);
+  }
+
+  removeCompanyFeishuCredentials(companyId: string): void {
+    const s = this.getSecrets();
+    if (s.companySecrets?.[companyId]) {
+      delete s.companySecrets[companyId];
+      this.saveSecrets(s);
+    }
   }
 
   getFeishuForCompany(companyId: string): { appId: string; appSecret: string } | null {
@@ -144,30 +201,37 @@ export class ConfigStore {
     return null;
   }
 
+  isBindingValid(company: CompanyConfig): boolean {
+    const mode = company.feishuBinding?.mode;
+    if (mode === "global") return this.hasDefaultFeishuCredentials();
+    if (mode === "company") return this.hasCompanyFeishuCredentials(company.companyId);
+    return this.hasCompanyFeishuCredentials(company.companyId);
+  }
+
   getCompaniesPublic(): CompanyConfigPublic[] {
     return this.getCompanies().map((c) => ({
       companyId: c.companyId,
       name: c.name,
-      hasFeishu: !!(
-        c.feishu?.appId ||
-        this.getSecrets().companySecrets?.[c.companyId]?.appId
-      ),
+      hasFeishu: this.isBindingValid(c),
+      feishuBinding: c.feishuBinding ?? null,
+      feishuBindingValid: this.isBindingValid(c),
       defaultApprovers: c.defaultApprovers,
       routing: c.routing,
     }));
   }
 
-  maskSecrets(): SecretsConfig {
+  maskSecrets(): SecretsPublic {
     const s = this.getSecrets();
     return {
       paperclipApiKey: s.paperclipApiKey ? "***" : "",
-      defaultFeishuAppId: s.defaultFeishuAppId ? mask(s.defaultFeishuAppId) : undefined,
-      defaultFeishuAppSecret: s.defaultFeishuAppSecret ? "***" : undefined,
+      hasDefaultFeishuApp: !!(s.defaultFeishuAppId && s.defaultFeishuAppSecret),
+      defaultFeishuAppIdDisplay: s.defaultFeishuAppId ? mask(s.defaultFeishuAppId) : undefined,
+      defaultFeishuAppSecret: s.defaultFeishuAppSecret ? "***" : "",
       companySecrets: s.companySecrets
         ? Object.fromEntries(
             Object.entries(s.companySecrets).map(([k, v]) => [
               k,
-              { appId: mask(v.appId), appSecret: "***" as string },
+              { appId: mask(v.appId), appSecret: "***" },
             ]),
           )
         : undefined,

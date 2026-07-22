@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { ConfigStore } from "../config/store.js";
+import { PaperclipClientError } from "./client.js";
 import type {
   AuthFlowStatus,
   AuthMetadata,
@@ -10,6 +11,9 @@ import type {
   ChallengeStatusResponse,
   CliAuthMeResponse,
   BoardApiKeyEntry,
+  PaperclipCompanyDetail,
+  PaperclipDirectoryUser,
+  UserDirectoryResponse,
 } from "../types.js";
 import { logger } from "../observability/logger.js";
 
@@ -272,9 +276,16 @@ export class PaperclipAuthService {
         signal: controller.signal,
       });
       if (!resp.ok) {
-        throw new Error(`Paperclip ${path} → ${resp.status}`);
+        const retryable = resp.status >= 500 || resp.status === 429;
+        throw new PaperclipClientError(`Paperclip ${path} → ${resp.status}`, resp.status, retryable);
       }
       return (await resp.json()) as T;
+    } catch (err) {
+      if (err instanceof PaperclipClientError) throw err;
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new PaperclipClientError(`Paperclip ${path} timeout`, 0, true);
+      }
+      throw new PaperclipClientError(`Paperclip ${path} unreachable`, 0, true);
     } finally {
       clearTimeout(timer);
     }
@@ -431,9 +442,38 @@ export class PaperclipAuthService {
     const secrets = this.store.getSecrets();
     const token = secrets.paperclipApiKey;
     if (!token) {
-      throw new Error("not authorized");
+      throw new PaperclipClientError("not authorized", 401, false);
     }
     const baseUrl = this.store.getGlobal().paperclipBaseUrl.replace(/\/+$/, "");
     return this.fetchWithToken(baseUrl, "/api/companies", token);
+  }
+
+  async getCompany(companyId: string): Promise<PaperclipCompanyDetail> {
+    const secrets = this.store.getSecrets();
+    const token = secrets.paperclipApiKey;
+    if (!token) {
+      throw new PaperclipClientError("not authorized", 401, false);
+    }
+    const baseUrl = this.store.getGlobal().paperclipBaseUrl.replace(/\/+$/, "");
+    return this.fetchWithToken<PaperclipCompanyDetail>(baseUrl, `/api/companies/${companyId}`, token);
+  }
+
+  async listCompanyUsers(companyId: string): Promise<PaperclipDirectoryUser[]> {
+    const secrets = this.store.getSecrets();
+    const token = secrets.paperclipApiKey;
+    if (!token) {
+      throw new PaperclipClientError("not authorized", 401, false);
+    }
+    const baseUrl = this.store.getGlobal().paperclipBaseUrl.replace(/\/+$/, "");
+    const resp = await this.fetchWithToken<UserDirectoryResponse>(
+      baseUrl, `/api/companies/${companyId}/user-directory`, token,
+    );
+    return (resp.users ?? [])
+      .filter((entry) => entry.user !== null)
+      .map((entry) => ({
+        id: entry.user!.id,
+        name: entry.user!.name,
+        email: entry.user!.email,
+      }));
   }
 }

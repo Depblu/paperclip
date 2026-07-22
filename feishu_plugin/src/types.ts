@@ -107,10 +107,15 @@ export interface CompanyFeishuConfig {
   appSecret: string;
 }
 
+export interface FeishuBinding {
+  mode: "global" | "company";
+}
+
 export interface CompanyConfig {
   companyId: string;
   name?: string;
   feishu?: CompanyFeishuConfig;
+  feishuBinding?: FeishuBinding;
   defaultApprovers: ApproverConfig[];
   routing: Record<string, ApprovalTypeRouting>;
 }
@@ -157,17 +162,107 @@ export interface PaperclipCompany {
   issuePrefix?: string;
 }
 
+export interface PaperclipCompanyDetail {
+  id: string;
+  name: string;
+  issuePrefix?: string;
+  description?: string | null;
+  status?: string | null;
+  requireBoardApprovalForNewAgents?: boolean;
+  budgetMonthlyCents?: number | null;
+  spentMonthlyCents?: number | null;
+  logoUrl?: string | null;
+  brandColor?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CompanyBudgetViewModel {
+  monthlyCents: number;
+  spentCents: number;
+  remainingCents: number;
+  overBudgetCents: number;
+}
+
 export interface FeishuUser {
   openId: string;
   name: string;
+  email?: string;
+}
+
+export interface FeishuDirectoryResult {
+  users: FeishuUser[];
+  complete: boolean;
+  warnings: string[];
+}
+
+export interface FeishuAppVerifyResult {
+  valid: boolean;
+  verificationId?: string;
+  appName?: string;
+  botId?: string;
+  botName?: string;
+  permissions?: { contacts: boolean };
+  error?: string;
+}
+
+export interface FeishuVerificationSession {
+  verificationId: string;
+  appId: string;
+  appSecret: string;
+  createdAt: number;
+}
+
+export interface PaperclipDirectoryUser {
+  id: string;
+  name: string;
+  email: string | null;
+}
+
+export interface UserDirectoryResponse {
+  users: Array<{
+    principalId: string;
+    status: string;
+    user: { id: string; name: string; email: string | null; image?: string | null } | null;
+  }>;
+}
+
+export interface ApproverSuggestion {
+  openId: string;
+  name: string;
+  source: "feishu";
+  matchConfidence: "high" | "low" | null;
+  matchedPaperclipUser?: { id: string; name: string; email: string | null } | null;
+}
+
+export interface ApproverSuggestionsResponse {
+  suggestions: ApproverSuggestion[];
+  paperclipDirectoryAvailable: boolean;
+  paperclipDirectoryError: string | null;
+  feishuDirectoryComplete: boolean;
+  feishuDirectoryWarnings: string[];
 }
 
 export interface CompanyConfigPublic {
   companyId: string;
   name?: string;
   hasFeishu: boolean;
+  feishuBinding?: FeishuBinding | null;
+  feishuBindingValid: boolean;
   defaultApprovers: ApproverConfig[];
   routing: Record<string, ApprovalTypeRouting>;
+}
+
+export interface SecretsPublic {
+  paperclipApiKey: string;
+  hasDefaultFeishuApp: boolean;
+  defaultFeishuAppIdDisplay?: string;
+  defaultFeishuAppSecret: string;
+  companySecrets?: Record<string, { appId: string; appSecret: string }>;
+}
+
+export interface FeishuGlobalStatus {
+  hasDefaultFeishuApp: boolean;
 }
 
 export interface SendApprovalCardInput {
