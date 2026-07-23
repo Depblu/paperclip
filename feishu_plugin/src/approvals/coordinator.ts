@@ -42,13 +42,12 @@ export class ApprovalCoordinator {
     }
 
     const actionable = isActionable(approval.type);
-    const detailUrl = `${this.deps.config.paperclipPublicUrl}/companies/${companyId}/approvals/${approval.id}`;
 
     for (const approver of approvers) {
       if (this.deps.deliveryRepo.hasDelivered(approval.id, approver.openId, version)) {
         continue;
       }
-      await this.deliverCard(meta, version, approver, companyId, actionable, detailUrl);
+      await this.deliverCard(meta, version, approver, companyId, actionable);
     }
   }
 
@@ -58,14 +57,13 @@ export class ApprovalCoordinator {
     approver: { openId: string; name: string },
     companyId: string,
     actionable: boolean,
-    detailUrl: string,
   ) {
-    const allowedActions = actionable ? ["approve", "reject"] : [];
+    const allowedActions = actionable ? ["approve", "reject", "view_details"] : ["view_details"];
     const token = this.deps.tokenService.generate(
       approval.id, companyId, approver.openId, allowedActions, version,
     );
 
-    const cardContent = renderApprovalCard(approval, version, token, detailUrl);
+    const cardContent = renderApprovalCard(approval, version, token);
 
     this.deps.deliveryRepo.upsert({
       approvalId: approval.id,

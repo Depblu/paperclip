@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { CardActionEvent } from "./long-connection.js";
+import { renderTestApprovalDetailCard } from "./card-renderer.js";
 import type { ApproverConfig } from "../types.js";
 
 const DEFAULT_TIMEOUT_MS = 600 * 1000;
@@ -34,7 +35,7 @@ export interface TestApprovalSessionsOptions {
 
 export type TestApprovalActionResult =
   | { matched: false }
-  | { matched: true; response: Record<string, unknown> };
+  | { matched: true; response: Record<string, unknown>; cardContent?: string };
 
 export class TestApprovalSessions {
   private readonly sessions = new Map<string, TestApprovalSession>();
@@ -116,6 +117,14 @@ export class TestApprovalSessions {
     }
 
     const action = event.actionValue.action;
+    if (action === "view_details") {
+      const card = renderTestApprovalDetailCard(this.toResult(session), session.token);
+      return {
+        matched: true,
+        response: this.toast("详情已展开"),
+        cardContent: card,
+      };
+    }
     if (action !== "approve" && action !== "reject") {
       return { matched: true, response: this.toast("无效的测试操作") };
     }

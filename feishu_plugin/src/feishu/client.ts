@@ -73,6 +73,7 @@ export class FeishuClient {
     });
     if (res.code !== 0) {
       logger.warn("feishu card update failed", { messageId, code: res.code, msg: res.msg });
+      throw new Error(`feishu card update failed: code=${res.code} msg=${res.msg}`);
     }
   }
 

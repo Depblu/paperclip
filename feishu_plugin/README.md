@@ -9,6 +9,10 @@ Paperclip Core ←→ paperclip-feishu-bridge ←→ 飞书
          (REST API + Board Key)        (长连接 + 卡片)
 ```
 
+## 审批卡片
+
+真实审批卡片包含同意/拒绝按钮（可飞书决策的类型）和“查看详情”按钮。“查看详情”通过飞书卡片回调返回 `card.type = raw` 的详情卡，在**当前卡片内**展开类型、ID、状态、创建/更新时间、payload、关联 Issue 和评论（内容按长度截断），不跳转外部页面，手机端无需访问 Paperclip。查看详情的回调复用审批 token 的 recipient/company/approver 授权，不消费或失效 token、不触发 approve/reject、不更新其他卡片。不可飞书决策的类型仅保留只读详情。
+
 ## 配置方式
 
 支持两种配置模式：
@@ -49,7 +53,7 @@ Board API Key 是 Feishu Bridge 调用 Paperclip REST API 的机器身份凭据�
 
 ### 路由连通性测试
 
-路由页每种审批类型旁的“测试”会发送一张独立测试卡片，并等待飞书中的同意或拒绝结果，最长 600 秒。结果和操作人显示在对应路由类型下；等待期间可点击“取消等待”立即结束。发送前 Bridge 会确认对应飞书 App 的 callback 长连接在线；连接失败时不会发送不可操作的卡片。测试回调只在 Feishu Bridge 内处理，不读取或修改 Paperclip 审批。
+路由页每种审批类型旁的“测试”会发送一张独立测试卡片，并等待飞书中的同意或拒绝结果，最长 600 秒。结果和操作人显示在对应路由类型下；等待期间可点击“取消等待”立即结束。发送前 Bridge 会确认对应飞书 App 的 callback 长连接在线；连接失败时不会发送不可操作的卡片。测试卡片还包含“查看详情”按钮，点击后 Bridge 同样通过 callback response 将当前卡片更新为只读测试详情（类型、会话、创建/到期时间、用途），不跳转任何外部页面，手机端无需访问 Paperclip。测试回调只在 Feishu Bridge 内处理，不读取或修改 Paperclip 审批。
 
 ### 授权管理
 
@@ -80,7 +84,7 @@ Board API Key 是 Feishu Bridge 调用 Paperclip REST API 的机器身份凭据�
 |------|------|--------|------|
 | `PAPERCLIP_BASE_URL` | 是 | - | Paperclip API 地址 |
 | `PAPERCLIP_API_KEY` | 是 | - | Board API Key (`pcp_board_...`) |
-| `PAPERCLIP_PUBLIC_URL` | 否 | 同 BASE_URL | Paperclip 页面地址（卡片链接） |
+| `PAPERCLIP_PUBLIC_URL` | 否 | 同 BASE_URL | 保留配置项，当前版本无运行时引用；审批详情已通过飞书卡片回调在卡片内展开，本功能不依赖此项 |
 | `FEISHU_APP_ID` | 是 | - | 飞书应用 App ID |
 | `FEISHU_APP_SECRET` | 是 | - | 飞书应用 App Secret |
 | `BRIDGE_COMPANIES_CONFIG` | 是 | - | Company 路由配置 JSON 文件路径 |
@@ -145,7 +149,7 @@ cp config/companies.example.json config/companies.local.json
 
 **`PAPERCLIP_BASE_URL` vs `PAPERCLIP_PUBLIC_URL`：**
 - `BASE_URL`：Sidecar 进程调用 Paperclip API 的地址（本机可用 localhost）。
-- `PUBLIC_URL`：飞书卡片中嵌入的页面链接，必须是飞书用户设备能访问的地址。若用户不在同一机器，localhost 不可达，需填局域网或公网地址。
+- `PUBLIC_URL`：保留配置项，当前版本源码中无运行时引用。审批与测试卡片的“查看详情”已通过飞书卡片回调在卡片内展开，不依赖此项。
 
 ### 4. 校验配置
 

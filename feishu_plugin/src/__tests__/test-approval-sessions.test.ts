@@ -15,6 +15,7 @@ function actionEvent(overrides: Partial<CardActionEvent> = {}): CardActionEvent 
     operatorOpenId: "ou-1",
     operatorName: "审批人一",
     tenantKey: "tenant-1",
+    messageId: "om_msg_default",
     actionValue: {},
     ...overrides,
   };
@@ -86,6 +87,54 @@ describe("TestApprovalSessions", () => {
       },
     }));
 
+    expect(manager.get(created.sessionId)?.status).toBe("pending");
+  });
+
+  it("returns card content for view_details and keeps session pending", () => {
+    const manager = new TestApprovalSessions();
+    sessions.push(manager);
+    const created = manager.create("co-1", "hire_agent", [{ openId: "ou-1", name: "审批人一" }]);
+
+    const handled = manager.handleAction(actionEvent({
+      actionValue: {
+        action: "view_details",
+        token: created.token,
+        approval_id: created.sessionId,
+      },
+    }));
+
+    expect(handled.matched).toBe(true);
+    if (!handled.matched) return;
+    expect(handled.cardContent).toContain("测试详情");
+    expect(handled.cardContent).toContain("不会读取或修改 Paperclip 数据");
+    const card = JSON.parse(handled.cardContent!) as {
+      header: { title: { content: string } };
+      elements: Array<{ tag: string; actions?: Array<{ value: { action: string } }> }>;
+    };
+    expect(card.header.title.content).toContain("测试详情");
+    const actionElement = card.elements.find((element) => element.tag === "action");
+    expect(actionElement?.actions?.map((action) => action.value.action)).toEqual(["approve", "reject"]);
+    expect(manager.get(created.sessionId)?.status).toBe("pending");
+  });
+
+  it("rejects view_details from a non-authorized operator", () => {
+    const manager = new TestApprovalSessions();
+    sessions.push(manager);
+    const created = manager.create("co-1", "hire_agent", [{ openId: "ou-allowed", name: "允许审批人" }]);
+
+    const handled = manager.handleAction(actionEvent({
+      operatorOpenId: "ou-other",
+      actionValue: {
+        action: "view_details",
+        token: created.token,
+        approval_id: created.sessionId,
+      },
+    }));
+
+    expect(handled).toEqual({
+      matched: true,
+      response: { toast: { type: "info", content: "您不是该测试的指定审批人" } },
+    });
     expect(manager.get(created.sessionId)?.status).toBe("pending");
   });
 

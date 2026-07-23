@@ -51,6 +51,7 @@ describe("LongConnectionManager", () => {
         tenant_key: "tenant-1",
       },
       event: {
+        context: { open_message_id: "om_msg_test" },
         operator: { open_id: "ou-1" },
         action: {
           value: {
@@ -67,6 +68,7 @@ describe("LongConnectionManager", () => {
       operatorOpenId: "ou-1",
       operatorName: "unknown",
       tenantKey: "tenant-1",
+      messageId: "om_msg_test",
       actionValue: {
         action: "approve",
         token: session.token,
@@ -80,6 +82,107 @@ describe("LongConnectionManager", () => {
       operatorName: "审批人一",
     });
     sessions.destroy();
+  });
+
+  it("forwards a wrapped raw card response through the event dispatcher", async () => {
+    let dispatcher: lark.EventDispatcher | null = null;
+    vi.spyOn(lark.WSClient.prototype, "start").mockImplementation(async ({ eventDispatcher }) => {
+      dispatcher = eventDispatcher;
+    });
+    const callbackResponse = {
+      toast: { type: "info", content: "详情已展开" },
+      card: {
+        type: "raw",
+        data: { header: { title: { tag: "plain_text", content: "审批详情" } }, elements: [] },
+      },
+    };
+    const connection = new FeishuLongConnection(
+      "cli_0123456789abcdef",
+      "secret",
+      vi.fn().mockResolvedValue(callbackResponse),
+    );
+    await connection.start();
+
+    const response = await dispatcher!.invoke({
+      schema: "2.0",
+      header: { event_id: "evt-detail", event_type: "card.action.trigger", tenant_key: "tenant-1" },
+      event: {
+        context: { open_message_id: "om_detail" },
+        operator: { open_id: "ou-1" },
+        action: { value: { action: "view_details", token: "tok", approval_id: "ap-1" } },
+      },
+    });
+
+    expect(response).toEqual(callbackResponse);
+  });
+
+  it("reads messageId from event.context.open_message_id (v2 format)", async () => {
+    let dispatcher: lark.EventDispatcher | null = null;
+    vi.spyOn(lark.WSClient.prototype, "start").mockImplementation(async ({ eventDispatcher }) => {
+      dispatcher = eventDispatcher;
+    });
+    const onCardAction = vi.fn(async () => undefined);
+    const connection = new FeishuLongConnection("cli_0123456789abcdef", "secret", onCardAction);
+    await connection.start();
+
+    await dispatcher!.invoke({
+      schema: "2.0",
+      header: { event_id: "evt-ctx", event_type: "card.action.trigger", tenant_key: "tenant-1" },
+      event: {
+        context: { open_message_id: "om_ctx_123" },
+        operator: { open_id: "ou-1" },
+        action: { value: { action: "approve", token: "tok", approval_id: "ap-1" } },
+      },
+    });
+
+    expect(onCardAction).toHaveBeenCalledWith(
+      expect.objectContaining({ messageId: "om_ctx_123" }),
+    );
+  });
+
+  it("falls back to event.open_message_id when context is absent", async () => {
+    let dispatcher: lark.EventDispatcher | null = null;
+    vi.spyOn(lark.WSClient.prototype, "start").mockImplementation(async ({ eventDispatcher }) => {
+      dispatcher = eventDispatcher;
+    });
+    const onCardAction = vi.fn(async () => undefined);
+    const connection = new FeishuLongConnection("cli_0123456789abcdef", "secret", onCardAction);
+    await connection.start();
+
+    await dispatcher!.invoke({
+      schema: "2.0",
+      header: { event_id: "evt-fb", event_type: "card.action.trigger", tenant_key: "tenant-1" },
+      event: {
+        open_message_id: "om_fallback_456",
+        operator: { open_id: "ou-1" },
+        action: { value: { action: "approve", token: "tok", approval_id: "ap-1" } },
+      },
+    });
+
+    expect(onCardAction).toHaveBeenCalledWith(
+      expect.objectContaining({ messageId: "om_fallback_456" }),
+    );
+  });
+
+  it("rejects card action when open_message_id is missing", async () => {
+    let dispatcher: lark.EventDispatcher | null = null;
+    vi.spyOn(lark.WSClient.prototype, "start").mockImplementation(async ({ eventDispatcher }) => {
+      dispatcher = eventDispatcher;
+    });
+    const onCardAction = vi.fn(async () => undefined);
+    const connection = new FeishuLongConnection("cli_0123456789abcdef", "secret", onCardAction);
+    await connection.start();
+
+    await dispatcher!.invoke({
+      schema: "2.0",
+      header: { event_id: "evt-nomsg", event_type: "card.action.trigger", tenant_key: "tenant-1" },
+      event: {
+        operator: { open_id: "ou-1" },
+        action: { value: { action: "approve", token: "tok", approval_id: "ap-1" } },
+      },
+    });
+
+    expect(onCardAction).not.toHaveBeenCalled();
   });
 
   it("starts and waits for a newly verified app before it is used", async () => {

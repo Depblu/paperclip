@@ -7,6 +7,7 @@ export interface CardActionEvent {
   operatorName: string;
   actionValue: Record<string, string>;
   tenantKey: string;
+  messageId: string;
 }
 
 export type CardActionCallback = (event: CardActionEvent) => Promise<Record<string, unknown> | void>;
@@ -91,6 +92,15 @@ export class FeishuLongConnection {
       const action = event.action as Record<string, unknown> | undefined;
       if (!operator || !action) return null;
 
+      const context = event.context as Record<string, unknown> | undefined;
+      const messageId = (context?.open_message_id as string) ?? (event.open_message_id as string);
+      if (!messageId) {
+        logger.warn("card action missing open_message_id, skipping", {
+          eventId: (header?.event_id as string) ?? (data.event_id as string),
+        });
+        return null;
+      }
+
       const actionValue = (action.value ?? {}) as Record<string, string>;
       return {
         eventId: (header?.event_id as string) ?? (data.event_id as string) ?? crypto.randomUUID(),
@@ -98,6 +108,7 @@ export class FeishuLongConnection {
         operatorName: (operator.name as string) ?? "unknown",
         actionValue,
         tenantKey: (header?.tenant_key as string) ?? (data.tenant_key as string) ?? "",
+        messageId,
       };
     } catch (err) {
       logger.warn("failed to parse card action", { error: String(err) });

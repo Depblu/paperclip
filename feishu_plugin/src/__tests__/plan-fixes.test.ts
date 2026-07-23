@@ -429,6 +429,12 @@ describe("P1-2: feishu directory traversal completeness", () => {
     expect(result.complete).toBe(false);
     expect(result.warnings.some((w) => w.includes("timeout"))).toBe(true);
   });
+
+  it("updateInteractiveCard rejects when patch returns non-zero code", async () => {
+    const client = new FeishuClient("cli", "secret");
+    vi.spyOn(client.getRawClient().im.message, "patch").mockResolvedValue({ code: 99991, msg: "patch failed" } as never);
+    await expect(client.updateInteractiveCard("om_msg", "{}")).rejects.toThrow("code=99991");
+  });
 });
 
 describe("P1-3: budget viewModel", () => {

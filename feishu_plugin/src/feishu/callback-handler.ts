@@ -2,11 +2,11 @@ import type { BridgeConfig, PaperclipApproval } from "../types.js";
 import type { PaperclipClient, PaperclipClientError } from "../paperclip/client.js";
 import type { ActionTokenService } from "../approvals/action-token.js";
 import { buildVersionSnapshot, versionMatches } from "../approvals/action-token.js";
-import { findCompanyConfig, isAuthorizedApprover } from "../approvals/routing.js";
+import { findCompanyConfig, isActionable, isAuthorizedApprover } from "../approvals/routing.js";
 import { CallbackEventRepository, DeliveryRepository } from "../storage/repositories.js";
 import type { CardActionEvent } from "../feishu/long-connection.js";
 import type { TestApprovalSessions } from "../feishu/test-approval-sessions.js";
-import { renderResultCard } from "../feishu/card-renderer.js";
+import { renderApprovalDetailCard, renderResultCard } from "../feishu/card-renderer.js";
 import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { logger } from "../observability/logger.js";
 import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
@@ -27,11 +27,18 @@ export class CallbackHandler {
   async handle(event: CardActionEvent): Promise<Record<string, unknown> | void> {
     incMetric(METRIC_NAMES.callbacks);
     const testResult = this.deps.testApprovalSessions?.handleAction(event);
-    if (testResult?.matched) return testResult.response;
+    if (testResult?.matched) {
+      if (testResult.cardContent) return this.cardResponse(testResult.cardContent);
+      return testResult.response;
+    }
 
     const { action, token, approval_id: approvalId } = event.actionValue;
     if (!action || !token || !approvalId) {
       return this.toast("无效的操作请求");
+    }
+
+    if (action === "view_details") {
+      return this.handleViewDetails(event, token, approvalId);
     }
 
     if (this.deps.callbackRepo.exists(event.eventId)) {
@@ -79,6 +86,11 @@ export class CallbackHandler {
     const rec = validation.record;
     if (!rec.allowedActions.includes(action)) {
       this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "action_not_allowed");
+      return this.toast("不允许的操作");
+    }
+
+    if (rec.approvalId !== approvalId) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "approval_id_mismatch");
       return this.toast("不允许的操作");
     }
 
@@ -132,6 +144,64 @@ export class CallbackHandler {
     }
 
     return this.executeDecision(event, action, token, approvalId, approval, rec.companyId);
+  }
+
+  private async handleViewDetails(
+    event: CardActionEvent,
+    token: string,
+    approvalId: string,
+  ) {
+    const validation = this.deps.tokenService.validate(token);
+    if (!validation.valid || !validation.record) {
+      return this.toast("操作凭证无效或已过期");
+    }
+    const rec = validation.record;
+    if (!rec.allowedActions.includes("view_details")) {
+      return this.toast("不允许的操作");
+    }
+    if (rec.approvalId !== approvalId) {
+      return this.toast("不允许的操作");
+    }
+    if (rec.recipientOpenId !== event.operatorOpenId) {
+      return this.toast("您不是该审批的授权审批人");
+    }
+    const company = findCompanyConfig(this.deps.config.companies, rec.companyId);
+    if (!company) {
+      return this.toast("公司未配置");
+    }
+
+    let approval: PaperclipApproval;
+    try {
+      approval = await this.deps.paperclip.getApproval(approvalId);
+    } catch (err) {
+      logger.warn("view_details: read approval failed", { approvalId, error: String(err) });
+      return this.toast("读取审批详情失败，请重试");
+    }
+
+    if (!isAuthorizedApprover(company, approval.type, event.operatorOpenId)) {
+      return this.toast("您不是该审批的授权审批人");
+    }
+
+    let issues: Awaited<ReturnType<PaperclipClient["getApprovalIssues"]>> = [];
+    try {
+      issues = await this.deps.paperclip.getApprovalIssues(approvalId);
+    } catch (err) {
+      logger.warn("view_details: read issues failed, degrading to empty", {
+        approvalId, error: String(err),
+      });
+    }
+
+    let comments: Awaited<ReturnType<PaperclipClient["getApprovalComments"]>> = [];
+    try {
+      comments = await this.deps.paperclip.getApprovalComments(approvalId);
+    } catch (err) {
+      logger.warn("view_details: read comments failed, degrading to empty", {
+        approvalId, error: String(err),
+      });
+    }
+
+    const card = renderApprovalDetailCard(approval, issues, comments, token, isActionable(approval.type));
+    return this.cardResponse(card);
   }
 
   private async executeDecision(
@@ -226,6 +296,13 @@ export class CallbackHandler {
         });
       }
     }
+  }
+
+  private cardResponse(cardContent: string): Record<string, unknown> {
+    return {
+      toast: { type: "info", content: "详情已展开" },
+      card: { type: "raw", data: JSON.parse(cardContent) },
+    };
   }
 
   private toast(text: string): Record<string, unknown> {

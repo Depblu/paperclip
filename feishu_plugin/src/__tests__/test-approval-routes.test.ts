@@ -80,6 +80,12 @@ describe("test approval routes", () => {
 
     const card = JSON.parse(cardContent);
     const actionElement = card.elements.find((element: { tag: string }) => element.tag === "action");
+    expect(actionElement.actions).toHaveLength(3);
+    const detailBtn = actionElement.actions[2];
+    expect(detailBtn.text.content).toBe("查看详情");
+    expect(detailBtn.url).toBeUndefined();
+    expect(detailBtn.value.action).toBe("view_details");
+    expect(detailBtn.value.approval_id).toBe(sent.sessionId);
     const rejectValue = actionElement.actions[1].value;
     sessions.handleAction({
       eventId: "evt-1",
