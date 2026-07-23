@@ -5,6 +5,7 @@ import { buildVersionSnapshot, versionMatches } from "../approvals/action-token.
 import { findCompanyConfig, isAuthorizedApprover } from "../approvals/routing.js";
 import { CallbackEventRepository, DeliveryRepository } from "../storage/repositories.js";
 import type { CardActionEvent } from "../feishu/long-connection.js";
+import type { TestApprovalSessions } from "../feishu/test-approval-sessions.js";
 import { renderResultCard } from "../feishu/card-renderer.js";
 import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { logger } from "../observability/logger.js";
@@ -17,6 +18,7 @@ export interface CallbackDeps {
   tokenService: ActionTokenService;
   deliveryRepo: DeliveryRepository;
   callbackRepo: CallbackEventRepository;
+  testApprovalSessions?: TestApprovalSessions;
 }
 
 export class CallbackHandler {
@@ -24,6 +26,9 @@ export class CallbackHandler {
 
   async handle(event: CardActionEvent): Promise<Record<string, unknown> | void> {
     incMetric(METRIC_NAMES.callbacks);
+    const testResult = this.deps.testApprovalSessions?.handleAction(event);
+    if (testResult?.matched) return testResult.response;
+
     const { action, token, approval_id: approvalId } = event.actionValue;
     if (!action || !token || !approvalId) {
       return this.toast("无效的操作请求");

@@ -6,9 +6,9 @@ import { PaperclipClient } from "./paperclip/client.js";
 import { PaperclipAuthService } from "./paperclip/auth-service.js";
 import { ApprovalPoller } from "./paperclip/approval-poller.js";
 import { FeishuClientRegistry } from "./feishu/client-registry.js";
-import { FeishuLongConnection } from "./feishu/long-connection.js";
 import { LongConnectionManager } from "./feishu/long-connection-manager.js";
 import { CallbackHandler } from "./feishu/callback-handler.js";
+import { TestApprovalSessions } from "./feishu/test-approval-sessions.js";
 import { ActionTokenService } from "./approvals/action-token.js";
 import { ApprovalCoordinator } from "./approvals/coordinator.js";
 import { Reconciliation } from "./approvals/reconciliation.js";
@@ -43,27 +43,17 @@ async function main() {
   }
 
   const tokenService = new ActionTokenService(tokenRepo, config.actionTokenTtlMs);
+  const testApprovalSessions = new TestApprovalSessions();
 
   const coordinator = new ApprovalCoordinator({
     config, paperclip, feishuRegistry, tokenService, deliveryRepo,
   });
 
   const callbackHandler = new CallbackHandler({
-    config, paperclip, feishuRegistry, tokenService, deliveryRepo, callbackRepo,
+    config, paperclip, feishuRegistry, tokenService, deliveryRepo, callbackRepo, testApprovalSessions,
   });
 
-  let longConnection: FeishuLongConnection | null = null;
-  let longConnectionManager: LongConnectionManager | null = null;
-
-  if (storeMode && store) {
-    longConnectionManager = new LongConnectionManager(store);
-  } else {
-    longConnection = new FeishuLongConnection(
-      config.feishuAppId,
-      config.feishuAppSecret,
-      (event) => callbackHandler.handle(event),
-    );
-  }
+  const longConnectionManager = new LongConnectionManager(store);
 
   const poller = new ApprovalPoller(config, paperclip, (approval, companyId) =>
     coordinator.handleDiscovered(approval, companyId),
@@ -84,6 +74,9 @@ async function main() {
     onConfigChanged: () => {
       logger.info("config changed via admin, consider restart for full effect");
     },
+    testApprovalSessions,
+    ensureFeishuCallback: (appId, appSecret) =>
+      longConnectionManager.ensureConnection(appId, appSecret),
   });
 
   const healthy = await paperclip.healthCheck();
@@ -91,11 +84,10 @@ async function main() {
     logger.warn("paperclip api not reachable at startup, will retry on poll");
   }
 
-  if (longConnectionManager) {
-    await longConnectionManager.start((event) => callbackHandler.handle(event));
-  } else if (longConnection) {
-    await longConnection.start();
-  }
+  await longConnectionManager.start(
+    (event) => callbackHandler.handle(event),
+    storeMode ? [] : [{ appId: config.feishuAppId, appSecret: config.feishuAppSecret }],
+  );
 
   poller.start();
   reconciliation.start();
@@ -114,8 +106,7 @@ async function main() {
     reconciliation.stop();
     adminServer.stop();
     authService.destroy();
-    if (longConnectionManager) void longConnectionManager.stop();
-    if (longConnection) void longConnection.stop();
+    void longConnectionManager.stop();
     db.close();
     process.exit(0);
   };

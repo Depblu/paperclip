@@ -3,6 +3,7 @@ let currentFlowId = null;
 let pollTimer = null;
 let approvalUrl = null;
 let countdownTimer = null;
+const testWaits = new Map();
 
 function showMsg(text, ok) {
   const el = document.getElementById('msg-area');
@@ -705,6 +706,7 @@ function renderWizRouting() {
         <button class="btn btn-sm test-card-btn" title="向该类型的审批人发送一张测试卡片，验证飞书连通性">测试</button>
       </div>
       <div class="type-hint" style="color:${hintColor}">${esc(meta.hint)}</div>
+      <div class="test-card-status" style="display:none"></div>
       <div class="routing-tags" style="margin-top:6px"></div>
       <div class="routing-row" style="margin-top:6px">
         <input class="wiz-route-input" placeholder="openId 或从用户列表选择" style="flex:1;margin-bottom:0">
@@ -729,6 +731,7 @@ function renderWizRouting() {
     });
     const testBtn = container.querySelector('.test-card-btn');
     if (testBtn) testBtn.addEventListener('click', () => wizTestCard(type, testBtn));
+    renderTestWait(type);
   });
 }
 
@@ -763,7 +766,6 @@ async function wizTestCard(type, btn) {
   const routed = wizRouting[type] && wizRouting[type].approvers;
   const list = (routed && routed.length) ? routed : wizApprovers;
   if (!list.length) { showMsg('该类型未配置审批人，无法测试', false); return; }
-  const orig = btn.textContent;
   btn.disabled = true;
   btn.textContent = '发送中…';
   try {
@@ -776,12 +778,118 @@ async function wizTestCard(type, btn) {
     });
     if (r.failed && r.failed.length) {
       const detail = r.failed.map(f => `${f.name || f.openId}: ${f.error}`).join('; ');
-      showMsg(`已发送 ${r.sent.length} 张，失败 ${r.failed.length} 张 — ${detail}`, false);
-    } else {
-      showMsg(`测试卡片已发送 ${r.sent.length} 张，请到飞书确认收到`, true);
+      if (!r.sent.length) {
+        setTestWait(type, { status: 'error', message: `发送失败：${detail}` });
+        return;
+      }
     }
+    setTestWait(type, {
+      sessionId: r.sessionId,
+      status: r.status,
+      expiresAt: r.expiresAt,
+      deliveryNote: r.failed && r.failed.length
+        ? `已发送 ${r.sent.length} 张，失败 ${r.failed.length} 张`
+        : `已发送 ${r.sent.length} 张`,
+    });
+    if (r.status === 'pending') scheduleTestPoll(type, 0);
   } catch (e) { showMsg('测试发送失败: ' + e.message, false); }
-  finally { btn.disabled = false; btn.textContent = orig; }
+  finally {
+    if (!testWaits.get(type) || testWaits.get(type).status !== 'pending') {
+      btn.disabled = false;
+      btn.textContent = '测试';
+    }
+  }
+}
+
+function setTestWait(type, next) {
+  const previous = testWaits.get(type);
+  if (previous?.timer) clearTimeout(previous.timer);
+  testWaits.set(type, { ...previous, ...next, timer: null });
+  renderTestWait(type);
+}
+
+function scheduleTestPoll(type, delayMs) {
+  const state = testWaits.get(type);
+  if (!state || state.status !== 'pending') return;
+  if (state.timer) clearTimeout(state.timer);
+  state.timer = setTimeout(() => pollTestWait(type), delayMs);
+  renderTestWait(type);
+}
+
+async function pollTestWait(type) {
+  const state = testWaits.get(type);
+  if (!state || state.status !== 'pending') return;
+  try {
+    const result = await api('GET', `/api/feishu/test-sessions/${encodeURIComponent(state.sessionId)}`);
+    setTestWait(type, { ...result, pollError: null });
+    if (result.status === 'pending') scheduleTestPoll(type, 1000);
+  } catch (e) {
+    setTestWait(type, { pollError: `结果查询失败：${e.message}` });
+    scheduleTestPoll(type, 2000);
+  }
+}
+
+async function cancelTestWait(type) {
+  const state = testWaits.get(type);
+  if (!state || state.status !== 'pending') return;
+  try {
+    const result = await api('POST', `/api/feishu/test-sessions/${encodeURIComponent(state.sessionId)}/cancel`);
+    setTestWait(type, { ...result, cancelledByUser: true, pollError: null });
+  } catch (e) {
+    setTestWait(type, { pollError: `取消失败：${e.message}` });
+    scheduleTestPoll(type, 2000);
+  }
+}
+
+function renderTestWait(type) {
+  const container = Array.from(document.querySelectorAll('#wiz-routing-editor [data-type]'))
+    .find(el => el.dataset.type === type);
+  if (!container) return;
+  const statusEl = container.querySelector('.test-card-status');
+  const btn = container.querySelector('.test-card-btn');
+  const state = testWaits.get(type);
+  if (!state) {
+    statusEl.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = '测试';
+    return;
+  }
+
+  statusEl.style.display = 'flex';
+  statusEl.className = `test-card-status test-status-${state.status}`;
+  statusEl.innerHTML = '';
+  const text = document.createElement('span');
+  text.textContent = testWaitLabel(state);
+  statusEl.appendChild(text);
+  if (state.status === 'pending') {
+    const cancel = document.createElement('button');
+    cancel.className = 'btn btn-sm';
+    cancel.textContent = '取消等待';
+    cancel.addEventListener('click', () => cancelTestWait(type));
+    statusEl.appendChild(cancel);
+    btn.disabled = true;
+    btn.textContent = '等待中…';
+  } else {
+    btn.disabled = false;
+    btn.textContent = '再次测试';
+  }
+}
+
+function testWaitLabel(state) {
+  if (state.status === 'pending') {
+    const seconds = Math.max(0, Math.ceil((new Date(state.expiresAt).getTime() - Date.now()) / 1000));
+    const remaining = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    return `${state.deliveryNote || '测试卡片已发送'}；等待飞书审批结果（剩余 ${remaining}）${state.pollError ? `；${state.pollError}` : ''}`;
+  }
+  if (state.status === 'approved' || state.status === 'rejected') {
+    const result = state.status === 'approved' ? '已同意' : '已拒绝';
+    const operator = state.operatorName || state.operatorOpenId || '未知';
+    const completedAt = state.completedAt ? new Date(state.completedAt).toLocaleString() : '-';
+    return `审批结果：${result}；操作人：${operator}；时间：${completedAt}`;
+  }
+  if (state.status === 'timed_out') return '等待超时（600 秒），未收到飞书审批结果';
+  if (state.status === 'cancelled') return state.cancelledByUser ? '已手动取消等待' : '等待已取消';
+  return state.message || '测试失败';
 }
 
 function applyDefaultToAll() {

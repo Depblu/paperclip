@@ -107,6 +107,48 @@ export function renderApprovalCard(
   return JSON.stringify(card);
 }
 
+export function renderTestApprovalCard(
+  approvalType: string,
+  sessionId: string,
+  actionToken: string,
+): string {
+  return JSON.stringify({
+    config: { wide_screen_mode: true },
+    header: {
+      template: "blue",
+      title: { tag: "plain_text", content: `连通性测试: ${typeLabel(approvalType)}` },
+    },
+    elements: [
+      {
+        tag: "markdown",
+        content: [
+          `**类型**: ${typeLabel(approvalType)}`,
+          "**用途**: 验证 Feishu Bridge 与飞书卡片回调",
+          "该操作仅返回测试结果，不会读取或修改 Paperclip 数据。",
+        ].join("\n"),
+      },
+      { tag: "hr" },
+      {
+        tag: "action",
+        actions: [
+          {
+            tag: "button",
+            text: { tag: "plain_text", content: "同意" },
+            type: "success",
+            value: { action: "approve", token: actionToken, approval_id: sessionId },
+          },
+          {
+            tag: "button",
+            text: { tag: "plain_text", content: "拒绝" },
+            type: "danger",
+            value: { action: "reject", token: actionToken, approval_id: sessionId },
+          },
+        ],
+      },
+    ],
+  });
+}
+
 export function renderResultCard(
   approvalType: string,
   status: string,

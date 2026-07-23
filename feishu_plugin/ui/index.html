@@ -60,6 +60,11 @@ th { color: #999; font-weight: 500; }
 .suggestion-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 .suggestion-item:hover { background: #f0f5ff; }
 .type-hint { font-size: 11px; color: #999; margin-top: 2px; }
+.test-card-status { align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; padding: 8px 10px; border-radius: 6px; font-size: 12px; }
+.test-status-pending { background: #e8f4fd; color: #0c5aa6; }
+.test-status-approved { background: #e8f8e8; color: #1a7a1a; }
+.test-status-rejected, .test-status-error { background: #fde8e8; color: #c00; }
+.test-status-cancelled, .test-status-timed_out { background: #fff3cd; color: #856404; }
 </style>
 </head>
 <body>
@@ -198,6 +203,6 @@ th { color: #999; font-weight: 500; }
   </div>
 </div>
 </div>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

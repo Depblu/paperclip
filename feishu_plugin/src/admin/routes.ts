@@ -6,8 +6,9 @@ import type { PaperclipAuthService } from "../paperclip/auth-service.js";
 import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { FeishuClient } from "../feishu/client.js";
 import { FeishuVerificationSessions } from "../feishu/verification-sessions.js";
+import { TestApprovalSessions } from "../feishu/test-approval-sessions.js";
 import { APPROVAL_TYPE_META } from "../approvals/approval-type-meta.js";
-import { renderApprovalCard } from "../feishu/card-renderer.js";
+import { renderTestApprovalCard } from "../feishu/card-renderer.js";
 import type {
   ApproverConfig,
   ApproverSuggestion,
@@ -15,10 +16,8 @@ import type {
   ApprovalTypeRouting,
   CompanyConfig,
   FeishuBinding,
-  PaperclipApprovalWithMeta,
   PaperclipCompanyDetail,
   CompanyBudgetViewModel,
-  VersionSnapshot,
 } from "../types.js";
 import { logger } from "../observability/logger.js";
 
@@ -30,6 +29,8 @@ export interface AdminDeps {
   storeMode: boolean;
   onConfigChanged: () => void;
   verificationSessions?: FeishuVerificationSessions;
+  testApprovalSessions?: TestApprovalSessions;
+  ensureFeishuCallback?: (appId: string, appSecret: string) => Promise<void>;
 }
 
 interface CompanySaveInput {
@@ -44,13 +45,15 @@ interface CompanySaveInput {
 type BindingResult = { ok: true } | { ok: false; status: number; error: string };
 
 type ResolvedClient =
-  | { client: FeishuClient }
+  | { client: FeishuClient; appId: string; appSecret: string }
   | { error: string; status: number };
 
 export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void {
   const { store, paperclip, authService, storeMode, onConfigChanged } = deps;
   const verificationSessions = deps.verificationSessions ?? new FeishuVerificationSessions();
+  const testApprovalSessions = deps.testApprovalSessions ?? new TestApprovalSessions();
   server.addStopHook(() => verificationSessions.destroy());
+  server.addStopHook(() => testApprovalSessions.destroy());
 
   server.addRoute("GET", "/api/config/bridge", (_req, res) => {
     server.json(res, 200, store.getGlobal());
@@ -430,6 +433,24 @@ export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void 
     server.json(res, 200, APPROVAL_TYPE_META);
   });
 
+  server.addRoute("GET", "/api/feishu/test-sessions/:sessionId", (_req, res, params) => {
+    const result = testApprovalSessions.get(params.sessionId);
+    if (!result) {
+      server.json(res, 404, { error: "test session not found" });
+      return;
+    }
+    server.json(res, 200, result);
+  });
+
+  server.addRoute("POST", "/api/feishu/test-sessions/:sessionId/cancel", (_req, res, params) => {
+    const result = testApprovalSessions.cancel(params.sessionId);
+    if (!result) {
+      server.json(res, 404, { error: "test session not found" });
+      return;
+    }
+    server.json(res, 200, result);
+  });
+
   server.addRoute("POST", "/api/feishu/test-card", async (_req, res, _params, body) => {
     const input = body as {
       companyId?: string;
@@ -470,26 +491,29 @@ export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void 
       return;
     }
 
-    const meta = APPROVAL_TYPE_META[type];
-    const now = new Date().toISOString();
-    const testApproval: PaperclipApprovalWithMeta = {
-      id: `test-${Date.now().toString(36)}`,
+    if (deps.ensureFeishuCallback) {
+      try {
+        await deps.ensureFeishuCallback(resolved.appId, resolved.appSecret);
+      } catch (err) {
+        logger.error("feishu callback connection unavailable for test card", {
+          companyId,
+          type,
+          error: String(err),
+        });
+        server.json(res, 503, { error: "feishu callback connection is not online" });
+        return;
+      }
+    }
+
+    const session = testApprovalSessions.create(
       companyId,
       type,
-      status: "pending",
-      payload: {
-        title: `【连通性测试】${meta.label}`,
-        description:
-          "这是一张测试审批卡片，用于验证飞书 Bridge 与飞书之间的通信连通性。卡片上的操作按钮为占位，点击不会生效。",
-      },
-      createdAt: now,
-      updatedAt: now,
-      issues: [],
-    };
-    const version: VersionSnapshot = { approvalUpdatedAt: now, payloadHash: "connectivity-test" };
-    const publicUrl = (store.getGlobal().paperclipPublicUrl || "").replace(/\/$/, "");
-    const detailUrl = publicUrl ? `${publicUrl}/companies/${companyId}/approvals` : "";
-    const cardContent = renderApprovalCard(testApproval, version, "test-noop", detailUrl);
+      approvers.map((approver) => ({
+        openId: approver.openId.trim(),
+        name: approver.name.trim() || approver.openId.trim(),
+      })),
+    );
+    const cardContent = renderTestApprovalCard(type, session.sessionId, session.token);
 
     const sent: Array<{ openId: string; name: string; messageId: string }> = [];
     const failed: Array<{ openId: string; name: string; error: string }> = [];
@@ -504,9 +528,17 @@ export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void 
       }
     }
     logger.info("feishu test card dispatched", {
-      companyId, type, sent: sent.length, failed: failed.length,
+      companyId, type, sessionId: session.sessionId, sent: sent.length, failed: failed.length,
     });
-    server.json(res, 200, { ok: failed.length === 0, sent, failed });
+    if (sent.length === 0) testApprovalSessions.cancel(session.sessionId);
+    server.json(res, 200, {
+      ok: failed.length === 0,
+      sessionId: session.sessionId,
+      status: sent.length > 0 ? "pending" : "cancelled",
+      expiresAt: session.expiresAt,
+      sent,
+      failed,
+    });
   });
 }
 
@@ -559,7 +591,11 @@ function resolveAdminFeishuClient(
     if (!creds) {
       return { error: "verificationId not found or expired", status: 400 };
     }
-    return { client: new FeishuClient(creds.appId, creds.appSecret) };
+    return {
+      client: new FeishuClient(creds.appId, creds.appSecret),
+      appId: creds.appId,
+      appSecret: creds.appSecret,
+    };
   }
 
   const company = store.getCompanies().find((c) => c.companyId === companyId);
@@ -570,12 +606,20 @@ function resolveAdminFeishuClient(
     if (!creds) {
       return { error: "global feishu app not configured", status: 400 };
     }
-    return { client: new FeishuClient(creds.appId, creds.appSecret) };
+    return {
+      client: new FeishuClient(creds.appId, creds.appSecret),
+      appId: creds.appId,
+      appSecret: creds.appSecret,
+    };
   }
 
   const companyCreds = store.getFeishuForCompany(companyId);
   if (companyCreds) {
-    return { client: new FeishuClient(companyCreds.appId, companyCreds.appSecret) };
+    return {
+      client: new FeishuClient(companyCreds.appId, companyCreds.appSecret),
+      appId: companyCreds.appId,
+      appSecret: companyCreds.appSecret,
+    };
   }
 
   return { error: "no feishu app configured for this company", status: 400 };
