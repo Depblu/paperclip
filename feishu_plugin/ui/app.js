@@ -700,7 +700,10 @@ function renderWizRouting() {
     const approvers = r ? r.approvers : [];
     const hintColor = meta.canFeishu ? '#1a7a1a' : '#856404';
     return `<div style="margin-bottom:14px;padding:10px;border:1px solid #eee;border-radius:6px" data-type="${esc(type)}">
-      <div><strong>${esc(meta.label)}</strong> <span style="font-size:11px;color:#999">(${esc(type)})</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div><strong>${esc(meta.label)}</strong> <span style="font-size:11px;color:#999">(${esc(type)})</span></div>
+        <button class="btn btn-sm test-card-btn" title="向该类型的审批人发送一张测试卡片，验证飞书连通性">测试</button>
+      </div>
       <div class="type-hint" style="color:${hintColor}">${esc(meta.hint)}</div>
       <div class="routing-tags" style="margin-top:6px"></div>
       <div class="routing-row" style="margin-top:6px">
@@ -724,6 +727,8 @@ function renderWizRouting() {
       container.querySelector('.wiz-route-input').value = '';
       container.querySelector('.wiz-route-name').value = '';
     });
+    const testBtn = container.querySelector('.test-card-btn');
+    if (testBtn) testBtn.addEventListener('click', () => wizTestCard(type, testBtn));
   });
 }
 
@@ -752,6 +757,31 @@ function renderRoutingTags(container, type) {
     tag.appendChild(remove);
     tagsEl.appendChild(tag);
   });
+}
+
+async function wizTestCard(type, btn) {
+  const routed = wizRouting[type] && wizRouting[type].approvers;
+  const list = (routed && routed.length) ? routed : wizApprovers;
+  if (!list.length) { showMsg('该类型未配置审批人，无法测试', false); return; }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '发送中…';
+  try {
+    const r = await api('POST', '/api/feishu/test-card', {
+      companyId: wizCompanyId,
+      type,
+      approvers: list,
+      verificationId: wizVerificationId || undefined,
+      mode: wizFeishuBinding?.mode,
+    });
+    if (r.failed && r.failed.length) {
+      const detail = r.failed.map(f => `${f.name || f.openId}: ${f.error}`).join('; ');
+      showMsg(`已发送 ${r.sent.length} 张，失败 ${r.failed.length} 张 — ${detail}`, false);
+    } else {
+      showMsg(`测试卡片已发送 ${r.sent.length} 张，请到飞书确认收到`, true);
+    }
+  } catch (e) { showMsg('测试发送失败: ' + e.message, false); }
+  finally { btn.disabled = false; btn.textContent = orig; }
 }
 
 function applyDefaultToAll() {

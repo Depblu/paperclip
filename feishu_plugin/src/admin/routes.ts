@@ -7,6 +7,7 @@ import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { FeishuClient } from "../feishu/client.js";
 import { FeishuVerificationSessions } from "../feishu/verification-sessions.js";
 import { APPROVAL_TYPE_META } from "../approvals/approval-type-meta.js";
+import { renderApprovalCard } from "../feishu/card-renderer.js";
 import type {
   ApproverConfig,
   ApproverSuggestion,
@@ -14,8 +15,10 @@ import type {
   ApprovalTypeRouting,
   CompanyConfig,
   FeishuBinding,
+  PaperclipApprovalWithMeta,
   PaperclipCompanyDetail,
   CompanyBudgetViewModel,
+  VersionSnapshot,
 } from "../types.js";
 import { logger } from "../observability/logger.js";
 
@@ -425,6 +428,85 @@ export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void 
 
   server.addRoute("GET", "/api/approval-type-meta", (_req, res) => {
     server.json(res, 200, APPROVAL_TYPE_META);
+  });
+
+  server.addRoute("POST", "/api/feishu/test-card", async (_req, res, _params, body) => {
+    const input = body as {
+      companyId?: string;
+      type?: string;
+      approvers?: ApproverConfig[];
+      verificationId?: string;
+      mode?: string;
+    } | undefined;
+    const companyId = input?.companyId?.trim();
+    const type = input?.type?.trim();
+    if (!companyId) {
+      server.json(res, 400, { error: "companyId is required" });
+      return;
+    }
+    if (!type || !(type in APPROVAL_TYPE_META)) {
+      server.json(res, 400, { error: "invalid approval type" });
+      return;
+    }
+    const approvers = Array.isArray(input?.approvers)
+      ? (input!.approvers ?? []).filter((a) => a && typeof a.openId === "string" && a.openId.trim())
+      : [];
+    if (approvers.length === 0) {
+      server.json(res, 400, { error: "该类型未配置审批人，无法测试" });
+      return;
+    }
+
+    const modeParam = input?.mode;
+    const modeOverride = modeParam === "global" || modeParam === "company" ? modeParam : null;
+    const resolved = resolveAdminFeishuClient(
+      store,
+      verificationSessions,
+      companyId,
+      input?.verificationId ?? null,
+      modeOverride,
+    );
+    if ("error" in resolved) {
+      server.json(res, resolved.status, { error: resolved.error });
+      return;
+    }
+
+    const meta = APPROVAL_TYPE_META[type];
+    const now = new Date().toISOString();
+    const testApproval: PaperclipApprovalWithMeta = {
+      id: `test-${Date.now().toString(36)}`,
+      companyId,
+      type,
+      status: "pending",
+      payload: {
+        title: `【连通性测试】${meta.label}`,
+        description:
+          "这是一张测试审批卡片，用于验证飞书 Bridge 与飞书之间的通信连通性。卡片上的操作按钮为占位，点击不会生效。",
+      },
+      createdAt: now,
+      updatedAt: now,
+      issues: [],
+    };
+    const version: VersionSnapshot = { approvalUpdatedAt: now, payloadHash: "connectivity-test" };
+    const publicUrl = (store.getGlobal().paperclipPublicUrl || "").replace(/\/$/, "");
+    const detailUrl = publicUrl ? `${publicUrl}/companies/${companyId}/approvals` : "";
+    const cardContent = renderApprovalCard(testApproval, version, "test-noop", detailUrl);
+
+    const sent: Array<{ openId: string; name: string; messageId: string }> = [];
+    const failed: Array<{ openId: string; name: string; error: string }> = [];
+    for (const approver of approvers) {
+      const openId = approver.openId.trim();
+      const name = approver.name || openId;
+      try {
+        const ref = await resolved.client.sendInteractiveCard(openId, cardContent);
+        sent.push({ openId, name, messageId: ref.messageId });
+      } catch (err) {
+        failed.push({ openId, name, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+    logger.info("feishu test card dispatched", {
+      companyId, type, sent: sent.length, failed: failed.length,
+    });
+    server.json(res, 200, { ok: failed.length === 0, sent, failed });
   });
 }
 
