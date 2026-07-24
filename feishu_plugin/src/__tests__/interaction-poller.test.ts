@@ -17,6 +17,7 @@ function makeConfig(): BridgeConfig {
     sqlitePath: ":memory:",
     actionTokenTtlMs: 86400000,
     adminPort: 9090,
+    documentTunnelAutoStart: false,
     companies: [{ companyId: "co-1", defaultApprovers: [], routing: {} }],
   };
 }

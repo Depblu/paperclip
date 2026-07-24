@@ -1,4 +1,4 @@
-import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipCompanyDetail, PaperclipDirectoryUser, PaperclipInteraction, PaperclipIssue, PaperclipIssueListItem, UserDirectoryResponse } from "../types.js";
+import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipCompanyDetail, PaperclipDirectoryUser, PaperclipDocumentRevision, PaperclipInteraction, PaperclipIssue, PaperclipIssueListItem, UserDirectoryResponse } from "../types.js";
 import { logger } from "../observability/logger.js";
 
 export class PaperclipClientError extends Error {
@@ -161,6 +161,22 @@ export class PaperclipClient {
       "POST",
       `/api/issues/${issueId}/interactions/${interactionId}/reject`,
       reason ? { reason } : {},
+    );
+  }
+
+  // --- Document endpoints ---
+
+  async getIssue(issueId: string): Promise<PaperclipIssue> {
+    return this.request<PaperclipIssue>(
+      "GET",
+      `/api/issues/${encodeURIComponent(issueId)}`,
+    );
+  }
+
+  async listIssueDocumentRevisions(issueId: string, key: string): Promise<PaperclipDocumentRevision[]> {
+    return this.request<PaperclipDocumentRevision[]>(
+      "GET",
+      `/api/issues/${encodeURIComponent(issueId)}/documents/${encodeURIComponent(key)}/revisions`,
     );
   }
 }

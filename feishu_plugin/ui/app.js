@@ -925,6 +925,7 @@ async function saveGlobal() {
       pollIntervalMs: Number(document.getElementById('g-poll').value) || 5000,
       reconciliationIntervalMs: Number(document.getElementById('g-recon').value) || 60000,
       adminPort: Number(document.getElementById('g-port').value) || 9090,
+      documentTunnelAutoStart: document.getElementById('g-tunnel-auto-start').checked,
     };
     const r1 = await api('PUT', '/api/config/bridge', bridge);
     if (r1.restartRequired) showRestartBanner();
@@ -946,6 +947,7 @@ async function loadGlobal() {
     document.getElementById('g-poll').value = g.pollIntervalMs || 5000;
     document.getElementById('g-recon').value = g.reconciliationIntervalMs || 60000;
     document.getElementById('g-port').value = g.adminPort || 9090;
+    document.getElementById('g-tunnel-auto-start').checked = !!g.documentTunnelAutoStart;
     const s = await api('GET', '/api/config/secrets');
     globalFeishuConfigured = !!s.hasDefaultFeishuApp;
     const appidInput = document.getElementById('g-feishu-appid');
@@ -957,7 +959,123 @@ async function loadGlobal() {
   } catch {}
 }
 
+let tunnelUrl = null;
+let tunnelPollTimer = null;
+let tunnelBusy = false;
+let tunnelState = 'stopped';
+
+function tunnelStateLabel(state) {
+  const labels = { stopped: '已停止', starting: '启动中', running: '运行中', error: '错误' };
+  return Object.prototype.hasOwnProperty.call(labels, state) ? labels[state] : state;
+}
+
+function setTunnelButtonsDisabled(disabled) {
+  document.getElementById('btn-tunnel-start').disabled = disabled;
+  document.getElementById('btn-tunnel-stop').disabled = disabled;
+  document.getElementById('btn-tunnel-copy').disabled = disabled;
+}
+
+function renderTunnelStatus(status) {
+  const badge = document.getElementById('tunnel-status-badge');
+  const urlEl = document.getElementById('tunnel-url');
+  const btnStart = document.getElementById('btn-tunnel-start');
+  const btnStop = document.getElementById('btn-tunnel-stop');
+  const btnCopy = document.getElementById('btn-tunnel-copy');
+  const state = (status && status.state) || 'stopped';
+  tunnelState = state;
+  tunnelUrl = (status && status.url) || null;
+  const badgeCls = state === 'running' ? 'badge-ok' : (state === 'starting' ? 'badge-warn' : 'badge-no');
+  badge.className = 'badge ' + badgeCls;
+  badge.textContent = tunnelStateLabel(state);
+  urlEl.textContent = tunnelUrl || ((status && status.error) ? ('错误: ' + status.error) : '-');
+  btnStart.disabled = tunnelBusy || state === 'running' || state === 'starting';
+  btnStop.disabled = tunnelBusy || state === 'stopped';
+  btnCopy.disabled = tunnelBusy || !tunnelUrl;
+}
+
+async function refreshTunnelStatus() {
+  try {
+    const status = await api('GET', '/api/tunnel/status');
+    renderTunnelStatus(status);
+  } catch (e) {
+    tunnelUrl = null;
+    tunnelState = 'error';
+    const badge = document.getElementById('tunnel-status-badge');
+    badge.className = 'badge badge-no';
+    badge.textContent = '不可用';
+    document.getElementById('tunnel-url').textContent = '状态查询失败: ' + e.message;
+    setTunnelButtonsDisabled(true);
+  }
+}
+
+function describeTunnelRefresh(refresh) {
+  if (!refresh) return '';
+  if (refresh.error) return `；卡片刷新失败: ${refresh.error}`;
+  return `；卡片刷新 updated ${refresh.updated} / failed ${refresh.failed} / skipped ${refresh.skipped}`;
+}
+
+async function startDocumentTunnel() {
+  if (tunnelBusy) return;
+  tunnelBusy = true;
+  setTunnelButtonsDisabled(true);
+  renderTunnelStatus({ state: 'starting', url: null, startedAt: null, error: null });
+  try {
+    const r = await api('POST', '/api/tunnel/start');
+    renderTunnelStatus(r.status);
+    if (r.refresh && r.refresh.error) {
+      showMsg('Tunnel 已启动，但卡片刷新失败: ' + r.refresh.error, false);
+    } else {
+      showMsg('Tunnel 已启动' + describeTunnelRefresh(r.refresh), true);
+    }
+  } catch (e) {
+    showMsg('Tunnel 启动失败: ' + e.message, false);
+  } finally {
+    tunnelBusy = false;
+    void refreshTunnelStatus();
+  }
+}
+
+async function stopDocumentTunnel() {
+  if (tunnelBusy) return;
+  tunnelBusy = true;
+  setTunnelButtonsDisabled(true);
+  try {
+    const r = await api('POST', '/api/tunnel/stop');
+    renderTunnelStatus(r.status);
+    if (r.refresh && r.refresh.error) {
+      showMsg('Tunnel 已停止，但卡片刷新失败: ' + r.refresh.error, false);
+    } else {
+      showMsg('Tunnel 已停止' + describeTunnelRefresh(r.refresh), true);
+    }
+  } catch (e) {
+    showMsg('Tunnel 停止失败: ' + e.message, false);
+  } finally {
+    tunnelBusy = false;
+    void refreshTunnelStatus();
+  }
+}
+
+async function copyTunnelUrl() {
+  if (!tunnelUrl) {
+    showMsg('当前没有可复制的 Tunnel URL', false);
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(tunnelUrl);
+    showMsg('已复制 Tunnel URL', true);
+  } catch (e) {
+    showMsg('复制失败: ' + e.message, false);
+  }
+}
+
+function startTunnelPolling() {
+  if (tunnelPollTimer) return;
+  refreshTunnelStatus();
+  tunnelPollTimer = setInterval(refreshTunnelStatus, 5000);
+}
+
 loadApprovalTypeMeta();
 loadGlobal();
 loadConfigCompanies();
 refreshStatus();
+startTunnelPolling();

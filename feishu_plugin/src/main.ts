@@ -18,6 +18,11 @@ import { AdminServer } from "./admin/server.js";
 import { registerAdminRoutes } from "./admin/routes.js";
 import { logger } from "./observability/logger.js";
 import { snapshotMetrics } from "./observability/metrics.js";
+import { PreviewTokenService } from "./tunnel/preview-token.js";
+import { DocumentPreviewServer } from "./tunnel/document-preview-server.js";
+import { QuickTunnelManager } from "./tunnel/quick-tunnel-manager.js";
+import { DocumentPreviewLinkService } from "./tunnel/document-preview-link.js";
+import { PendingInteractionCardRefresher } from "./tunnel/pending-interaction-card-refresher.js";
 
 async function main() {
   logger.info("paperclip-feishu-bridge starting");
@@ -47,12 +52,22 @@ async function main() {
   const tokenService = new ActionTokenService(tokenRepo, config.actionTokenTtlMs);
   const testApprovalSessions = new TestApprovalSessions();
 
+  const previewTokenService = new PreviewTokenService({ ttlMs: config.actionTokenTtlMs });
+  const previewServer = new DocumentPreviewServer({ tokenService: previewTokenService, client: paperclip });
+  const { port: previewPort } = await previewServer.start();
+  const tunnelManager = new QuickTunnelManager();
+  const previewLinkService = new DocumentPreviewLinkService({ tunnelManager, tokenService: previewTokenService });
+
   const coordinator = new ApprovalCoordinator({
     config, paperclip, feishuRegistry, tokenService, deliveryRepo,
   });
 
   const interactionCoordinator = new InteractionCoordinator({
-    config, feishuRegistry, tokenService, deliveryRepo,
+    config, feishuRegistry, tokenService, deliveryRepo, previewLinkService,
+  });
+
+  const cardRefresher = new PendingInteractionCardRefresher({
+    paperclip, feishuRegistry, tokenService, deliveryRepo, previewLinkService,
   });
 
   const callbackHandler = new CallbackHandler({
@@ -87,6 +102,7 @@ async function main() {
     testApprovalSessions,
     ensureFeishuCallback: (appId, appSecret) =>
       longConnectionManager.ensureConnection(appId, appSecret),
+    documentTunnel: { manager: tunnelManager, previewPort, refresher: cardRefresher },
   });
 
   const healthy = await paperclip.healthCheck();
@@ -104,6 +120,24 @@ async function main() {
   reconciliation.start();
   adminServer.start();
 
+  if (config.documentTunnelAutoStart) {
+    let tunnelStarted = false;
+    try {
+      await tunnelManager.start(previewPort);
+      tunnelStarted = true;
+      logger.info("document tunnel auto-started", { previewPort, status: tunnelManager.getStatus() });
+    } catch (err) {
+      logger.warn("document tunnel auto-start failed", { previewPort, error: String(err) });
+    }
+    if (tunnelStarted) {
+      try {
+        await cardRefresher.refreshAll();
+      } catch (err) {
+        logger.warn("card refresh failed", { previewPort, error: String(err) });
+      }
+    }
+  }
+
   logger.info("paperclip-feishu-bridge started", {
     mode: storeMode ? "store" : "env",
     companies: config.companies.length,
@@ -111,20 +145,37 @@ async function main() {
     adminPort: config.adminPort,
   });
 
-  const shutdown = () => {
+  let shuttingDown = false;
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     logger.info("shutting down", { metrics: snapshotMetrics() });
     poller.stop();
     interactionPoller.stop();
     reconciliation.stop();
     adminServer.stop();
     authService.destroy();
-    void longConnectionManager.stop();
+    try {
+      await tunnelManager.stop();
+    } catch (err) {
+      logger.warn("tunnel stop failed during shutdown", { error: String(err) });
+    }
+    try {
+      await previewServer.stop();
+    } catch (err) {
+      logger.warn("preview server stop failed during shutdown", { error: String(err) });
+    }
+    try {
+      await longConnectionManager.stop();
+    } catch (err) {
+      logger.warn("long connection stop failed during shutdown", { error: String(err) });
+    }
     db.close();
     process.exit(0);
   };
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", () => void shutdown());
+  process.on("SIGTERM", () => void shutdown());
 }
 
 main().catch((err) => {

@@ -365,14 +365,59 @@ function confirmationPayload(interaction: PaperclipInteraction): {
   return { prompt, acceptLabel, rejectLabel, detailsMarkdown, target };
 }
 
+function isAbsoluteHref(href: string): boolean {
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(href)) return true;
+  if (href.startsWith("//")) return true;
+  return false;
+}
+
+/**
+ * Rewrites Markdown links in detailsMarkdown whose href has no scheme/host and
+ * whose fragment precisely equals `document-${documentKey}`:
+ * - when documentUrl is provided, the href is replaced with documentUrl;
+ * - when documentUrl is absent, the link is degraded to its link text.
+ * Absolute links and links with any other fragment are left unchanged.
+ */
+function applyDocumentPreviewLink(
+  markdown: string,
+  documentKey: string | null,
+  documentUrl: string | null,
+): string {
+  if (!documentKey) return markdown;
+  const expectedFragment = `document-${documentKey}`;
+  return markdown.replace(/\[([^\]]*)\]\(([^()]*)\)/g, (original, text: string, inner: string) => {
+    const trimmed = inner.trim();
+    const parts = trimmed.match(/^(\S+)(\s+[\s\S]*)?$/);
+    const href = parts ? parts[1] : trimmed;
+    const rest = parts && parts[2] ? parts[2] : "";
+    if (isAbsoluteHref(href)) return original;
+    const hashIdx = href.indexOf("#");
+    if (hashIdx < 0) return original;
+    const fragment = href.slice(hashIdx + 1);
+    if (fragment !== expectedFragment) return original;
+    if (documentUrl) return `[${text}](${documentUrl}${rest})`;
+    return text;
+  });
+}
+
 export function renderConfirmationCard(
   interaction: PaperclipInteraction,
   actionToken: string,
   issue?: PaperclipIssueListItem,
+  documentUrl?: string | null,
 ): string {
   const { prompt, acceptLabel, rejectLabel, detailsMarkdown, target } = confirmationPayload(interaction);
   const resourceKey = `interaction:${interaction.issueId}:${interaction.id}`;
   const elements: Record<string, unknown>[] = [];
+
+  const rawTarget = (interaction.payload as Record<string, unknown>).target;
+  let documentKey: string | null = null;
+  if (rawTarget && typeof rawTarget === "object" && !Array.isArray(rawTarget)) {
+    const t = rawTarget as Record<string, unknown>;
+    if (t.type === "issue_document" && typeof t.key === "string" && t.key.length > 0) {
+      documentKey = t.key;
+    }
+  }
 
   const issueDisplay = issue?.identifier ?? issue?.id ?? interaction.issueId.slice(0, 8);
   const issueTitle = issue?.title ? ` — ${truncate(issue.title, MAX_FIELD_LEN)}` : "";
@@ -398,7 +443,7 @@ export function renderConfirmationCard(
     elements.push({ tag: "hr" });
     elements.push({
       tag: "markdown",
-      content: `**详情**\n${truncate(detailsMarkdown, MAX_PAYLOAD_LEN)}`,
+      content: `**详情**\n${truncate(applyDocumentPreviewLink(detailsMarkdown, documentKey, documentUrl ?? null), MAX_PAYLOAD_LEN)}`,
     });
   }
 

@@ -6,6 +6,7 @@ import { validateInteractionIdentity } from "./interaction-identity.js";
 import { findCompanyConfig, resolveApprovers } from "./routing.js";
 import { renderConfirmationCard } from "../feishu/card-renderer.js";
 import type { DeliveryRepository } from "../storage/repositories.js";
+import type { DocumentPreviewLinkService } from "../tunnel/document-preview-link.js";
 import { logger } from "../observability/logger.js";
 import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
 
@@ -14,6 +15,7 @@ export interface InteractionCoordinatorDeps {
   feishuRegistry: FeishuClientRegistry;
   tokenService: ActionTokenService;
   deliveryRepo: DeliveryRepository;
+  previewLinkService?: DocumentPreviewLinkService;
 }
 
 const ROUTING_KEY = "request_confirmation";
@@ -84,7 +86,11 @@ export class InteractionCoordinator {
       resourceKey, companyId, approver.openId, allowedActions, version,
     );
 
-    const cardContent = renderConfirmationCard(interaction, token, issue);
+    const documentUrl = this.deps.previewLinkService
+      ? this.deps.previewLinkService.buildLink(interaction, { companyId, issueId: issue.id })
+      : null;
+
+    const cardContent = renderConfirmationCard(interaction, token, issue, documentUrl);
 
     this.deps.deliveryRepo.upsert({
       approvalId: resourceKey,

@@ -17,6 +17,7 @@ function makeConfig(): BridgeConfig {
     sqlitePath: ":memory:",
     actionTokenTtlMs: 86400000,
     adminPort: 9090,
+    documentTunnelAutoStart: false,
     companies: [{
       companyId: "co-1",
       defaultApprovers: [{ openId: "ou-1", name: "审批人" }],
@@ -223,5 +224,44 @@ describe("InteractionCoordinator", () => {
     expect(deps.deliveryRepo.upsert).not.toHaveBeenCalled();
     const feishu = (deps.feishuRegistry.getForCompany as ReturnType<typeof vi.fn>)();
     expect(feishu.sendInteractiveCard).not.toHaveBeenCalled();
+  });
+
+  it("passes documentUrl from previewLinkService into the sent card", async () => {
+    const docUrl = "https://abc-123.trycloudflare.com/preview/document?token=signed";
+    const buildLink = vi.fn().mockReturnValue(docUrl);
+    const deps = makeDeps({ previewLinkService: { buildLink } as never });
+    const coordinator = new InteractionCoordinator(deps);
+    const interaction = makeInteraction({
+      payload: {
+        prompt: "Confirm?",
+        detailsMarkdown: "请看 [查看文档](#document-plan)",
+        target: { type: "issue_document", key: "plan", revisionId: "rev-1" },
+      },
+    });
+    await coordinator.handleDiscovered(interaction, "co-1", makeIssue());
+
+    expect(buildLink).toHaveBeenCalledWith(interaction, { companyId: "co-1", issueId: "issue-1" });
+    const feishu = (deps.feishuRegistry.getForCompany as ReturnType<typeof vi.fn>)();
+    const cardJson = feishu.sendInteractiveCard.mock.calls[0][1];
+    expect(cardJson).toContain(docUrl);
+  });
+
+  it("degrades fragment link to text when previewLinkService returns null", async () => {
+    const buildLink = vi.fn().mockReturnValue(null);
+    const deps = makeDeps({ previewLinkService: { buildLink } as never });
+    const coordinator = new InteractionCoordinator(deps);
+    const interaction = makeInteraction({
+      payload: {
+        prompt: "Confirm?",
+        detailsMarkdown: "请看 [查看文档](#document-plan)",
+        target: { type: "issue_document", key: "plan", revisionId: "rev-1" },
+      },
+    });
+    await coordinator.handleDiscovered(interaction, "co-1", makeIssue());
+
+    const feishu = (deps.feishuRegistry.getForCompany as ReturnType<typeof vi.fn>)();
+    const cardJson = feishu.sendInteractiveCard.mock.calls[0][1] as string;
+    expect(cardJson).toContain("查看文档");
+    expect(cardJson).not.toContain("(#document-plan)");
   });
 });

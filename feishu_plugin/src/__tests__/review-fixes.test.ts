@@ -124,6 +124,7 @@ describe("P0-4: FeishuClientRegistry explicit binding model", () => {
       sqlitePath: "./data/bridge.db",
       actionTokenTtlMs: 86400000,
       adminPort: 9090,
+      documentTunnelAutoStart: false,
       companies: [
         { companyId: "company-a", defaultApprovers: [], routing: {} },
         { companyId: "company-b", defaultApprovers: [], routing: {} },
@@ -150,6 +151,7 @@ describe("P0-4: FeishuClientRegistry explicit binding model", () => {
       sqlitePath: "./data/bridge.db",
       actionTokenTtlMs: 86400000,
       adminPort: 9090,
+      documentTunnelAutoStart: false,
       companies: [
         { companyId: "company-a", defaultApprovers: [], routing: {}, feishu: { appId: "cli_a", appSecret: "s_a" } },
         { companyId: "company-b", defaultApprovers: [], routing: {} },

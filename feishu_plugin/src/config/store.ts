@@ -24,6 +24,7 @@ const DEFAULT_GLOBAL: BridgeGlobalConfig = {
   actionTokenTtlMs: 86400000,
   adminPort: 9090,
   adminHost: "127.0.0.1",
+  documentTunnelAutoStart: false,
 };
 
 export class ConfigStore {

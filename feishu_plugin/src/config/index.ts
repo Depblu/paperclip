@@ -17,6 +17,15 @@ function envInt(key: string, fallback: number): number {
   return n;
 }
 
+function envBool(key: string, fallback: boolean): boolean {
+  const v = process.env[key];
+  if (v === undefined || v === "") return fallback;
+  const normalized = v.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1") return true;
+  if (normalized === "false" || normalized === "0") return false;
+  throw new Error(`Invalid ${key}: ${v} (expected true/false/1/0)`);
+}
+
 function loadCompaniesFromEnv(): CompanyConfig[] {
   const raw = env("BRIDGE_COMPANIES_CONFIG");
   const data = JSON.parse(readFileSync(raw, "utf-8")) as { companies: CompanyConfig[] };
@@ -56,6 +65,7 @@ function loadConfigFromEnv(): BridgeConfig {
     sqlitePath: env("SQLITE_PATH", "./data/bridge.db"),
     actionTokenTtlMs: envInt("ACTION_TOKEN_TTL_MS", 24 * 60 * 60 * 1000),
     adminPort: envInt("ADMIN_PORT", 9090),
+    documentTunnelAutoStart: envBool("DOCUMENT_TUNNEL_AUTO_START", false),
     companies: loadCompaniesFromEnv(),
   };
 }
@@ -91,6 +101,7 @@ function loadConfigFromStore(): BridgeConfig {
     sqlitePath: global.sqlitePath,
     actionTokenTtlMs: global.actionTokenTtlMs,
     adminPort: global.adminPort,
+    documentTunnelAutoStart: global.documentTunnelAutoStart,
     companies,
   };
 }

@@ -64,6 +64,13 @@ function validateEnv(vars, required) {
   for (const k of ["POLL_INTERVAL_MS","RECONCILIATION_INTERVAL_MS","SCAN_CONCURRENCY","REQUEST_TIMEOUT_MS","ACTION_TOKEN_TTL_MS"]) {
     if (vars[k] !== undefined && vars[k] !== "") checkPositiveInt(k, vars[k]);
   }
+
+  if (vars.DOCUMENT_TUNNEL_AUTO_START !== undefined && vars.DOCUMENT_TUNNEL_AUTO_START !== "") {
+    const normalized = vars.DOCUMENT_TUNNEL_AUTO_START.trim().toLowerCase();
+    if (!["true", "false", "1", "0"].includes(normalized)) {
+      err(`DOCUMENT_TUNNEL_AUTO_START 必须为 true/false/1/0，当前值: ${vars.DOCUMENT_TUNNEL_AUTO_START}`);
+    }
+  }
 }
 
 function validateCompanies(filePath) {

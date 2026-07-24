@@ -8,6 +8,27 @@ import type {
   VersionSnapshot,
 } from "../types.js";
 
+const DELIVERY_COLUMNS = `
+  id,
+  approval_id AS approvalId,
+  company_id AS companyId,
+  approval_type AS approvalType,
+  approval_status AS approvalStatus,
+  approval_updated_at AS approvalUpdatedAt,
+  payload_hash AS payloadHash,
+  feishu_tenant_key AS feishuTenantKey,
+  recipient_open_id AS recipientOpenId,
+  recipient_name AS recipientName,
+  message_id AS messageId,
+  card_id AS cardId,
+  delivery_status AS deliveryStatus,
+  attempt_count AS attemptCount,
+  last_error AS lastError,
+  last_attempt_at AS lastAttemptAt,
+  sent_at AS sentAt,
+  updated_at AS updatedAt
+`;
+
 export class DeliveryRepository {
   constructor(private db: Database.Database) {}
 
@@ -39,19 +60,19 @@ export class DeliveryRepository {
 
   findActiveByApproval(approvalId: string): DeliveryRecord[] {
     return this.db.prepare(
-      `SELECT * FROM deliveries WHERE approval_id = ? AND delivery_status NOT IN ('superseded')`,
+      `SELECT ${DELIVERY_COLUMNS} FROM deliveries WHERE approval_id = ? AND delivery_status NOT IN ('superseded')`,
     ).all(approvalId) as DeliveryRecord[];
   }
 
   findPendingOrRetryable(): DeliveryRecord[] {
     return this.db.prepare(
-      `SELECT * FROM deliveries WHERE delivery_status IN ('pending', 'failed', 'sending', 'unknown')`,
+      `SELECT ${DELIVERY_COLUMNS} FROM deliveries WHERE delivery_status IN ('pending', 'failed', 'sending', 'unknown')`,
     ).all() as DeliveryRecord[];
   }
 
   findActivePending(): DeliveryRecord[] {
     return this.db.prepare(
-      `SELECT * FROM deliveries WHERE delivery_status = 'sent' AND approval_status = 'pending'`,
+      `SELECT ${DELIVERY_COLUMNS} FROM deliveries WHERE delivery_status = 'sent' AND approval_status = 'pending'`,
     ).all() as DeliveryRecord[];
   }
 
@@ -136,7 +157,19 @@ export class ActionTokenRepository {
 
   findValid(credentialHash: string): ActionTokenRecord | null {
     const row = this.db.prepare(`
-      SELECT * FROM action_tokens
+      SELECT
+        credential_hash AS credentialHash,
+        approval_id AS approvalId,
+        company_id AS companyId,
+        recipient_open_id AS recipientOpenId,
+        allowed_actions AS allowedActions,
+        approval_updated_at AS approvalUpdatedAt,
+        payload_hash AS payloadHash,
+        expires_at AS expiresAt,
+        consumed_at AS consumedAt,
+        invalidated_at AS invalidatedAt,
+        created_at AS createdAt
+      FROM action_tokens
       WHERE credential_hash = ? AND consumed_at IS NULL AND invalidated_at IS NULL
         AND expires_at > datetime('now')
     `).get(credentialHash) as ActionTokenRecord | undefined;

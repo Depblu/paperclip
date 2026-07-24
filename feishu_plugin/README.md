@@ -17,6 +17,18 @@ Paperclip Core ←→ paperclip-feishu-bridge ←→ 飞书
 
 Bridge 支持 Paperclip Issue Thread Interaction 中的 `request_confirmation` 类型。发现方式为分页扫描 Company Issues 再逐 Issue 请求 interactions，过滤 `kind=request_confirmation && status=pending`。卡片展示 Issue、prompt、details/target 和状态，使用 payload 中的自定义 accept/reject label。飞书接受/拒绝分别调用 Core 既有 accept/reject endpoint，拒绝写入可审计 reason。路由配置键为 `request_confirmation`，未配置时沿用 `defaultApprovers`。扫描成本与 Issue 数量成正比，对账为最终一致（默认 60s 周期）。
 
+## 临时文档 Tunnel
+
+`request_confirmation` 交互若指向 Issue 文档（`target.type = issue_document`），Bridge 可在飞书确认卡片中附带一个只读文档预览链接，通过 cloudflared 的随机 trycloudflare URL 对外暴露。
+
+- **前置条件**：本机需安装 `cloudflared` 可执行文件，否则启动 Tunnel 会失败。
+- **随机 URL，每次变化**：每次启动都申请一个新的随机 `https://<random>.trycloudflare.com` 地址，停止后失效，不存在固定公网入口。
+- **仅开发测试，无 SLA**：依赖 Cloudflare 公共 quick tunnel，不保证可用性与带宽，仅用于开发与测试，不要用于生产。
+- **最小暴露面**：Tunnel 只发布 Bridge 内部绑定在 `127.0.0.1` 随机端口上的只读 preview server，绝不发布 Paperclip Core（3100）或 Bridge 管理界面。
+- **签名链接**：预览 URL 携带 HMAC 签名 token，绑定 `company / issue / key / revision` 与过期时间（`exp`）。持有链接者在到期前可读取该指定 revision，无法越权访问其他公司、Issue 或文档。
+- **卡片刷新**：启动/停止 Tunnel 时，Bridge 会刷新仍在 pending 的 `request_confirmation` 卡片，使预览链接反映当前 URL（启动时写入链接，停止时移除链接）。
+- **自动启动**：`DOCUMENT_TUNNEL_AUTO_START`（默认 `false`）控制 Bridge 启动时是否自动开启 Tunnel；也可在配置 UI「全局设置 → 临时文档 Tunnel」中手动启动/停止并复制当前 URL。
+
 ## 配置方式
 
 支持两种配置模式：
@@ -88,7 +100,7 @@ Board API Key 是 Feishu Bridge 调用 Paperclip REST API 的机器身份凭据�
 |------|------|--------|------|
 | `PAPERCLIP_BASE_URL` | 是 | - | Paperclip API 地址 |
 | `PAPERCLIP_API_KEY` | 是 | - | Board API Key (`pcp_board_...`) |
-| `PAPERCLIP_PUBLIC_URL` | 否 | 同 BASE_URL | 保留配置项，当前版本无运行时引用；审批详情已通过飞书卡片回调在卡片内展开，本功能不依赖此项 |
+| `PAPERCLIP_PUBLIC_URL` | 否 | 同 BASE_URL | 保留配置项，当前版本无运行时引用；审批/确认卡片详情经飞书卡片回调在卡片内展开，文档预览链接由临时文档 Tunnel 提供，均不依赖此项 |
 | `FEISHU_APP_ID` | 是 | - | 飞书应用 App ID |
 | `FEISHU_APP_SECRET` | 是 | - | 飞书应用 App Secret |
 | `BRIDGE_COMPANIES_CONFIG` | 是 | - | Company 路由配置 JSON 文件路径 |
@@ -99,6 +111,7 @@ Board API Key 是 Feishu Bridge 调用 Paperclip REST API 的机器身份凭据�
 | `SQLITE_PATH` | 否 | ./data/bridge.db | SQLite 数据路径 |
 | `ACTION_TOKEN_TTL_MS` | 否 | 86400000 | 动作凭证有效期 |
 | `LOG_LEVEL` | 否 | info | 日志级别 |
+| `DOCUMENT_TUNNEL_AUTO_START` | 否 | false | 启动时是否自动开启临时文档 Tunnel（true/false/1/0） |
 
 ## Company 配置示例
 
@@ -153,7 +166,7 @@ cp config/companies.example.json config/companies.local.json
 
 **`PAPERCLIP_BASE_URL` vs `PAPERCLIP_PUBLIC_URL`：**
 - `BASE_URL`：Sidecar 进程调用 Paperclip API 的地址（本机可用 localhost）。
-- `PUBLIC_URL`：保留配置项，当前版本源码中无运行时引用。审批与测试卡片的“查看详情”已通过飞书卡片回调在卡片内展开，不依赖此项。
+- `PUBLIC_URL`：保留配置项，当前版本源码中无运行时引用。审批与测试卡片的“查看详情”已通过飞书卡片回调在卡片内展开，文档预览链接由临时文档 Tunnel 提供，均不依赖此项。
 
 ### 4. 校验配置
 

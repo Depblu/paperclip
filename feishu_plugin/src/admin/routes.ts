@@ -18,8 +18,28 @@ import type {
   FeishuBinding,
   PaperclipCompanyDetail,
   CompanyBudgetViewModel,
+  TunnelStatus,
 } from "../types.js";
+import type { RefreshResult } from "../tunnel/pending-interaction-card-refresher.js";
 import { logger } from "../observability/logger.js";
+
+/** Minimal tunnel manager surface needed by admin routes. */
+export interface AdminTunnelManager {
+  getStatus(): TunnelStatus;
+  start(port: number): Promise<string>;
+  stop(): Promise<void>;
+}
+
+/** Minimal card refresher surface needed by admin routes. */
+export interface AdminTunnelRefresher {
+  refreshAll(): Promise<RefreshResult>;
+}
+
+export interface AdminDocumentTunnelDeps {
+  manager: AdminTunnelManager;
+  previewPort: number;
+  refresher: AdminTunnelRefresher;
+}
 
 export interface AdminDeps {
   store: ConfigStore;
@@ -31,6 +51,7 @@ export interface AdminDeps {
   verificationSessions?: FeishuVerificationSessions;
   testApprovalSessions?: TestApprovalSessions;
   ensureFeishuCallback?: (appId: string, appSecret: string) => Promise<void>;
+  documentTunnel?: AdminDocumentTunnelDeps;
 }
 
 interface CompanySaveInput {
@@ -540,6 +561,60 @@ export function registerAdminRoutes(server: AdminServer, deps: AdminDeps): void 
       failed,
     });
   });
+
+  server.addRoute("GET", "/api/tunnel/status", (_req, res) => {
+    const tunnel = deps.documentTunnel;
+    if (!tunnel) {
+      server.json(res, 503, { error: "document tunnel not available" });
+      return;
+    }
+    server.json(res, 200, tunnel.manager.getStatus());
+  });
+
+  server.addRoute("POST", "/api/tunnel/start", async (_req, res) => {
+    const tunnel = deps.documentTunnel;
+    if (!tunnel) {
+      server.json(res, 503, { error: "document tunnel not available" });
+      return;
+    }
+    try {
+      await tunnel.manager.start(tunnel.previewPort);
+    } catch (err) {
+      logger.error("document tunnel start failed", { error: String(err) });
+      server.json(res, 502, { error: "tunnel start failed", status: tunnel.manager.getStatus() });
+      return;
+    }
+    const refresh = await refreshTunnelCards(tunnel.refresher);
+    server.json(res, 200, { status: tunnel.manager.getStatus(), refresh });
+  });
+
+  server.addRoute("POST", "/api/tunnel/stop", async (_req, res) => {
+    const tunnel = deps.documentTunnel;
+    if (!tunnel) {
+      server.json(res, 503, { error: "document tunnel not available" });
+      return;
+    }
+    try {
+      await tunnel.manager.stop();
+    } catch (err) {
+      logger.error("document tunnel stop failed", { error: String(err) });
+      server.json(res, 502, { error: "tunnel stop failed", status: tunnel.manager.getStatus() });
+      return;
+    }
+    const refresh = await refreshTunnelCards(tunnel.refresher);
+    server.json(res, 200, { status: tunnel.manager.getStatus(), refresh });
+  });
+}
+
+async function refreshTunnelCards(
+  refresher: AdminTunnelRefresher,
+): Promise<RefreshResult & { error?: string }> {
+  try {
+    return await refresher.refreshAll();
+  } catch (err) {
+    logger.warn("pending interaction card refresh failed", { error: String(err) });
+    return { updated: 0, failed: 0, skipped: 0, error: "refresh failed" };
+  }
 }
 
 function applyCompanyBinding(

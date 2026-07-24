@@ -131,6 +131,7 @@ export interface BridgeGlobalConfig {
   actionTokenTtlMs: number;
   adminPort: number;
   adminHost?: string;
+  documentTunnelAutoStart: boolean;
 }
 
 export interface SecretsConfig {
@@ -153,6 +154,7 @@ export interface BridgeConfig {
   sqlitePath: string;
   actionTokenTtlMs: number;
   adminPort: number;
+  documentTunnelAutoStart: boolean;
   companies: CompanyConfig[];
 }
 
@@ -408,4 +410,47 @@ export type InteractionStatus =
 export interface InteractionResourceKeyParts {
   issueId: string;
   interactionId: string;
+}
+
+// --- Document Tunnel types ---
+
+export interface PaperclipDocumentRevision {
+  id: string;
+  companyId: string;
+  documentId: string;
+  issueId: string;
+  key: string;
+  revisionNumber: number;
+  title: string | null;
+  format: string;
+  body: string;
+  changeSummary: string | null;
+  createdByAgentId: string | null;
+  createdByUserId: string | null;
+  createdAt: string;
+}
+
+export interface PreviewTokenPayload {
+  companyId: string;
+  issueId: string;
+  key: string;
+  revisionId: string;
+  exp: number;
+}
+
+export type TunnelState = "stopped" | "starting" | "running" | "error";
+
+export interface TunnelStatus {
+  state: TunnelState;
+  url: string | null;
+  startedAt: string | null;
+  error: string | null;
+}
+
+export interface InteractionTarget {
+  type?: string;
+  label?: string;
+  key?: string;
+  revisionId?: string;
+  revisionNumber?: number;
 }
