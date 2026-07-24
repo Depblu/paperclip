@@ -5,12 +5,14 @@ import { DeliveryRepository, CallbackEventRepository, ActionTokenRepository } fr
 import { PaperclipClient } from "./paperclip/client.js";
 import { PaperclipAuthService } from "./paperclip/auth-service.js";
 import { ApprovalPoller } from "./paperclip/approval-poller.js";
+import { InteractionPoller } from "./paperclip/interaction-poller.js";
 import { FeishuClientRegistry } from "./feishu/client-registry.js";
 import { LongConnectionManager } from "./feishu/long-connection-manager.js";
 import { CallbackHandler } from "./feishu/callback-handler.js";
 import { TestApprovalSessions } from "./feishu/test-approval-sessions.js";
 import { ActionTokenService } from "./approvals/action-token.js";
 import { ApprovalCoordinator } from "./approvals/coordinator.js";
+import { InteractionCoordinator } from "./approvals/interaction-coordinator.js";
 import { Reconciliation } from "./approvals/reconciliation.js";
 import { AdminServer } from "./admin/server.js";
 import { registerAdminRoutes } from "./admin/routes.js";
@@ -49,6 +51,10 @@ async function main() {
     config, paperclip, feishuRegistry, tokenService, deliveryRepo,
   });
 
+  const interactionCoordinator = new InteractionCoordinator({
+    config, feishuRegistry, tokenService, deliveryRepo,
+  });
+
   const callbackHandler = new CallbackHandler({
     config, paperclip, feishuRegistry, tokenService, deliveryRepo, callbackRepo, testApprovalSessions,
   });
@@ -57,6 +63,10 @@ async function main() {
 
   const poller = new ApprovalPoller(config, paperclip, (approval, companyId) =>
     coordinator.handleDiscovered(approval, companyId),
+  );
+
+  const interactionPoller = new InteractionPoller(config, paperclip, (interaction, companyId, issue) =>
+    interactionCoordinator.handleDiscovered(interaction, companyId, issue),
   );
 
   const reconciliation = new Reconciliation({
@@ -90,6 +100,7 @@ async function main() {
   );
 
   poller.start();
+  interactionPoller.start();
   reconciliation.start();
   adminServer.start();
 
@@ -103,6 +114,7 @@ async function main() {
   const shutdown = () => {
     logger.info("shutting down", { metrics: snapshotMetrics() });
     poller.stop();
+    interactionPoller.stop();
     reconciliation.stop();
     adminServer.stop();
     authService.destroy();

@@ -371,3 +371,41 @@ export interface BoardApiKeyEntry {
   revokedAt: string | null;
   expiresAt: string | null;
 }
+
+// --- Interaction types ---
+
+export interface PaperclipIssueListItem {
+  id: string;
+  title: string;
+  identifier?: string;
+  status?: string;
+  companyId?: string;
+}
+
+export interface PaperclipInteraction {
+  id: string;
+  companyId: string;
+  issueId: string;
+  kind: string;
+  status: InteractionStatus;
+  title?: string | null;
+  summary?: string | null;
+  payload: Record<string, unknown>;
+  result?: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string | null;
+}
+
+export type InteractionStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled"
+  | "expired"
+  | "failed";
+
+export interface InteractionResourceKeyParts {
+  issueId: string;
+  interactionId: string;
+}

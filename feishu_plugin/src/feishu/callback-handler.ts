@@ -1,12 +1,14 @@
-import type { BridgeConfig, PaperclipApproval } from "../types.js";
+import type { BridgeConfig, PaperclipApproval, PaperclipInteraction } from "../types.js";
 import type { PaperclipClient, PaperclipClientError } from "../paperclip/client.js";
 import type { ActionTokenService } from "../approvals/action-token.js";
 import { buildVersionSnapshot, versionMatches } from "../approvals/action-token.js";
 import { findCompanyConfig, isActionable, isAuthorizedApprover } from "../approvals/routing.js";
+import { isInteractionResourceKey, parseInteractionResourceKey } from "../approvals/resource-key.js";
+import { validateInteractionIdentityFromParts } from "../approvals/interaction-identity.js";
 import { CallbackEventRepository, DeliveryRepository } from "../storage/repositories.js";
 import type { CardActionEvent } from "../feishu/long-connection.js";
 import type { TestApprovalSessions } from "../feishu/test-approval-sessions.js";
-import { renderApprovalDetailCard, renderResultCard } from "../feishu/card-renderer.js";
+import { renderApprovalDetailCard, renderResultCard, renderConfirmationResultCard } from "../feishu/card-renderer.js";
 import type { FeishuClientRegistry } from "../feishu/client-registry.js";
 import { logger } from "../observability/logger.js";
 import { incMetric, METRIC_NAMES } from "../observability/metrics.js";
@@ -63,6 +65,9 @@ export class CallbackHandler {
     });
 
     try {
+      if (isInteractionResourceKey(approvalId)) {
+        return await this.processInteractionAction(event, action, token, approvalId);
+      }
       return await this.processAction(event, action, token, approvalId);
     } catch (err) {
       this.deps.callbackRepo.updateResult(event.eventId, "retryable_failed", String(err));
@@ -70,6 +75,8 @@ export class CallbackHandler {
       return this.toast("处理失败，请稍后重试");
     }
   }
+
+  // --- Approval path (existing) ---
 
   private async processAction(
     event: CardActionEvent,
@@ -270,6 +277,168 @@ export class CallbackHandler {
     return this.toast("操作被拒绝，请以 Paperclip 状态为准");
   }
 
+  // --- Interaction path ---
+
+  private async processInteractionAction(
+    event: CardActionEvent,
+    action: string,
+    token: string,
+    resourceKey: string,
+  ) {
+    const parts = parseInteractionResourceKey(resourceKey);
+    if (!parts) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "invalid_resource_key");
+      return this.toast("无效的操作请求");
+    }
+
+    const validation = this.deps.tokenService.validate(token);
+    if (!validation.valid || !validation.record) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", validation.reason);
+      return this.toast("操作凭证无效或已过期");
+    }
+
+    const rec = validation.record;
+    if (!rec.allowedActions.includes(action)) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "action_not_allowed");
+      return this.toast("不允许的操作");
+    }
+
+    if (rec.approvalId !== resourceKey) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "resource_key_mismatch");
+      return this.toast("不允许的操作");
+    }
+
+    if (rec.recipientOpenId !== event.operatorOpenId) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "operator_not_authorized");
+      return this.toast("您不是该确认请求的授权审批人");
+    }
+
+    const company = findCompanyConfig(this.deps.config.companies, rec.companyId);
+    if (!company) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "company_not_configured");
+      return this.toast("公司未配置");
+    }
+
+    let interaction: PaperclipInteraction | null;
+    try {
+      interaction = await this.deps.paperclip.findInteraction(parts.issueId, parts.interactionId);
+    } catch (err) {
+      this.deps.callbackRepo.updateResult(event.eventId, "retryable_failed", `read interaction failed: ${err}`);
+      return this.toast("读取确认请求状态失败，请重试");
+    }
+
+    if (!interaction) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "interaction_not_found");
+      return this.toast("确认请求不存在");
+    }
+
+    // Identity validation: interaction must match resource key and token company
+    const identityError = validateInteractionIdentityFromParts(interaction, parts, rec.companyId);
+    if (identityError) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", identityError);
+      return this.toast("确认请求身份校验失败");
+    }
+
+    if (["accepted", "rejected", "cancelled", "expired", "failed"].includes(interaction.status)) {
+      this.deps.tokenService.consume(token);
+      this.deps.callbackRepo.updateResult(event.eventId, "succeeded", "already_decided", interaction.status);
+      await this.updateInteractionCards(resourceKey, interaction, event.operatorName, rec.companyId);
+      return this.toast(`该确认请求已处理（${interaction.status}），请以 Paperclip 状态为准`);
+    }
+
+    const currentVersion = buildVersionSnapshot(interaction.updatedAt, interaction.payload);
+    if (!versionMatches(currentVersion, rec.version)) {
+      incMetric(METRIC_NAMES.versionMismatches);
+      this.deps.tokenService.invalidate(token);
+      this.deps.callbackRepo.updateResult(event.eventId, "version_mismatch", "version_changed", interaction.status);
+      logger.warn("interaction version mismatch", {
+        resourceKey, expected: rec.version, actual: currentVersion,
+      });
+      return this.toast("确认请求内容已更新，当前卡片已失效，请等待新卡片");
+    }
+
+    if (!isAuthorizedApprover(company, "request_confirmation", event.operatorOpenId)) {
+      this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", "not_authorized_approver");
+      return this.toast("您不是该确认请求的授权审批人");
+    }
+
+    return this.executeInteractionDecision(event, action, token, parts, resourceKey, interaction, rec.companyId);
+  }
+
+  private async executeInteractionDecision(
+    event: CardActionEvent,
+    action: string,
+    token: string,
+    parts: { issueId: string; interactionId: string },
+    resourceKey: string,
+    interaction: PaperclipInteraction,
+    companyId: string,
+  ) {
+    incMetric(METRIC_NAMES.interactionDecisionRequests);
+    const reason = action === "reject"
+      ? `通过飞书拒绝；审批人：${event.operatorName}。`
+      : undefined;
+
+    try {
+      const result = action === "accept"
+        ? await this.deps.paperclip.acceptInteraction(parts.issueId, parts.interactionId)
+        : await this.deps.paperclip.rejectInteraction(parts.issueId, parts.interactionId, reason);
+
+      this.deps.tokenService.consume(token);
+      this.deps.callbackRepo.updateResult(event.eventId, "succeeded", undefined, result.status);
+      await this.updateInteractionCards(resourceKey, result, event.operatorName, companyId, reason);
+      logger.info("interaction decision committed", {
+        resourceKey, action, status: result.status,
+      });
+      return this.toast(action === "accept" ? "已同意" : "已拒绝");
+    } catch (err) {
+      return this.handleInteractionDecisionError(event, action, token, parts, resourceKey, companyId, err);
+    }
+  }
+
+  private async handleInteractionDecisionError(
+    event: CardActionEvent,
+    action: string,
+    token: string,
+    parts: { issueId: string; interactionId: string },
+    resourceKey: string,
+    companyId: string,
+    err: unknown,
+  ) {
+    incMetric(METRIC_NAMES.interactionDecisionFailures);
+    const clientErr = err as PaperclipClientError;
+
+    if (clientErr.statusCode >= 500 || clientErr.statusCode === 0) {
+      try {
+        const current = await this.deps.paperclip.findInteraction(parts.issueId, parts.interactionId);
+        const targetStatus = action === "accept" ? "accepted" : "rejected";
+        if (current && current.status === targetStatus) {
+          incMetric(METRIC_NAMES.interactionDecisionCommittedUnknown);
+          this.deps.tokenService.consume(token);
+          this.deps.callbackRepo.updateResult(
+            event.eventId, "decision_committed_side_effect_unknown",
+            "5xx but interaction reached target state", current.status,
+          );
+          logger.error("ALERT: interaction decision committed but side effects unknown", {
+            resourceKey, action, targetStatus,
+          });
+          await this.updateInteractionCards(resourceKey, current, event.operatorName, companyId);
+          return this.toast(action === "accept" ? "已同意" : "已拒绝");
+        }
+      } catch {
+        // re-read also failed
+      }
+      this.deps.callbackRepo.updateResult(event.eventId, "retryable_failed", String(err));
+      return this.toast("处理失败，请稍后重试");
+    }
+
+    this.deps.tokenService.consume(token);
+    this.deps.callbackRepo.updateResult(event.eventId, "permanent_failed", String(err));
+    return this.toast("操作被拒绝，请以 Paperclip 状态为准");
+  }
+
+  // --- Shared helpers ---
+
   private async updateAllCards(
     approvalId: string,
     status: string,
@@ -292,6 +461,32 @@ export class CallbackHandler {
         await feishu.updateInteractiveCard(d.messageId, cardContent);
       } catch (err) {
         logger.warn("card update failed during callback", {
+          messageId: d.messageId, error: String(err),
+        });
+      }
+    }
+  }
+
+  private async updateInteractionCards(
+    resourceKey: string,
+    interaction: PaperclipInteraction,
+    operatorName: string,
+    companyId: string,
+    reason?: string,
+  ) {
+    const deliveries = this.deps.deliveryRepo.findActiveByApproval(resourceKey);
+    const cardContent = renderConfirmationResultCard(interaction, interaction.status, operatorName, reason);
+    const feishu = this.deps.feishuRegistry.getForCompany(companyId);
+    if (!feishu) {
+      logger.warn("no feishu client for company, skipping interaction card updates", { companyId, resourceKey });
+    }
+
+    for (const d of deliveries) {
+      if (!d.messageId || !feishu) continue;
+      try {
+        await feishu.updateInteractiveCard(d.messageId, cardContent);
+      } catch (err) {
+        logger.warn("interaction card update failed during callback", {
           messageId: d.messageId, error: String(err),
         });
       }

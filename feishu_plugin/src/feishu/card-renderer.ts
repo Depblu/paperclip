@@ -3,6 +3,8 @@ import type {
   PaperclipApprovalWithMeta,
   PaperclipComment,
   PaperclipIssue,
+  PaperclipInteraction,
+  PaperclipIssueListItem,
   VersionSnapshot,
 } from "../types.js";
 import type { TestApprovalResult } from "./test-approval-sessions.js";
@@ -328,6 +330,139 @@ export function renderResultCard(
     header: {
       template: colorMap[status] ?? "grey",
       title: { tag: "plain_text", content: `审批: ${typeLabel(approvalType)}` },
+    },
+    elements: [{ tag: "markdown", content: lines.join("\n") }],
+  });
+}
+
+// --- Interaction confirmation cards ---
+
+function confirmationPayload(interaction: PaperclipInteraction): {
+  prompt: string;
+  acceptLabel: string;
+  rejectLabel: string;
+  detailsMarkdown: string | null;
+  target: string | null;
+} {
+  const p = interaction.payload as Record<string, unknown>;
+  const prompt = typeof p.prompt === "string" ? p.prompt : "确认请求";
+  const acceptLabel = typeof p.acceptLabel === "string" && p.acceptLabel ? p.acceptLabel : "同意";
+  const rejectLabel = typeof p.rejectLabel === "string" && p.rejectLabel ? p.rejectLabel : "拒绝";
+  const detailsMarkdown = typeof p.detailsMarkdown === "string" ? p.detailsMarkdown : null;
+  let target: string | null = null;
+  if (p.target && typeof p.target === "object") {
+    const t = p.target as Record<string, unknown>;
+    const parts: string[] = [];
+    if (typeof t.label === "string" && t.label) parts.push(t.label);
+    if (typeof t.key === "string" && t.key) parts.push(t.key);
+    if (typeof t.revisionNumber === "number") parts.push(`rev ${t.revisionNumber}`);
+    if (parts.length > 0) {
+      target = parts.join(" · ");
+    } else if (typeof t.type === "string") {
+      target = t.type;
+    }
+  }
+  return { prompt, acceptLabel, rejectLabel, detailsMarkdown, target };
+}
+
+export function renderConfirmationCard(
+  interaction: PaperclipInteraction,
+  actionToken: string,
+  issue?: PaperclipIssueListItem,
+): string {
+  const { prompt, acceptLabel, rejectLabel, detailsMarkdown, target } = confirmationPayload(interaction);
+  const resourceKey = `interaction:${interaction.issueId}:${interaction.id}`;
+  const elements: Record<string, unknown>[] = [];
+
+  const issueDisplay = issue?.identifier ?? issue?.id ?? interaction.issueId.slice(0, 8);
+  const issueTitle = issue?.title ? ` — ${truncate(issue.title, MAX_FIELD_LEN)}` : "";
+
+  elements.push({
+    tag: "markdown",
+    content: [
+      `**Issue**: ${issueDisplay}${issueTitle}`,
+      `**Interaction ID**: ${interaction.id.slice(0, 8)}`,
+      `**状态**: ${interaction.status}`,
+      target ? `**Target**: ${target}` : null,
+    ].filter(Boolean).join("\n"),
+  });
+
+  elements.push({ tag: "hr" });
+
+  elements.push({
+    tag: "markdown",
+    content: `**确认请求**\n${truncate(prompt, MAX_FIELD_LEN)}`,
+  });
+
+  if (detailsMarkdown) {
+    elements.push({ tag: "hr" });
+    elements.push({
+      tag: "markdown",
+      content: `**详情**\n${truncate(detailsMarkdown, MAX_PAYLOAD_LEN)}`,
+    });
+  }
+
+  elements.push({ tag: "hr" });
+
+  elements.push({
+    tag: "action",
+    actions: [
+      {
+        tag: "button",
+        text: { tag: "plain_text", content: acceptLabel },
+        type: "success",
+        value: { action: "accept", token: actionToken, approval_id: resourceKey },
+      },
+      {
+        tag: "button",
+        text: { tag: "plain_text", content: rejectLabel },
+        type: "danger",
+        value: { action: "reject", token: actionToken, approval_id: resourceKey },
+      },
+    ],
+  });
+
+  const card = {
+    config: { wide_screen_mode: true },
+    header: {
+      template: "blue",
+      title: { tag: "plain_text", content: interaction.title ?? "确认请求" },
+    },
+    elements,
+  };
+  return JSON.stringify(card);
+}
+
+export function renderConfirmationResultCard(
+  interaction: PaperclipInteraction | null,
+  status: string,
+  operatorName?: string,
+  reason?: string,
+): string {
+  const colorMap: Record<string, string> = {
+    accepted: "green",
+    rejected: "red",
+    cancelled: "grey",
+    expired: "grey",
+    failed: "red",
+  };
+  const statusLabels: Record<string, string> = {
+    accepted: "已同意",
+    rejected: "已拒绝",
+    cancelled: "已取消",
+    expired: "已过期",
+    failed: "已失败",
+  };
+
+  const lines: string[] = [`**结果**: ${statusLabels[status] ?? status}`];
+  if (operatorName) lines.push(`**操作人**: ${operatorName}`);
+  if (reason) lines.push(`**原因**: ${reason}`);
+
+  return JSON.stringify({
+    config: { wide_screen_mode: true },
+    header: {
+      template: colorMap[status] ?? "grey",
+      title: { tag: "plain_text", content: interaction?.title ?? "确认请求" },
     },
     elements: [{ tag: "markdown", content: lines.join("\n") }],
   });

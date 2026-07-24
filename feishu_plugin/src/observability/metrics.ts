@@ -24,4 +24,10 @@ export const METRIC_NAMES = {
   decisionCommittedUnknown: "decision_committed_side_effect_unknown_total",
   reconciliationRepairs: "reconciliation_repairs_total",
   credentialInvalidations: "credential_invalidations_total",
+  interactionsDiscovered: "interactions_discovered_total",
+  interactionCardsSent: "interaction_cards_sent_total",
+  interactionCardSendFailures: "interaction_card_send_failures_total",
+  interactionDecisionRequests: "interaction_decision_requests_total",
+  interactionDecisionFailures: "interaction_decision_failures_total",
+  interactionDecisionCommittedUnknown: "interaction_decision_committed_unknown_total",
 } as const;

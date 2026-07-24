@@ -13,6 +13,10 @@ Paperclip Core ←→ paperclip-feishu-bridge ←→ 飞书
 
 真实审批卡片包含同意/拒绝按钮（可飞书决策的类型）和“查看详情”按钮。“查看详情”通过飞书卡片回调返回 `card.type = raw` 的详情卡，在**当前卡片内**展开类型、ID、状态、创建/更新时间、payload、关联 Issue 和评论（内容按长度截断），不跳转外部页面，手机端无需访问 Paperclip。查看详情的回调复用审批 token 的 recipient/company/approver 授权，不消费或失效 token、不触发 approve/reject、不更新其他卡片。不可飞书决策的类型仅保留只读详情。
 
+## 确认请求（request_confirmation Interaction）
+
+Bridge 支持 Paperclip Issue Thread Interaction 中的 `request_confirmation` 类型。发现方式为分页扫描 Company Issues 再逐 Issue 请求 interactions，过滤 `kind=request_confirmation && status=pending`。卡片展示 Issue、prompt、details/target 和状态，使用 payload 中的自定义 accept/reject label。飞书接受/拒绝分别调用 Core 既有 accept/reject endpoint，拒绝写入可审计 reason。路由配置键为 `request_confirmation`，未配置时沿用 `defaultApprovers`。扫描成本与 Issue 数量成正比，对账为最终一致（默认 60s 周期）。
+
 ## 配置方式
 
 支持两种配置模式：

@@ -18,6 +18,11 @@
           "approvers": [
             { "openId": "REPLACE_WITH_APPROVER_OPEN_ID", "name": "审批人姓名" }
           ]
+        },
+        "request_confirmation": {
+          "approvers": [
+            { "openId": "REPLACE_WITH_APPROVER_OPEN_ID", "name": "确认审批人姓名" }
+          ]
         }
       }
     }

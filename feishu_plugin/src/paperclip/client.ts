@@ -1,4 +1,4 @@
-import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipCompanyDetail, PaperclipDirectoryUser, PaperclipIssue, UserDirectoryResponse } from "../types.js";
+import type { PaperclipApproval, PaperclipComment, PaperclipCompany, PaperclipCompanyDetail, PaperclipDirectoryUser, PaperclipInteraction, PaperclipIssue, PaperclipIssueListItem, UserDirectoryResponse } from "../types.js";
 import { logger } from "../observability/logger.js";
 
 export class PaperclipClientError extends Error {
@@ -125,5 +125,42 @@ export class PaperclipClient {
         name: entry.user!.name,
         email: entry.user!.email,
       }));
+  }
+
+  // --- Interaction endpoints ---
+
+  async listCompanyIssues(companyId: string, limit: number, offset: number): Promise<PaperclipIssueListItem[]> {
+    return this.request<PaperclipIssueListItem[]>(
+      "GET",
+      `/api/companies/${companyId}/issues?limit=${limit}&offset=${offset}`,
+    );
+  }
+
+  async listIssueInteractions(issueId: string): Promise<PaperclipInteraction[]> {
+    return this.request<PaperclipInteraction[]>(
+      "GET",
+      `/api/issues/${issueId}/interactions`,
+    );
+  }
+
+  async findInteraction(issueId: string, interactionId: string): Promise<PaperclipInteraction | null> {
+    const interactions = await this.listIssueInteractions(issueId);
+    return interactions.find((i) => i.id === interactionId) ?? null;
+  }
+
+  async acceptInteraction(issueId: string, interactionId: string): Promise<PaperclipInteraction> {
+    return this.request<PaperclipInteraction>(
+      "POST",
+      `/api/issues/${issueId}/interactions/${interactionId}/accept`,
+      {},
+    );
+  }
+
+  async rejectInteraction(issueId: string, interactionId: string, reason?: string): Promise<PaperclipInteraction> {
+    return this.request<PaperclipInteraction>(
+      "POST",
+      `/api/issues/${issueId}/interactions/${interactionId}/reject`,
+      reason ? { reason } : {},
+    );
   }
 }
