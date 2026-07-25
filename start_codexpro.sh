@@ -65,4 +65,5 @@ exec codexpro start \
     --tool-cards off \
     --tool-mode standard \
     --bash-transcript compact \
+    --bash full \
     "$@"

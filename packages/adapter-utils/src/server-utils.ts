@@ -2134,6 +2134,10 @@ export async function runChildProcess(
       ...opts.env,
     };
 
+    if (!opts.remoteExecution && process.platform !== "win32") {
+      rawMerged.PWD = opts.cwd;
+    }
+
     // Strip Claude Code nesting-guard env vars so spawned `claude` processes
     // don't refuse to start with "cannot be launched inside another session".
     // These vars leak in when the Paperclip server itself is started from

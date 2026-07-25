@@ -441,6 +441,29 @@ describe("adapter skill snapshots", () => {
 });
 
 describe("runChildProcess", () => {
+  it.skipIf(process.platform === "win32")("aligns PWD with the local child working directory", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-child-cwd-"));
+    try {
+      const result = await runChildProcess(
+        randomUUID(),
+        process.execPath,
+        ["-e", "process.stdout.write(JSON.stringify({ cwd: process.cwd(), pwd: process.env.PWD }));"],
+        {
+          cwd: workspaceDir,
+          env: { PWD: "/wrong/caller/path" },
+          timeoutSec: 5,
+          graceSec: 1,
+          onLog: async () => {},
+        },
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toEqual({ cwd: workspaceDir, pwd: workspaceDir });
+    } finally {
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
   it("does not arm a timeout when timeoutSec is 0", async () => {
     const result = await runChildProcess(
       randomUUID(),
